@@ -1,0 +1,52 @@
+@charset "utf-8";
+/* Importaciones iniciales */
+@import url(http://fonts.googleapis.com/css?family=Vollkorn:400italic,700italic,400,700);
+@import url(reset.css);
+@import url(text.css);
+
+body {
+	background-image: url(../img/fondoTotal.jpg);
+}
+#header {
+	background-image: url(../img/fondoContenido.jpg);
+	border-right-width: 10px;
+	border-left-width: 10px;
+	border-right-style: solid;
+	border-left-style: solid;
+	border-right-color: #25aae1;
+	border-left-color: #25aae1;
+}
+#logoOC {
+	background-repeat: no-repeat;
+}
+#logoOC.no-fontface #nombre {
+	background-repeat: no-repeat;
+	width: 100%;
+	height: 5em;
+	margin-left: 8em;
+	padding-bottom: 1em;
+}
+#menu #botones {
+	background-color: #2b394b;
+	height: 6em;
+}
+#menu a {
+	display: block;
+	width: 6.4em;
+	height: 2em;
+	color: #FFF;
+	text-align: center;
+	text-decoration: none;
+	font-size: 2.5em;
+	font-style: italic;
+	font-weight: 700;
+	padding-top: 0.4em;
+	float: left;
+	background-color: #2b394b;
+}
+#menu a:hover {
+	background-color: #506176;
+}
+#menu a:first-child {
+	margin-left: 0.4em;
+}
