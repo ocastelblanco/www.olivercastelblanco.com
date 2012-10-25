@@ -40,11 +40,15 @@ body {
 }
 #sombraMenu div:first-child {
 	background-image: url(../img/sombraMenuIzq-75.png);
-	margin-left: -17.5px;
+	margin-left: -18px;
 }
 #sombraMenu div.omega {
 	background-image: url(../img/sombraMenuDer-75.png);
-	margin-left: 437.5px;
+	margin-left: 438px;
+}
+#footer #cont li {
+	list-style-image: url(../img/+75.png);
+	margin-left: 1.6em;
 }
 /* Trucos para el ie7 */
 .ie7 #menu #bordeRibbonDer {

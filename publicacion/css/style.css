@@ -7,7 +7,12 @@
 body {
 	background-image: url(../img/fondoTotal.jpg);
 }
-#header {
+.invisible {
+	visibility: hidden;
+}
+#header,
+#contenido,
+#footer {
 	background-image: url(../img/fondoContenido.jpg);
 	border-right-width: 10px;
 	border-left-width: 10px;
@@ -49,4 +54,47 @@ body {
 }
 #menu a:first-child {
 	margin-left: 0.4em;
+}
+#footer #bordeSup {
+	background-color: #506176;
+	height: 1em;
+	border-right-width: 10px;
+	border-left-width: 10px;
+	border-right-style: solid;
+	border-left-style: solid;
+	border-right-color: #506176;
+	border-left-color: #506176;
+	margin-left: 0px;
+}
+#footer #cont {
+	background-color: #2b394b;
+	border-right-width: 10px;
+	border-left-width: 10px;
+	border-right-style: solid;
+	border-left-style: solid;
+	border-right-color: #2b394b;
+	border-left-color: #2b394b;
+	margin-left: 0px;
+	margin-right: 0px;
+	color: #FFF;
+	padding-top: 1em;
+}
+#footer #cont li a,
+#footer #cont li a:visited,
+#footer #cont li a:active {
+	color: #25aae1;
+	text-decoration: none;
+	font-size: 1.6em;
+}
+#footer #cont li a:hover {
+	text-decoration: underline;
+}
+#footer p {
+	font-size: 1.6em;
+	margin-top: 1em;
+}
+#footer #titulo {
+	font-style: italic;
+	font-weight: bold;
+	font-size: 2.4em;
 }

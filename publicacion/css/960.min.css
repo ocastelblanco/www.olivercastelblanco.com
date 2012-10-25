@@ -46,6 +46,10 @@ body {
 	background-image: url(../img/sombraMenuDer.png);
 	margin-left: 580px;
 }
+#footer #cont li {
+	list-style-image: url(../img/+.png);
+	margin-left: 1.6em;
+}
 /* Trucos para el ie7 */
 .ie7 #menu #bordeRibbonDer {
 	margin-left: 2em;

@@ -18,6 +18,33 @@ body {
 #menu a:first-child {
 	margin-left: 15px;
 }
+#footer #bordeSup {
+	display: none;
+	visibility: hidden;
+}
+#footer #cont ul {
+	height: 40px;
+}
+#footer #cont li {
+	margin-left: 0em;
+	float: left;
+}
+#footer #cont li a {
+	display: block;
+	width: 75px;
+	height: 35px;
+	background-color: #25aae1;
+	color: #FFF;
+	margin-right: 10px;
+	text-align: center;
+	padding-top: 15px;
+}
+#footer #cont li a:hover {
+	text-decoration: none;
+	background-color: #FFF;
+	color: #25aae1;
+}
+/* Hacks para ie7 */
 .ie7 #menu #botones {
 	margin-left: -25px;
 	margin-right: -25px;
