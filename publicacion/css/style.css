@@ -10,6 +10,9 @@ body {
 .invisible {
 	visibility: hidden;
 }
+#salida {
+	display: none;
+}
 #header,
 #contenido,
 #footer {
@@ -54,6 +57,117 @@ body {
 }
 #menu a:first-child {
 	margin-left: 0.4em;
+}
+#contenido .thumb {
+	margin-bottom: 3em;
+}
+#contenido .thumb a {
+	display: block;
+	text-decoration: none;
+	width: 30em;
+	height: 18em;
+	background-repeat: no-repeat;
+	-moz-box-shadow: inset 0 0 2px #000000;
+	-webkit-box-shadow: inset 0 0 2px #000000;
+	box-shadow: inset 0 0 2px #000000;
+}
+#contenido .thumb a:hover {
+	-moz-box-shadow: 0 0 5px #000000;
+	-webkit-box-shadow: 0 0 5px #000000;
+	box-shadow: 0 0 5px #000000;
+}
+#contenido .thumb #texto.cerrado {
+	background: rgba(80, 97, 118, 0.75);
+	color: #FFF;
+	height: 4em;
+	position: relative;
+	top: 14em;
+}
+#contenido .thumb #texto.abierto {
+	background: rgba(80, 97, 118, 0.75);
+	color: #FFF;
+	height: 18em;
+	position: relative;
+	top: 0em;
+}
+#contenido .thumb #texto #indicador {
+	width: 0; 
+	height: 0; 
+	border-top: none;
+	border-left: 0.5em solid transparent;
+	border-right: 0.5em solid transparent;
+	border-bottom: 0.5em solid white;
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+	top: 0.75em;
+}
+#contenido .thumb #texto #titulo.cerrado {
+	font-size: 2em;
+	font-weight: 700;
+	text-align: center;
+	margin-top: -0.25em;
+}
+/* Trucos para Internet Explorer */
+.ie7 #contenido .thumb #texto #titulo.cerrado,
+.ie8 #contenido .thumb #texto #titulo.cerrado,
+.ie9 #contenido .thumb #texto #titulo.cerrado {
+	margin-top: 0.25em;
+}
+.oldie #contenido .thumb #texto {
+	background-color: #666;
+}
+#contenido .thumb #texto #titulo.abierto {
+	font-size: 2em;
+	font-weight: 700;
+	text-align: center;
+	padding-top: 2em;
+}
+#contenido .thumb #texto #cliente {
+	font-size: 1.25em;
+	padding-left: 2em;
+	padding-top: 1.5em;
+}
+#contenido .thumb #texto #cliente:before {
+	content: "Client: ";
+}
+#contenido .thumb #texto #fecha {
+	font-size: 1.25em;
+	padding-left: 2em;
+	padding-top: 0.25em;
+}
+#contenido .thumb #texto #fecha:before {
+	content: "Date: ";
+}
+#contenido .thumb #texto #tipo {
+	font-size: 1.25em;
+	padding-left: 2em;
+	padding-top: 0.25em;
+}
+#contenido .thumb #texto #tipo:before {
+	content: "Type: ";
+}
+.lightbox {
+    background: rgba(0, 0, 0, 0.5);
+}
+.lightbox-block {
+    background: #FFFFFF;
+    height: 60em;
+    width: 80em;
+    border: dashed 1px #000;
+    position: absolute;
+}
+
+.lightbox #close {
+    display: block;
+    background: url(../images/cross.png) no-repeat;
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+	z-index: 999;
 }
 #footer #bordeSup {
 	background-color: #506176;

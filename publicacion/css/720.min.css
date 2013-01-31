@@ -32,6 +32,9 @@ body {
 	margin-left: -20px;
 	margin-right: -20px;
 }
+#contenido .thumb a {
+	background-image: url(../img/thumb-75.png);
+}
 #sombraMenu div {
 	height: 2em;
 }

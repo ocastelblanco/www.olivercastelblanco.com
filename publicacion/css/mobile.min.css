@@ -18,6 +18,14 @@ body {
 #menu a:first-child {
 	margin-left: 15px;
 }
+#menu a {
+	width: 6.2em;
+	margin-right: 0.2em;
+	background-color: #506176;
+}
+#menu a:hover {
+	background-color: #25aae1;
+}
 #footer #bordeSup {
 	display: none;
 	visibility: hidden;
@@ -43,6 +51,9 @@ body {
 	text-decoration: none;
 	background-color: #FFF;
 	color: #25aae1;
+}
+#footer #twitter {
+	display: none;
 }
 /* Hacks para ie7 */
 .ie7 #menu #botones {
