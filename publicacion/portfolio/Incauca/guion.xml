@@ -1,0 +1,116 @@
+<?xml version ="1.0" encoding="utf-8" ?>
+<guion>
+	<videos>
+		<inicio>
+			<video>hola.flv</video>
+		</inicio>
+		<espera>
+			<video>apurate.flv</video>
+			<video>dale dale.flv</video>
+			<video>espera aburrida.flv</video>
+			<video>hasta cuando.flv</video>
+			<video>ya.flv</video>
+			<video>t estoy dando tiempo.flv</video>
+		</espera>
+		<empezar>
+			<video>ok empecemos.flv</video>
+		</empezar>
+		<conectores>
+			<video>3 2 1.flv</video>
+			<video>bueno vamos a ver q sale ahora.flv</video>
+			<video>la siguiente.flv</video>
+			<video>listo para la proxima.flv</video>
+			<video>preparado.flv</video>
+			<video>vamos por otra.flv</video>
+		</conectores>
+		<respuestas>
+			<video>A 01.flv</video>
+			<video>A 02.flv</video>
+			<video>A 03.flv</video>
+			<video>A 04.flv</video>
+			<video>A 05.flv</video>
+			<video>B 01.flv</video>
+			<video>B 02.flv</video>
+			<video>B 03.flv</video>
+			<video>B 04.flv</video>
+			<video>B 05.flv</video>
+			<video>C 01.flv</video>
+			<video>C 02.flv</video>
+			<video>C 03.flv</video>
+			<video>C 04.flv</video>
+			<video>C 05.flv</video>
+		</respuestas>
+		<todosBien>
+			<video>excelente def los mejores.flv</video>
+			<video>q bien hacemos un muy buen duo.flv</video>
+			<video>se nota q has estudiado.flv</video>
+			<video>si viste era fac.flv</video>
+			<video>super lo logramos.flv</video>
+			<video>super se nota q has leido.flv</video>
+		</todosBien>
+		<todosMal>
+			<video>ah q pesar.flv</video>
+			<video>bueno esta vez nos toco perder.flv</video>
+			<video>def esa no se la sabia nadie.flv</video>
+			<video>esa no se la sabia nadie.flv</video>
+			<video>nos corcharon.flv</video>
+			<video>que mal.flv</video>
+			<video>quien le atina a esta.flv</video>
+			<video>sencillam esa estaba muy dif.flv</video>
+		</todosMal>
+		<personajeBien>
+			<video>bueno otra vez sera.flv</video>
+			<video>def el q sabe sabe.flv</video>
+			<video>estaba super facil.flv</video>
+			<video>ja te gane.flv</video>
+			<video>obvio.flv</video>
+			<video>tu puedes.flv</video>
+			<video>viste era sencill.flv</video>
+		</personajeBien>
+		<usuarioBien>
+			<video>como supiste.flv</video>
+			<video>definit suerte d principiante.flv</video>
+			<video>eso muy bien.flv</video>
+			<video>me ganaste.flv</video>
+			<video>no h querido competir mucho.flv</video>
+			<video>pura suerte.flv</video>
+			<video>t deje ganar.flv</video>
+			<video>uich m corchaste.flv</video>
+		</usuarioBien>
+		<cierre>
+			<video>muy bien.flv</video>
+		</cierre>
+	</videos>
+	<cuestionario>
+		<pregunta>
+			<pregunta>La L-Carnitina transforma las grasas en:</pregunta>
+			<respuesta>energía</respuesta>
+			<respuesta>azúcar</respuesta>
+			<respuesta>vitaminas</respuesta>
+		</pregunta>
+		<pregunta>
+			<pregunta>¿La L-Carnitina puede ayudar a reducir de peso?</pregunta>
+			<respuesta>si, como parte de un programa de control de peso</respuesta>
+			<respuesta>si, por sí sola</respuesta>
+			<respuesta>no</respuesta>
+		</pregunta>
+		<pregunta>
+			<pregunta>La L-Carnitina que contiene el nuevo Incauca Light Activ es natural en un:</pregunta>
+			<respuesta>100%</respuesta>
+			<respuesta>70%</respuesta>
+			<respuesta>50%</respuesta>
+		</pregunta>
+		<pregunta>
+			<pregunta>La L-Carnitina marca Carnipure de la compañía Lonza que se le adiciona al Incauca Light Activ ofrece:</pregunta>
+			<respuesta>La pureza más alta en L-Carnitina natural</respuesta>
+			<respuesta>Una L-Carnitina común</respuesta>
+			<respuesta>L-Carnitina artificial</respuesta>
+		</pregunta>
+		<pregunta>
+			<pregunta>¿La L-Carnitina tiene efectos secundarios?</pregunta>
+			<respuesta>no, es totalmente segura</respuesta>
+			<respuesta>en mujeres</respuesta>
+			<respuesta>en hombres</respuesta>
+		</pregunta>
+	</cuestionario>
+</guion>
