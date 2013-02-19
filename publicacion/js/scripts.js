@@ -33,6 +33,7 @@ $(function() {
         $(this).children('#texto').children('#indicador').css('border-top', '0.5em solid white');
 		$(this).children('#texto').children('#indicador').css('border-bottom', 'none');
         $(this).children('#texto').children('#titulo').switchClass('abierto', 'cerrado', function() {
+			ocultaTextos($(this).parent());
 			$(this).parent().children('#indicador').css('border-top', 'none');
 			$(this).parent().children('#indicador').css('border-bottom', '0.5em solid white');
 		});
@@ -49,7 +50,7 @@ $(function() {
 			$('#cajas').append('</div></div>');
 			$('#cajas').children('#caja-'+nombre).lightbox();
 			var contenido = $('#cajas').children('.lightbox').children('#caja-'+nombre).children('#contenido-'+nombre);
-			var sliderInicio = '<div id="portaSlider"><div id="slider">';
+			var sliderInicio = '<div id="portaSlider"><div id="slider'+nombre+'">';
 			var sliderInto = '';
 			for (var i = 0;i<datos.screens;i++) {
 				sliderInto += '<img src="portfolio/'+nombre+'/Screen'+dosDigitos(i+1)+'.jpg">';
@@ -58,9 +59,15 @@ $(function() {
 			var slider = sliderInicio+sliderInto+sliderOut;
 			$(contenido).html(titulo+slider+'<div id="desc">'+datos.desc+'</div>'+tipo+fecha+cliente);
 		}).error(function(){
-			$(contenido).html("A communication error happen. Try reloading the page to see this content.");
+			$(contenido).html("A communication error happened. Try reloading the page to see this content.");
 		}).complete(function() {
-			$('#slider').orbit();
+			var demora = window.setTimeout(function() {
+				$('#slider'+nombre).each(function(index, element) {
+					if (!$(this).hasClass('orbit')) {
+						$(this).orbit();
+					}   
+                });
+			}, 10000);
 		});
     });
 	$('#contenido .thumb a').click(function(e) {
