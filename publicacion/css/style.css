@@ -224,6 +224,26 @@ body {
 	background-color: #2b394b;
 	line-height: 14px;
 }
+.lightbox #cliente {
+	padding-bottom: 10px;
+}
+.lightbox #abrir {
+	display: block;
+	margin-top: 10px;
+	margin-left: 540px;
+	margin-bottom: 10px;
+	background: #25aae1;
+	color: white;
+	text-decoration: none;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+	padding-top: 3px;
+	width: 100px;
+	height: 25px;
+	text-align: center;
+	border-radius: 5px;
+}
 #footer #bordeSup {
 	background-color: #506176;
 	height: 1em;

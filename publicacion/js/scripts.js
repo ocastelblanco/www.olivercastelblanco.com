@@ -42,7 +42,9 @@ $(function() {
 		e.preventDefault();
 		var obj = $(this);
 		var nombre = $(obj).attr('title');
-		$.getJSON('portfolio/'+nombre+'/desc.json', function(datos) {
+		var ruta = 'portfolio/'+nombre;
+		var destino = ruta+'/'+$(obj).attr('href');
+		$.getJSON(ruta+'/desc.json', function(datos) {
 			var titulo = '<div id="titulo">'+$(obj).children('#texto').children('#titulo').html()+'</div>';
 			var cliente = '<div id="cliente"><span>Client: </span>'+$(obj).children('#texto').children('#cliente').html()+'</div>';
 			var fecha = '<div id="fecha"><span>Date: </span>'+$(obj).children('#texto').children('#fecha').html()+'</div>';
@@ -50,6 +52,7 @@ $(function() {
 			var desc = '<div id="desc"><span>Description: </span>'+datos.desc+'</div>';
 			var rol = '<div id="rol"><span>Role: </span>'+datos.rol+'</div>';
 			var sep = '<div id="sep"></div>';
+			var abrir = '<a href="'+destino+'" target="_blank" id="abrir">Open project <span></span></a>';
 			$('#cajas').append('<div id="caja-'+nombre+'" class="lightbox-block"><div id="contenido-'+nombre+'">');
 			$('#cajas').append('</div></div>');
 			$('#cajas').children('#caja-'+nombre).lightbox();
@@ -61,7 +64,7 @@ $(function() {
 			}
 			var sliderOut = '</div></div>';
 			var slider = sliderInicio+sliderInto+sliderOut;
-			$(contenido).html(titulo+slider+sep+rol+desc+tipo+fecha+cliente);
+			$(contenido).html(titulo+slider+sep+rol+desc+tipo+fecha+cliente+abrir);
 		}).error(function(){
 			$(contenido).html("A communication error happened. Try reloading the page to see this content.");
 		}).complete(function() {
