@@ -149,25 +149,80 @@ body {
 }
 .lightbox {
     background: rgba(0, 0, 0, 0.5);
+	font-family: 'Vollkorn', serif;
+	color: white;
+	font-size: 14px;
 }
 .lightbox-block {
-    background: #FFFFFF;
-    height: 60em;
-    width: 80em;
-    border: dashed 1px #000;
-    position: absolute;
+	height: 600px;
+	width: 680px;
+	position: absolute;
+	background-color: #FFFFFF;
+	background-image: url(../img/fondoContenido.jpg);
+	border-right-width: 10px;
+	border-left-width: 10px;
+	border-right-style: solid;
+	border-left-style: solid;
+	border-right-color: #25aae1;
+	border-left-color: #25aae1;
+	overflow: auto;
 }
-
 .lightbox #close {
     display: block;
-    background: url(../images/cross.png) no-repeat;
-    width: 12px;
-    height: 12px;
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    background: url(../img/cross.png) no-repeat;
+    width: 30px;
+    height: 30px;
+    position: fixed;
+	margin-left: 625px;
+	margin-top: 10px;
     cursor: pointer;
-	z-index: 999;
+	z-index: 99999;
+}
+.lightbox #titulo {
+	font-size: 24px;
+	font-weight: bold;
+	color: #25aae1;
+	padding-left: 10px;
+	padding-top: -10px;
+	padding-bottom: 10px;
+	position: fixed;
+	z-index: 9999;
+	background-image: url(../img/fondoContenido.jpg);
+	width: 650px;
+}
+.lightbox #portaSlider {
+	padding-top: 50px;
+}
+.lightbox #portaSlider>div {
+	margin-left: auto;
+	margin-right: auto;
+	border: 5px solid #2b394b;
+	overflow: hidden;
+}
+.lightbox #sep {
+	width: 100%;
+	height: 10px;
+	background-color: #506176;
+	margin-top: 10px;
+}
+.lightbox #rol span,
+.lightbox #desc span,
+.lightbox #tipo span,
+.lightbox #cliente span,
+.lightbox #fecha span {
+	color: #25aae1;
+	font-weight: bold;
+}
+.lightbox #rol,
+.lightbox #desc,
+.lightbox #tipo,
+.lightbox #cliente,
+.lightbox #fecha {
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 5px;
+	background-color: #2b394b;
+	line-height: 14px;
 }
 #footer #bordeSup {
 	background-color: #506176;

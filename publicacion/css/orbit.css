@@ -137,7 +137,8 @@ span.pause.active {
     position: absolute;
     right: 0;
     bottom: 0;
-    width: 100%; }
+    width: 100%;
+}
 
 
 /* DIRECTIONAL NAV
@@ -147,22 +148,82 @@ div.slider-nav {
     display: block }
 
 div.slider-nav span {
-    width: 78px;
-    height: 100px;
+    width: 60px;
+    height: 60px;
     text-indent: -9999px;
     position: absolute;
     z-index: 1000;
     top: 50%;
     margin-top: -50px;
-    cursor: pointer; }
+    cursor: pointer;
+}
 
 div.slider-nav span.right {
-    background: url(../img/orbit/right-arrow.png);
-    right: 0; }
-
+    /*background: url(../img/orbit/right-arrow.png);*/
+	background-color: #2b394b;
+	width: 60px;
+	height: 60px;
+	border-radius: 30px 0px 0px 30px;
+}
+.navRight0 {
+	right: 0;
+}
+.navRight {
+	right: -45px;
+}
+div.slider-nav span.right div.base {
+	width: 50px;
+	height: 50px;
+	background-color:  #25aae1;
+	border-radius: 25px 25px 25px 25px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 5px;
+}
+div.slider-nav span.right div.base div.flecha {
+	width: 0; 
+	height: 0; 
+	border-right: none;
+	border-left: 25px solid white;
+	border-top: 15px solid transparent;
+	border-bottom: 15px solid transparent;
+	margin-left: 15px;
+	position: relative;
+	top: 10px;
+}
 div.slider-nav span.left {
-    background: url(../img/orbit/left-arrow.png);
-    left: 0; }
+    /*background: url(../img/orbit/left-arrow.png);*/
+	background-color: #2b394b;
+	width: 60px;
+	height: 60px;
+	border-radius: 0px 30px 30px 0px;
+}
+.navLeft0 {
+	left: 0;
+}
+.navLeft {
+	left: -45px;
+}
+div.slider-nav span.left div.base {
+	width: 50px;
+	height: 50px;
+	background-color:  #25aae1;
+	border-radius: 25px 25px 25px 25px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 5px;
+}
+div.slider-nav span.left div.base div.flecha {
+	width: 0; 
+	height: 0; 
+	border-right: 25px solid white;
+	border-left: none;
+	border-top: 15px solid transparent;
+	border-bottom: 15px solid transparent;
+	margin-left: 10px;
+	position: relative;
+	top: 10px;
+}
 
 /* BULLET NAV
    ================================================== */
