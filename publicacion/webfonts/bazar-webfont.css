@@ -33,8 +33,14 @@
 #logoOC #primera {
 	margin-left: 1.951em;
 }
-.lightbox #abrir span {
+.lightbox #abrir span,
+.lightbox #cerrar span {
 	font-family: 'entypo';
 	font-size: 24px;
 	line-height: 12px;
+}
+@media screen and (max-width: 323px){
+	#logoOC #primera {
+		margin-left: 0;
+	}
 }

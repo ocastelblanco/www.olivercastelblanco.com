@@ -1,5 +1,6 @@
 {
 "desc" : "Contains an interactive video-test, where the contestant must answer the questions better than the automatic girl. She answer randomly, and her feedback depends on what she said and what the contestant respond. Also, the application is full with product information: a light sugar from one of the biggest sugar producers in Colombia, Incauca.",
 "screens" : 6,
-"rol" : "Flash developer, ActionScript3 programmer, interaction designer."
+"rol" : "Flash developer, ActionScript3 programmer, interaction designer.",
+"req" : "Adobe Flash Player,a display wider than 1024px"
 }
