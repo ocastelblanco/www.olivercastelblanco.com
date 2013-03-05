@@ -1,0 +1,297 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="mod4 ie6 oldie"> <![endif]-->
+<!--[if IE 7]>    <html class="mod4 ie7 oldie"> <![endif]-->
+<!--[if IE 8]>    <html class="mod4 ie8 oldie"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="mod4">
+<!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+<title>Metodología Estudio de Clase</title>
+<noscript>
+<link rel="stylesheet" href="css/adapt.js/720.min.css" />
+</noscript>
+<link href="css/estilo.css" rel="stylesheet" type="text/css">
+<link href="css/tipTip.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="css/fancybox/jquery.fancybox.css?v=2.1.3" type="text/css" media="screen" />
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700' rel='stylesheet' type='text/css'>
+<!-- 
+To learn more about the conditional comments around the html tags at the top of the file:
+paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/
+
+Do the following if you're using your customized build of modernizr (http://www.modernizr.com/):
+* insert the link to your js here
+* remove the link below to the html5shiv
+* add the "no-js" class to the html tags at the top
+* you can also remove the link to respond.min.js if you included the MQ Polyfill in your modernizr build 
+-->
+<!--[if lt IE 9]>
+<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<script>
+var ADAPT_CONFIG = {
+  path: 'css/adapt.js/',
+  dynamic: true,
+  range: [
+    '0px  to 980px		= 720.min.css',
+    '980px  to 1280px	= 960.min.css',
+    '1280px				= 1200.min.css'
+  ]
+};
+</script>
+<script src="js/adapt.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+<script src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+<script src="js/jquery.tipTip.minified.js"></script>
+<script src="js/jquery.fancybox.pack.js?v=2.1.3"></script>
+<script src="js/acciones.js"></script>
+<script>
+$(function(){
+	var rutaVideo;
+	$('.tooltip').tipTip({maxWidth: "auto", edgeOffset: 10});
+	$("a.lightbox").fancybox({
+		autoSize	:'true',
+		width		:'90%',
+		height		:'100%'
+		
+	});
+	$('#cargaVideo1').click(function(e) {
+		rutaVideo = '<iframe id="video" src="http://www.youtube.com/embed/NkDO72kXTyI" frameborder="0" allowfullscreen></iframe>';
+		$('#caja1 #panel1>#contenido').html(rutaVideo);
+        if ($('#caja1 #panel1>#contenido').css('display') == 'none') {
+			$('#caja1 #panel1>#contenido').show(500);
+		}
+		return false;
+    });
+	$('#cargaVideo2').click(function(e) {
+		rutaVideo = '<iframe id="video" src="http://www.youtube.com/embed/1Bzg0rivcg0" frameborder="0" allowfullscreen></iframe>';
+		$('#caja1 #panel1>#contenido').html(rutaVideo);
+        if ($('#caja1 #panel1>#contenido').css('display') == 'none') {
+			$('#caja1 #panel1>#contenido').show(500);
+		}
+		return false;
+    });
+	$('#caja1 #panel1>#titulo').click(function(e) {
+        if ($('#caja1 #panel1>#contenido').css('display') != 'none') {
+			$('#caja1 #panel1>#contenido').html(rutaVideo);
+		} else {
+			$('#caja1 #panel1>#contenido').html('');
+		}
+    });
+});
+</script>
+</head>
+<body>
+<div class="container_12">
+  <div id="salida">Salida</div>
+  <div id="header">
+      <div class="grid_4" id="logoMEC">
+        <div id="titulo">
+        	<div>METODOLOGÍA</div>
+        </div>
+        <div id="subtitulo">
+        	<div>Estudio de Clase</div>
+        </div>
+      </div>
+      <div class="grid_1" id="numeroModulo">
+        <div id="titulo">
+        	<div>MÓDULO</div>
+        </div>
+        <div id="subtitulo">
+        	<div>4</div>
+         </div>
+      </div>
+      <div class="grid_7" id="nombreModulo">
+        <div id="titulo">
+        	<div>APRENDIENDO DE NUESTRA EXPERIENCIA</div>
+        </div>
+      </div>
+      <div class="grid_12" id="fotoModulo">
+        <div id="titulo">
+        	<div>(Minasi, 2003)<br>Royalty free - MorgueFile License</div>
+        </div>
+      </div>
+  </div>
+  <div class="grid_12" id="intro">
+  	<div id="titulo">Tercera fase del ciclo MEC - APRENDIENDO DE NUESTRA VIVENCIA</div>
+    <div class="grid_12 alpha omega" id="margen">
+    	<div class="linea"></div>
+        <div id="triangulo"><img src="img/iconos/triangulo-960.png" width="22" height="12" alt="Clic para ampliar"></div>
+    </div>
+    <div class="grid_12 alpha omega" id="contIntro">
+ 	   <div class="grid_4 alpha">
+    	<div id="subtitulo">¿QÚE APRENDEREMOS?</div>
+        <div id="contenido">
+        	<p>&nbsp;</p>
+        	<p>Aprenderemos a desarrollar la tercera fase del ciclo: Revisión y reflexión, con la cual afianzaremos nuestra comprensión de la Metodología Estudio de Clase en la medida en que tendremos que reflexionar y revisar el proceso realizado, lo que nos permitirá sintetizar la experiencia y proyectar la continuación en un nuevo ciclo. Compartiremos las experiencias y aprenderemos en conjunto con otros equipos.</p>
+            <p>Pondremos en práctica la revisión del proceso realizado por los equipos en las dos fases anteriores a través de un Foro. Construiremos los criterios que nos permitirán reflexionar sobre los aciertos y revisar los aspectos por mejorar, a la vez que podremos proyectar, con base en los aprendizajes y las prácticas realizadas, un nuevo Estudio de Clase.</p>  
+        </div>
+       </div>
+ 	   <div class="grid_4">
+        <div id="subtitulo">PROPÓSITO</div>
+        <div id="contenido">
+        	<p>&nbsp;</p>
+        	<p>Brindar a los equipos de docentes los elementos necesarios para implementar la fase de revisión y reflexión del ciclo de la MEC en sus establecimientos educativos. </p>
+        </div>
+    	<div id="subtitulo">PRODUCTOS</div>
+        <div id="contenido">
+        	<p>&nbsp;</p>
+            <p>▪ Informe final<br><br>▪ Evidencias fílmicas y/o fotográficas</p>
+        </div>
+        <div id="subtitulo">RECURSOS</div>
+        <div id="contenido">
+        <p>&nbsp;</p>
+            <div id="tablaIconos">
+            	<img src="img/iconos/icoMensaje-960.png" width="50" height="50" alt="Mensajes" class="tooltip" title="Mensajes">
+                <img src="img/iconos/icoChat-960.png" width="50" height="50" alt="Chat" class="tooltip" title="Chat">
+                <img src="img/iconos/icoCentro-960.png" width="50" height="50" alt="Centro de recursos" class="tooltip" title="Centro de recursos">
+                <img src="img/iconos/icoCronograma-960.png" width="50" height="50" alt="Cronograma del módulo" class="tooltip" title="Cronograma del módulo">
+                <img src="img/iconos/icoForo-960.png" width="50" height="50" alt="Foro" class="tooltip" title="Foro">
+                <img src="img/iconos/icoTarea-960.png" width="50" height="50" alt="Tarea" class="tooltip" title="Tarea">
+            	<img src="img/iconos/icoWiki-960.png" width="50" height="50" alt="Wiki" class="tooltip" title="Wiki">
+                 </div>
+        </div>
+       </div>
+ 	   <div class="grid_4 omega">
+        <div id="contenido">
+            <p>&nbsp;</p>
+            <br>
+            <p>En la Cartilla encontrarás documentos de apoyo que te ayudarán a realizar la implementación de la fase del ciclo de la MEC.</p>
+            <p><strong>Cartilla Materiales de Apoyo:</strong></p>
+            <img src="img/iconos/icoDocs-960.png" width="50" height="50" alt="Wiki" style="float:left;">
+            <ul>
+				<li>- Orientaciones para la construcción del documento final.</li>
+            </ul>
+            <br>
+            <p><strong>Documento Conceptual MEC<br>Guía Descargable:</strong></p>
+            <img src="img/iconos/icoDocs-960.png" width="50" height="50" alt="Wiki" style="float:left;">
+            <ul>
+				<li>- Plan Estudio de Clase.</li>
+			</ul>
+            
+            <br>
+            <p><strong>Mapa del módulo:</strong></p>
+            <a href="doc/Mapa_Mental_Modulo_4.gif" class="lightbox"><img src="img/iconos/icoMapa-960.png" width="50" height="50" alt="Mapa del módulo" class="tooltip" title="Haga clic para abrir el Mapa del módulo"></a>
+        </div>
+       </div>
+    </div>
+  </div>
+  <div class="grid_12" id="contenidoModulo">
+      <div class="grid_6 alpha" id="caja1">
+        <div id="titulo">
+            <div>Aprendiendo a</div>
+            <div>reflexionar</div>
+        </div>
+        <div class="grid_11 alpha omega" id="contenido">
+        	<div class="grid_3 alpha">
+            	<div id="titulo">OBJETIVO GENERAL</div>
+                <div id="contenido">Propiciar un espacio para que los equipos de docentes empiecen a establecer criterios para realizar el ejercicio de reflexión sobre la experiencia.</div>
+             
+            </div> <!-- Fin columna 1 -->
+            <div class="grid_7 omega">
+            
+                <div id="panel2" class="clearfix">
+                    <div id="contenido">
+                                      
+                   	<br>                   		
+                        <div class="grid_6 alpha">
+							<a href="http://sena.blackboard.com/webapps/discussionboard/do/forum?action=list_threads&nav=discussion_board_entry&course_id=_240470_1&conf_id=_290035_1&forum_id=_1601463_1" id="resaltoIcono" class="foro tooltip lightbox fancybox.iframe" title="Haga clic en este vínculo para ir al foro">
+                            	<span class="before"></span>
+                            	<div class="texto">Foro: Construyendo criterios para la reflexión<br><br> Participaremos en el Foro teniendo como referencia la experiencia desarrollada hasta el momento y nuestra reflexión sobre el proceso.</div>
+                       		</a>
+                        </div>
+                        <div class="grid_6 alpha omega">
+                        	<div  id="resaltoIcono" class="tutor">
+                        <span class="before"></span>
+                        <div class="texto">El tutor moderará el Foro con el fin de orientar la comprensión de los aspectos esenciales del proceso de reflexión y revisión del ciclo de la MEC, sintetizando en las conclusiones los criterios que en la discución fueron reconocidos por los equipos.</div>
+                        </div>
+                        </div>
+                    </div>
+                </div><!-- Fin contenido panel2 -->
+            </div><!-- Fin columna 2 -->
+         </div>
+      </div><!-- Fin caja 1 -->
+      <div class="grid_6 omega" id="caja2">
+        <div id="titulo">
+            <div>Revisando y reflexionando</div>
+            <div>sobre la experiencia</div>
+        </div>
+        <div class="grid_11 alpha omega" id="contenido">
+        	<div class="grid_3 alpha">
+            	<div id="titulo">
+                	OBJETIVO GENERAL
+                </div>
+                <div id="contenido">Afianzar la comprensión sobre la MEC a partir de la sistematización de la experiencia de implementación del ciclo.
+                </div>
+                <br>
+                	
+                    <div id="contenido">
+                    	A partir de los acuerdos establecidos en el video - Foro anterior y las orientaciones para construir el documento final --que se encuentra en la cartilla--, establezcamos los aspectos que se tendrán en cuenta para la sistematización del proceso realizado.
+                    </div>
+            </div>
+        	<div class="grid_7 omega">
+                <div id="panel1" class="clearfix">
+                    <br>
+                    <div id="contenido" class="grid_6">
+                        <div class="grid_6 alpha omega">
+                        <a href="http://sena.blackboard.com/webapps/Bb-wiki-bb_bb60/viewWikiLink?course_id=_240470_1&content_id=_17892048_1" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" title="Haga clic en este vínculo para abrir la Wiki">
+                            <span class="before"></span>
+                            <div class="texto">La sistematización del proceso la publicaremos en la wiki después de la retroalimentación del Tutor.</div>
+                        </a></div>
+                         <div class="grid_2 alpha">
+                         <a href="http://sena.blackboard.com/webapps/collab/chat/links/launch.jsp?session_id=_687761_1&course_id=_240470_1&group_id=&environment=ctrl_panel&sortBy=session_name&startIndex=0&returnBaseUrl=" id="resaltoIcono" title="Haga clic en este vínculo para ingresar al chat" class="chat tooltip lightbox fancybox.iframe">
+                            <span class="before"></span>
+                            <div class="texto">Chat</div>
+                        </a></div>
+                         <div class="grid_1">&nbsp;</div>
+                        <div class="grid_3 omega">
+                         <a href="doc/MEC_cartilla.pdf" id="resaltoIcono" title="Haga clic en este vínculo para descargar este documento" class="docs tooltip" target="_blank">
+                            <span class="before"></span>
+                            <div class="texto">Descarga aquí:<br> Cartilla Materiales</div>
+                        </a></div>
+                        <div class="grid_6 alpha omega">
+                         <div id="resaltoIcono" class="tutor">
+                            <span class="before"></span>
+                            <div class="texto"><p>El tutor establecerá agenda de tutorías a los equipos para orientar el proceso de sistematización del Estudio de Clase a través del Chat, aportando ejemplos y herramientas que les faciliten el desarrollo de la fase.</p><p>Presentará el análisis del proceso desarrollado en el módulo y en el curso por cada uno de los equipos, realizando las recomendaciones que fortalezcan futuras implementaciones del cilo de la MEC.</p></div>
+                        </div></div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="grid_9 alpha omega">
+            </div>
+        </div>
+      </div>
+     
+  </div>
+  <div class="grid_12" id="actOpc">
+  	<div id="titulo">
+    	<div>Actividades</div>
+        <div>opcionales</div>
+    </div>
+  	<div class="grid_12" id="contenido">
+        <div class="grid_5 alpha">
+            <a href="http://sena.blackboard.com/webapps/blackboard/content/listContentEditable.jsp?content_id=_17896738_1&course_id=_240470_1&mode=reset&courseTocLabel=Centro+de+recursos" id="resaltoIcono" class="centro tooltip lightbox fancybox.iframe" title="Haga clic en este vínculo para abrir el Centro de recursos">
+                <span class="before"></span>
+                <div class="texto">Elaboremos un ensayo sobre los aportes que el equipo considera serán de utilidad para futuras experiencias, tomando como referentes otras experiencias desarrolladas y encontradas en el centro de recursos relacionados con la MEC.</div>
+            </a>
+        </div>
+        <div class="grid_1 alpha">&nbsp;</div>
+        <div class="grid_4 omega">
+            
+            <div id="resaltoIcono" class="tutor">
+                <span class="before"></span>
+                <div class="texto">El tutor acompañará a aquellos equipos que requieran fortalecer con esta experiencia o que deseen ampliar sus aprendizajes.</div>
+            </div>
+        </div>
+    </div>
+  </div>
+  <div class="grid_12" id="footer">
+  	<div class="grid_3 alpha invisible">&nbsp;</div>
+  	<div class="grid_6"><img src="img/logos/logosInst-960.png" width="218" height="77" alt="Ministerio de Educación Nacional"></div>
+  	<div class="grid_3 omega invisible">&nbsp;</div>
+    </div>
+</div>
+</body>
+</html>

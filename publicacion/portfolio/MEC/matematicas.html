@@ -1,0 +1,944 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="nuestroCurso ie6 oldie"> <![endif]-->
+<!--[if IE 7]>    <html class="nuestroCurso ie7 oldie"> <![endif]-->
+<!--[if IE 8]>    <html class="nuestroCurso ie8 oldie"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="cr expandir">
+<!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+<title>Metodología Estudio de Clase</title>
+<noscript>
+<link rel="stylesheet" href="css/adapt.js/720.min.css" />
+</noscript>
+<link href="css/estilo.css" rel="stylesheet" type="text/css">
+<link href="css/tipTip.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="css/fancybox/jquery.fancybox.css?v=2.1.3" type="text/css" media="screen" />
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700' rel='stylesheet' type='text/css'>
+<!-- 
+To learn more about the conditional comments around the html tags at the top of the file:
+paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/
+
+Do the following if you're using your customized build of modernizr (http://www.modernizr.com/):
+* insert the link to your js here
+* remove the link below to the html5shiv
+* add the "no-js" class to the html tags at the top
+* you can also remove the link to respond.min.js if you included the MQ Polyfill in your modernizr build 
+-->
+<!--[if lt IE 9]>
+<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<script>
+var ADAPT_CONFIG = {
+  path: 'css/adapt.js/',
+  dynamic: true,
+  range: [
+    '0px  to 980px		= 720.min.css',
+    '980px  to 1280px	= 960.min.css',
+    '1280px				= 1200.min.css'
+  ]
+};
+</script>
+<script src="js/adapt.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+<script src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+<script src="js/jquery.tipTip.minified.js"></script>
+<script src="js/jquery.fancybox.pack.js?v=2.1.3"></script>
+<script src="js/acciones.js"></script>
+<script>
+$(function(){
+	$('.tooltip').tipTip({maxWidth: "auto", edgeOffset: 10});
+	$("a.lightbox").fancybox({
+		autoSize	:'true',
+		width		:'90%',
+		height		:'100%'
+		
+	});
+	$('.panel').hide();
+	$('#intro #margen').css('visibility', 'visible');
+	$('#intro #margen #triangulo').show();
+	$('#intro #titulo').click(function(e) {
+		var vel = 750;
+		var ext = false;
+		var panel = $(this).parent().children('.panel');
+		var margen = $(this).parent().children('#margen');
+		if ($(panel).css('display') != "none") {
+			ext = true
+		}
+		if (ext) {
+			$(panel).slideUp(vel);
+			$(margen).show();
+		} else {
+			$(panel).slideDown(vel);
+			$(margen).hide();
+		}
+		$('#intro .panel').not($(panel)).each(function(index, element) {
+			if ($(this).css('display') != "none") {
+				$(this).slideUp(vel);
+				$(this).parent().children('#margen').show();
+			}
+        });
+    });
+});
+</script>
+</head>
+<body>
+<div class="container_12">
+<div id="header">
+  <div class="grid_4" id="logoMEC">
+    <div id="titulo">
+      <div>
+        METODOLOGÍA
+      </div>
+    </div>
+    <div id="subtitulo">
+      <div>
+        Estudio de Clase
+      </div>
+    </div>
+  </div>
+  <div class="grid_1" id="numeroModulo">
+  </div>
+  <div class="grid_7" id="nombreModulo">
+    <div id="titulo">
+      <div>
+        CR MATEMÁTICAS
+      </div>
+    </div>
+  </div>
+  <div class="grid_12" id="fotoModulo">
+    <div id="titulo">
+      <div class="grid_12" id="fotoModulo2">
+        <div id="titulo2">
+          <div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="grid_12" id="intro">
+  <!-- Contenido 1 -->
+  <div id="Contenido1">
+      <div id="titulo" class="tooltip" title="Haga clic en este texto para expandir el contenido">1. Material bibliográfico: Cuenta con recursos de libros electrónicos y revistas electrónicas.<br><br></div>
+      <div class="grid_12 panel">
+        <div class="grid_6 alpha">
+          <div id="subtitulo">Libros electrónicos:</div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.mineducacion.gov.co/1621/article-81040.html" id="resaltoIcono" class="docs tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Lloreda, Francisco. (2002). <strong>Formación de Docentes sobre el Uso de Nuevas Tecnologías en el Aula de Matemáticas. Ministro de Educación Nacional. </strong>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.ugr.es/local/jgodino/" id="resaltoIcono" class="docs tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Batanero, C. y Godino, J. D. (2003). <strong>Estocástica y su didáctica para maestros.</strong> Departamento de Didáctica de las Matemáticas. Universidad de Granada. </strong>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.ugr.es/local/jgodino/" id="resaltoIcono" class="docs tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Cid, E., Godino, J. D. y Batanero, C. (2003). <strong>Sistemas numéricos y su didáctica para maestros.</strong> Departamento de Didáctica de las Matemáticas. Universidad de Granada.
+                </div>
+              </a>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.ugr.es/local/jgodino/" id="resaltoIcono" class="docs tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Godino, J. D., Batanero, C. y Font, V. (2003).<strong> Fundamentos de la enseñanza y el aprendizaje de las matemáticas.</strong> Departamento de Didáctica de las Matemáticas. Universidad de Granada.
+                </div>
+              </a>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.ugr.es/local/jgodino/" id="resaltoIcono" class="docs tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Godino, J. D. y Batanero, C. (2003). <strong>Proporcionalidad y su didáctica para maestros.</strong> Departamento de Didáctica de las Matemáticas. Universidad de Granada.
+                </div>
+              </a>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.ugr.es/local/jgodino/" id="resaltoIcono" class="docs tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Godino, J. D., Batanero, C. y Roa, R. (2003).<strong> Medida y su didáctica para maestros.</strong> Departamento de Didáctica de las Matemáticas. Universidad de Granada.
+                </div>
+              </a>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.ugr.es/local/jgodino/" id="resaltoIcono" class="docs tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Godino, J. D. y Font, V. (2003).<strong> Razonamiento algebraico y su didáctica para maestros.</strong> Departamento de Didáctica de las Matemáticas. Universidad de Granada.
+                </div>
+              </a>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.ugr.es/local/jgodino/" id="resaltoIcono" class="docs tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Godino, J. D. y Ruiz, F. (2003). <strong>Geometría y su didáctica para maestros.</strong> Departamento de Didáctica de las Matemáticas. Universidad de Granada.
+                </div>
+              </a>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.ugr.es/local/jgodino/" id="resaltoIcono" class="docs tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Godino, J. D. (Director) (2004).<strong> Matemáticas para maestros.</strong> Departamento de Didáctica de las Matemáticas. Universidad de Granada
+                </div>
+              </a>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.ugr.es/local/jgodino/" id="resaltoIcono" class="docs tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Godino, J. D. (Director) (2004).<strong> Didáctica de las matemáticas para maestros.</strong> Departamento de Didáctica de las Matemáticas. Universidad de Granada
+                </div>
+              </a>
+            </div>
+          </div>
+          <div class="grid_6 alpha omega">
+            <div id="subtitulo">Revistas electrónicas:</div>
+            <div id="contenido">
+              <p>&nbsp;</p>
+              <div class="grid_5 alpha omega">
+                <a href="http://www.pna.es/ " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                  <span class="before"></span>
+                  <div class="texto">
+                    PNA <strong>Revista digital especializada en Educación Matemática.</strong>
+                  </div>
+                </a>
+                <p>Es una revista de investigación en didáctica de la matemática. Publicación trimestral seriada del Grupo de Investigación Didáctica de la Matemática: Pensamiento Numérico, (FQM-193), del Plan Andaluz de Investigación, Desarrollo e Innovación (PAIDI). El lenguaje de publicación es el castellano.</p>
+              </div>
+            </div>
+            <div id="contenido">
+              <p>&nbsp;</p>
+              <div class="grid_5 alpha omega">
+                <a href="http://people.exeter.ac.uk/PErnest/" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                  <span class="before"></span>
+                  <div class="texto">
+                    PHILOSOPHY OF MATHEMATICS EDUCATION JOURNAL.<strong> Revista especializada en filosofía de las matemáticas </strong>
+                  </div>
+                </a>
+                <p> Página en la que se reseñan los trabajos de investigación de PAUL ERNEST y se encuentran todos los números de la revista El lenguaje de publicación es el inglés. </p>
+              </div>
+            </div>
+            <div id="contenido">
+              <p>&nbsp;</p>
+              <div class="grid_5 alpha omega">
+                <a href="http://www.fisem.org/web/union/" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                  <span class="before"></span>
+                  <div class="texto">
+                    UNIÓN <strong> Revista Iberoamericana de Educación Matemática </strong>
+                  </div>
+                </a>
+                <p> Es una publicación de la Federación Iberoamericana de Sociedades de Educación Matemática (FISEM). Tiene una periodicidad trimestral, de modo que se publican cuatro números al año, en los meses de marzo, junio, septiembre y diciembre. El lenguaje de publicación es el castellano.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid_6 omega">
+          <div id="subtitulo">Revistas electrónicas:</div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.matematicalia.net/" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Matematicalia.<strong> Revista digital de divulgación matemática</strong>
+                </div>
+              </a>
+              <p> Esta publicación se dirige a un público amplio y pretende introducir a sus lectores en la belleza y aplicaciones prácticas de las matemáticas, sacando el máximo partido de Internet como medio para la publicación de materiales que contengan gráficos dinámicos y a todo color, hipervínculos internos y externos a recursos relacionados, applets en Java, Flash, Shockwave u otros lenguajes, clips de audio y video, y otras posibilidades propias de la Red. El lenguaje de publicación es el castellano.</p>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.etnomatematica.org/revista.php " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  RLE. <strong>Revista Latinoamericana de Etnomatemática</strong>
+                </div>
+              </a>
+              <p>Sitio oficial de la Red Latinoamericana de Etnomatemática
+                Es una publicación electrónica de La Red Latinoamericana de Etnomatemática y el Departamento de Matemáticas y Estadística de la Universidad de Nariño. Tiene una periodicidad semestral seriada y arbitrada en la cual se dan a conocer trabajos de investigación, entrevistas y reseñas de libros en el área de la Etnomatemática. El lenguaje de publicación es el castellano.</p>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.cimt.plymouth.ac.uk/journal/default.htm  " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  International Journal for Mathematics Teaching and Learning.<strong> Revista internacional de enseñanza y aprendizaje de las matemáticas</strong>
+                </div>
+              </a>
+              <p>Es una publicación electrónica del Centre for Innovation in Mathematics Teaching. El lenguaje de publicación es ingles.</p>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.iejme.com/International" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Electronic Journal of Mathematics Education (IEJME). <strong>Revista Electrónica Internacional de Educación Matemática</strong>
+                </div>
+              </a>
+              <p>Es una publicación dedicada a reflejar una variedad de ideas y métodos de investigación en el ámbito de la educación matemática. Tiene una periodicidad trimestral y su objetivo es estimular el debate en todos los niveles de la educación matemática a través de estudios de investigación importantes e innovadoras. El lenguaje de publicación es ingles.</p>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.clame.org.mx/relime.htm" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  RELIME. <strong>Revista Latinoamericana de Investigación en matemática educativa </strong>
+                </div>
+              </a>
+              <p>Página donde podrá acceder a la revista (versión digital) y al Acta Latinoamericana de Matemática Educativa, ésta última contiene los trabajos presentados en la Reunión Latinoamericana de Matemática Educativa.</p>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://revistasuma.es/" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  SUMA. <strong>Revista sobre la enseñanza y el aprendizaje de las matemáticas</strong>
+                </div>
+              </a>
+              <p>Revista dedicada a la publicación de temas relacionados con la didáctica de las matemáticas tanto a nivel divulgativo como formativo, actividades en el aula, historia de las matemáticas, desarrollo analítico y acontecimientos o eventos organizados por las sociedades matemáticas.</p>
+            </div>
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.scm.org.co/ " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  SCM. <strong>Sociedad Colombiana de Matemáticas</strong>
+                </div>
+              </a>
+              <p>Desde este sitio que se puede acceder a la versión electrónica de las publicaciones: Revista Colombiana de Matemáticas (publicación conjunta de la Sociedad Colombiana de Matemáticas y de la Universidad Nacional de Colombia), Lecturas de Matemáticas: Publicación semestral especializada en matemáticas, su enseñanza, su historia y sus aplicaciones, LEMA: Revista para la Educación Matemática a nivel básico y medio.</p>
+            </div>
+          </div>
+        </div>
+      </div><!-- Cierra el panel -->
+      <div class="grid_12 alpha omega" id="margen">
+        <div class="linea"></div>
+        <div id="triangulo"><img src="img/iconos/triangulo-960.png" width="22" height="12" alt="Clic para ampliar"></div>
+      </div>
+  </div>
+  
+  <!-- Contenido 2 -->
+  <div id="Contenido2">
+    <div id="titulo" class="tooltip" title="Haga clic en este texto para expandir el contenido">2. Material educativo<br><br></div>
+    <div class="grid_12 panel">
+      <div class="grid_6 alpha">
+        <div id="subtitulo">Guía de utilización de material didáctico.</div>
+        <div id="contenido">
+          <p>&nbsp;</p>
+          <div class="grid_5 alpha omega">
+            <a href="http://www.mineduc.cl/usuarios/basica/doc/200601131252210.Guia%20Material%20Didactico.pdf" id="resaltoIcono" class="docs tooltip" target="_blank" title="Haga clic en este vínculo para abrir el documento">
+              <span class="before"></span>
+              <div class="texto">
+                Material teórico y propuesta didáctica para trabajar con recursos didácticos. </strong>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="grid_6 omega">
+        <div id="subtitulo">
+          Biblioteca Nacional de Manipuladores Virtuales
+        </div>
+        <div id="contenido">
+          <p>&nbsp;</p>
+          <div class="grid_5 alpha omega">
+            <a href="http://nlvm.usu.edu/es/nav/vlibrary.html " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+              <span class="before"></span>
+              <div class="texto">
+                Recursos virtuales para los estudiantes de primaria y bachillerato en donde se presentan aplicaciones según temas específicos de matemáticas para que sean manipulados por los estudiantes.</strong>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="grid_6 alpha">
+        <div id="subtitulo">
+          Matemáticas. Construcciones dinámicas.
+        </div>
+        <div id="contenido">
+          <p>&nbsp;</p>
+          <div class="grid_5 alpha omega">
+            <a href="http://roble.pntic.mec.es/~jarran2/" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+              <span class="before"></span>
+              <div class="texto">
+                Recurso para los estudiantes de bachillerato presenta escenas interactivas de Descartes que abordan un amplio grupo de conceptos matemáticos enmarcados en el tema de la medida.</strong>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="grid_6 omega">
+        <div id="subtitulo">
+          Los pentominos y la superficie. Un modelo de actividad basado en Dienes.
+        </div>
+        <div id="contenido">
+          <p>&nbsp;</p>
+          <div class="grid_5 alpha omega">
+            <a href="http://www.hezkuntza.ejgv.euskadi.net/r43-573/es/contenidos/informacion/dia6_sigma/es_sigma/adjuntos/sigma_22/4_Los_Pentominos.pdf " id="resaltoIcono" class="docs tooltip" target="_blank" title="Haga clic en este vínculo para abrir el documento">
+              <span class="before"></span>
+              <div class="texto">
+                Recurso para los estudiantes de bachillerato presenta escenas interactivas de Descartes que abordan un amplio grupo de conceptos matemáticos enmarcados en el tema de la medida.</strong>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="grid_6 alpha">
+        <div id="subtitulo">
+          El Geoplano
+        </div>
+        <div id="contenido">
+          <p>&nbsp;</p>
+          <div class="grid_5 alpha omega">
+            <a href="http://www.uniquindio.edu.co/uniquindio/investigacion/gedes/proyectos/geoplano/geoplano.htm " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+              <span class="before"></span>
+              <div class="texto">
+                Sitio que contiene diversidad de actividades en tono al geoplano, para interiorizar en el niño conceptos básicos de Geometría plana, además de desarrollar aspectos como el de motricidad fina, lateralidad, conceptos de espacio, rotación, traslación, creación artística y más.</strong>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="grid_6 omega">
+        <div id="subtitulo">
+          Mosaicos o teselados
+        </div>
+        <div id="contenido">
+          <p>&nbsp;</p>
+          <div class="grid_5 alpha omega">
+            <a href="http://www.oocities.org/teselados/" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+              <span class="before"></span>
+              <div class="texto">
+                Página dedicada a los teselados en la educación matemática. El contenido está estructurado en la geometría en la escuela, la geometría en el arte, material en la enseñanza-aprendizaje de la geometría y actividades. </strong>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="grid_12 alpha omega"></div>
+      <div class="grid_6 alpha">
+        <div id="subtitulo">
+          Literatura matemática
+        </div>
+        <div id="contenido">
+          <p>&nbsp;</p>
+          <div class="grid_5 alpha omega">
+            <a href="http://ficus.pntic.mec.es/jmus0004/literatura_matematica/bibliografialiteraturamatematica.pdf" id="resaltoIcono" class="docs tooltip" target="_blank" title="Haga clic en este vínculo para abrir el documento">
+              <span class="before"></span>
+              <div class="texto">
+                Bibliografía de literatura matemática clasificada por edades. </strong>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="grid_6 omega">
+        <div id="subtitulo">
+          Ilusiones ópticas
+        </div>
+        <div id="contenido">
+          <p>&nbsp;</p>
+          <div class="grid_5 alpha omega">
+            <a href="http://www.educacionplastica.net/ilusiones.htm " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+              <span class="before"></span>
+              <div class="texto">
+                Página que contiene recursos de ilusiones ópticas para trabajar procesos de visualización.</strong>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div><!-- Cierra el panel -->
+    <div class="grid_12 alpha omega" id="margen">
+      <div class="linea"></div>
+      <div id="triangulo"><img src="img/iconos/triangulo-960.png" width="22" height="12" alt="Clic para ampliar"></div>
+    </div>
+  </div>
+  <!-- Cierra el contenido 2 -->
+  
+  <!-- Contenido 3 -->
+  <div id="Contenido3">
+    <div id="titulo" class="tooltip" title="Haga clic en este texto para expandir el contenido">3. Olimpiadas matemáticas<br><br></div>
+    <div class="grid_12 panel">
+        <div class="grid_6 alpha">
+          <div id="subtitulo">
+            Olimpiadas Nacionales.
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://matematicas.uis.edu.co/olimpiadas/" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Haga clic aquí
+                </div>
+              </a>
+            </div>
+            <div class="grid_5 alpha omega">
+              <a href="http://matematicas.uis.edu.co/olimpiadas/" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Haga clic aquí
+                </div>
+              </a>
+              <p>Enlaces para obtener información del desarrollo de las olimpiadas matemáticas a nivel nacional y para descargar preguntas liberadas de versiones anteriores.</p>
+            </div>
+          </div>
+        </div>
+        <div class="grid_6 alpha">
+          <div id="subtitulo">
+            Olimpiadas internacionales
+          </div>
+          <div id="contenido">
+            <p>&nbsp;</p>
+            <div class="grid_5 alpha omega">
+              <a href="http://platea.pntic.mec.es/~csanchez/olimmain.htm" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Haga clic aquí
+                </div>
+              </a>
+            </div>
+            <div class="grid_5 alpha omega">
+              <a href="http://www.oei.es/oim/index.html" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+                <span class="before"></span>
+                <div class="texto">
+                  Haga clic aquí
+                </div>
+              </a>
+              <p>Enlaces para obtener información del desarrollo de las olimpiadas matemáticas a nivel internacional y para descargar preguntas liberadas de versiones anteriores.</p>
+            </div>
+          </div>
+        </div>
+    </div><!-- Cierra el panel -->
+    <div class="grid_12 alpha omega" id="margen">
+      <div class="linea"></div>
+      <div id="triangulo"><img src="img/iconos/triangulo-960.png" width="22" height="12" alt="Clic para ampliar"></div>
+    </div>
+  </div>
+  
+  <!-- Contenido 4 -->
+  <div id="Contenido4">
+    <div id="titulo" class="tooltip" title="Haga clic en este texto para expandir el contenido">4. Uso de TIC<br><br></div>
+    <div class="grid_12 panel">
+ 		   <div class="grid_5 alpha">
+      <div id="subtitulo">
+        Geometría en educación primaria
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_5 alpha omega">
+          <a href="http://platea.pntic.mec.es/~jmigue1/index.htm " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Recurso para los estudiantes de primaria en donde encontrará actividades de geometría realizadas con Cabri-Java.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        Geometría dinámica
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_5 alpha omega">
+          <a href="http://geometriadinamica.es/ " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Recurso para los docentes en donde encontrará aplicaciones de Geometría realizadas con Geogebra.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        ASIP. Ayuda sistemática interactiva Pisa en matemáticas
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_5 alpha omega">
+          <a href="http://descartes.cnice.mec.es/heda/ASIPISA/ASIPISA_M/ " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Recurso para los estudiantes de bachillerato en donde se configura una herramienta de ayuda en la adquisición de la competencia Matemática. Desarrollado con Descartes.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        El metro: Patrón Inexacto para medir exactamente
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_5 alpha omega">
+          <a href="http://descartes.cnice.mec.es/heda/Elmetro/ " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Recurso para los estudiantes de bachillerato, presenta escenas interactivas de Descartes que abordan un amplio grupo de conceptos matemáticos enmarcados en el tema de la medida.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        Matemagicas
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_5 alpha omega">
+          <a href="http://descartes.cnice.mec.es/matemagicas/index.htm " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Recurso para los estudiantes de primaria y bachillerato en donde se presentan unas Matemáticas lúdicas y dinámicas.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        Antonio Pérez Sanz. Matemáticas
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_5 alpha omega">
+          <a href="http://platea.pntic.mec.es/~aperez4/ " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              En esta página puede encontrar discusiones, juegos, problemas, experiencias y materiales para trabajar en el aula. Docentes.
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="grid_1 alpha">
+      <p>&nbsp;</p>
+    </div>
+    <div class="grid_6 alpha">
+      <div id="subtitulo">
+        THALES. Sociedad Andaluza de matemáticas
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_6 alpha omega">
+          <a href="http://thales.cica.es/ " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Página de la sociedad andaluza de la educación matemática en donde se pueden encontrar una amplia variedad de recursos que van desde publicaciones de revistas especializadas hasta vínculos con software educativos. Docentes.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        Matemáticas
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_6 alpha omega">
+          <a href="http://platea.pntic.mec.es/~mzapata/matemat.htm " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              En esta página puede encontrar material para la preparación de actividades en el aula, problemas y enlaces.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        Ejercicios de matemáticas
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_6 alpha omega">
+          <a href="http://www.ematematicas.net/ " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Recurso para docentes y estudiantes en donde se pueden encontrar ejercicios interactivos organizados por temas y niveles para que los estudiantes desarrollen. Estudiantes.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        Bachillerato Matemáticas
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_6 alpha omega">
+          <a href="http://www.catedu.es/matematicas_blecua/" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Recurso para los estudiantes de bachillerato en donde pueden encontrar temas de matemáticas por niveles, acompañados de aplicaciones explicativas con DESCARTES.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        Materiales para construir la geometría
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_6 alpha omega">
+          <a href="http://www.juntadeandalucia.es/averroes/recursos_informaticos/andared02/geometria3/index.htm" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Material didáctico para estudiantes.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        GeoGebraTube
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_6 alpha omega">
+          <a href="http://www.geogebratube.org/?lang=es " id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              GeoGebraTube es el repositorio oficial de construcciones de GeoGebra y recursos relacionados con GeoGebra son de uso libre y se pueden usar para aplicaciones html y se pueden descargar.
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    </div><!-- Cierra el panel -->
+    <div class="grid_12 alpha omega" id="margen">
+      <div class="linea"> </div>
+      <div id="triangulo"><img src="img/iconos/triangulo-960.png" width="22" height="12" alt="Clic para ampliar"></div>
+    </div>
+  </div>
+  
+  <!-- Contenido 5 -->
+  <div id="Contenido5">
+    <div id="titulo" class="tooltip" title="Haga clic en este texto para expandir el contenido">5. Software gratuitos<br><br></div>
+    <div class="grid_12 panel">
+    	<div class="grid_5 alpha">
+      <div id="subtitulo">
+        DESCARTES
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_5 alpha omega">
+          <a href="http://recursostic.educacion.es/descartes/web/DescartesWeb2.0/instalacion_materiales.html" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Sitio de descargas
+            </div>
+          </a>
+          <p> Descartes es un software educativo gratuito para alumnos y profesores en el que se pueden recrear escenas gráficas o numéricas de aritmética, geometría, álgebra, cálculo y estadística para diversos temas de matemáticas y física. Este recurso es una herramienta con un potencial importante para la educación matemática en tanto puede promover la comprensión, fundamentación y significación de la matemática. Los estudiantes pueden modificar medidas manipulando controles y observar el efecto que esas modificaciones tienen sobre las gráficas y números de las escenas. Los docentes pueden crear escenas modificando configuraciones existentes o creando configuraciones nuevas y pueden insertar las escenas en páginas Web como aplicaciones para crear lecciones o unidades didácticas interactivas. </p>
+        </div>
+      </div>
+      <div id="subtitulo">
+        GeoGebra
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_5 alpha omega">
+          <a href="http://www.geogebra.org/cms/es" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Sitio oficial
+            </div>
+          </a>
+          <p> GeoGebra es un software educativo gratuito para alumnos y profesores en el que se pueden recrear escenas gráficas o numéricas de aritmética, geometría, álgebra, cálculo y estadística para diversos temas de matemáticas y física. Este recurso es una herramienta con un potencial importante para la educación matemática en tanto puede promover la comprensión, fundamentación y significación de la matemática. Los estudiantes pueden modificar medidas manipulando controles y observar el efecto que esas modificaciones tienen sobre las gráficas y números de las escenas. Los docentes pueden crear escenas modificando configuraciones existentes o creando configuraciones nuevas y pueden insertar las escenas en páginas Web como aplicaciones para crear lecciones o unidades didácticas interactivas.</p>
+        </div>
+      </div>
+      <div id="subtitulo">
+        R y C
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_5 alpha omega">
+          <a href="http://matematicas.uis.edu.co/~marsan/geometria/RyC/home.htm" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Sitio de descargas
+            </div>
+          </a>
+          <p> Regla y Compas fue desarrollado por René Grothmann en 1989. Es un software de geometría dinámica gratuito para alumnos y profesores en el que se pueden recrear escenas geométricas a partir de la manipulación de sus diferentes herramientas de dibujo con las cuales se puede representar objetos geométricos simples hasta construir escenas geométricas dinámicas. Este recurso es una herramienta con un potencial importante para la educación matemática en tanto puede promover la comprensión, fundamentación y significación de la geometría. Los docentes pueden crear escenas modificando configuraciones existentes o creando configuraciones nuevas y pueden insertar las escenas en páginas Web como aplicaciones para crear lecciones o unidades didácticas interactivas. </p>
+        </div>
+      </div>
+    </div>
+    <div class="grid_1 alpha">
+      <p>&nbsp;</p>
+    </div>
+    <div class="grid_6 alpha">
+      <div id="subtitulo">
+        Geonext
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_6 alpha omega">
+          <a href="http://geonext.uni-bayreuth.de/" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Sitio oficial
+            </div>
+          </a>
+          <p>Geonext es un software de geometría dinámica gratuito para alumnos y profesores en el que se pueden recrear escenas geométricas a partir de la manipulación de sus diferentes herramientas de dibujo con las cuales se puede representar objetos geométricos simples hasta construir escenas geométricas dinámicas. Este recurso es una herramienta con un potencial importante para la educación matemática en tanto puede promover la comprensión, fundamentación y significación de la geometría. Los docentes pueden crear escenas modificando configuraciones existentes o creando configuraciones nuevas y pueden insertar las escenas en páginas Web como aplicaciones para crear lecciones o unidades didácticas interactivas. </p>
+        </div>
+      </div>
+      <div id="subtitulo">
+        C a R Metal
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_6 alpha omega">
+          <a href="http://db-maths.nuxit.net/CaRMetal/" id="resaltoIcono" class="wiki tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el sitio web">
+            <span class="before"></span>
+            <div class="texto">
+              Sitio oficial
+            </div>
+          </a>
+          <p>C a R Metal es un software de geometría dinámica gratuito para alumnos y profesores en el que se pueden recrear escenas geométricas a partir de la manipulación de sus diferentes herramientas de dibujo con las cuales se puede representar objetos geométricos simples hasta construir escenas geométricas dinámicas. Es una versión mejorada del profesor de matemáticas Eric Hakenholz del software Regla y Compas de René Grothmann. Este recurso es una herramienta con un potencial importante para la educación matemática en tanto puede promover la comprensión, fundamentación y significación de la geometría. Los docentes pueden crear escenas modificando configuraciones existentes o creando configuraciones nuevas y pueden insertar las escenas en páginas Web como aplicaciones para crear lecciones o unidades didácticas interactivas. </p>
+        </div>
+      </div>
+    </div>
+    </div><!-- Cierra el panel -->
+    <div class="grid_12 alpha omega" id="margen">
+      <div class="linea"></div>
+      <div id="triangulo"><img src="img/iconos/triangulo-960.png" width="22" height="12" alt="Clic para ampliar"></div>
+    </div>
+  </div>
+  
+  <!-- Contenido 6 -->
+  <div id="Contenido6">
+    <div id="titulo" class="tooltip" title="Haga clic en este texto para expandir el contenido">6. Videoteca<br><br></div>
+    <div class="grid_12 panel">
+    	<div class="grid_5 alpha">
+      <div id="subtitulo">
+        Ambientes de aprendizaje
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_5 alpha omega">
+          <a href="http://www.youtube.com/embed/8OwV641V6LA?autoplay=1" id="resaltoIcono" class="video tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el documento">
+            <span class="before"></span>
+            <div class="texto">
+              En este material se identifican y desarrollan diferentes elementos que caracterizan una clase que propende por el desarrollo de competencias, en el marco de un ambiente de aprendizaje. El hilo conductor lo constituye una clase de geometría de segundo grado, en la que se enfatizan momentos y situaciones particulares apoyadas de entrevistas a docentes expertos en didáctica de las matemáticas.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        Video clip ambientes de aprendizaje
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_5 alpha omega">
+          <a href="http://www.youtube.com/embed/V_sd3mSxjH8?autoplay=1" id="resaltoIcono" class="video tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el documento">
+            <span class="before"></span>
+            <div class="texto">
+              Se ofrece una versión corta y sucinta del video de Ambientes de aprendizaje.
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="grid_1 alpha">
+      <p>&nbsp;</p>
+    </div>
+    <div class="grid_6 alpha">
+      <div id="subtitulo">
+        Clase abierta “Encontrando el área del círculo”
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_6 alpha omega">
+          <a href="http://www.youtube.com/embed/LU81xveFiWM?autoplay=1" id="resaltoIcono" class="video tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el documento">
+            <span class="before"></span>
+            <div class="texto">
+              Apartes de la clase abierta de matemáticas realizada el 30 de marzo del 2011 durante el Segundo Encuentro Nacional de Estudio de Clase. En ella se retoman diversos momentos que se aprovechan para generar inquietudes y expectativas en los observadores, generando conclusiones ha contrastar con el momento de reflexión y evaluación de la clase observada.
+            </div>
+          </a>
+        </div>
+      </div>
+      <div id="subtitulo">
+        Proyecto “Uso de Problemas reto en el aula”
+      </div>
+      <div id="contenido">
+        <p>&nbsp;</p>
+        <div class="grid_6 alpha omega">
+          <a href="http://www.youtube.com/embed/P2MlyUWyIFY?autoplay=1" id="resaltoIcono" class="video tooltip lightbox fancybox.iframe" target="_blank" title="Haga clic en este vínculo para abrir el documento">
+            <span class="before"></span>
+            <div class="texto">
+              Relato que recoge la experiencia de organizadores de las Olimpiadas Nacionales de Matemáticas, en el marco del abordaje de problemas reto en la implementación del curso B- learning en Metodología de Estudio de Clase, con docentes de Uribia, Riohacha y Barranquilla.
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+    </div><!-- Cierra el panel -->
+    <div class="grid_12 alpha omega" id="margen">
+      <div class="linea"></div>
+      <div id="triangulo"><img src="img/iconos/triangulo-960.png" width="22" height="12" alt="Clic para ampliar"></div>
+    </div>
+  </div>
+  
+  
+  <!-- Footer -->
+  <div class="grid_12" id="footer">
+    <div class="grid_12 alpha" style="background-color:#343433; height:20px; margin-top:15px;">
+      &nbsp;
+    </div>
+    <div class="grid_3 alpha invisible">
+      &nbsp;
+    </div>
+    <div class="grid_6">
+      <img src="img/logos/logosInst-960.png" width="218" height="77" alt="Ministerio de Educación Nacional">
+    </div>
+    <div class="grid_3 omega invisible">
+      &nbsp;
+    </div>
+  </div>
+</div>
+</body>
+</html>

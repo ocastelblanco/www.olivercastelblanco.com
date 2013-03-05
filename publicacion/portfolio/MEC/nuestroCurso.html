@@ -1,0 +1,207 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="nuestroCurso ie6 oldie"> <![endif]-->
+<!--[if IE 7]>    <html class="nuestroCurso ie7 oldie"> <![endif]-->
+<!--[if IE 8]>    <html class="nuestroCurso ie8 oldie"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="nuestroCurso">
+<!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+<title>Metodología Estudio de Clase</title>
+<noscript>
+<link rel="stylesheet" href="css/adapt.js/720.min.css" />
+</noscript>
+<link href="css/estilo.css" rel="stylesheet" type="text/css">
+<link href="css/tipTip.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="css/fancybox/jquery.fancybox.css?v=2.1.3" type="text/css" media="screen" />
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700' rel='stylesheet' type='text/css'>
+<!-- 
+To learn more about the conditional comments around the html tags at the top of the file:
+paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/
+
+Do the following if you're using your customized build of modernizr (http://www.modernizr.com/):
+* insert the link to your js here
+* remove the link below to the html5shiv
+* add the "no-js" class to the html tags at the top
+* you can also remove the link to respond.min.js if you included the MQ Polyfill in your modernizr build 
+-->
+<!--[if lt IE 9]>
+<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<script>
+var ADAPT_CONFIG = {
+  path: 'css/adapt.js/',
+  dynamic: true,
+  range: [
+    '0px  to 980px		= 720.min.css',
+    '980px  to 1280px	= 960.min.css',
+    '1280px				= 1200.min.css'
+  ]
+};
+</script>
+<script src="js/adapt.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.8.2.min.js"></script>
+<script src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+<script src="js/jquery.tipTip.minified.js"></script>
+<script src="js/jquery.fancybox.pack.js?v=2.1.3"></script>
+<script src="js/acciones.js"></script>
+<script>
+$(function(){
+	var rutaVideo;
+	$('.tooltip').tipTip({maxWidth: "auto", edgeOffset: 10});
+	$("a.lightbox").fancybox();
+});
+</script>
+</head>
+<body>
+<div class="container_12">
+  <div id="salida">Salida</div>
+  <div id="header">
+      <div class="grid_4" id="logoMEC">
+        <div id="titulo">
+        	<div>METODOLOGÍA</div>
+        </div>
+        <div id="subtitulo">
+        	<div>Estudio de Clase</div>
+        </div>
+      </div>
+      <div class="grid_1" id="numeroModulo">
+        
+      </div>
+      <div class="grid_7" id="nombreModulo">
+        <div id="titulo">
+        	<div>NUESTRO CURSO</div>
+        </div>
+      </div>
+      <div class="grid_12" id="fotoModulo">
+        <div id="titulo">
+        	<div></div>
+        </div>
+      </div>
+  </div>
+  <div class="grid_12" id="intro">
+  	<div id="titulo">Bienvenidos al curso en Metodología Estudio de Clase dirigido a docentes que orientan clases de ciencias naturales y matemáticas.</div>
+    <div class="grid_12 alpha omega" id="margen">
+    	<div class="linea"></div>
+        <div id="triangulo"><img src="img/iconos/triangulo-960.png" width="22" height="12" alt="Clic para ampliar"></div>
+    </div>
+    <div class="grid_12 alpha omega" id="contIntro">
+ 	   <div class="grid_4 alpha">
+    	<div id="contenido">
+        <p>&nbsp;</p>
+        	<p>Este curso fue diseñado con el fin de permitirle a los docentes comprender y aplicar en sus instituciones una estrategia de cualificación docente, basado en el aprendizaje colaborativo que permite intervenir sobre problemáticas propias de su realidad de aula, redundando en el mejoramiento de las prácticas docentes.</p>
+             </div>
+       </div>
+ 	   <div class="grid_4">
+       
+        <div id="contenido">
+        	<p>&nbsp;</p>
+        	<p>El tutor establecerá a lo largo del desarrollo del curso, una agenda de tutorías en el Chat con cada uno de los equipos para acompañar y orientar la construcción del Plan del Estudio de Clase, estos eventos junto con otros espacios interactivos serán programados por el tutor a través del calendario.</p>
+        </div>
+    	
+        
+       </div>
+ 	   <div class="grid_4 omega">
+        <div id="contenido">
+            <p>&nbsp;</p>
+           
+            <p>El tutor también compartirá la reflexión sobre cada una de las actividades desarrolladas, la experiencia de construcción del plan del estudio de clase y el proceso realizado por cada equipo en el desarrollo de los diferentes módulos, resaltando sus fortalezas y debilidades, y presentando las recomendaciones que contribuyan a mejorar la comprensión de la MEC y enriquezcan el proceso de formación de los docentes.</p>   
+        </div>
+       </div>
+    </div>
+    <br><br>
+  </div>
+  <div class="grid_12" id="contenidoModulo">
+      <div class="grid_6 alpha" id="caja1">
+        <div id="titulo">
+            <div>Presentación</div>
+        </div>
+        <div class="grid_11 alpha omega" id="contenido">
+        	 <!-- Fin columna 1 -->
+            <div class="grid_10 omega">
+            
+                <div id="panel2" class="clearfix">
+                    <div id="contenido">
+                                      
+                   	<br>                   		
+                        <div class="grid_8 alpha">
+							<a href="#" id="resaltoIcono" class="video tooltip" title="Haga clic en este vínculo para ir al foro" target="_blank">
+                            	<span class="before"></span>
+                            	<div class="texto"><iframe width="420" height="315" src="http://www.youtube.com/embed/_NQaB4aDGlo?rel=0" frameborder="0" allowfullscreen></iframe></div>
+                       		</a>
+                        </div>
+                        <div class="grid_8 alpha omega">
+                        	<div  id="resaltoIcono" class="video">
+                        <span class="before"></span>
+                        <div class="texto"><iframe width="420" height="315" src="http://www.youtube.com/embed/gFE-PeZLc_c?rel=0" frameborder="0" allowfullscreen></iframe></div>
+                        </div>
+                        </div>
+                    </div>
+                </div><!-- Fin contenido panel2 -->
+            </div><!-- Fin columna 2 -->
+         </div>
+      </div><!-- Fin caja 1 -->
+      <div class="grid_6 omega" id="caja2">
+        <div id="titulo">
+            <div>Propósito general</div>
+            <div>y pautas</div>
+        </div>
+        <div class="grid_11 alpha omega" id="contenido">
+        	<div class="grid_5 alpha">
+            	<div id="titulo">
+                	PROPÓSITO GENERAL
+                </div>
+                <div id="contenido">Reconocer el estudio de clase como una metodología que contribuye a la formacion continua de docente, fortaleciendo las competencias funcionales del mismo.
+                </div><br>
+                <div id="panel1" class="clearfix">
+                    <br>
+                    <div id="contenido" class="grid_6">
+                         
+                        <div class="grid_3 omega">
+                         <a href="doc/MEC_programaDelCurso.pdf" id="resaltoIcono" title="Haga clic en este vínculo para descargar este documento" class="docs tooltip" target="_blank">
+                            <span class="before"></span>
+                            <div class="texto">Para conocer el programa del curso. Descárguelo aquí</div>
+                        </a></div>
+                     
+                    </div>
+                </div>
+                	
+                                       
+            </div>
+        	<div class="grid_5 omega">
+            <div id="titulo">
+                	PAUTAS DE VINCULACIÓN PARTICIPACIÓN EN EL CURSO
+                </div>
+                <div id="contenido">Como cualquier escenario de enseñanza aprendizaje, el curso requiere conocer y aceptar una serie de lineamientos que rigen la interacción entre los participantes, además de contar con información detallada acerca de la metodología de trabajo, la permanencia, el acompañamiento y la finalización del proceso de formación.
+                </div><br>
+                <div id="panel1" class="clearfix">
+                    <br>
+                    <div id="contenido" class="grid_6">
+                         
+                        <div class="grid_3 omega">
+                         <a href="doc/MEC_pautasVinculacionParticipacion.pdf" id="resaltoIcono" title="Haga clic en este vínculo para descargar este documento" class="docs tooltip" target="_blank">
+                            <span class="before"></span>
+                            <div class="texto">Pautas de vinculación y participación al curso. Descárguelo aquí</div>
+                        </a></div>
+                     
+                    </div>
+                </div>
+                
+            </div>
+            <div class="grid_9 alpha omega">
+            </div>
+        </div>
+      </div>
+     
+  </div>
+
+  <div class="grid_12" id="footer">
+    <div class="grid_12 alpha" style="background-color:#343433; height:20px; margin-top:15px;">&nbsp;</div>
+  	<div class="grid_3 alpha invisible">&nbsp;</div>
+  	<div class="grid_6"><img src="img/logos/logosInst-960.png" width="218" height="77" alt="Ministerio de Educación Nacional"></div>
+  	<div class="grid_3 omega invisible">&nbsp;</div>
+    </div>
+</div>
+</body>
+</html>
