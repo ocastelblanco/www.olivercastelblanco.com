@@ -8,11 +8,30 @@ $(function() {
 	  yep : 'webfonts/bazar-webfont.css',
 	  nope: 'js/no-fontface.js'
 	});
-	var ajusteThumbs = setTimeout(function() {
+	// Crea una pantalla de 'distracción' mientras se cargan correctamente las tipografías y los thumbs
+	$('.loader div div').hide();
+	$('.loader div div').show('size', {
+		easing: 'linear',
+		from: {width: 0, height: 4},
+		to: {width: 400, height: 4},
+		origin: ['center', 'left']
+		},
+	1000, function(){
+		$('.loader').position({
+			of: '#logoOC'
+		});
 		$('#contenido .thumb a').css('background-image', function() {
 			ajustaRutaThumb($(this));
 		});
-	}, 1000);
+		$('#twitter').html('<a class="twitter-timeline" href="https://twitter.com/ocastelblanco" data-widget-id="260067704772366337">Tweets by @ocastelblanco</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>');
+		$('.loader').hide('scale', {
+			percent: 0
+		}, 500, function() {
+			$('#cajas').children().remove();
+			$('.loader').show();
+			$('#cajas').removeClass('loader');
+		});
+	});
 	$('#contenido .thumb a').watch('width', function() {
 		ajustaRutaThumb($(this));
 	}, 100);
@@ -56,7 +75,7 @@ $(function() {
 			var desc = '<div id="desc"><span>Description: </span>'+datos.desc+'</div>';
 			var rol = '<div id="rol"><span>Role: </span>'+datos.rol+'</div>';
 			var sep = '<div id="sep"></div>';
-			var abrir = '<a href="'+destino+'" target="_blank" id="abrir">Open project <span></span></a>';
+			var abrir = '<a href="'+destino+'" target="_blank" id="abrir">Open project <span></span></a><br><br>';
 			$('#cajas').append('<div id="caja-'+nombre+'" class="lightbox-block"><div id="contenido-'+nombre+'">');
 			$('#cajas').append('</div></div>');
 			// Truco para descubrir si está utilizando mobile.min.css o alguna 720/960.min.css
@@ -103,7 +122,7 @@ $(function() {
 				});
 				$('#cajas .lightbox, .lightbox #close').click(function(e) {
 					$('#caja-'+nombre).parent('.lightbox').css('background', 'rgba(0, 0, 0, 0)');
-					$(this).hide('scale', {percent: 0}, 500, function(){
+					$('.lightbox').hide('scale', {percent: 0}, 500, function(){
 						$('#cajas').children().remove();
 					});
 				});

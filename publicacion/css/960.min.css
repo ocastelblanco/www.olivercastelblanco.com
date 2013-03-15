@@ -53,6 +53,26 @@ body {
 #contenido .thumb a {
 	background-image: url(../img/thumb.png);
 }
+/* Photoalbums en photos.html */
+#contenido .fotoAlbum {
+	width: 29.2em;
+	height: 19.2em;
+}
+#contenido .album {
+	float: left;
+}
+#contenido #albumes {
+	width: 960px;
+}
+.albumesMovil {
+	margin-left: -10px;
+}
+.ajusteMargenMozillaSubtitulo {
+	margin-left: -950px;
+}
+.ajusteMargenMozillaAlbumes {
+	margin-left: -970px;
+}
 /* Trucos para el ie7 */
 .ie7 #menu #bordeRibbonDer {
 	margin-left: 2em;

@@ -289,3 +289,163 @@ body {
 	font-weight: bold;
 	font-size: 2.4em;
 }
+/* Animación de carga inicial */
+.loader {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-image: url(../img/fondoTotal.jpg);
+}
+.loader div img {
+	margin-left: 10px;
+}
+.loader div {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 400px;
+	height: 50px;
+	margin-top: -25px;
+	margin-left: -200px;
+}
+.loader div div {
+	position: absolute;
+	top: 80px;
+	left: 50%;
+	width: 400px;
+	height: 4px;
+	margin-left: -200px;
+	background-color: #25aae1;
+}
+/* Estilos para photos.html */
+#contenido #tooltip {
+	display: none;
+	position: absolute;
+	font-size: 1.2em;
+	background-color: rgba(43, 57, 75, 0.75);
+	color: white;
+	padding-top: 0.5em;
+	padding-left: 1em;
+	padding-right: 1em;
+	border-radius: 0.5em 0.5em 0.5em 0.5em;
+}
+#contenido #tooltip #triangulo {
+	position: relative;
+	width: 0; 
+	height: 0;
+	border-bottom: none;
+	border-left: 0.5em solid transparent;
+	border-right: 0.5em solid transparent;
+	border-top: 0.5em solid rgba(43, 57, 75, 0.75);
+	margin-left: auto;
+	margin-right: auto;
+	top: 0.5em;
+}
+#contenido #subtitulo {
+	font-size: 3.6em;
+	text-align: center;
+	color: #2b394b;
+}
+#contenido .album {
+	display: block;
+	width: 30em;
+	height: 30em;
+	background-color: #EEE;
+	margin-bottom: 10px;
+	-moz-box-shadow: 0 0 5px #000000;
+	-webkit-box-shadow: 0 0 5px #000000;
+	box-shadow: 0 0 5px #000000;
+	cursor: pointer;
+}
+#contenido .album:hover {
+	-webkit-transform: rotate(-2deg);
+	-moz-transform: rotate(-2deg);
+	transform: rotate(-2deg);
+}
+#contenido .album .img {
+	position: relative;
+	display: block;
+	width: 28em;
+	height: 24em;
+	background-repeat: no-repeat;
+	background-position: center top;
+	background-size: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	top: 10px;
+}
+#contenido .album p {
+	position: relative;
+	top: 20px;
+	text-align: center;
+	font-size: 2.4em;
+}
+#contenido #albumes {
+	margin-bottom: 1em;
+	height: 6.8em;
+	background-color: #25aae1;
+	border-left: solid 10px #25aae1;
+	padding-left: 10px;
+	/*
+	border-right: solid 20px #25aae1;
+	*/
+	padding-top: 0.4em;
+}
+#contenido .mini {
+	display: block;
+	float: left;
+	width: 6em;
+	height: 6em;
+	border: solid 0.2em white;
+	margin-right: 0.2em;
+	cursor: pointer;
+}
+#contenido .mini .img {
+	display: block;
+	width: 6em;
+	height: 6em;
+	background-repeat: no-repeat;
+	background-size: 100%;
+}
+#contenido .mini.select {
+	margin-top: -1em;
+	-moz-box-shadow: 0 0 0.5em #000000;
+	-webkit-box-shadow: 0 0 0.5em #000000;
+	box-shadow: 0 0 0.5em #000000;
+}
+#contenido .mini.select p {
+	width: 0; 
+	height: 0;
+	display: block; 
+	border-top: none;
+	border-left: 0.75em solid transparent;
+	border-right: 0.75em solid transparent;
+	border-bottom: 0.75em solid #2b394b;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 0.5em;
+}
+#contenido .fotoAlbum {
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size: contain;
+	background-color: white;
+	border: solid 0.4em white;
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 1em;
+	cursor: pointer;
+}
+.subtituloFijo {
+	position: fixed;
+	background-image: url(../img/fondoContenido.jpg);
+	top: 0;
+	z-index: 9998;
+}
+.albumesFijo {
+	position: fixed;
+	top: 5.4em;
+	z-index: 9999;
+}

@@ -191,6 +191,34 @@ body {
 #footer #twitter {
 	display: none;
 }
+/* Photoalbums en photos.html */
+.portaAlbumFotos {
+	height: 240px;
+}
+#contenido .album {
+	float: none;
+	margin-left: auto;
+	margin-right: auto;
+}
+#contenido .fotoAlbum {
+	width: 28.6em;
+	height: 19.2em;
+}
+.subtituloFijo {
+	width: 100%;
+	margin-left: -10px;
+	height: 1.5em;
+}
+#contenido #albumes {
+	width: 100%;
+	margin-left: -10px;
+}
+.portaFoto:last-child {
+	margin-bottom: -10px;
+}
+.ajusteMargenMozillaAlbumes {
+	margin-left: -740px;
+}
 /* Hacks para ie7 */
 .ie7 #menu #botones {
 	margin-left: -25px;

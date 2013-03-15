@@ -4,7 +4,7 @@
 <!--[if IE 8]>    <html class="ie8 oldie"> <![endif]-->
 <!--[if IE 9]>    <html class="no-js ie9"> <![endif]-->
 <!--[if gt IE 9]><!-->
-<html class="no-js"><!-- InstanceBegin template="/Templates/principal.dwt" codeOutsideHTMLIsLocked="false" -->
+<html class="no-js">
 <!--<![endif]-->
 <head>
 <meta charset="utf-8">
@@ -12,14 +12,14 @@
 <meta name="author" content="Oliver Castelblanco Martínez" />
 <meta name="copyright" content="All Rights Reserved" />
 <meta name="description" content="Oliver Castelblanco´s webfolio. Web and multimedia developer from Bogotá, Colombia." />
-<!-- InstanceBeginEditable name="doctitle" -->
+<!-- TemplateBeginEditable name="doctitle" -->
 <title>Oliver Castelblanco Martinez :: Web and multimedia developer</title>
-<!-- InstanceEndEditable -->
+<!-- TemplateEndEditable -->
 <noscript>
-<link rel="stylesheet" href="css/960.min.css" />
+<link rel="stylesheet" href="../css/960.min.css" />
 </noscript>
-<link rel="stylesheet" type="text/css" href="css/orbit.css">
-<link href="css/style.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="../css/orbit.css">
+<link href="../css/style.css" rel="stylesheet" type="text/css">
 <!-- 
 To learn more about the conditional comments around the html tags at the top of the file:
 paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/
@@ -30,7 +30,7 @@ Do the following if you're using your customized build of modernizr (http://www.
 * add the "no-js" class to the html tags at the top
 * you can also remove the link to respond.min.js if you included the MQ Polyfill in your modernizr build 
 -->
-<script type="text/javascript" src="js/modernizr.min.js"></script>
+<script type="text/javascript" src="../js/modernizr.min.js"></script>
 <!--[if lt IE 9]>
 <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 <![endif]-->
@@ -45,19 +45,19 @@ var ADAPT_CONFIG = {
   ]
 };
 </script>
-<script src="js/adapt.min.js"></script>
+<script src="../js/adapt.min.js"></script>
 <script src="http://code.jquery.com/jquery-1.9.0.min.js"></script>
 <script src="http://code.jquery.com/jquery-migrate-1.1.1.min.js"></script>
 <script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>
-<script src="js/jquery.watch.js"></script>
-<script src="js/lightbox.min.js"></script>
-<script src="js/orbit.min.js"></script>
-<script src="js/swipe.min.js"></script>
-<script src="js/jqplugin.min.js"></script>
-<!-- InstanceBeginEditable name="head" -->
+<script src="../js/jquery.watch.js"></script>
+<script src="../js/lightbox.min.js"></script>
+<script src="../js/orbit.min.js"></script>
+<script src="../js/swipe.min.js"></script>
+<script src="../js/jqplugin.min.js"></script>
+<!-- TemplateBeginEditable name="head" -->
 <!-- Espacio para insertar CSS, JS o vínculos adicionales en cada página -->
-<script src="js/scripts.js"></script>
-<!-- InstanceEndEditable -->
+<script src="../js/scripts.js"></script>
+<!-- TemplateEndEditable -->
 </head>
 
 <body>
@@ -68,8 +68,8 @@ var ADAPT_CONFIG = {
     <div class="grid_12" id="menu">
     	<div id="bordeRibbonIzq"></div>
         <div id="botones">
-        	<a href="index.html">Home</a>
-        	<a href="photos.html">Photos</a>
+        	<a href="../index.html">Home</a>
+        	<a href="../photos.html">Photos</a>
         </div>
     	<div id="bordeRibbonDer"></div>
     </div>
@@ -79,45 +79,76 @@ var ADAPT_CONFIG = {
     	<div class="grid_5 omega"></div>
     </div>
 </div>
-<!-- InstanceBeginEditable name="Contenido" -->
+<!-- TemplateBeginEditable name="Contenido" -->
 <div class="container_12" id="contenido">
-  <div class="grid_12">&nbsp;</div>
+  <div class="grid_12">
+    &nbsp;
+  </div>
   <div class="grid_4 thumb">
-    <a href="index.php" title="Piano" id="Piano">
+    <a href="../index.php" title="Piano" id="Piano">
       <div id="texto" class="cerrado">
-        <div id="indicador"></div>
-        <div id="titulo" class="cerrado">Piano navideño</div>
-        <div id="cliente">Proximity Colombia</div>
-        <div id="fecha">December 2008</div>
-        <div id="tipo">Web / Adobe Flash</div>
+        <div id="indicador">
+        </div>
+        <div id="titulo2" class="cerrado">
+          Piano navideño
+        </div>
+        <div id="cliente">
+          Proximity Colombia
+        </div>
+        <div id="fecha">
+          December 2008
+        </div>
+        <div id="tipo">
+          Web / Adobe Flash
+        </div>
       </div>
     </a>
   </div>
   <div class="grid_4 thumb">
-    <a href="index.html" title="Incauca" id="Incauca">
+    <a href="../index.html" title="Incauca" id="Incauca">
       <div id="texto" class="cerrado">
-        <div id="indicador"></div>
-        <div id="titulo" class="cerrado">Incauca Light</div>
-        <div id="cliente">Proximity Colombia</div>
-        <div id="fecha">July 2009</div>
-        <div id="tipo">Web / Adobe Flash</div>
+        <div id="indicador">
+        </div>
+        <div id="titulo2" class="cerrado">
+          Incauca Light
+        </div>
+        <div id="cliente">
+          Proximity Colombia
+        </div>
+        <div id="fecha">
+          July 2009
+        </div>
+        <div id="tipo">
+          Web / Adobe Flash
+        </div>
       </div>
     </a>
   </div>
   <div class="grid_4 thumb">
-    <a href="index.html" title="MEC" id="MEC">
+    <a href="../index.html" title="MEC" id="MEC">
       <div id="texto" class="cerrado">
-        <div id="indicador"></div>
-        <div id="titulo" class="cerrado">Metodología Estudio de Clase</div>
-        <div id="cliente">Ministerio de Educación Nacional (Colombia's Department of Education)</div>
-        <div id="fecha">December 2012</div>
-        <div id="tipo">HTML</div>
+        <div id="indicador">
+        </div>
+        <div id="titulo2" class="cerrado">
+          Metodología Estudio de Clase
+        </div>
+        <div id="cliente">
+          Ministerio de Educación Nacional (Colombia's Department of Education)
+        </div>
+        <div id="fecha">
+          December 2012
+        </div>
+        <div id="tipo">
+          HTML
+        </div>
       </div>
     </a>
   </div>
-  <div class="grid_12">&nbsp;</div>
+  <div class="grid_12">
+    &nbsp;
+  </div>
 </div>
-<!-- InstanceEndEditable -->
+<!-- TemplateEndEditable -->
 <div class="container_12" id="footer">
   <div class="grid_12" id="bordeSup"></div>
 	<div class="grid_12" id="cont">
@@ -145,15 +176,15 @@ var ADAPT_CONFIG = {
     	<div class="grid_1 omega invisible">margen</div>
     </div>
 </div>
-<!-- InstanceBeginEditable name="Adicional" -->
+<!-- TemplateBeginEditable name="Adicional" -->
 <div id="cajas" class="loader">
   <div>
-    <img src="img/logoOC.png" width="60" height="50" alt="OC">
-    <img src="img/nombreOliver.png" width="300" height="50" alt="Oliver Castelblanco">
+    <img src="../img/logoOC.png" width="60" height="50" alt="OC">
+    <img src="../img/nombreOliver.png" width="300" height="50" alt="Oliver Castelblanco">
     <div>
     </div>
   </div>
 </div>
-<!-- InstanceEndEditable -->
+<!-- TemplateEndEditable -->
 </body>
-<!-- InstanceEnd --></html>
+</html>

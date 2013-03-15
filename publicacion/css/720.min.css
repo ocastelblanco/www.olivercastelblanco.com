@@ -53,6 +53,29 @@ body {
 	list-style-image: url(../img/+75.png);
 	margin-left: 1.6em;
 }
+/* Photoalbums en photos.html */
+.subtituloFijo {
+	height: 1.5em;
+}
+#contenido .fotoAlbum {
+	width: 28.6em;
+	height: 19.2em;
+}
+#contenido .album {
+	float: left;
+}
+#contenido #albumes {
+	width: 720px;
+}
+.albumesMovil {
+	margin-left: -10px;
+}
+.ajusteMargenMozillaSubtitulo {
+	margin-left: -710px;
+}
+.ajusteMargenMozillaAlbumes {
+	margin-left: -730px;
+}
 /* Trucos para el ie7 */
 .ie7 #menu #bordeRibbonDer {
 	margin-left: 4em;
