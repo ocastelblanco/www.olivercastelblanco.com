@@ -330,6 +330,7 @@ body {
 	padding-left: 1em;
 	padding-right: 1em;
 	border-radius: 0.5em 0.5em 0.5em 0.5em;
+	z-index: 999;
 }
 #contenido #tooltip #triangulo {
 	position: relative;
@@ -442,10 +443,65 @@ body {
 	position: fixed;
 	background-image: url(../img/fondoContenido.jpg);
 	top: 0;
-	z-index: 9998;
+	z-index: 997;
 }
 .albumesFijo {
 	position: fixed;
 	top: 5.4em;
+	z-index: 998;
+}
+#cajaLuz {
+	height: 100%;
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	background-color: rgba(0, 0, 0, 0.5);
 	z-index: 9999;
+	display: none;
+}
+#portaSlider #close {
+    display: block;
+    background: url(../img/cross.png) no-repeat;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+	margin-right: 1px;
+	margin-top: 1px;
+    cursor: pointer;
+	z-index: 99999;
+	right: 0;
+	top: 0;
+}
+#cajaLuz #portaSlider {
+	position: relative;
+	margin-left: auto;
+	margin-right: auto;
+	border-left: #2b394b solid 5px;
+	border-right: #2b394b solid 5px;
+	overflow: hidden;
+	background-image: url(../img/fondoTotal.jpg);
+	height: 100%;
+}
+#cajaLuz #cajaImg {
+	background-image: url(../img/fondoTotal.jpg);
+}
+#cajaLuz #slider img {
+	display: block;
+	margin: auto;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+#cajaImg #titulo {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	height: 26px;
+	text-align: center;
+	color: white;
+	font-size: 14px;
+	padding-top: 6px;
 }

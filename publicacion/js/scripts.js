@@ -8,6 +8,9 @@ $(function() {
 	  yep : 'webfonts/bazar-webfont.css',
 	  nope: 'js/no-fontface.js'
 	});
+	$(window).resize(function(e) {
+		$('#cajas').children().remove();
+    });
 	// Crea una pantalla de 'distracción' mientras se cargan correctamente las tipografías y los thumbs
 	$('.loader div div').hide();
 	$('.loader div div').show('size', {

@@ -76,6 +76,13 @@ body {
 .ajusteMargenMozillaAlbumes {
 	margin-left: -730px;
 }
+#cajaLuz #portaSlider {
+	width: 640px;
+}
+#cajaLuz #cajaImg {
+	width: 640px;
+	height: 640px;
+}
 /* Trucos para el ie7 */
 .ie7 #menu #bordeRibbonDer {
 	margin-left: 4em;

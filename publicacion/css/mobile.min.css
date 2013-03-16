@@ -18,6 +18,11 @@ body {
 		margin-left: 0;
 	}
 }
+@media screen and (max-width: 522px){
+	#contenido #albumes {
+		height: 13.6em;
+	}
+}
 #logoOC.no-fontface #nombre {
 	background-image: url(../img/nombreOliver-75.png);
 }
@@ -43,7 +48,6 @@ body {
 	font-size: 14px;
 }
 .lightbox-block {
-	max-height: 100%;
 	width: 100%;
 	position: absolute;
 	top: 0;
@@ -218,6 +222,36 @@ body {
 }
 .ajusteMargenMozillaAlbumes {
 	margin-left: -740px;
+}
+#cajaLuz #portaSlider {
+	width: 320px;
+	overflow: hidden;
+	visibility: hidden;
+	position: relative;
+}
+#cajaLuz #slider  {
+  overflow: hidden;
+  position: relative;
+  background-color: rgba(0,0,0,0);
+}
+#cajaLuz #cajaImg {
+	margin-top: 32px;
+	height: 320px;
+	float:left;
+	width:100%;
+	position: relative;
+}
+#cajaImg #titulo {
+	margin-top: -32px;
+}
+#cajaLuz #close {
+	margin-right: 30px;
+}
+#cajaLuz #instrucciones {
+	color: #FFF;
+	font-size: 1.8em;
+	height: 2em;
+	padding-top: 0.6em;
 }
 /* Hacks para ie7 */
 .ie7 #menu #botones {
