@@ -54,9 +54,9 @@ var ADAPT_CONFIG = {
 <script src="../js/orbit.min.js"></script>
 <script src="../js/swipe.min.js"></script>
 <script src="../js/jqplugin.min.js"></script>
+<script src="../js/scripts.js"></script>
 <!-- TemplateBeginEditable name="head" -->
 <!-- Espacio para insertar CSS, JS o vínculos adicionales en cada página -->
-<script src="../js/scripts.js"></script>
 <!-- TemplateEndEditable -->
 </head>
 
