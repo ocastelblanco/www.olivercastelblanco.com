@@ -450,6 +450,103 @@ body {
 	top: 5.4em;
 	z-index: 998;
 }
+/* Estilos para projects.html */
+#contenido .proyecto {
+	margin-bottom: 3em;
+	display: block;
+	text-decoration: none;
+	width: 30em;
+	height: 18em;
+	background-repeat: no-repeat;
+	-moz-box-shadow: inset 0 0 2px #000000;
+	-webkit-box-shadow: inset 0 0 2px #000000;
+	box-shadow: inset 0 0 2px #000000;
+	cursor: pointer;
+	position: relative;
+}
+#contenido .proyecto:hover {
+	-moz-box-shadow: 0 0 5px #000000;
+	-webkit-box-shadow: 0 0 5px #000000;
+	box-shadow: 0 0 5px #000000;
+}
+#contenido .proyecto #texto.cerrado {
+	background: rgba(80, 97, 118, 0.75);
+	color: #FFF;
+	height: 4em;
+	position: relative;
+	top: 14em;
+	z-index: 9;
+}
+#contenido .proyecto #texto.abierto {
+	background: rgba(80, 97, 118, 0.75);
+	color: #FFF;
+	height: 18em;
+	position: relative;
+	top: 0em;
+	z-index: 9;
+}
+#contenido .proyecto #texto #indicador {
+	width: 0; 
+	height: 0; 
+	border-top: none;
+	border-left: 0.5em solid transparent;
+	border-right: 0.5em solid transparent;
+	border-bottom: 0.5em solid white;
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+	top: 0.75em;
+}
+#contenido .proyecto #texto #titulo {
+	font-size: 2em;
+	font-weight: 700;
+	text-align: center;
+	margin-top: -0.25em;
+}
+/* Trucos para Internet Explorer */
+.ie7 #contenido .proyecto #texto #titulo.cerrado,
+.ie8 #contenido .proyecto #texto #titulo.cerrado,
+.ie9 #contenido .proyecto #texto #titulo.cerrado {
+	margin-top: 0.25em;
+}
+.oldie #contenido .proyecto #texto {
+	background-color: #666;
+}
+#contenido .proyecto #texto #titulo.abierto {
+	font-size: 2em;
+	font-weight: 700;
+	text-align: center;
+	padding-top: 2em;
+}
+#contenido .proyecto #texto #numPosts {
+	font-size: 1.25em;
+	padding-left: 2em;
+	padding-top: 1.5em;
+}
+#contenido .proyecto #texto #numPosts:before {
+	content: "Posts: ";
+}
+#contenido .proyecto #texto #keywords {
+	font-size: 1.25em;
+	padding-left: 2em;
+	padding-top: 0.25em;
+}
+#contenido .proyecto #texto #keywords:before {
+	content: "Keywords: ";
+}
+#contenido .proyecto #imgBkg {
+	overflow: hidden;
+	position: static;
+	/*position: absolute;
+	top: 0em;*/
+}
+#contenido .proyecto #imgBkg img {
+	font-size: 100%;
+	width: 30em;
+	height: 18em;
+}
+
+/* Estilos generales de Caja Luz */
 #cajaLuz {
 	height: 100%;
 	width: 100%;
