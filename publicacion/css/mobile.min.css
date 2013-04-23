@@ -195,6 +195,15 @@ body {
 #footer #twitter {
 	display: none;
 }
+#footer #disclaimer #imagen {
+	background-image: url(../img/logoOC-75.png);
+	display: block;
+	float: left;
+	width: 45px;
+	height: 37px;
+	margin-left: -12px;
+	margin-right: 12px;
+}
 /* Photoalbums en photos.html */
 .portaAlbumFotos {
 	height: 240px;

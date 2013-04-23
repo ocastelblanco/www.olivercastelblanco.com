@@ -105,7 +105,7 @@ body {
 	top: 0.75em;
 }
 #contenido .thumb #texto #titulo.cerrado {
-	font-size: 2em;
+	font-size: 1.8em;
 	font-weight: 700;
 	text-align: center;
 	margin-top: -0.25em;
@@ -120,7 +120,7 @@ body {
 	background-color: #666;
 }
 #contenido .thumb #texto #titulo.abierto {
-	font-size: 2em;
+	font-size: 1.8em;
 	font-weight: 700;
 	text-align: center;
 	padding-top: 2em;
@@ -226,6 +226,12 @@ body {
 	background-color: #2b394b;
 	line-height: 14px;
 }
+.lightbox #desc a,
+.lightbox #desc a:hover,
+.lightbox #desc a:visited,
+.lightbox #desc a:active {
+	color: #25aae1;
+}
 .lightbox #cliente {
 	padding-bottom: 10px;
 }
@@ -288,6 +294,96 @@ body {
 	font-style: italic;
 	font-weight: bold;
 	font-size: 2.4em;
+}
+#footer #twitter {
+	height: 20em;
+	background-color: #FFF;
+	overflow: auto;
+}
+#footer #twitter #trino {
+	font-size: 1.2em;
+	color: #506176;
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-top: 0.333em;
+	padding-bottom: 0.333em;
+	border-bottom: 1px #2b394b dotted;
+}
+#footer #twitter #trino a {
+	color: #2b394b;
+}
+#footer #twitter #trino:hover {
+	background-color: #506176;
+	color: #fff;
+}
+#footer #twitter #trino:hover a {
+	color: #25aae1;
+}
+#twitterFooter {
+	margin-top: -2em;
+}
+#twitterFooter a {
+	color: #FFF;
+	text-decoration: none;
+	font-size: 1.6em;
+	text-align: center;
+}
+#twitterFooter a span.icono {
+	font-size: 2em;
+	line-height: 1.6em;
+}
+#twitterFooter a span#usuario {
+	color: #25aae1;
+}
+#footer #disclaimer {
+	margin-top: -0.75em;
+	font-size: 2em;
+	color: #506176;
+}
+#footer #disclaimer .copy {
+	color: #25aae1;
+}
+#footer #disclaimer #textoDisclaimer {
+	font-size: 0.6em;
+	color: #fff;
+}
+#footer #links a#social {
+	display: block;
+	font-size: 1.4em;
+	text-decoration: none;
+	color: #25aae1;
+	width: 100%;
+	height: 1.8em;
+	padding-top: 0.2em;
+}
+#footer #links a#social #icono {
+	width: 1.5em;
+	height: 1.5em;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	border-radius: 50%;
+	border: 1px solid #506176;
+	background-color: #506176;
+	text-align: center;
+	float: left;
+}
+#footer #links a#social #icono span {
+	display: block;
+	color: #fff;
+	font-size: 1.75em;
+	margin-top: -0.6em;
+}
+#footer #links a#social #texto {
+	margin-left: 2em;
+	padding-top: 0.2em;
+}
+#footer #links a#social:hover {
+	color: #fff;
+	background-color: #506176;
+}
+#footer #links a#social:hover #icono {
+	border: 1px solid #2b394b;
+	background-color: #2b394b;
 }
 /* Animación de carga inicial */
 .loader {

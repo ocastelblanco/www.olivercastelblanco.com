@@ -11,4 +11,9 @@ $(function() {
 	$(window).resize(function(e) {
 		$('#cajas').children().remove();
     });
+	$.getJSON('scripts/twitter.php', function(datos) {
+		for (var tweet in datos) {
+			$('#twitter').append('<div id="trino">'+datos[tweet]+'</div>');
+		}
+	});
 });

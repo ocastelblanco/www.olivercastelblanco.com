@@ -1,5 +1,15 @@
 $(function() {
 	// Crea una pantalla de 'distracción' mientras se cargan correctamente las tipografías y los thumbs
+	$('.thumb a').each(function(index, element) {
+		var ruta = 'portfolio/'+$(this).attr('title');
+		console.log("Salida :: "+ruta);
+		$.getJSON(ruta+'/desc.json', function(datos) {
+			var fin = datos.screens + 1;
+			for (var i = 1; i < fin; i++) {
+				$.preload(ruta+'/Screen0'+i+'.jpg');
+			}
+		});
+    });
 	$('.loader div div').hide();
 	$('.loader div div').show('size', {
 		easing: 'linear',
@@ -14,7 +24,6 @@ $(function() {
 		$('#contenido .thumb a').css('background-image', function() {
 			ajustaRutaThumb($(this));
 		});
-		$('#twitter').html('<a class="twitter-timeline" href="https://twitter.com/ocastelblanco" data-widget-id="260067704772366337">Tweets by @ocastelblanco</a><script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>');
 		$('.loader').hide('scale', {
 			percent: 0
 		}, 500, function() {
@@ -86,8 +95,8 @@ $(function() {
 			var sliderOut = '</div></div>';
 			var slider = sliderInicio+sliderInto+sliderOut;
 			$(contenido).html(titulo+slider+sep+rol+desc+tipo+fecha+cliente+abrir);
-		}).error(function(){
-			$(contenido).html("A communication error happened. Try reloading the page to see this content.");
+		}).error(function(jqXHR, textStatus, errorThrown){
+			$(contenido).html('<span style="font-size: 2em">A communication error happened. Try reloading the page to see this content. Are you using Internet Explorer? The thrown error is: '+errorThrown+'</span>');
 		}).complete(function() {
 			// Truco para descubrir si está utilizando mobile.min.css o alguna 720/960.min.css
 			if ($('.grid_1').width() < 61) {

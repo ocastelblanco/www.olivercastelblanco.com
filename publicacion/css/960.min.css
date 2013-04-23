@@ -64,6 +64,15 @@ body {
 #contenido #albumes {
 	width: 960px;
 }
+#footer #disclaimer #imagen {
+	background-image: url(../img/logoOC.png);
+	display: block;
+	float: left;
+	width: 60px;
+	height: 50px;
+	margin-left: -15px;
+	margin-right: 15px;
+}
 .albumesMovil {
 	margin-left: -10px;
 }

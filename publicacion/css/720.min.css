@@ -53,6 +53,15 @@ body {
 	list-style-image: url(../img/+75.png);
 	margin-left: 1.6em;
 }
+#footer #disclaimer #imagen {
+	background-image: url(../img/logoOC-75.png);
+	display: block;
+	float: left;
+	width: 45px;
+	height: 37px;
+	margin-right: 12px;
+	margin-left: -12px;
+}
 /* Photoalbums en photos.html */
 .subtituloFijo {
 	height: 1.5em;

@@ -1,5 +1,5 @@
 {
-"desc" : "Virtual course made for the Ministerio de Educación Nacional' teachers, mainly from the country side in Colombia. Uses the color panels to expand and collapse the content (text, images, embeded videos). Build over an adaptative grid, with 3 different sizes, looking for fitting in the very variable final users displays.",
+"desc" : "Virtual course about mathematic and natural sciences teaching methodology, made for the Ministry of National Education; the users are teachers from colombian countryside. The course uses color panels to expand and collapse content (text, images, embeded videos). Builded over an adaptative grid, with 3 different sizes, looking for fitting in variable users computer screens.",
 "screens" : 3,
 "rol" : "Project manager, interaction designer, jQuery/JavaScript developer.",
 "req" : "a display wider than 720px"
