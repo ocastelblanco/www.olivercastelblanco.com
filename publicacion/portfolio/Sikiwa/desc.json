@@ -1,0 +1,6 @@
+{
+"desc" : "Sikiwa was the final project for the <a href='http://creacion-multimedia.uniandes.edu.co/paginas/english/index.html' target='_blank'>Specialization on Multimedia Creation at Universidad de los Andes <span class='vinculo'></span></a> in 2007. It was builded around the synesthesia concept, some John Cage’s ideas and a specific <a href='http://www.jimcampbell.tv/portfolio/low_resolution_works/self_portrait_of_paul_demarinis/' target='_blank'>Jim Campbell's installation called Self Portrait of Paul Demarinis <span class='vinculo'></span></a>.<br><br>Sikiwa is a multimedia installation in three steps: first, the users takes photos and an application called Shiriki converts it in a drum sounds; the users can tune it changing image and sound settings at the same time. After that, the image/sound object is uploaded to an server application called Kelele that played the sound as a rhythm box. Simultaneously a third application called Pakaa shows the image in a big screen. Clicking on the Open project button will open a little flipbook with more information (in spanish) about the project.",
+"screens" : 7,
+"rol" : "Concept designer, Flash/ActionScript2 developer, Max/MSP developer, PHP/MySQL developer.",
+"req" : "a display wider than 800px,Adobe Flash Player"
+}
