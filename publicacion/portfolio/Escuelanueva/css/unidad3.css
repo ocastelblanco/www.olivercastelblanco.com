@@ -1,0 +1,67 @@
+@charset "UTF-8";
+/* CSS Document */
+#tituloUnidad,
+#momentoA,
+#momentoB,
+#momentoC,
+#momentoD,
+#contenido h1,
+#contenido h2,
+#notaImportante strong,
+#diarioSaberes h1,
+#diarioProgreso h1,
+#dialPersUnidad strong {
+	color: #175DA6;
+}
+#menu #actual,
+#menu a:hover {
+	background-image: url(../img/fondoPestanaUnidad3.png);
+}
+#breadcrumb {
+	background-image: url(../img/fondoBreadcrumbUnidad3.png);
+	background-repeat: repeat-x;
+}
+/* Debido a un problema de scope no determinado aún, es necesario definir este color en este CSS
+   Será el mismo para la Unidad 1  */
+#diarioSaberes h2,
+#diarioProgreso h2,
+#portafolioActividades h2,
+#manualesImplementacion h2 {
+	color: #4F2A0D;
+}
+#diarioSaberes h2:after,
+#diarioSaberes h2:after {
+	background-image: url(../img/cajaVinculoFlechaUnidad3.png);
+}
+#dialPersUnidad #bordeSup,
+#dialPersUnidad #bordeInf {
+	background-color: #175DA6;
+}
+#dialPersUnidad #bordeSup:before {
+	background-image: url(../img/dialogoPersonajeUnidad3BordeIzqSup.png);
+}
+#dialPersUnidad #bordeSup:after {
+	background-image: url(../img/dialogoPersonajeUnidad3BordeDerSup.png);
+}
+#dialPersUnidad #bordeInf:before {
+	background-image: url(../img/dialogoPersonajeUnidad3BordeIzqInf.png);
+}
+#dialPersUnidad #bordeInf:after {
+	background-image: url(../img/dialogoPersonajeUnidad3BordeDerInf.png);
+}
+#dialPersUnidad #contenidoDialogo,
+#dialPersUnidad ul {
+	border-right-color: #175DA6;
+	border-left-color: #175DA6;
+}
+#paginacion {
+	background-color: #175DA6;
+}
+#paginacion #actual,
+#paginacion a:hover {
+	background-image: url(../img/pagNumDownUnidad3.png);
+}
+#paginacion #anterior:hover,
+#paginacion #siguiente:hover {
+	background-image: url(../img/pagAnteriorDownUnidad3.png);
+}
