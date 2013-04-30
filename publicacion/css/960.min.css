@@ -94,3 +94,7 @@ body {
 .ie7 #menu #bordeRibbonDer {
 	margin-left: 2em;
 }
+.imagenOliver img {
+	width: 240px;
+	height: 303px;
+}

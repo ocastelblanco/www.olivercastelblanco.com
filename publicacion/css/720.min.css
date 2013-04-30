@@ -104,3 +104,7 @@ body {
 	background-image: url(../img/sombraMenuDer-75.png);
 	margin-left: 440px;
 }
+.imagenOliver img {
+	width: 180px;
+	height: 227px;
+}

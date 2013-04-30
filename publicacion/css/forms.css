@@ -1,0 +1,116 @@
+@charset "utf-8";
+/* CSS Document */
+form .etiqueta {
+	font-size: 2em;
+	text-align: left;
+	color: #2b394b;
+}
+*:focus {
+	outline: none;
+}
+form input.textinput {
+	width: 95%;
+	background-color: #FFF;
+	background-image: url(../img/fondoTotal.jpg);
+	height: 1.5em;
+	-moz-border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
+	border-radius: 0.5em;
+	font-family: 'Vollkorn', serif;
+	color: #2b394b;
+	font-size: 1.5em;
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-top: 0.5em;
+}
+form textarea.textinput {
+	width: 95%;
+	background-color: #FFF;
+	background-image: url(../img/fondoTotal.jpg);
+	height: 12em;
+	-moz-border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
+	border-radius: 0.5em;
+	font-family: 'Vollkorn', serif;
+	color: #2b394b;
+	font-size: 1.5em;
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-top: 0.5em;
+}
+.textInputUnselected {
+	-moz-box-shadow: inset 0.1em 0.1em 0.4em #000000;
+	-webkit-box-shadow: inset 0.1em 0.1em 0.4em #000000;
+	box-shadow: inset 0.1em 0.1em 0.4em #000000;
+	border: 0.1em solid #2b394b;
+}
+.textInputSelected {
+	-moz-box-shadow: inset 0.1em 0.1em 0.4em #25aae1;
+	-webkit-box-shadow: inset 0.1em 0.1em 0.4em #25aae1;
+	box-shadow: inset 0.1em 0.1em 0.4em #25aae1;
+	border: 0.1em solid #25aae1;
+}
+form #tooltipo {
+	display: none;
+	position: absolute;
+	font-size: 1.5em;
+	background-color: rgba(43, 57, 75, 0.75);
+	color: white;
+	padding-top: 0.5em;
+	padding-left: 1em;
+	padding-right: 1em;
+	-moz-border-radius: 0.5em;
+	-webkit-border-radius: 0.5em;
+	border-radius: 0.5em;
+	z-index: 999;
+	height: 1.75em;
+	margin-left: 0.2em;
+}
+form #tooltipo #triangulo {
+	position: relative;
+	width: 0;
+	height: 0;
+	border-bottom: 0.5em solid transparent;
+	border-left: none;
+	border-right: 0.5em solid rgba(43, 57, 75, 0.75);
+	border-top: 0.5em solid transparent;
+	margin-left: -1.43em;
+	top: -1.25em;
+}
+form #send {
+	background-color: #25aae1;
+	display: block;
+	color: white;
+	text-decoration: none;
+	width: 12em;
+	height: 3em;
+	text-align: center;
+	border-radius: 5px;
+	margin-left: 3.7em;
+}
+form #send span {
+	font-size: 1.5em;
+}
+form #send span.icon {
+	font-size: 2.5em;
+	line-height: 0.75em;
+}
+.sendOver {
+	-moz-box-shadow: 0 0 5px #000000;
+	-webkit-box-shadow: 0 0 5px #000000;
+	box-shadow: 0 0 5px #000000;
+}
+.sendPress {
+	-moz-box-shadow: inset 0.1em 0.1em 0.4em #000000;
+	-webkit-box-shadow: inset 0.1em 0.1em 0.4em #000000;
+	box-shadow: inset 0.1em 0.1em 0.4em #000000;
+}
+.mensaje {
+	font-size: 2em;
+	text-align: center;
+}
+.imagenOliver img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}

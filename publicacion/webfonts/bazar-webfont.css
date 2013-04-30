@@ -59,7 +59,8 @@
 #footer #links a#social #icono {
 	font-family: 'entyposocial';
 }
-#footer #links a#social #icono .nosocial {
+#footer #links a#social #icono .nosocial,
+form #send span.icon {
 	font-family: 'entypo';
 }
 @media screen and (max-width: 323px){
