@@ -92,6 +92,15 @@ body {
 	width: 640px;
 	height: 640px;
 }
+/* Del mapa de Google */
+#tituloMapa {
+	margin-left: -6em;
+}
+#mapa {
+	margin-left: -10em;
+	width: 36em;
+	height: 28em;
+}
 /* Trucos para el ie7 */
 .ie7 #menu #bordeRibbonDer {
 	margin-left: 4em;

@@ -2,7 +2,6 @@ $(function() {
 	// Crea una pantalla de 'distracción' mientras se cargan correctamente las tipografías y los thumbs
 	$('.thumb a').each(function(index, element) {
 		var ruta = 'portfolio/'+$(this).attr('title');
-		console.log("Salida :: "+ruta);
 		$.getJSON(ruta+'/desc.json', function(datos) {
 			var fin = datos.screens + 1;
 			for (var i = 1; i < fin; i++) {

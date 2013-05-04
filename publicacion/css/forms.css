@@ -50,6 +50,17 @@ form textarea.textinput {
 	box-shadow: inset 0.1em 0.1em 0.4em #25aae1;
 	border: 0.1em solid #25aae1;
 }
+form .captcha {
+	font-size: 1.6em;
+	padding-top: 0.3em;
+}
+form .suma {
+	font-size: 1.5em;
+	padding-top: 0.4em;
+}
+form #captcha {
+	margin-left: -1em;
+}
 form #tooltipo {
 	display: none;
 	position: absolute;
@@ -107,10 +118,18 @@ form #send span.icon {
 }
 .mensaje {
 	font-size: 2em;
-	text-align: center;
 }
 .imagenOliver img {
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
+}
+#tituloMapa {
+	font-size: 1.6em;
+}
+#mapa #content h3 {
+	font-size: 1.6em;
+}
+#mapa #content #bodyContent {
+	font-size: 1.5em;
 }

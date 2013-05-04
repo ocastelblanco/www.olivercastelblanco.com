@@ -190,10 +190,12 @@ body {
 	background-color: #FFF;
 	color: #25aae1;
 }
-#footer #links,
 #footer #lastPosts,
 #footer #twitter {
 	display: none;
+}
+#footer .omega {
+	margin-left: 10px;
 }
 #footer #disclaimer #imagen {
 	background-image: url(../img/logoOC-75.png);
@@ -203,6 +205,10 @@ body {
 	height: 37px;
 	margin-left: -12px;
 	margin-right: 12px;
+}
+#footer #twitterFooter {
+	margin-top: 0;
+	font-size: 2em;
 }
 /* Photoalbums en photos.html */
 .portaAlbumFotos {
@@ -261,6 +267,20 @@ body {
 	font-size: 1.8em;
 	height: 2em;
 	padding-top: 0.6em;
+}
+/* Del Contact me */
+form #send {
+	margin-top: 1em;
+	font-size: 1.6em;
+	float: right;
+}
+#tituloMapa {
+	margin-top: 5em;
+	text-align: center;
+}
+#mapa {
+	width: 100%;
+	height: 30em;
 }
 /* Hacks para ie7 */
 .ie7 #menu #botones {
