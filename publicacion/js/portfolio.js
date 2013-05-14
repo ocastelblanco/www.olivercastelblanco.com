@@ -1,5 +1,4 @@
 $(function() {
-	// Crea una pantalla de 'distracción' mientras se cargan correctamente las tipografías y los thumbs
 	$('.thumb a').each(function(index, element) {
 		var ruta = 'portfolio/'+$(this).attr('title');
 		$.getJSON(ruta+'/desc.json', function(datos) {
@@ -10,6 +9,8 @@ $(function() {
 		});
     });
 	$('.loader div div').hide();
+	// Crea una pantalla de 'distracción' mientras se cargan correctamente las tipografías y los thumbs
+	/* Se elimina la precarga de 'distracción'
 	$('.loader div div').show('size', {
 		easing: 'linear',
 		from: {width: 0, height: 4},
@@ -31,6 +32,14 @@ $(function() {
 			$('#cajas').removeClass('loader');
 		});
 	});
+	*/
+	$('#contenido .thumb a').css('background-image', function() {
+		ajustaRutaThumb($(this));
+	});
+	$('#cajas').children().remove();
+	$('.loader').show();
+	$('#cajas').removeClass('loader');
+	// -->
 	$('#contenido .thumb a').watch('width', function() {
 		ajustaRutaThumb($(this));
 	}, 100);
