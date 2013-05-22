@@ -23,11 +23,11 @@
 /* Tipografía adicional usada para símbolos sociales */
 @font-face {
     font-family: 'entyposocial';
-    src: url('entyposocial.eot');
-    src: url('entyposocial.eot?#iefix') format('embedded-opentype'),
-         url('entyposocial.woff') format('woff'),
-         url('entyposocial.ttf') format('truetype'),
-         url('entyposocial.svg#entyposocial') format('svg');
+    src: url('entypos.eot');
+    src: url('entypos.eot?#iefix') format('embedded-opentype'),
+         url('entypos.woff') format('woff'),
+         url('entypos.ttf') format('truetype'),
+         url('entypos.svg#entypos') format('svg');
     font-weight: normal;
     font-style: normal;
 }

@@ -26,7 +26,7 @@ $(function() {
 			$('#contenido').append('<div class="grid_4 portaAlbumFotos"><div class="album"><div class="img" title="'+datos.photosets.photoset[i].title._content+'" id="'+datos.photosets.photoset[i].id+'" style="background-image: url('+ruta+')"></div><p>'+datos.photosets.photoset[i].title._content+'</p></div></div>');
 		}
 	}).error(function(){
-		$(contenido).html("A communication error happened. Try reloading the page to see this content. Are you using Internet Explorer?");
+		$(contenido).html("<div class='grid_12' style='font-size:2em'>A communication error happened. Try reloading the page to see this content.<br>Are you using Internet Explorer? Download the last version of IE <a href='http://windows.microsoft.com/en-us/internet-explorer/download-ie' target='_blank'>clicking here</a>.</div>");
 	}).complete(function() {
 		$('.album').click(function(e) {
 			$('.album').unbind('click');

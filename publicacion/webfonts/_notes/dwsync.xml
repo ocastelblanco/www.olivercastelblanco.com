@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <dwsync>
-<file name="bazar-webfont.css" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130117251327582103" remote="130117251320000000" Dst="0" />
 <file name="generator_config.txt" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130057862626444930" remote="130057862620000000" Dst="0" />
 <file name="entypo.eot" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130060487320432778" remote="130060487320000000" Dst="0" />
 <file name="entypo.woff" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130060487320472780" remote="130060487320000000" Dst="0" />
@@ -9,9 +8,10 @@
 <file name="bazar.eot" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130057862625984904" remote="130057862620000000" Dst="0" />
 <file name="bazar.woff" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130057862626434930" remote="130057862620000000" Dst="0" />
 <file name="bazar.ttf" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130057862626204916" remote="130057862620000000" Dst="0" />
-<file name="entyposocial.eot" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130109922462306400" remote="130109922460000000" Dst="0" />
-<file name="entyposocial.woff" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130109922461636362" remote="130109922460000000" Dst="0" />
-<file name="entyposocial.ttf" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130109922459946265" remote="130109922450000000" Dst="0" />
 <file name="bazar.svg" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130057862626174915" remote="130057862620000000" Dst="0" />
-<file name="entyposocial.svg" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130109922463096445" remote="130109922460000000" Dst="0" />
+<file name="webfonts.css" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130136455640542671" remote="130136455640000000" Dst="0" />
+<file name="entypos.eot" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130136473570000000" remote="130136473570000000" Dst="0" />
+<file name="entypos.woff" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130136473570000000" remote="130136473570000000" Dst="0" />
+<file name="entypos.ttf" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130136473570000000" remote="130136473570000000" Dst="0" />
+<file name="entypos.svg" server="C:/xampp/htdocs/local/www.olivercastelblanco.com/" local="130136473570000000" remote="130136473570000000" Dst="0" />
 </dwsync>

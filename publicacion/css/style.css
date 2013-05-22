@@ -329,8 +329,8 @@ body {
 	text-align: center;
 }
 #twitterFooter a span.icono {
-	font-size: 2em;
-	line-height: 1.6em;
+	font-size: 1em;
+	line-height: 4em;
 }
 #twitterFooter a span#usuario {
 	color: #25aae1;
@@ -370,7 +370,11 @@ body {
 #footer #links a#social #icono span {
 	display: block;
 	color: #fff;
-	font-size: 1.75em;
+	/*font-size: 1.75em;
+	margin-top: -0.6em;*/
+}
+#footer #links a#social #icono span.nosocial {
+	font-size: 2em;
 	margin-top: -0.6em;
 }
 #footer #links a#social #texto {
