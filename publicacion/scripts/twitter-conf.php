@@ -1,6 +1,0 @@
-<?php
-define('CONSUMER_KEY', 'X1PiBUs0aUrk40vTyv1LQ');
-define('CONSUMER_SECRET', '0vXSxeWmXHLEcviNdbKl43qYw643m6sSQ8kUs9FPYA');
-define('OAUTH_TOKEN', '29926921-NIFtgqp49Qonq6hMP8DiAEUyJ5Um2kJGxsoN3hd3J');
-define('OAUTH_TOKEN_SECRET', '12DWMujMLhzOjdg11PxXduTuuODodRSnEtWniDgI');
-?>
