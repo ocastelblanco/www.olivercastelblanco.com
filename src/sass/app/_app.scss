@@ -2,3 +2,137 @@
 @charset "UTF-8";
 // Tipografias de Google Fonts
 @import "https://fonts.googleapis.com/css?family=Montserrat|Viga";
+// Paleta de colores
+$color-primario: #039be5;
+$color-primario-dark: #006db3;
+$color-primario-light: #63ccff;
+$color-secundario: #ef6c00;
+$color-secundario-dark: #b53d00;
+$color-secundario-light: #ff9d3f;
+$color-blanco: #ffffff;
+$color-negro: #000000;
+$color-gris: #979797;
+// Breakpoints
+$bp-xs: 600px;
+$bp-gt-xs: $bp-xs + 1;
+// Variables del logo
+$logo-height: 64px;
+$logo-height-xs: 32px;
+$logo-padding: 0 8px;
+$logo-padding-xs: 0 4px;
+$logo-border-radius: 32px;
+$logo-border-radius-xs: 16px;
+$logo-font-size: 48px;
+$logo-font-size-xs: 24px;
+$logo-width-liver: 95px;
+$logo-width-liver-xs: 47px;
+$logo-width-astelblanco: 250px;
+$logo-width-astelblanco-xs: 125px;
+// Contenedor con contenidos
+.contenedor {
+// Preloader
+    .preloader {
+        display: flex;
+        justify-content: center;
+        background-color: $color-primario;
+        .logo {
+            @media (max-width: $bp-xs) {
+                height: $logo-height-xs;
+                padding: $logo-padding-xs;
+                border-radius: $logo-border-radius-xs;
+                font-size: $logo-font-size-xs;
+            }
+            @media (min-width: $bp-gt-xs) {
+                height: $logo-height;
+                padding: $logo-padding;
+                border-radius: $logo-border-radius;
+                font-size: $logo-font-size;
+            }
+            background-color: $color-primario-dark;
+            font-family: Viga-Regular;
+            color: $color-blanco;
+            overflow: hidden;
+            &.fondo-cambiante {
+                @include animation('5s linear 0s infinite alternate cambio-fondo-logo');
+            }
+            .capital {
+                text-transform: uppercase;
+            }
+            .texto {
+                text-transform: lowercase;
+                &.liver {
+                    @include animation('4s ease-in-out 2s 1 sale-liver');
+                    &.inicial {
+                        @media (max-width: $bp-xs) {
+                            width: $logo-width-liver-xs;
+                        }
+                        @media (min-width: $bp-gt-xs) {
+                            width: $logo-width-liver;
+                        }
+                    }
+                }
+                &.astelblanco {
+                    @include animation('4s ease-in-out 2s 1 sale-astelblanco');
+                    &.inicial {
+                        @media (max-width: $bp-xs) {
+                            width: $logo-width-astelblanco-xs;
+                        }
+                        @media (min-width: $bp-gt-xs) {
+                            width: $logo-width-astelblanco;
+                        }
+                    }
+                }
+                &.final {
+                    width: 0px;
+                }
+            }
+            .apellido {
+                margin-left: 0.25em;
+                @include animation('4s ease-in-out 2s 1 sale-apellido');
+                &.final {
+                    margin-left: -0.22em !important;
+                }
+            }
+            .nombre {
+                margin: 0;
+            }
+            .nombre, .apellido, .capital, .texto {
+                float: left;
+                overflow: hidden;
+            }
+        }
+    }
+}
+// @keyframes
+@include keyframes(sale-liver) {
+    from {
+        @media (max-width: $bp-xs) {
+            width: $logo-width-liver-xs;
+        }
+        @media (min-width: $bp-gt-xs) {
+            width: $logo-width-liver;
+        }
+    }
+    to {width: 0px;}
+}
+@include keyframes(sale-astelblanco) {
+    from {
+        @media (max-width: $bp-xs) {
+            width: $logo-width-astelblanco-xs;
+        }
+        @media (min-width: $bp-gt-xs) {
+            width: $logo-width-astelblanco-xs;
+        }
+    }
+    to {width: 0px;}
+}
+@include keyframes(sale-apellido) {
+    from {margin-left: 0.25em;}
+    to {margin-left: -0.22em;}
+}
+@include keyframes(cambio-fondo-logo) {
+    0% {background-color: $color-primario-dark;}
+    16% {background-color: $color-secundario-dark;}
+    66% {background-color: $color-secundario-dark;}
+    84% {background-color: $color-primario-dark;}
+}
