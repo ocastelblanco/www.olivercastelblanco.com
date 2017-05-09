@@ -53,7 +53,10 @@ $logo-width-astelblanco-xs: 125px;
             color: $color-blanco;
             overflow: hidden;
             &.fondo-cambiante {
-                @include animation('5s linear 0s infinite alternate cambio-fondo-logo');
+                @include animation('4s linear 0s infinite alternate cambio-fondo-logo');
+            }
+            &.oculto {
+                @include animation('2s ease-in-out 1 fade');
             }
             .capital {
                 text-transform: uppercase;
@@ -61,7 +64,7 @@ $logo-width-astelblanco-xs: 125px;
             .texto {
                 text-transform: lowercase;
                 &.liver {
-                    @include animation('4s ease-in-out 2s 1 sale-liver');
+                    @include animation('2s cubic-bezier(0.755, 0.050, 0.855, 0.060) 3s 1 sale-liver');
                     &.inicial {
                         @media (max-width: $bp-xs) {
                             width: $logo-width-liver-xs;
@@ -72,7 +75,7 @@ $logo-width-astelblanco-xs: 125px;
                     }
                 }
                 &.astelblanco {
-                    @include animation('4s ease-in-out 2s 1 sale-astelblanco');
+                    @include animation('2s cubic-bezier(0.755, 0.050, 0.855, 0.060) 3s 1 sale-astelblanco');
                     &.inicial {
                         @media (max-width: $bp-xs) {
                             width: $logo-width-astelblanco-xs;
@@ -88,7 +91,7 @@ $logo-width-astelblanco-xs: 125px;
             }
             .apellido {
                 margin-left: 0.25em;
-                @include animation('4s ease-in-out 2s 1 sale-apellido');
+                @include animation('2s cubic-bezier(0.755, 0.050, 0.855, 0.060) 3s 1 sale-apellido');
                 &.final {
                     margin-left: -0.22em !important;
                 }
@@ -101,9 +104,17 @@ $logo-width-astelblanco-xs: 125px;
                 overflow: hidden;
             }
         }
+        .dummy {
+            opacity: 0;
+            @include animation('1.9s linear 3s 1 dummy');
+        }
     }
 }
 // @keyframes
+@include keyframes(dummy) {
+    from {opacity: 0;}
+    to {opacity: 0;}
+}
 @include keyframes(sale-liver) {
     from {
         @media (max-width: $bp-xs) {
@@ -135,4 +146,8 @@ $logo-width-astelblanco-xs: 125px;
     16% {background-color: $color-secundario-dark;}
     66% {background-color: $color-secundario-dark;}
     84% {background-color: $color-primario-dark;}
+}
+@include keyframes(fade) {
+    from {opacity: 1;}
+    to {opacity: 0;}
 }

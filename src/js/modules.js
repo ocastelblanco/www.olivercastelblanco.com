@@ -16,26 +16,33 @@ app.config(function($mdThemingProvider) {
 app.controller('main', [function(){
     console.log('main');
 }]);
-app.controller('contenido', [function(){
+app.controller('contenido', ['$rootScope',function($rootScope){
     console.log('contenido');
     var raiz = this;
     raiz.rutaHeader = 'views/navbar.html';
     raiz.rutaBody = 'views/portfolio.html';
     raiz.rutaLogoPreloader = 'views/logoAnimado.html';
+    raiz.cargado = false;
+    $rootScope.$on('finPrecarga',function(e,a){
+        raiz.cargado = true;
+        console.log('evento',e);
+    });
 }]);
-app.controller('animaLogo', ['$scope',function($scope){
+app.controller('animaLogo', ['$scope','$timeout','$rootScope',function($scope,$timeout,$rootScope){
     console.log('animaLogo');
     var raiz = this;
-    var liver = angular.element(document.querySelector('.liver'));
-    var astelblanco = angular.element(document.querySelector('.astelblanco'));
-    var apellido = angular.element(document.querySelector('.apellido'));
-    var logo = angular.element(document.querySelector('.logo'));
-    liver.one('webkitAnimationEnd oanimationend msAnimationEnd animationend',function(e){
-        liver.removeClass('inicial');
-        liver.addClass('final');
-        astelblanco.removeClass('inicial');
-        astelblanco.addClass('final');
-        apellido.addClass('final');
-        logo.addClass('fondo-cambiante')
+    var dummy = angular.element(document.querySelector('.dummy'));
+    dummy.one('webkitAnimationEnd oanimationend msAnimationEnd animationend',function(e){
+        raiz.paso1 = true;
+        $scope.$apply();
+        $timeout(function(){
+            raiz.paso2 = true;
+            $scope.$apply();
+            $timeout(function(){
+                raiz.paso3 = true;
+                $scope.$apply();
+                $rootScope.$emit('finPrecarga');
+            },1950);
+        },2000);
     });
 }]);
