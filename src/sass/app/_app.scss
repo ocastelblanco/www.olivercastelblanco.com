@@ -16,17 +16,23 @@ $color-gris: #979797;
 $bp-xs: 600px;
 $bp-gt-xs: $bp-xs + 1;
 // Variables del logo
-$logo-height: 64px;
+$logo-height: 48px;
+$logo-height-lg: 64px;
 $logo-height-xs: 32px;
-$logo-padding: 0 8px;
+$logo-padding: 0 6px;
+$logo-padding-lg: 0 8px;
 $logo-padding-xs: 0 4px;
-$logo-border-radius: 32px;
+$logo-border-radius: 24px;
+$logo-border-radius-lg: 32px;
 $logo-border-radius-xs: 16px;
-$logo-font-size: 48px;
+$logo-font-size: 36px;
+$logo-font-size-lg: 48px;
 $logo-font-size-xs: 24px;
-$logo-width-liver: 95px;
+$logo-width-liver: 71px;
+$logo-width-liver-lg: 95px;
 $logo-width-liver-xs: 47px;
-$logo-width-astelblanco: 250px;
+$logo-width-astelblanco: 187px;
+$logo-width-astelblanco-lg: 250px;
 $logo-width-astelblanco-xs: 125px;
 // Contenedor con contenidos
 .contenedor {
@@ -43,10 +49,10 @@ $logo-width-astelblanco-xs: 125px;
                 font-size: $logo-font-size-xs;
             }
             @media (min-width: $bp-gt-xs) {
-                height: $logo-height;
-                padding: $logo-padding;
-                border-radius: $logo-border-radius;
-                font-size: $logo-font-size;
+                height: $logo-height-lg;
+                padding: $logo-padding-lg;
+                border-radius: $logo-border-radius-lg;
+                font-size: $logo-font-size-lg;
             }
             background-color: $color-primario-dark;
             font-family: Viga-Regular;
@@ -70,7 +76,7 @@ $logo-width-astelblanco-xs: 125px;
                             width: $logo-width-liver-xs;
                         }
                         @media (min-width: $bp-gt-xs) {
-                            width: $logo-width-liver;
+                            width: $logo-width-liver-lg;
                         }
                     }
                 }
@@ -81,7 +87,7 @@ $logo-width-astelblanco-xs: 125px;
                             width: $logo-width-astelblanco-xs;
                         }
                         @media (min-width: $bp-gt-xs) {
-                            width: $logo-width-astelblanco;
+                            width: $logo-width-astelblanco-lg;
                         }
                     }
                 }
@@ -107,6 +113,78 @@ $logo-width-astelblanco-xs: 125px;
         .dummy {
             opacity: 0;
             @include animation('1.9s linear 3s 1 dummy');
+        }
+    }
+    // Contenido
+    .contenido {
+        // Encabezado
+        .encabezado {
+            .fondo-header {
+                @media (min-width: $bp-gt-xs) {
+                    position: fixed;
+                    width: 100%;
+                    height: 438px;
+                    div {
+                        width: 100%;
+                        height: 100%;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                    }
+                    .fondo {
+                        background-image: url('../img/bg-header.jpg');
+                        background-size: cover;
+                    }
+                    .overlay {
+                        background: -webkit-gradient(linear, 0 100%, 0 0, from(rgba(0,0,0,0.2)), color-stop(0.3, rgba(0,0,0,0.1)), to(rgba(0,0,0,0)));
+                        background: -webkit-linear-gradient(rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0) 100%);
+                        background: -moz-linear-gradient(rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0) 100%);
+                        background: -o-linear-gradient(rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0) 100%);
+                        background: linear-gradient(rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0) 100%);
+                    }
+                }
+                @media (max-width: $bp-xs) {
+                    display: none;
+                }
+            }
+            .navbar {
+                padding: 8px 16px;
+                @media (min-width: $bp-gt-xs) {
+                    background-color: transparent;
+                }
+                @media (max-width: $bp-xs) {
+                    background-color: $color-primario;
+                }
+                .logo {
+                    height: $logo-height;
+                    padding: $logo-padding;
+                    border-radius: $logo-border-radius;
+                    font-size: $logo-font-size;
+                    background-color: $color-primario-dark;
+                    font-family: Viga-Regular;
+                    color: $color-blanco;
+                    overflow: hidden;
+                    text-transform: uppercase;
+                    float: left;
+                    div {
+                        float: left;
+                        overflow: hidden;
+                        margin: 0;
+                        &:last-of-type {
+                            margin-left: -0.22em;
+                        }
+                    }
+                }
+                .md-nav-bar {
+                    border: 0;
+                    .md-button {
+                        font-family: Viga-Regular;
+                        &.md-unselected {
+                            color: $color-blanco;
+                        }
+                    }
+                }
+            }
         }
     }
 }

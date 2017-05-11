@@ -1,0 +1,18 @@
+<div class="fondo-header"><div class="fondo"></div><div class="overlay"></div></div>
+<md-content class="navbar" ng-controller="encabezado as ec">
+    <div class="logo"><div>o</div><div>c</div></div>
+    <md-nav-bar md-selected-nav-item="ec.selectedTab" nav-bar-aria-label="barra de navegación">
+        <md-nav-item name="pagina1" md-nav-click="goto('page1')">
+            portfolio
+        </md-nav-item>
+        <md-nav-item name="pagina2" md-nav-click="goto('page1')">
+            photos
+        </md-nav-item>
+        <md-nav-item name="pagina3" md-nav-click="goto('page1')">
+            blog
+        </md-nav-item>
+        <md-nav-item name="pagina4" md-nav-click="goto('page1')">
+            contact me
+        </md-nav-item>
+    </md-nav-bar>
+</md-content>

@@ -8,8 +8,12 @@ var app = angular.module('app', [
 app.config(function($mdThemingProvider) {
     $mdThemingProvider
         .theme('default')
-        .primaryPalette('light-blue')
-        .accentPalette('orange')
+        .primaryPalette('light-blue',{
+            'default': '600'
+        })
+        .accentPalette('orange', {
+            'default': '800'
+        })
         .warnPalette('deep-orange')
         .backgroundPalette('grey');
 });
@@ -22,10 +26,9 @@ app.controller('contenido', ['$rootScope',function($rootScope){
     raiz.rutaHeader = 'views/navbar.html';
     raiz.rutaBody = 'views/portfolio.html';
     raiz.rutaLogoPreloader = 'views/logoAnimado.html';
-    raiz.cargado = false;
+    raiz.cargado = true;//false;
     $rootScope.$on('finPrecarga',function(e,a){
         raiz.cargado = true;
-        console.log('evento',e);
     });
 }]);
 app.controller('animaLogo', ['$scope','$timeout','$rootScope',function($scope,$timeout,$rootScope){
@@ -45,4 +48,9 @@ app.controller('animaLogo', ['$scope','$timeout','$rootScope',function($scope,$t
             },1950);
         },2000);
     });
+}]);
+app.controller('encabezado', [function(){
+    console.log('encabezado');
+    var raiz = this;
+    raiz.selectedTab = 'pagina1';
 }]);
