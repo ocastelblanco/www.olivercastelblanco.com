@@ -2,7 +2,7 @@
   "name": "www.olivercastelblanco.com",
   "author": "Oliver Castelblanco",
   "version": "0.0.1",
-  "description": "Sitio web de Oliver Castelblanco.",
+  "description": "Sitio web de Oliver Castelblanco",
   "dependencies": {
     "angular": "^1.6.4",
     "angular-animate": "^1.6.4",

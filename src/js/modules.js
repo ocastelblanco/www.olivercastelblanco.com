@@ -54,3 +54,7 @@ app.controller('encabezado', [function(){
     var raiz = this;
     raiz.selectedTab = 'pagina1';
 }]);
+app.controller('portfolio', [function(){
+    console.log('portfolio');
+    var raiz = this;
+}]);
