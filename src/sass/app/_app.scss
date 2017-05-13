@@ -38,11 +38,16 @@ $logo-width-astelblanco-lg: 250px;
 $logo-width-astelblanco-xs: 125px;
 // Contenedor con contenidos
 .contenedor {
+    font-family: Montserrat, 'sans-serif' !important;
 // Preloader
     .preloader {
         display: flex;
         justify-content: center;
         background-color: $color-primario;
+        position: absolute;
+        z-index: 99999;
+        top: -438px;
+        left: 0;
         .logo {
             @media (max-width: $bp-xs) {
                 height: $logo-height-xs;
@@ -131,6 +136,8 @@ $logo-width-astelblanco-xs: 125px;
                     width: 100%;
                     background-origin: content-box;
                     background-position: 0% 100%;
+                    top: 0;
+                    left: 0;
                     @media (max-width: $bp-sm) {
                         height: 260px;
                     }
@@ -159,11 +166,26 @@ $logo-width-astelblanco-xs: 125px;
             }
             .navbar {
                 padding: 8px 16px;
-                @media (min-width: $bp-gt-xs) {
-                    background-color: transparent;
-                }
-                @media (max-width: $bp-xs) {
+                position: fixed;
+                top: 0;
+                left: 0;
+                min-width: 100%;
+                z-index: 9999;
+                background-color: transparent;
+                .fondo {
                     background-color: $color-primario;
+                    width: 100%;
+                    height: 64px;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    z-index: -1;
+                    @media (min-width: $bp-gt-xs) {
+                        opacity: 0;
+                    }
+                    @media (max-width: $bp-xs) {
+                        opacity: 1;
+                    }
                 }
                 .logo {
                     height: $logo-height;
@@ -188,7 +210,7 @@ $logo-width-astelblanco-xs: 125px;
                 .md-nav-bar {
                     border: 0;
                     .md-button {
-                        font-family: Viga-Regular;
+                        font-family: Viga-Regular, 'sans-serif' !important;
                         &.md-unselected {
                             color: $color-blanco;
                         }
@@ -200,19 +222,45 @@ $logo-width-astelblanco-xs: 125px;
         .portfolio {
             background-color: $color-primario;
             position: relative;
-            margin-top: 374px;
+            margin-top: 438px;
             .card-principal {
-                width: 970px;
                 padding: 24px;
+                width: 970px;
+                margin-top: -64px;
                 .imagen-circulo {
-                    max-width: 20%;
+                    width: 221px;
+                    height: 221px;
+                    border-radius: 50%;
+                    border: 1px solid rgba(0,0,0,0.4);
+                    padding: 1px;
+                    overflow: hidden;
+                    position: relative;
                     img {
+                        width: 220px;
+                        height: 220px;
                         border-radius: 50%;
-                        max-width: 100%;
+                    }
+                    &:after {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 220px;
+                        height: 220px;
+                        margin: 1px;
+                        border-radius: 50%;
                         background-image: -webkit-linear-gradient(-90deg, rgba(2,155,229,0.20) 0%, rgba(239,108,0,0.20) 100%);
                         background-image: -moz-linear-gradient(-90deg, rgba(2,155,229,0.20) 0%, rgba(239,108,0,0.20) 100%);
                         background-image: -o-linear-gradient(-90deg, rgba(2,155,229,0.20) 0%, rgba(239,108,0,0.20) 100%);
                         background-image: linear-gradient(-90deg, rgba(2,155,229,0.20) 0%, rgba(239,108,0,0.20) 100%);
+                    }
+                }
+                .intro {
+                    .titulo {
+                        font-family: Viga-Regular, 'sans-serif' !important;
+                        font-size: 36px;
+                        color: $color-primario;
+                        margin-left: 16px;
                     }
                 }
             }
