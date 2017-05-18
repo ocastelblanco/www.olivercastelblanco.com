@@ -54,9 +54,15 @@ app.controller('encabezado', [function(){
     var raiz = this;
     raiz.selectedTab = 'pagina1';
 }]);
-app.controller('portfolio', [function(){
+app.controller('portfolio', ['$http',function($http){
     console.log('portfolio');
     var raiz = this;
+    $http.get('assets/json/projects.json').then(function(resp){
+        raiz.fichas = resp.data;
+        console.log(raiz.fichas);
+    }, function(error){
+        console.log('error',error);
+    });
 }]);
 // Directivas
 app.directive('scrollAbajo', function ($document,$timeout) {

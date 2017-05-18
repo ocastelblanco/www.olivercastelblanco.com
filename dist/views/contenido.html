@@ -1,7 +1,7 @@
 <div ng-controller="contenido as cont" class="contenedor" flex layout-fill>
-    <div class="preloader" ng-if="!cont.cargado" flex layout-fill layout-align="center center">
+    <!--div class="preloader" ng-if="!cont.cargado" flex layout-fill layout-align="center center">
         <ng-include src="cont.rutaLogoPreloader"></ng-include>
-    </div>
+    </div-->
     <div class="contenido"><!--</div> ng-if="cont.cargado"-->
         <ng-include src="cont.rutaHeader" class="encabezado"></ng-include>
         <ng-include src="cont.rutaBody" class="cuerpo"></ng-include>

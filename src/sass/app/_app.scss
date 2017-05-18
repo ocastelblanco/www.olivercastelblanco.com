@@ -2,6 +2,9 @@
 @charset "UTF-8";
 // Tipografias de Google Fonts
 @import "https://fonts.googleapis.com/css?family=Montserrat|Viga";
+// Tipografias aplicadas
+$tipo-contenido: Montserrat, 'sans-serif' !important;
+$tipo-titulos: Viga-Regular, 'sans-serif' !important;
 // Paleta de colores
 $color-primario: #039be5;
 $color-primario-dark: #006db3;
@@ -36,9 +39,13 @@ $logo-width-liver-xs: 47px;
 $logo-width-astelblanco: 187px;
 $logo-width-astelblanco-lg: 250px;
 $logo-width-astelblanco-xs: 125px;
-// Contenedor con contenidos
+// Contenedor principal
 .contenedor {
-    font-family: Montserrat, 'sans-serif' !important;
+    font-family: $tipo-contenido;
+// Estilos generales del contenedor
+    .md-button {
+        font-family: $tipo-titulos;
+    }
 // Preloader
     .preloader {
         display: flex;
@@ -62,7 +69,7 @@ $logo-width-astelblanco-xs: 125px;
                 font-size: $logo-font-size-lg;
             }
             background-color: $color-primario-dark;
-            font-family: Viga-Regular;
+            font-family: $tipo-titulos;
             color: $color-blanco;
             overflow: hidden;
             &.fondo-cambiante {
@@ -193,7 +200,7 @@ $logo-width-astelblanco-xs: 125px;
                     border-radius: $logo-border-radius;
                     font-size: $logo-font-size;
                     background-color: $color-primario-dark;
-                    font-family: Viga-Regular;
+                    font-family: $tipo-titulos;
                     color: $color-blanco;
                     overflow: hidden;
                     text-transform: uppercase;
@@ -210,7 +217,7 @@ $logo-width-astelblanco-xs: 125px;
                 .md-nav-bar {
                     border: 0;
                     .md-button {
-                        font-family: Viga-Regular, 'sans-serif' !important;
+                        font-family: $tipo-titulos;
                         &.md-unselected {
                             color: $color-blanco;
                         }
@@ -257,12 +264,15 @@ $logo-width-astelblanco-xs: 125px;
                 }
                 .intro {
                     .titulo {
-                        font-family: Viga-Regular, 'sans-serif' !important;
+                        font-family: $tipo-titulos;
                         font-size: 36px;
                         color: $color-primario;
                         margin-left: 16px;
                     }
                 }
+            }
+            .fichas {
+                width: 970px;
             }
         }
     }

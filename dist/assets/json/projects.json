@@ -1,0 +1,16 @@
+[
+  {
+    "en": {
+      "titulo": "Vocational Survey",
+      "cliente": "Politécnico Grancolombiano University",
+      "descripcion": "Developed with AngularJS"
+    }
+  },
+  {
+    "en": {
+      "titulo": "LAFT virtual course",
+      "cliente": "BASC",
+      "descripcion": "Developed for Moodle"
+    }
+  }
+]
