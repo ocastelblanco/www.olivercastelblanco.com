@@ -18,21 +18,18 @@
             </md-button>
         </div>
     </md-card>
-    <div class="fichas" layout="row">
-        <md-card class="ficha" ng-repeat="ficha in pf.fichas">
-            <md-card-title>
-                <md-card-title-text>
-                    <span class="md-headline">{{ficha.en.titulo}}</span>
-                </md-card-title-text>
-            </md-card-title>
-            <md-card-actions layout="row" layout-align="end center">
-                <md-button class="md-warn md-raised">
-                    View project
-                </md-button>
-            </md-card-actions>
-            <md-card-content>
-                {{ficha.en.descripcion}}
-            </md-card-content>
-        </md-card>
+    <div class="titulo-seccion">
+        <h1>Portfolio</h1>
+    </div>
+    <div class="fichas" layout="row" layout-align="space-between" layout-wrap>
+        <div class="columna columna01" layout="column" flex="33">
+            <ng-include ng-repeat="ficha in pf.fichas" class="ficha" src="'views/projCard.tmpl.html'" ng-if="$index % 3 == 0"></ng-include>
+        </div>
+        <div class="columna columna02" layout="column" flex="33">
+            <ng-include ng-repeat="ficha in pf.fichas" class="ficha" src="'views/projCard.tmpl.html'" ng-if="$index % 3 == 1"></ng-include>
+        </div>
+        <div class="columna columna03" layout="column" flex="33">
+            <ng-include ng-repeat="ficha in pf.fichas" class="ficha" src="'views/projCard.tmpl.html'" ng-if="$index % 3 == 2"></ng-include>
+        </div>
     </div>
 </div>

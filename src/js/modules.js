@@ -57,9 +57,8 @@ app.controller('encabezado', [function(){
 app.controller('portfolio', ['$http',function($http){
     console.log('portfolio');
     var raiz = this;
-    $http.get('assets/json/projects.json').then(function(resp){
+    $http.get('assets/projects/index.json').then(function(resp){
         raiz.fichas = resp.data;
-        console.log(raiz.fichas);
     }, function(error){
         console.log('error',error);
     });
@@ -74,7 +73,7 @@ app.directive('scrollAbajo', function ($document,$timeout) {
             margen = parseInt(margen,10);
             var margenNegativa = window.getComputedStyle(element[0].children[0], null).getPropertyValue('margin-top');
             margenNegativa = parseInt(margenNegativa, 10);
-            var alturaBarra,top,margenInf,margenSup,navbar,fondoNavbar,opacidad;
+            var alturaBarra,top,margenInf,margenSup,navbar,fondoNavbar,opacidad,fondoHeader;
             $timeout(function(){
                 navbar = angular.element(document.getElementById('navbar'))[0];
                 fondoNavbar = navbar.children[0];
@@ -83,12 +82,14 @@ app.directive('scrollAbajo', function ($document,$timeout) {
                 top = margen-alturaBarra+margenNegativa;
                 margenInf = top+margenNegativa;
                 margenSup = margen+margenNegativa;
-                navbar,fondoNavbar,opacidad;
+                fondoHeader =  angular.element(document.getElementsByClassName('fondo-header'))[0];
             },100);
             $document.bind("scroll", function () {
                 var opacidadActual = 1-(((margenSup-margenInf)-(doc.scrollTop-margenInf))/(margenSup-margenInf));
+                var opacidadImagen = 1;
                 if (opacidadActual > 1) {
                     opacidadActual = 1;
+                    opacidadImagen = 0;
                 } else if (opacidadActual < 0) {
                     opacidadActual = 0;
                 }
@@ -96,6 +97,7 @@ app.directive('scrollAbajo', function ($document,$timeout) {
                     angular.element(fondoNavbar).css('opacity',opacidadActual);
                 }
                 angular.element(navbar).css('box-shadow', '0px 0px 1px 0px rgba(0,0,0,'+opacidadActual+')');
+                angular.element(fondoHeader).css('opacity',opacidadImagen);
             });
         }
     };

@@ -39,6 +39,10 @@ $logo-width-liver-xs: 47px;
 $logo-width-astelblanco: 187px;
 $logo-width-astelblanco-lg: 250px;
 $logo-width-astelblanco-xs: 125px;
+// Ventana general
+html {
+    background-color: $color-primario;
+}
 // Contenedor principal
 .contenedor {
     font-family: $tipo-contenido;
@@ -231,6 +235,7 @@ $logo-width-astelblanco-xs: 125px;
             position: relative;
             margin-top: 438px;
             .card-principal {
+                display: block;
                 padding: 24px;
                 width: 970px;
                 margin-top: -64px;
@@ -271,8 +276,57 @@ $logo-width-astelblanco-xs: 125px;
                     }
                 }
             }
-            .fichas {
+            .titulo-seccion {
+                color: $color-blanco;
+                font-family: $tipo-titulos;
                 width: 970px;
+                margin: 32px 0 16px 0;
+            }
+            .fichas {
+                width: 986px;
+                .ficha {
+                    &.ng-enter {
+                        transition: 0.5s linear all;
+                        opacity: 0;
+                        &.ng-enter-active {
+                            opacity: 1;
+                        }
+                    }
+                    .imagen-16-9 {
+                        display: block;
+                        width: 100%;
+                        position: relative;
+                        height: 0;
+                        padding: 56.25% 0 0 0;
+                        overflow: hidden;
+                        >img {
+                            position: absolute;
+                            display: block;
+                            width: 100%;
+                            height: auto;
+                            left: 0;
+                            right: 0;
+                            top: 0;
+                            bottom: 0;
+                            margin: 0;
+                        }
+                    }
+                    .md-subhead {
+                        color: $color-gris;
+                        padding-top: 0;
+                    }
+                    .cliente {
+                        >span:first-of-type {
+                            font-weight: bold;
+                        }
+                    }
+                    .descripcion {
+                        margin-top: 12px;
+                        >span:first-of-type {
+                            font-weight: bold;
+                        }
+                    }
+                }
             }
         }
     }

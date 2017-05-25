@@ -1,0 +1,26 @@
+<md-card>
+    <div class="imagen-16-9">
+        <img class="md-card-image" ng-src="assets/projects/{{ficha.ruta}}/card-image.jpg">
+    </div>
+    <md-card-title>
+        <md-card-title-text>
+            <span class="md-headline">{{ficha.en.titulo}}</span>
+            <span class="md-subhead">{{ficha.en.tipo}}</span>
+        </md-card-title-text>
+    </md-card-title>
+    <md-card-actions layout="row" layout-align="end center">
+        <md-button class="md-warn md-raised">
+            View project
+        </md-button>
+    </md-card-actions>
+    <md-card-content>
+        <div class="cliente">
+            <span>Made for</span>
+            <span>{{ficha.en.cliente}}</span>
+        </div>
+        <div class="descripcion">
+            <span>Developed in</span>
+            <span>{{ficha.en.descripcion}}</span>
+        </div>
+    </md-card-content>
+</md-card>
