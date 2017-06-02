@@ -25,6 +25,7 @@ app.controller('contenido', ['$rootScope',function($rootScope){
     var raiz = this;
     raiz.rutaHeader = 'views/navbar.html';
     raiz.rutaBody = 'views/portfolio.html';
+    raiz.rutaFooter = 'views/footer.html';
     raiz.rutaLogoPreloader = 'views/logoAnimado.html';
     raiz.cargado = false;
     $rootScope.$on('finPrecarga',function(e,a){

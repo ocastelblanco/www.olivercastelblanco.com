@@ -20,6 +20,23 @@ $bp-xs: 600px;
 $bp-sm: 959px;
 $bp-gt-xs: $bp-xs + 1;
 $bp-gt-sm: $bp-sm + 1;
+// Medidas base
+$m1: 4px;
+$m2: $m1 * 2;
+$m3: $m1 * 3;
+$m4: $m1 * 4;
+$m5: $m1 * 5;
+$m6: $m1 * 6;
+$m7: $m1 * 7;
+$m8: $m1 * 8;
+$m9: $m1 * 9;
+$m10: $m1 * 10;
+$m11: $m1 * 11;
+$m12: $m1 * 12;
+$m13: $m1 * 13;
+$m14: $m1 * 14;
+$m15: $m1 * 15;
+$m16: $m1 * 16;
 // Variables del logo
 $logo-height: 48px;
 $logo-height-lg: 64px;
@@ -39,6 +56,12 @@ $logo-width-liver-xs: 47px;
 $logo-width-astelblanco: 187px;
 $logo-width-astelblanco-lg: 250px;
 $logo-width-astelblanco-xs: 125px;
+// Variables de encabezado
+$ancho-encabezado-sm: 260px;
+$ancho-encabezado-gt-sm: 438px;
+// Variables de portfolio
+$ancho-fichas-gt-sm: $bp-sm + 11;
+$diametro-circulo: 220px;
 // Ventana general
 html {
     background-color: $color-primario;
@@ -46,6 +69,7 @@ html {
 // Contenedor principal
 .contenedor {
     font-family: $tipo-contenido;
+    height: inherit;
 // Estilos generales del contenedor
     .md-button {
         font-family: $tipo-titulos;
@@ -150,10 +174,10 @@ html {
                     top: 0;
                     left: 0;
                     @media (max-width: $bp-sm) {
-                        height: 260px;
+                        height: $ancho-encabezado-sm;
                     }
                     @media (min-width: $bp-gt-sm) {
-                        height: 438px;
+                        height: $ancho-encabezado-gt-sm;
                     }
                     div {
                         width: 100%;
@@ -176,7 +200,7 @@ html {
                 }
             }
             .navbar {
-                padding: 8px 16px;
+                padding: $m2 $m4;
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -186,7 +210,7 @@ html {
                 .fondo {
                     background-color: $color-primario;
                     width: 100%;
-                    height: 64px;
+                    height: $m16;
                     position: absolute;
                     top: 0;
                     left: 0;
@@ -233,23 +257,23 @@ html {
         .portfolio {
             background-color: $color-primario;
             position: relative;
-            margin-top: 438px;
+            margin-top: $ancho-encabezado-gt-sm;
             .card-principal {
                 display: block;
-                padding: 24px;
-                width: 970px;
-                margin-top: -64px;
+                padding: $m6;
+                width: $ancho-fichas-gt-sm;
+                margin-top: ($m16 * -1);
                 .imagen-circulo {
-                    width: 221px;
-                    height: 221px;
+                    width: $diametro-circulo + 1;
+                    height: $diametro-circulo + 1;
                     border-radius: 50%;
                     border: 1px solid rgba(0,0,0,0.4);
                     padding: 1px;
                     overflow: hidden;
                     position: relative;
                     img {
-                        width: 220px;
-                        height: 220px;
+                        width: $diametro-circulo;
+                        height: $diametro-circulo;
                         border-radius: 50%;
                     }
                     &:after {
@@ -257,8 +281,8 @@ html {
                         position: absolute;
                         top: 0;
                         left: 0;
-                        width: 220px;
-                        height: 220px;
+                        width: $diametro-circulo;
+                        height: $diametro-circulo;
                         margin: 1px;
                         border-radius: 50%;
                         background-image: -webkit-linear-gradient(-90deg, rgba(2,155,229,0.20) 0%, rgba(239,108,0,0.20) 100%);
@@ -279,11 +303,11 @@ html {
             .titulo-seccion {
                 color: $color-blanco;
                 font-family: $tipo-titulos;
-                width: 970px;
-                margin: 32px 0 16px 0;
+                width: $ancho-fichas-gt-sm;
+                margin: $m8 0 $m4 0;
             }
             .fichas {
-                width: 986px;
+                width: $ancho-fichas-gt-sm + $m4;
                 .ficha {
                     &.ng-enter {
                         transition: 0.5s linear all;
@@ -321,9 +345,33 @@ html {
                         }
                     }
                     .descripcion {
-                        margin-top: 12px;
+                        margin-top: $m3;
                         >span:first-of-type {
                             font-weight: bold;
+                        }
+                    }
+                }
+            }
+        }
+        .footer {
+            footer {
+                margin-top: $m9;
+                .md-toolbar-tools {
+                    width: $ancho-fichas-gt-sm + $m4;
+                    .md-icon-button {
+                        overflow: visible;
+                        md-icon {
+                            float: left;
+                            font-size: $m6;
+                            margin-right: $m1;
+                        }
+                        span {
+                            opacity: 0;
+                        }
+                        &:hover {
+                            span {
+                                @include animation('0.5s ease-in-out 1 fade-in');
+                            }
                         }
                     }
                 }
@@ -371,4 +419,8 @@ html {
 @include keyframes(fade) {
     from {opacity: 1;}
     to {opacity: 0;}
+}
+@include keyframes(fade-in) {
+    from {opacity: 0;}
+    to {opacity: 1;}
 }
