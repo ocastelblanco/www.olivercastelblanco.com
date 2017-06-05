@@ -360,17 +360,28 @@ html {
                     width: $ancho-fichas-gt-sm + $m4;
                     .md-icon-button {
                         overflow: visible;
+                        width: 100%;
                         md-icon {
                             float: left;
                             font-size: $m6;
                             margin-right: $m1;
                         }
-                        span {
-                            opacity: 0;
+                        .titulo {
+                            overflow: hidden;
+                            position: relative;
+                            height: $m4;
+                            span {
+                                display: block;
+                                position: absolute;
+                                top: 0;
+                                @include animation('0.5s cubic-bezier(0.600, -0.280, 0.735, 0.045) 1 forwards cierra');
+                            }
                         }
                         &:hover {
-                            span {
-                                @include animation('0.5s ease-in-out 1 fade-in');
+                            .titulo {
+                                span {
+                                    @include animation('0.5s cubic-bezier(0.175, 0.885, 0.320, 1.275) 1 forwards abre');
+                                }
                             }
                         }
                     }
@@ -423,4 +434,12 @@ html {
 @include keyframes(fade-in) {
     from {opacity: 0;}
     to {opacity: 1;}
+}
+@include keyframes(abre) {
+    from {left: -100%;}
+    to {left: 0;}
+}
+@include keyframes(cierra) {
+    from {left: 0;}
+    to {left: -100%;}
 }
