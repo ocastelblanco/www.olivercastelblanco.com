@@ -1,0 +1,6 @@
+<div ng-controller="photos as ph" class="photos" flex layout="column" layout-fill layout-align="start center">
+    <div ng-repeat="album in ph.albumes">
+        {{album.titulo}}
+        <img ng-src="{{album.portada_url}}">
+    </div>
+</div>

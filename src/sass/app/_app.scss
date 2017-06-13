@@ -18,8 +18,13 @@ $color-gris: #979797;
 // Breakpoints
 $bp-xs: 600px;
 $bp-sm: 959px;
+$bp-md: 1279px;
+$bp-lg: 1919px;
+$bp-xl: $bp-lg + 1;
 $bp-gt-xs: $bp-xs + 1;
 $bp-gt-sm: $bp-sm + 1;
+$bp-gt-md: $bp-md + 1;
+$bp-gt-lg: $bp-xl;
 // Medidas base
 $m1: 4px;
 $m2: $m1 * 2;
@@ -62,10 +67,6 @@ $ancho-encabezado-gt-sm: 438px;
 // Variables de portfolio
 $ancho-fichas-gt-sm: $bp-sm + 11;
 $diametro-circulo: 220px;
-// Ventana general
-html {
-    background-color: $color-primario;
-}
 // Contenedor principal
 .contenedor {
     font-family: $tipo-contenido;
@@ -159,7 +160,7 @@ html {
     }
     // Contenido
     .contenido {
-        height: 100%;
+        background-color: $color-primario;
         // Encabezado
         .encabezado {
             .fondo-header {
@@ -187,7 +188,7 @@ html {
                         left: 0;
                     }
                     .fondo {
-                        background-image: url('../img/bg-header.jpg');
+                        background-position: 0% 55%;
                         background-size: cover;
                     }
                     .overlay {
@@ -353,6 +354,7 @@ html {
                 }
             }
         }
+        // Footer
         .footer {
             footer {
                 margin-top: $m9;
@@ -387,6 +389,12 @@ html {
                     }
                 }
             }
+        }
+        // Galeria fotografica
+        .photos {
+            background-color: $color-blanco;
+            position: relative;
+            margin-top: $ancho-encabezado-gt-sm;
         }
     }
 }

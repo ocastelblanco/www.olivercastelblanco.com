@@ -1,12 +1,12 @@
-<div class="fondo-header"><div class="fondo"></div><div class="overlay"></div></div>
+<div class="fondo-header"><div class="fondo" ng-style="cont.estiloBgHeader"></div><div class="overlay"></div></div>
 <md-content class="navbar" ng-controller="encabezado as ec" id="navbar">
     <div class="fondo"></div>
     <div class="logo"><div>o</div><div>c</div></div>
     <md-nav-bar md-selected-nav-item="ec.selectedTab" nav-bar-aria-label="barra de navegación">
-        <md-nav-item name="pagina1" md-nav-click="goto('page1')">
+        <md-nav-item name="pagina1" md-nav-click="cont.ir('portfolio')">
             portfolio
         </md-nav-item>
-        <md-nav-item name="pagina2" md-nav-click="goto('page1')">
+        <md-nav-item name="pagina2" md-nav-click="cont.ir('photos')">
             photos
         </md-nav-item>
         <md-nav-item name="pagina3" md-nav-click="goto('page1')">
