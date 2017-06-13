@@ -27,6 +27,7 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
     var raiz = this;
     raiz.rutaHeader = 'views/navbar.html';
     raiz.rutaBody = 'views/portfolio.html';
+    raiz.claseContenido = 'portfolio';
     raiz.rutaFooter = 'views/footer.html';
     raiz.rutaLogoPreloader = 'views/logoAnimado.html';
     raiz.cargado = false;
@@ -35,6 +36,7 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
     });
     raiz.ir = function(destino) {
         raiz.rutaBody = 'views/'+destino+'.html';
+        raiz.claseContenido = destino;
     };
     var rutasBgHeaders = [];
     $http.get('assets/img/index.json').then(function(resp){
@@ -124,20 +126,40 @@ app.controller('photos', ['apiFlickr','$timeout',function(apiFlickr,$timeout){
             raiz.albumes[i] = {};
             raiz.albumes[i].titulo = albumes[i].title._content;
             var portada = albumes[i].primary;
-                apiFlickr.foto(portada,String(i)).then(function(resp){
-                    var num = Number(resp[1]);
-                    var fotos = resp[0].sizes.size;
-                    for (var g=0;g<fotos.length;g++) {
-                        var label = fotos[g].label;
-                        if (label == 'Medium 640') {
-                            raiz.albumes[num].portada_url = fotos[g].source;
+            apiFlickr.foto(portada,String(i)).then(function(resp){
+                var num = Number(resp[1]);
+                var fotos = resp[0].sizes.size;
+                for (var g=0;g<fotos.length;g++) {
+                    var label = fotos[g].label;
+                    if (label == 'Medium 640') {
+                        raiz.albumes[num].portada_url = fotos[g].source;
+                        raiz.albumes[num].id = fotos[g].id;
+                        /* -------------------------------------------> Muy bueno para usar en las fotos de cada album
+                        var relacion = fotos[g].width / fotos[g].height;
+                        raiz.albumes[num].relacion = relacion;
+                        if (relacion <= 0.3) {
+                            raiz.albumes[num].colspan = 1;
+                            raiz.albumes[num].rowspan = 3;
+                        } else if (relacion > 0.3 && relacion <= 0.7) {
+                            raiz.albumes[num].colspan = 1;
+                            raiz.albumes[num].rowspan = 2;
+                        } else if (relacion > 0.7 && relacion <= 1.5) {
+                            raiz.albumes[num].colspan = 1;
+                            raiz.albumes[num].rowspan = 1;
+                        } else if (relacion > 1.5 && relacion < 3) {
+                            raiz.albumes[num].colspan = 2;
+                            raiz.albumes[num].rowspan = 1;
+                        } else if (relacion >= 3) {
+                            raiz.albumes[num].colspan = 3;
+                            raiz.albumes[num].rowspan = 1;
                         }
+                        */
                     }
-                });
+                }
+            });
         }
     });
 }]);
-// Directivas
 // Directivas
 app.directive('scrollAbajo', function ($document,$timeout) {
     return {

@@ -2,7 +2,7 @@
     <!--div class="preloader" ng-if="!cont.cargado" flex layout-fill layout-align="center center">
         <ng-include src="cont.rutaLogoPreloader"></ng-include>
     </div-->
-    <div class="contenido"><!--</div> ng-if="cont.cargado"-->
+    <div class="contenido" ng-class="cont.claseContenido"><!--</div> ng-if="cont.cargado"-->
         <ng-include src="cont.rutaHeader" class="encabezado"></ng-include>
         <ng-include src="cont.rutaBody" class="cuerpo"></ng-include>
         <ng-include src="cont.rutaFooter" class="footer"></ng-include>

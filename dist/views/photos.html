@@ -1,6 +1,9 @@
 <div ng-controller="photos as ph" class="photos" flex layout="column" layout-fill layout-align="start center">
-    <div ng-repeat="album in ph.albumes">
-        {{album.titulo}}
-        <img ng-src="{{album.portada_url}}">
-    </div>
+    <md-grid-list class="lista-fotos" md-cols="1" md-cols-sm="2" md-cols-gt-sm="3" md-row-height="1:1" md-gutter="2px" md-gutter-gt-md="4px">
+        <md-grid-tile class="album" ng-repeat="album in ph.albumes" ng-style="{'background-image': 'url('+album.portada_url+')'}">
+            <md-grid-tile-footer>
+                <h3>{{album.titulo}}</h3>
+            </md-grid-tile-footer>
+        </md-grid-tile>
+    </md-grid-list>
 </div>
