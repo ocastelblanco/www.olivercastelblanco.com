@@ -1,9 +1,20 @@
-<div ng-controller="photos as ph" class="photos" flex layout="column" layout-fill layout-align="start center">
-    <md-grid-list class="lista-fotos" md-cols="1" md-cols-sm="2" md-cols-gt-sm="3" md-row-height="1:1" md-gutter="2px" md-gutter-gt-md="4px">
-        <md-grid-tile class="album" ng-repeat="album in ph.albumes" ng-style="{'background-image': 'url('+album.portada_url+')'}">
-            <md-grid-tile-footer>
-                <h3>{{album.titulo}}</h3>
-            </md-grid-tile-footer>
-        </md-grid-tile>
-    </md-grid-list>
+<div ng-controller="photos as ph" class="photos" flex layout="column" layout-fill layout-align="start center" scroll-abajo>
+    <md-content class="content">
+        <md-toolbar class="barra md-accent">
+            <div class="md-toolbar-tools">
+                <md-button class="md-icon-button" aria-label="volver">
+                    <md-icon ng-bind="'arrow_back'"></md-icon>
+                </md-button>
+                <h2 class="titulo-general" ng-class="{'visible':!ph.modoAlbum,'invisible':ph.modoAlbum}">Photosets</h2>
+                <h2 class="titulo-album" ng-class="{'visible':ph.modoAlbum,'invisible':!ph.modoAlbum}">{{ph.nombreAlbum}}</h2>
+            </div>
+        </md-toolbar>
+        <md-grid-list class="lista" md-cols="2" md-cols-sm="3" md-cols-gt-sm="4" md-row-height="1:1" md-gutter="2px" md-gutter-gt-md="4px">
+            <md-grid-tile class="album" ng-repeat="album in ph.albumes" ng-style="{'background-image': 'url('+album.portada_url+')'}" ng-click="ph.abreAlbum(album.id, album.titulo)" ng-class="{'fade-out':ph.fadeOut[album.id],'a-toolbar':ph.aToolbar[album.id]}">
+                <md-grid-tile-footer>
+                    <h3>{{album.titulo}}</h3>
+                </md-grid-tile-footer>
+            </md-grid-tile>
+        </md-grid-list>
+    </md-content>
 </div>

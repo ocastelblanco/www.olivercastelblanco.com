@@ -26,8 +26,12 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
     console.log('contenido');
     var raiz = this;
     raiz.rutaHeader = 'views/navbar.html';
-    raiz.rutaBody = 'views/portfolio.html';
-    raiz.claseContenido = 'portfolio';
+    //raiz.rutaBody = 'views/portfolio.html';
+    //raiz.claseContenido = 'portfolio';
+    //-----------------------------------
+    raiz.rutaBody = 'views/photos.html';
+    raiz.claseContenido = 'photos';
+    //-----------------------------------
     raiz.rutaFooter = 'views/footer.html';
     raiz.rutaLogoPreloader = 'views/logoAnimado.html';
     raiz.cargado = false;
@@ -44,9 +48,13 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
         for (var i = 0;i < resp.data.bgHeader.length;i++) {
             var header = resp.data.bgHeader[i];
             apiFlickr.bgHeader(header).then(function(resp){
-                rutasBgHeaders.push(resp.sizes);
-                if (rutasBgHeaders.length == bgHeaders.length) {
-                    cargaEstiloBgHeader();
+                if (resp) {
+                    rutasBgHeaders.push(resp.sizes);
+                    if (rutasBgHeaders.length == bgHeaders.length) {
+                        cargaEstiloBgHeader();
+                    }
+                } else {
+                    raiz.estiloBgHeader = {'background-image': 'url(\'assets/img/bg-header.jpg\')'};
                 }
             });
         }
@@ -105,7 +113,10 @@ app.controller('animaLogo', ['$scope','$timeout','$rootScope',function($scope,$t
 app.controller('encabezado', [function(){
     console.log('encabezado');
     var raiz = this;
-    raiz.selectedTab = 'pagina1';
+    //raiz.selectedTab = 'pagina1';
+    //---------------------------
+    raiz.selectedTab = 'pagina2';
+    //---------------------------
 }]);
 app.controller('portfolio', ['$http',function($http){
     console.log('portfolio');
@@ -119,12 +130,28 @@ app.controller('portfolio', ['$http',function($http){
 app.controller('photos', ['apiFlickr','$timeout',function(apiFlickr,$timeout){
     console.log('photos');
     var raiz = this;
+    raiz.fadeOut = {};
+    raiz.aToolbar = {};
+    raiz.modoAlbum = false;
+    raiz.abreAlbum = function(album_id, album_titulo) {
+        raiz.aToolbar[album_id] = true;
+        raiz.nombreAlbum = album_titulo;
+        raiz.modoAlbum = true;
+        angular.forEach(raiz.albumes, function(valor, llave){
+            if (valor.id != album_id) {
+                raiz.fadeOut[valor.id] = true;
+            }
+        });
+    };
     raiz.albumes = [];
     apiFlickr.albumes().then(function(resp){
         var albumes = resp.photosets.photoset;
         for (var i=0;i<albumes.length;i++) {
             raiz.albumes[i] = {};
             raiz.albumes[i].titulo = albumes[i].title._content;
+            raiz.albumes[i].id = albumes[i].id;
+            raiz.fadeOut[albumes[i].id] = false;
+            raiz.aToolbar[albumes[i].id] = false;
             var portada = albumes[i].primary;
             apiFlickr.foto(portada,String(i)).then(function(resp){
                 var num = Number(resp[1]);
@@ -133,7 +160,6 @@ app.controller('photos', ['apiFlickr','$timeout',function(apiFlickr,$timeout){
                     var label = fotos[g].label;
                     if (label == 'Medium 640') {
                         raiz.albumes[num].portada_url = fotos[g].source;
-                        raiz.albumes[num].id = fotos[g].id;
                         /* -------------------------------------------> Muy bueno para usar en las fotos de cada album
                         var relacion = fotos[g].width / fotos[g].height;
                         raiz.albumes[num].relacion = relacion;
@@ -153,7 +179,7 @@ app.controller('photos', ['apiFlickr','$timeout',function(apiFlickr,$timeout){
                             raiz.albumes[num].colspan = 3;
                             raiz.albumes[num].rowspan = 1;
                         }
-                        */
+                        //*/
                     }
                 }
             });
@@ -205,11 +231,15 @@ app.service('apiFlickr',['$http',function($http){
         bgHeader: function(valor) {
             var promesa = $http.get('https://api.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key='+flickr_api_key+'&photo_id='+valor+'&format=json&nojsoncallback=1').then(function(resp){
                 return resp.data;
+            }, function(resp){
+                return resp.data;
             });
             return promesa;
         },
         albumes: function() {
             var promesa = $http.get('https://api.flickr.com/services/rest/?method=flickr.photosets.getList&api_key='+flickr_api_key+'&user_id='+flickr_user_id+'&format=json&nojsoncallback=1').then(function(resp){
+                return resp.data;
+            }, function(resp){
                 return resp.data;
             });
             return promesa;
@@ -221,6 +251,8 @@ app.service('apiFlickr',['$http',function($http){
                 } else {
                     return resp.data;
                 }
+            }, function(resp){
+                return resp.data;
             });
             return promesa;
         }

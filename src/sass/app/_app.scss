@@ -394,19 +394,47 @@ $diametro-circulo: 220px;
         }
         // Galeria fotografica
         &.photos {
-            background-color: $color-blanco;
+            background-color: $color-primario;
         }
         .photos {
-            background-color: $color-blanco;
+            background-color: $color-primario;
             position: relative;
             margin-top: $ancho-encabezado-gt-sm;
-            .lista-fotos {
+            .content {
                 width: $ancho-fichas-gt-sm;
                 margin-top: ($m16 * -1);
-                .album {
-                    background-size: cover;
-                    background-position: 50%;
-                    cursor: pointer;
+                .barra {
+                    h2 {
+                        &.titulo-general {
+                            opacity: 1;
+                        }
+                        &.titulo-album {
+                            opacity: 0;
+                        }
+                        &.visible {
+                            @include animation('1.5s cubic-bezier(0.600, -0.280, 0.735, 0.045) 1 forwards fade-in');
+                        }
+                        &.invisible {
+                            @include animation('1.5s cubic-bezier(0.600, -0.280, 0.735, 0.045) 1 forwards fade');
+                        }
+                    }
+                }
+                .lista {
+                    padding-top: $m4;
+                    .album {
+                        background-size: cover;
+                        background-position: 50%;
+                        cursor: pointer;
+                        &.fade-out {
+                            @include animation('1.5s cubic-bezier(0.600, -0.280, 0.735, 0.045) 1 forwards fade-out-md');
+                        }
+                        &.a-toolbar {
+                            @include animation('1s cubic-bezier(0.680, -0.550, 0.265, 1.550) 1s 1 forwards a-toolbar-md');
+                            >figure {
+                                @include animation('1s cubic-bezier(0.600, -0.280, 0.735, 0.045) 1 forwards fade');
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -464,4 +492,26 @@ $diametro-circulo: 220px;
 @include keyframes(cierra) {
     from {left: 0;}
     to {left: -100%;}
+}
+@include keyframes(fade-out-md) {
+    from {
+        opacity: 1;
+        filter: saturate(100%);
+    }
+    to {
+        opacity: 0;
+        filter: saturate(0%);
+    }
+}
+@include keyframes(a-toolbar-md) {
+    from {}
+    to {
+        top: $m14 * -1;
+        left: $m12;
+        width: $m12;
+        height: $m12;
+        padding: 0;
+        margin: 0;
+        z-index: 9;
+    }
 }
