@@ -13,3 +13,35 @@
   -o-animation: #{$str};
   animation: #{$str};      
 }
+@mixin ng-fade_cruzado($tiempo,$function) {
+  &.ng-enter {
+    transition: $tiempo $function all;
+    opacity: 0;
+    &.ng-enter-active {
+      opacity: 1;
+    }
+  }
+  &.ng-leave {
+    transition: $tiempo $function all;
+    opacity: 1;
+    &.ng-leave-active {
+      opacity: 0;
+    }
+  }
+}
+@mixin ng-fade($tiempo-enter,$tiempo-leave,$function) {
+  &.ng-enter {
+    transition: $tiempo-enter $function all;
+    opacity: 0;
+    &.ng-enter-active {
+      opacity: 1;
+    }
+  }
+  &.ng-leave {
+    transition: $tiempo-leave $function all;
+    opacity: 1;
+    &.ng-leave-active {
+      opacity: 0;
+    }
+  }
+}

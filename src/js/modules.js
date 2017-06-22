@@ -26,11 +26,11 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
     console.log('contenido');
     var raiz = this;
     raiz.rutaHeader = 'views/navbar.html';
-    //raiz.rutaBody = 'views/portfolio.html';
-    //raiz.claseContenido = 'portfolio';
+    raiz.rutaBody = 'views/portfolio.html';
+    raiz.claseContenido = 'portfolio';
     //-----------------------------------
-    raiz.rutaBody = 'views/photos.html';
-    raiz.claseContenido = 'photos';
+    //raiz.rutaBody = 'views/photos.html';
+    //raiz.claseContenido = 'photos';
     //-----------------------------------
     raiz.rutaFooter = 'views/footer.html';
     raiz.rutaLogoPreloader = 'views/logoAnimado.html';
@@ -113,9 +113,9 @@ app.controller('animaLogo', ['$scope','$timeout','$rootScope',function($scope,$t
 app.controller('encabezado', [function(){
     console.log('encabezado');
     var raiz = this;
-    //raiz.selectedTab = 'pagina1';
+    raiz.selectedTab = 'pagina1';
     //---------------------------
-    raiz.selectedTab = 'pagina2';
+    //raiz.selectedTab = 'pagina2';
     //---------------------------
 }]);
 app.controller('portfolio', ['$http',function($http){
@@ -134,7 +134,6 @@ app.controller('photos', ['apiFlickr','$timeout','$window',function(apiFlickr,$t
     raiz.aToolbar = {};
     raiz.modoAlbum = false;
     raiz.modoFoto = false;
-    raiz.foto = null;
     raiz.abreAlbum = function(album_id, album_titulo) {
         raiz.aToolbar[album_id] = true;
         raiz.nombreAlbum = album_titulo;
@@ -156,14 +155,28 @@ app.controller('photos', ['apiFlickr','$timeout','$window',function(apiFlickr,$t
                 raiz.foto.titulo = valor.titulo;
                 if ($window.innerWidth > 1024) {
                     raiz.foto.url = valor.original_url;
+                    raiz.foto.width = valor.original_width;
+                    raiz.foto.height = valor.original_height;
                 } else {
                     raiz.foto.url = valor.large_url;
+                    raiz.foto.width = valor.large_width;
+                    raiz.foto.height = valor.large_height;
                 }
             }
         });
+        var anchoContent = angular.element(document.querySelector('#photos .content'));
+        anchoContent = anchoContent[0].clientWidth;
+        var altoToolbar = angular.element(document.querySelector('#photos .content .barra'));
+        altoToolbar = altoToolbar[0].clientHeight;
+        var padding = angular.element(document.querySelector('#photos .content .lista.albumes'));
+        padding = padding[0].offsetHeight;
+        raiz.altoFoto = String(Math.ceil((anchoContent/raiz.foto.width)*raiz.foto.height)+altoToolbar+(padding*2))+'px';
     };
     raiz.cierraFoto = function() {
+        raiz.modoAlbum = true;
+        raiz.modoFoto = false;
         raiz.foto = null;
+        raiz.altoFoto = null;
     };
     raiz.fotosAlbumes = function(album_id) {
         apiFlickr.listaFotos(album_id).then(function(resp){
@@ -200,8 +213,12 @@ app.controller('photos', ['apiFlickr','$timeout','$window',function(apiFlickr,$t
                             }
                         } else if (label == 'Large') {
                             raiz.fotos[num].large_url = fotos[g].source;
+                            raiz.fotos[num].large_width = fotos[g].width;
+                            raiz.fotos[num].large_height = fotos[g].height;
                         } else if (label == 'Original') {
                             raiz.fotos[num].original_url = fotos[g].source;
+                            raiz.fotos[num].original_width = fotos[g].width;
+                            raiz.fotos[num].original_height = fotos[g].height;
                         }
                     }
                 });
@@ -212,6 +229,9 @@ app.controller('photos', ['apiFlickr','$timeout','$window',function(apiFlickr,$t
         raiz.fotos = null;
         raiz.nombreAlbum = null;
         raiz.modoAlbum = false;
+        raiz.modoFoto = false;
+        raiz.foto = null;
+        raiz.altoFoto = null;
         angular.forEach(raiz.albumes, function(valor, llave){
             raiz.fadeOut[valor.id] = false;
             raiz.aToolbar[valor.id] = false;

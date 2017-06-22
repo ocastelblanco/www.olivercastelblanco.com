@@ -400,11 +400,15 @@ $diametro-circulo: 220px;
             background-color: $color-primario;
             position: relative;
             margin-top: $ancho-encabezado-gt-sm;
+            figcaption {
+                font-family: $tipo-titulos;
+            }
             .content {
                 width: $ancho-fichas-gt-sm;
                 margin-top: ($m16 * -1);
                 .barra {
                     h2 {
+                        font-family: $tipo-titulos;
                         &.titulo-general {
                             opacity: 1;
                         }
@@ -432,6 +436,9 @@ $diametro-circulo: 220px;
                         @include animation('1.5s cubic-bezier(0.600, -0.280, 0.735, 0.045) 1 forwards fade-in-md');
                         &.fade-out {
                             @include animation('1.5s cubic-bezier(0.600, -0.280, 0.735, 0.045) 1 forwards fade-out-md');
+                            &.modoFoto {
+                                display: none;
+                            }
                         }
                         &.a-toolbar {
                             @include animation('1s cubic-bezier(0.680, -0.550, 0.265, 1.550) 1s 1 forwards a-toolbar-md');
@@ -446,12 +453,32 @@ $diametro-circulo: 220px;
                     &.sin-padding {
                         @include animation('1.5s cubic-bezier(0.600, -0.280, 0.735, 0.045) 1s 1 forwards sin-padding');
                     }
+                    &.fotos {
+                        @include ng-fade(1.5s,0.5s,linear);
+                    }
                 }
                 .porta-foto {
                     cursor: pointer;
+                    margin: $m4 0;
+                    position: absolute;
+                    top: $m16;
                     img {
                         max-width: 100%;
                     }
+                    figcaption {
+                        position: absolute;
+                        top: 0;
+                        background-color: rgba(0,0,0,0.18);
+                        color: $color-blanco;
+                        width: 100%;
+                        height: $m8;
+                        padding-left: $m2;
+                        padding-top: $m2;
+                        md-icon {
+                            color: $color-blanco;
+                        }
+                    }
+                    @include ng-fade_cruzado(1.5s,linear);
                 }
             }
         }
