@@ -1,0 +1,8 @@
+<div ng-controller="blogs as bl" class="blogs" flex layout="column" layout-fill layout-align="start center" scroll-abajo>
+    <md-content class="content">
+        <div ng-repeat="blog in bl.blogs track by $index">
+            <h1>Título: {{blog.titulo}}</h1>
+            <h2>Descripción: {{blog.descripcion}}</h2>
+        </div>
+    </md-content>
+</div>

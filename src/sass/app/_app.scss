@@ -62,8 +62,8 @@ $logo-width-astelblanco: 187px;
 $logo-width-astelblanco-lg: 250px;
 $logo-width-astelblanco-xs: 125px;
 // Variables de encabezado
-$ancho-encabezado-sm: 260px;
-$ancho-encabezado-gt-sm: 438px;
+$alto-encabezado-sm: 260px;
+$alto-encabezado-gt-sm: 438px;
 // Variables de portfolio
 $ancho-fichas-gt-sm: $bp-sm + 11;
 $diametro-circulo: 220px;
@@ -174,10 +174,10 @@ $diametro-circulo: 220px;
                     top: 0;
                     left: 0;
                     @media (max-width: $bp-sm) {
-                        height: $ancho-encabezado-sm;
+                        height: $alto-encabezado-sm;
                     }
                     @media (min-width: $bp-gt-sm) {
-                        height: $ancho-encabezado-gt-sm;
+                        height: $alto-encabezado-gt-sm;
                     }
                     div {
                         width: 100%;
@@ -206,7 +206,13 @@ $diametro-circulo: 220px;
                 left: 0;
                 min-width: 100%;
                 z-index: 9999;
-                background-color: transparent;
+                @media (min-width: $bp-gt-sm) {
+                    background-color: transparent;
+                }
+                @media (max-width: $bp-sm) {
+                    background-color: $color-primario;
+                    box-shadow: 0px 0px 1px 0px $color-negro;
+                }
                 .fondo {
                     background-color: $color-primario;
                     width: 100%;
@@ -296,12 +302,22 @@ $diametro-circulo: 220px;
         .portfolio {
             background-color: $color-primario;
             position: relative;
-            margin-top: $ancho-encabezado-gt-sm;
+            @media (min-width: $bp-gt-xs) and (max-width: $bp-sm) {
+                margin-top: $alto-encabezado-sm;
+            }
+            @media (min-width: $bp-gt-sm) {
+                margin-top: $alto-encabezado-gt-sm;
+            }
             .card-principal {
                 display: block;
                 padding: $m6;
                 width: $ancho-fichas-gt-sm;
-                margin-top: ($m16 * -1);
+                @media (max-width: $bp-xs) {
+                    margin-top: $m12;
+                }
+                @media (min-width: $bp-gt-sm) {
+                    margin-top: ($m16 * -1);
+                }
                 .imagen-circulo {
                     width: $diametro-circulo + 1;
                     height: $diametro-circulo + 1;
@@ -399,13 +415,23 @@ $diametro-circulo: 220px;
         .photos {
             background-color: $color-primario;
             position: relative;
-            margin-top: $ancho-encabezado-gt-sm;
+            @media (min-width: $bp-gt-xs) and (max-width: $bp-sm) {
+                margin-top: $alto-encabezado-sm;
+            }
+            @media (min-width: $bp-gt-sm) {
+                margin-top: $alto-encabezado-gt-sm;
+            }
             figcaption {
                 font-family: $tipo-titulos;
             }
             .content {
                 width: $ancho-fichas-gt-sm;
-                margin-top: ($m16 * -1);
+                @media (max-width: $bp-xs) {
+                    margin-top: $m12;
+                }
+                @media (min-width: $bp-gt-sm) {
+                    margin-top: ($m16 * -1);
+                }
                 .barra {
                     h2 {
                         font-family: $tipo-titulos;
@@ -479,6 +505,30 @@ $diametro-circulo: 220px;
                         }
                     }
                     @include ng-fade_cruzado(1.5s,linear);
+                }
+            }
+        }
+        // Blogs
+        &.blogs {
+            background-color: $color-primario;
+        }
+        .blogs {
+            background-color: $color-primario;
+            position: relative;
+            @media (min-width: $bp-gt-xs) and (max-width: $bp-sm) {
+                margin-top: $alto-encabezado-sm;
+            }
+            @media (min-width: $bp-gt-sm) {
+                margin-top: $alto-encabezado-gt-sm;
+            }
+            .content {
+                width: $ancho-fichas-gt-sm;
+                min-height: $alto-encabezado-gt-sm;
+                @media (max-width: $bp-xs) {
+                    margin-top: $m12;
+                }
+                @media (min-width: $bp-gt-sm) {
+                    margin-top: ($m16 * -1);
                 }
             }
         }

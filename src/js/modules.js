@@ -1,6 +1,8 @@
 /* global angular */
 var flickr_api_key = '516c801b319d21342af7881ea6471812';
 var flickr_user_id = '97546219%40N00';
+var blogger_api_key = 'AIzaSyBmSolgBGsEjnkT-KF8_p1puXjAXSKhQS4';
+var blogger_blogs = ['2924552721978703143','8845133391114104188','2994125734899716427'];
 var app = angular.module('app', [
     'ngAnimate',
     'ngAria',
@@ -19,18 +21,18 @@ app.config(function($mdThemingProvider) {
         .warnPalette('deep-orange')
         .backgroundPalette('grey');
 });
-app.controller('main', [function(){
+app.controller('main', ['$http',function($http){
     console.log('main');
 }]);
 app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function($rootScope,$http,apiFlickr,$window){
     console.log('contenido');
     var raiz = this;
     raiz.rutaHeader = 'views/navbar.html';
-    raiz.rutaBody = 'views/portfolio.html';
-    raiz.claseContenido = 'portfolio';
+    //raiz.rutaBody = 'views/portfolio.html';
+    //raiz.claseContenido = 'portfolio';
     //-----------------------------------
-    //raiz.rutaBody = 'views/photos.html';
-    //raiz.claseContenido = 'photos';
+    raiz.rutaBody = 'views/blogs.html';
+    raiz.claseContenido = 'blogs';
     //-----------------------------------
     raiz.rutaFooter = 'views/footer.html';
     raiz.rutaLogoPreloader = 'views/logoAnimado.html';
@@ -113,9 +115,9 @@ app.controller('animaLogo', ['$scope','$timeout','$rootScope',function($scope,$t
 app.controller('encabezado', [function(){
     console.log('encabezado');
     var raiz = this;
-    raiz.selectedTab = 'pagina1';
+    //raiz.selectedTab = 'pagina1';
     //---------------------------
-    //raiz.selectedTab = 'pagina2';
+    raiz.selectedTab = 'pagina3';
     //---------------------------
 }]);
 app.controller('portfolio', ['$http',function($http){
@@ -260,6 +262,22 @@ app.controller('photos', ['apiFlickr','$timeout','$window',function(apiFlickr,$t
         }
     });
 }]);
+app.controller('blogs',['apiBlogger','$timeout',function(apiBlogger,$timeout){
+    console.log('blogs');
+    var raiz = this;
+    raiz.blogs = [];
+    for (var i=0;i<blogger_blogs.length;i++) {
+        apiBlogger.blogs(blogger_blogs[i],String(i)).then(function(data){
+            var resp = data[0];
+            var num = Number(data[1]);
+            raiz.blogs[num] = {};
+            raiz.blogs[num].id = resp.id;
+            raiz.blogs[num].titulo = resp.name;
+            raiz.blogs[num].descripcion = resp.description;
+            raiz.blogs[num].numPosts = resp.posts.totalItems;
+        });
+    }
+}]);
 // Directivas
 app.directive('scrollAbajo', function ($document,$timeout) {
     return {
@@ -290,11 +308,13 @@ app.directive('scrollAbajo', function ($document,$timeout) {
                 } else if (opacidadActual < 0) {
                     opacidadActual = 0;
                 }
-                if (opacidad == 0) {
-                    angular.element(fondoNavbar).css('opacity',opacidadActual);
+                if (window.innerWidth>959) {
+                    if (opacidad == 0) {
+                        angular.element(fondoNavbar).css('opacity',opacidadActual);
+                    }
+                    angular.element(navbar).css('box-shadow', '0px 0px 1px 0px rgba(0,0,0,'+opacidadActual+')');
+                    angular.element(fondoHeader).css('opacity',opacidadImagen);
                 }
-                angular.element(navbar).css('box-shadow', '0px 0px 1px 0px rgba(0,0,0,'+opacidadActual+')');
-                angular.element(fondoHeader).css('opacity',opacidadImagen);
             });
         }
     };
@@ -340,4 +360,19 @@ app.service('apiFlickr',['$http',function($http){
         }
     };
     return apiFlickr;
+}]);
+app.service('apiBlogger',['$http',function($http){
+    var apiBlogger = {
+        blogs: function(blog_id,num){
+            var promesa = $http.get('https://www.googleapis.com/blogger/v3/blogs/'+blog_id+'?key='+blogger_api_key).then(function(resp){
+                if (num) {
+                    return [resp.data,num];
+                } else {
+                    return resp.data;
+                }
+            });
+            return promesa;
+        }
+    };
+    return apiBlogger;
 }]);
