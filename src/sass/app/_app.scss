@@ -313,7 +313,7 @@ $diametro-circulo: 220px;
                 padding: $m6;
                 width: $ancho-fichas-gt-sm;
                 @media (max-width: $bp-xs) {
-                    margin-top: $m12;
+                    margin-top: $m14;
                 }
                 @media (min-width: $bp-gt-sm) {
                     margin-top: ($m16 * -1);
@@ -425,12 +425,15 @@ $diametro-circulo: 220px;
                 font-family: $tipo-titulos;
             }
             .content {
-                width: $ancho-fichas-gt-sm;
+                width: 100%;
                 @media (max-width: $bp-xs) {
-                    margin-top: $m12;
+                    margin-top: $m14;
+                    width: 100%;
                 }
                 @media (min-width: $bp-gt-sm) {
                     margin-top: ($m16 * -1);
+                    width: $ancho-fichas-gt-sm;
+                    min-height: $alto-encabezado-gt-sm;
                 }
                 .barra {
                     h2 {
@@ -522,13 +525,51 @@ $diametro-circulo: 220px;
                 margin-top: $alto-encabezado-gt-sm;
             }
             .content {
-                width: $ancho-fichas-gt-sm;
-                min-height: $alto-encabezado-gt-sm;
+                width: 100%;
                 @media (max-width: $bp-xs) {
-                    margin-top: $m12;
+                    margin-top: $m14;
+                    width: 100%;
                 }
                 @media (min-width: $bp-gt-sm) {
                     margin-top: ($m16 * -1);
+                    width: $ancho-fichas-gt-sm;
+                    min-height: $alto-encabezado-gt-sm;
+                }
+                .barra {
+                    .md-toolbar-tools {
+                        .md-icon-button,
+                        .titulo-blog,
+                        .titulo-general {
+                            @include ng-fade_cruzado(1.5s,linear);
+                        }
+                        .titulo-general {
+                            position: absolute;
+                        }
+                    }
+                }
+                .lista-blogs {
+                    @include ng-fade_cruzado(1.5s,linear);
+                    .card-blog {
+                        .md-headline {
+                            font-family: $tipo-titulos;
+                        }
+                    }
+                }
+                .lista-entradas {
+                    @include ng-fade_cruzado(1.5s,linear);
+                    .card-post {
+                        .md-headline {
+                            font-family: $tipo-titulos;
+                        }
+                        .contenido {
+                            max-height: 4em;
+                            overflow: hidden;
+                            //white-space: nowrap;
+                            text-overflow: ellipsis;
+                            word-wrap: break-word;
+                            line-height: 1em;
+                        }
+                    }
                 }
             }
         }

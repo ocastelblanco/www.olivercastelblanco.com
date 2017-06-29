@@ -1,8 +1,42 @@
-<div ng-controller="blogs as bl" class="blogs" flex layout="column" layout-fill layout-align="start center" scroll-abajo>
+<div ng-controller="blogs as bl" class="blogs" flex layout="column" layout-align="start center" scroll-abajo>
     <md-content class="content">
-        <div ng-repeat="blog in bl.blogs track by $index">
-            <h1>Título: {{blog.titulo}}</h1>
-            <h2>Descripción: {{blog.descripcion}}</h2>
+        <md-toolbar class="barra md-accent">
+            <div class="md-toolbar-tools">
+                <md-button class="md-icon-button" aria-label="volver" ng-if="bl.modoEntradas" ng-click="bl.volverBlogs()">
+                    <md-icon ng-bind="'arrow_back'"></md-icon>
+                </md-button>
+                <h2 class="titulo-general" ng-if="!bl.modoEntradas">Blogs</h2>
+                <h2 class="titulo-blog" ng-if="bl.modoEntradas">{{bl.nombreBlog}}</h2>
+            </div>
+        </md-toolbar>
+        <div class="lista-blogs" layout="row" layout-align="start start" ng-if="!bl.modoEntradas" layout-wrap>
+            <div ng-repeat="blog in bl.blogs track by $index" flex="100" flex-gt-xs="33">
+                <md-card md-theme="dark-blue" class="card-blog">
+                    <md-card-title>
+                        <md-card-title-text>
+                            <span class="md-headline">{{blog.titulo}}</span>
+                            <span class="md-subhead">{{blog.descripcion}}</span>
+                        </md-card-title-text>
+                    </md-card-title>
+                    <md-card-actions layout="row" layout-align="end center">
+                        <md-button class="md-raised" ng-click="bl.abrirBlog(blog.id,blog.titulo)">Open posts</md-button>
+                    </md-card-actions>
+                </md-card>
+            </div>
+        </div>
+        <div flex class="lista-entradas" layout="row" layout-align="start start" ng-if="bl.modoEntradas" layout-wrap>
+            <div ng-repeat="entrada in bl.entradas track by $index" flex="100" flex-gt-xs="33">
+                <md-card class="card-post">
+                    <md-card-title>
+                        <md-card-title-text>
+                            <span class="md-headline">{{entrada.titulo}}</span>
+                        </md-card-title-text>
+                    </md-card-title>
+                    <md-card-content class="contenido">
+                        <div ng-bind-html="entrada.contenido"></div>
+                    </md-card-content>
+                </md-card>
+            </div>
         </div>
     </md-content>
 </div>

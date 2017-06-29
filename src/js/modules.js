@@ -7,7 +7,8 @@ var app = angular.module('app', [
     'ngAnimate',
     'ngAria',
     'ngMaterial',
-    'ngRoute'
+    'ngRoute',
+    'ngSanitize'
 ]);
 app.config(function($mdThemingProvider) {
     $mdThemingProvider
@@ -20,6 +21,9 @@ app.config(function($mdThemingProvider) {
         })
         .warnPalette('deep-orange')
         .backgroundPalette('grey');
+    $mdThemingProvider.theme('dark-grey').backgroundPalette('grey').dark();
+    $mdThemingProvider.theme('dark-orange').backgroundPalette('orange').dark();
+    $mdThemingProvider.theme('dark-blue').backgroundPalette('light-blue').dark();
 });
 app.controller('main', ['$http',function($http){
     console.log('main');
@@ -265,6 +269,7 @@ app.controller('photos', ['apiFlickr','$timeout','$window',function(apiFlickr,$t
 app.controller('blogs',['apiBlogger','$timeout',function(apiBlogger,$timeout){
     console.log('blogs');
     var raiz = this;
+    raiz.modoEntradas = false;
     raiz.blogs = [];
     for (var i=0;i<blogger_blogs.length;i++) {
         apiBlogger.blogs(blogger_blogs[i],String(i)).then(function(data){
@@ -277,6 +282,25 @@ app.controller('blogs',['apiBlogger','$timeout',function(apiBlogger,$timeout){
             raiz.blogs[num].numPosts = resp.posts.totalItems;
         });
     }
+    raiz.abrirBlog = function(blog_id,blog_titulo) {
+        raiz.nombreBlog = blog_titulo;
+        raiz.modoEntradas = true;
+        raiz.entradas = [];
+        apiBlogger.entradas(blog_id).then(function(data){
+            angular.forEach(data.items,function(valor, llave) {
+                raiz.entradas.push(
+                    {
+                        'id': valor.id,
+                        'titulo': valor.title,
+                        'contenido': valor.content
+                    }
+                );
+            });
+        });
+    };
+    raiz.volverBlogs = function() {
+        raiz.modoEntradas = false;
+    };
 }]);
 // Directivas
 app.directive('scrollAbajo', function ($document,$timeout) {
@@ -365,6 +389,16 @@ app.service('apiBlogger',['$http',function($http){
     var apiBlogger = {
         blogs: function(blog_id,num){
             var promesa = $http.get('https://www.googleapis.com/blogger/v3/blogs/'+blog_id+'?key='+blogger_api_key).then(function(resp){
+                if (num) {
+                    return [resp.data,num];
+                } else {
+                    return resp.data;
+                }
+            });
+            return promesa;
+        },
+        entradas: function(blog_id,num) {
+            var promesa = $http.get('https://www.googleapis.com/blogger/v3/blogs/'+blog_id+'/posts?key='+blogger_api_key).then(function(resp){
                 if (num) {
                     return [resp.data,num];
                 } else {
