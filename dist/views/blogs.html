@@ -27,13 +27,14 @@
         <div flex class="lista-entradas" layout="row" layout-align="start start" ng-if="bl.modoEntradas" layout-wrap>
             <div ng-repeat="entrada in bl.entradas track by $index" flex="100" flex-gt-xs="33">
                 <md-card class="card-post">
+                    <img ng-src="{{entrada.media.url}}" class="md-card-image" alt="Imagen blog" ng-if="entrada.media.url">
                     <md-card-title>
                         <md-card-title-text>
                             <span class="md-headline">{{entrada.titulo}}</span>
                         </md-card-title-text>
                     </md-card-title>
                     <md-card-content class="contenido">
-                        <div ng-bind-html="entrada.contenido"></div>
+                        <div ng-bind-html="entrada.contenido | simpleTexto"></div>
                     </md-card-content>
                 </md-card>
             </div>

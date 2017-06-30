@@ -288,11 +288,29 @@ app.controller('blogs',['apiBlogger','$timeout',function(apiBlogger,$timeout){
         raiz.entradas = [];
         apiBlogger.entradas(blog_id).then(function(data){
             angular.forEach(data.items,function(valor, llave) {
+                var url,tipo,rand;
+                url = valor.content.match(/<iframe[\w\W]+data-thumbnail-src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g);
+                if (url) {
+                    rand = Math.floor(Math.random()*url.length)
+                    url = url[rand].replace(/<iframe[\w\W]+data-thumbnail-src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g,'$1');
+                    tipo = 'video';
+                } else {
+                    url = valor.content.match(/<img[^>]+src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g);
+                    if (url) {
+                        rand = Math.floor(Math.random()*url.length)
+                        url = url[rand].replace(/<img[^>]+src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g,'$1');
+                        tipo = 'imagen';
+                    } else {
+                        url = '';
+                        tipo = '';
+                    }
+                }
                 raiz.entradas.push(
                     {
                         'id': valor.id,
                         'titulo': valor.title,
-                        'contenido': valor.content
+                        'contenido': valor.content,
+                        'media': {'url': url, 'tipo': tipo}
                     }
                 );
             });
@@ -410,3 +428,15 @@ app.service('apiBlogger',['$http',function($http){
     };
     return apiBlogger;
 }]);
+// Filtros
+app.filter('simpleTexto', function(){
+    return function(texto) {
+        var salida;
+        if (texto) {
+            salida = String(texto).replace(/<[^>]+>/gm, '').substr(0,120) + '...';
+        } else {
+            salida = '';
+        }
+        return salida;
+    };
+});
