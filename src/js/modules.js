@@ -124,11 +124,10 @@ app.controller('encabezado', [function(){
     raiz.selectedTab = 'pagina3';
     //---------------------------
 }]);
-app.controller('portfolio', ['$http',function($http){
+app.controller('portfolio', ['$http','$scope',function($http,$scope){
     console.log('portfolio');
-    var raiz = this;
     $http.get('assets/projects/index.json').then(function(resp){
-        raiz.fichas = resp.data;
+        $scope.fichas = resp.data;
     }, function(error){
         console.log('error',error);
     });
@@ -266,10 +265,11 @@ app.controller('photos', ['apiFlickr','$timeout','$window',function(apiFlickr,$t
         }
     });
 }]);
-app.controller('blogs',['apiBlogger','$timeout',function(apiBlogger,$timeout){
+app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlogger,$timeout,$scope,$sce){
     console.log('blogs');
     var raiz = this;
     raiz.modoEntradas = false;
+    raiz.modoPost = false;
     raiz.blogs = [];
     for (var i=0;i<blogger_blogs.length;i++) {
         apiBlogger.blogs(blogger_blogs[i],String(i)).then(function(data){
@@ -285,19 +285,20 @@ app.controller('blogs',['apiBlogger','$timeout',function(apiBlogger,$timeout){
     raiz.abrirBlog = function(blog_id,blog_titulo) {
         raiz.nombreBlog = blog_titulo;
         raiz.modoEntradas = true;
-        raiz.entradas = [];
+        raiz.modoPost = false;
+        $scope.entradas = [];
         apiBlogger.entradas(blog_id).then(function(data){
             angular.forEach(data.items,function(valor, llave) {
                 var url,tipo,rand;
                 url = valor.content.match(/<iframe[\w\W]+data-thumbnail-src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g);
                 if (url) {
-                    rand = Math.floor(Math.random()*url.length)
+                    rand = Math.floor(Math.random()*url.length);
                     url = url[rand].replace(/<iframe[\w\W]+data-thumbnail-src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g,'$1');
                     tipo = 'video';
                 } else {
                     url = valor.content.match(/<img[^>]+src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g);
                     if (url) {
-                        rand = Math.floor(Math.random()*url.length)
+                        rand = Math.floor(Math.random()*url.length);
                         url = url[rand].replace(/<img[^>]+src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g,'$1');
                         tipo = 'imagen';
                     } else {
@@ -305,7 +306,7 @@ app.controller('blogs',['apiBlogger','$timeout',function(apiBlogger,$timeout){
                         tipo = '';
                     }
                 }
-                raiz.entradas.push(
+                $scope.entradas.push(
                     {
                         'id': valor.id,
                         'titulo': valor.title,
@@ -318,10 +319,26 @@ app.controller('blogs',['apiBlogger','$timeout',function(apiBlogger,$timeout){
     };
     raiz.volverBlogs = function() {
         raiz.modoEntradas = false;
+        raiz.modoPost = false;
+    };
+    raiz.abrePost = function(index) {
+        raiz.modoEntradas = true;
+        raiz.modoPost = true;
+        raiz.entrada = $scope.entradas[index];
+        var pos = 'right';
+        raiz.entrada.contenido = raiz.entrada.contenido.replace(/<a[^>]+>(<img[^>]+)(>)[^>]+>/g,function(match,p1,p2){
+            if (pos == 'right') {
+                pos = 'left';
+            } else {
+                pos = 'right';
+            }
+            return p1+' class="'+pos+'" '+p2;
+        });
+        raiz.entrada.contenido = $sce.trustAsHtml(raiz.entrada.contenido);
     };
 }]);
 // Directivas
-app.directive('scrollAbajo', function ($document,$timeout) {
+app.directive('scrollAbajo', ['$document','$timeout',function ($document,$timeout) {
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
@@ -360,7 +377,43 @@ app.directive('scrollAbajo', function ($document,$timeout) {
             });
         }
     };
-});
+}]);
+app.directive('ocColumnas', ['$window',function($window){
+    return {
+        restrict: 'E',
+        scope: {
+            colXs: '=ocColXs',
+            colSm: '=ocColSm',
+            colLg: '=ocColLg',
+            fuente: '=ocFuente',
+            callback: '&'
+        },
+        templateUrl: function(element,attrs) {
+            return 'views/'+attrs.ocTemplate+'.tmpl.html';
+        },
+        link: function(scope,element,attrs) {
+            calculaCol();
+            var ventana = angular.element($window);
+            ventana.bind("resize",function(){
+                calculaCol();
+                scope.$digest();
+            });
+            function calculaCol() {
+                var columnas;
+                if (window.innerWidth < 600) {
+                    columnas = scope.colXs;
+                } else if (window.innerWidth < 959) {
+                    columnas = scope.colSm;
+                } else {
+                    columnas = scope.colLg;
+                }
+                scope.flex = Math.floor(100/columnas);
+                scope.col = [];
+                for (var i=0;i<columnas;i++) {scope.col[i] = i;}
+            }
+        }
+    };
+}]);
 // Servicios
 app.service('apiFlickr',['$http',function($http){
     var apiFlickr = {

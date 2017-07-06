@@ -1,0 +1,23 @@
+<div ng-repeat="num in col" layout="column" flex="{{flex}}">
+    <div ng-repeat="entrada in fuente.entradas track by $index" ng-if="$index % col.length == num">
+        <md-card class="card-post">
+            <div class="media">
+                <img class="imagen md-card-image" ng-src="{{entrada.media.url}}" ng-if="entrada.media.tipo == 'imagen'">
+                <md-icon class="icon" ng-bind="'photo_camera'" ng-if="entrada.media.tipo == 'imagen'"></md-icon>
+                <img class="video md-card-image" ng-src="{{entrada.media.url}}" ng-if="entrada.media.tipo == 'video'">
+                <md-icon class="icon" ng-bind="'videocam'" ng-if="entrada.media.tipo == 'video'"></md-icon>
+            </div>
+            <md-card-title>
+                <md-card-title-text>
+                    <span class="md-headline">{{entrada.titulo}}</span>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content class="contenido">
+                <div ng-bind-html="entrada.contenido | simpleTexto"></div>
+            </md-card-content>
+            <md-card-actions layout="row" layout-align="end center">
+                <md-button class="md-raised md-warn" ng-click="callback({index: $index})">Read more</md-button>
+            </md-card-actions>
+        </md-card>
+    </div>
+</div>

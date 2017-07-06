@@ -24,20 +24,10 @@
                 </md-card>
             </div>
         </div>
-        <div flex class="lista-entradas" layout="row" layout-align="start start" ng-if="bl.modoEntradas" layout-wrap>
-            <div ng-repeat="entrada in bl.entradas track by $index" flex="100" flex-gt-xs="33">
-                <md-card class="card-post">
-                    <img ng-src="{{entrada.media.url}}" class="md-card-image" alt="Imagen blog" ng-if="entrada.media.url">
-                    <md-card-title>
-                        <md-card-title-text>
-                            <span class="md-headline">{{entrada.titulo}}</span>
-                        </md-card-title-text>
-                    </md-card-title>
-                    <md-card-content class="contenido">
-                        <div ng-bind-html="entrada.contenido | simpleTexto"></div>
-                    </md-card-content>
-                </md-card>
-            </div>
+        <oc-columnas oc-col-xs="1" oc-col-sm="2" oc-col-lg="3" oc-fuente="{entradas}" oc-template="blogCard" callback="bl.abrePost(index)" flex class="lista-entradas" layout="row" layout-align="start start" ng-if="bl.modoEntradas && !bl.modoPost" layout-wrap></oc-columnas>
+        <div class="entrada" ng-if="bl.modoPost">
+            <h2 class="titulo">{{bl.entrada.titulo}}</h2>
+            <div ng-bind-html="bl.entrada.contenido" class="contenido"></div>
         </div>
     </md-content>
 </div>

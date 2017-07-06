@@ -5,6 +5,7 @@
 // Tipografias aplicadas
 $tipo-contenido: Montserrat, 'sans-serif' !important;
 $tipo-titulos: Viga-Regular, 'sans-serif' !important;
+$tipo-md-iconos: 'Material Icons' !important;
 // Paleta de colores
 $color-primario: #039be5;
 $color-primario-dark: #006db3;
@@ -364,13 +365,7 @@ $diametro-circulo: 220px;
             .fichas {
                 width: $ancho-fichas-gt-sm + $m4;
                 .ficha {
-                    &.ng-enter {
-                        transition: 0.5s linear all;
-                        opacity: 0;
-                        &.ng-enter-active {
-                            opacity: 1;
-                        }
-                    }
+                    @include ng-fade_cruzado(0.5s,linear);
                     .imagen-16-9 {
                         display: block;
                         width: 100%;
@@ -540,6 +535,7 @@ $diametro-circulo: 220px;
                         .md-icon-button,
                         .titulo-blog,
                         .titulo-general {
+                            font-family: $tipo-titulos;
                             @include ng-fade_cruzado(1.5s,linear);
                         }
                         .titulo-general {
@@ -558,6 +554,23 @@ $diametro-circulo: 220px;
                 .lista-entradas {
                     @include ng-fade_cruzado(1.5s,linear);
                     .card-post {
+                        .media {
+                            position: relative;
+                            img {
+                                box-sizing: border-box;
+                                display: flex;
+                                flex: 0 0 auto;
+                                width: 100%;
+                                height: auto;
+                            }
+                            .icon {
+                                position: absolute;
+                                right: $m1;
+                                bottom: $m1;
+                                color: #fff;
+                                text-shadow: #000 1px 1px 1px;
+                            }
+                        }
                         .md-headline {
                             font-family: $tipo-titulos;
                         }
@@ -568,6 +581,26 @@ $diametro-circulo: 220px;
                             text-overflow: ellipsis;
                             word-wrap: break-word;
                             line-height: 1em;
+                        }
+                    }
+                }
+                .entrada {
+                    @include ng-fade_cruzado(1.5s,linear);
+                    padding: $m4;
+                    .titulo {
+                        font-family: $tipo-titulos;
+                        text-align: center;
+                    }
+                    .contenido {
+                        img {
+                            &.right {
+                                float: right;
+                                margin-left: $m4;
+                            }
+                            &.left {
+                                float: left;
+                                margin-right: $m4;
+                            }
                         }
                     }
                 }
