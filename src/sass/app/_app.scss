@@ -595,11 +595,11 @@ $diametro-circulo: 220px;
                         img {
                             &.right {
                                 float: right;
-                                margin-left: $m4;
+                                margin-left: $m4 !important;
                             }
                             &.left {
                                 float: left;
-                                margin-right: $m4;
+                                margin-right: $m4 !important;
                             }
                         }
                     }

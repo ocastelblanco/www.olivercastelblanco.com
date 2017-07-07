@@ -2,7 +2,10 @@
     <md-content class="content">
         <md-toolbar class="barra md-accent">
             <div class="md-toolbar-tools">
-                <md-button class="md-icon-button" aria-label="volver" ng-if="bl.modoEntradas" ng-click="bl.volverBlogs()">
+                <md-button class="md-icon-button" aria-label="volver" ng-if="bl.modoEntradas && !bl.modoPost" ng-click="bl.volverBlogs()">
+                    <md-icon ng-bind="'arrow_back'"></md-icon>
+                </md-button>
+                <md-button class="md-icon-button" aria-label="volver" ng-if="bl.modoPost" ng-click="bl.volverPost()">
                     <md-icon ng-bind="'arrow_back'"></md-icon>
                 </md-button>
                 <h2 class="titulo-general" ng-if="!bl.modoEntradas">Blogs</h2>

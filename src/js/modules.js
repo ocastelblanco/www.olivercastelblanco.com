@@ -336,6 +336,10 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
         });
         raiz.entrada.contenido = $sce.trustAsHtml(raiz.entrada.contenido);
     };
+    raiz.volverPost = function() {
+        raiz.modoEntradas = true;
+        raiz.modoPost = false;
+    };
 }]);
 // Directivas
 app.directive('scrollAbajo', ['$document','$timeout',function ($document,$timeout) {
