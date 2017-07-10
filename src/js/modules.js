@@ -282,12 +282,13 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
             raiz.blogs[num].numPosts = resp.posts.totalItems;
         });
     }
-    raiz.abrirBlog = function(blog_id,blog_titulo) {
-        raiz.nombreBlog = blog_titulo;
+    raiz.abrirBlog = function(index) {//blog_id,blog_titulo) {
+        //var blog_id = raiz.blogs[index].id;
+        raiz.nombreBlog = raiz.blogs[index].titulo;
         raiz.modoEntradas = true;
         raiz.modoPost = false;
         $scope.entradas = [];
-        apiBlogger.entradas(blog_id).then(function(data){
+        apiBlogger.entradas(raiz.blogs[index].id,raiz.blogs[index].numPosts).then(function(data){
             angular.forEach(data.items,function(valor, llave) {
                 var url,tipo,rand;
                 url = valor.content.match(/<iframe[\w\W]+data-thumbnail-src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g);
@@ -472,13 +473,9 @@ app.service('apiBlogger',['$http',function($http){
             });
             return promesa;
         },
-        entradas: function(blog_id,num) {
-            var promesa = $http.get('https://www.googleapis.com/blogger/v3/blogs/'+blog_id+'/posts?key='+blogger_api_key).then(function(resp){
-                if (num) {
-                    return [resp.data,num];
-                } else {
-                    return resp.data;
-                }
+        entradas: function(blog_id,numPosts) {
+            var promesa = $http.get('https://www.googleapis.com/blogger/v3/blogs/'+blog_id+'/posts?key='+blogger_api_key+'&fields=items(id,title,content)&maxResults='+numPosts).then(function(resp){
+                return resp.data;
             });
             return promesa;
         }
