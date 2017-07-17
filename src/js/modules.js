@@ -282,8 +282,11 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
             raiz.blogs[num].numPosts = resp.posts.totalItems;
         });
     }
-    raiz.abrirBlog = function(index) {//blog_id,blog_titulo) {
-        //var blog_id = raiz.blogs[index].id;
+    raiz.abrirBlog = function(index) {
+        raiz.blogBinario = false;
+        if (raiz.blogs[index].id == '2994125734899716427') {
+            raiz.blogBinario = true;
+        }
         raiz.nombreBlog = raiz.blogs[index].titulo;
         raiz.modoEntradas = true;
         raiz.modoPost = false;
@@ -312,9 +315,15 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
                         'id': valor.id,
                         'titulo': valor.title,
                         'contenido': valor.content,
+                        'labels': valor.labels,
                         'media': {'url': url, 'tipo': tipo}
                     }
                 );
+                angular.forEach(valor.labels,function(value, key) {
+                    if (value == 'Oliver Castelblanco' || value == 'Isabel Aparici') {
+                        $scope.entradas[llave].autor = value;
+                    }
+                });
             });
         });
     };
@@ -474,7 +483,7 @@ app.service('apiBlogger',['$http',function($http){
             return promesa;
         },
         entradas: function(blog_id,numPosts) {
-            var promesa = $http.get('https://www.googleapis.com/blogger/v3/blogs/'+blog_id+'/posts?key='+blogger_api_key+'&fields=items(id,title,content)&maxResults='+numPosts).then(function(resp){
+            var promesa = $http.get('https://www.googleapis.com/blogger/v3/blogs/'+blog_id+'/posts?key='+blogger_api_key+'&fields=items(id,title,content,labels)&maxResults='+numPosts).then(function(resp){
                 return resp.data;
             });
             return promesa;

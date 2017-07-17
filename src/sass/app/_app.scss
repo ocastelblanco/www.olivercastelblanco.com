@@ -529,6 +529,7 @@ $diametro-circulo: 220px;
                     margin-top: ($m16 * -1);
                     width: $ancho-fichas-gt-sm;
                     min-height: $alto-encabezado-gt-sm;
+                    overflow: hidden;
                 }
                 .barra {
                     .md-toolbar-tools {
@@ -549,6 +550,36 @@ $diametro-circulo: 220px;
                         .md-headline {
                             font-family: $tipo-titulos;
                         }
+                    }
+                }
+                .blog-binario {
+                    .fondo {
+                        @media (max-width: $bp-xs) {
+                            display: none;
+                        }
+                        @media (min-width: $bp-gt-xs) {
+                            background-image: url(../img/street-charco.jpg);
+                            background-position: 80% 0%;
+                            background-size: 130%;
+                            background-repeat: no-repeat;
+                            position: absolute;
+                            width: 100%;
+                            height: 100%;
+                        }
+                    }
+                    .overlay {
+                        position: absolute;
+                        width: 100%;
+                        height: $m16 * 3;
+                        background: -webkit-gradient(linear, 0 100%, 0 0, from(rgba(0,0,0,0.6)), color-stop(0.3, rgba(0,0,0,0.3)), to(rgba(0,0,0,0)));
+                        background: -webkit-linear-gradient(rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0) 100%);
+                        background: -moz-linear-gradient(rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0) 100%);
+                        background: -o-linear-gradient(rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0) 100%);
+                        background: linear-gradient(rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0) 100%);
+                    }
+                    .lista-entradas {
+                        position: relative;
+                        z-index: 99;
                     }
                 }
                 .lista-entradas {
