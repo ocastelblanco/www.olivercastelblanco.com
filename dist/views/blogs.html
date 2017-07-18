@@ -1,4 +1,4 @@
-<div ng-controller="blogs as bl" class="blogs" flex layout="column" layout-align="start center" scroll-abajo>
+<div ng-controller="blogs as bl" class="blogs" flex layout="column" layout-align="start center">
     <md-content class="content">
         <md-toolbar class="barra md-accent">
             <div class="md-toolbar-tools">
@@ -29,10 +29,10 @@
         </div>
         <oc-columnas oc-col-xs="1" oc-col-sm="2" oc-col-lg="3" oc-fuente="{entradas}" oc-template="blogCard" callback="bl.abrePost(index)" flex class="lista-entradas" layout="row" layout-align="start start" ng-if="bl.modoEntradas && !bl.modoPost && !bl.blogBinario" layout-wrap></oc-columnas>
         <div class="blog-binario" ng-if="bl.modoEntradas && !bl.modoPost && bl.blogBinario">
-            <div class="fondo"></div>
+            <div class="fondo" oc-borde-inferior></div>
             <div class="overlay"></div>
             <div class="lista-entradas" layout="row" layout-wrap>
-                <div flex="33" class="west-side" layout="column" ng-init="autor1 = 'Oliver Castelblanco'">
+                <div flex="50" flex-gt-xs="33" class="west-side" layout="column" ng-init="autor1 = 'Oliver Castelblanco'">
                     <h2>West side by<br>{{autor1}}</h2>
                     <div ng-repeat="entrada in entradas track by $index" ng-if="entrada.autor == autor1">
                         <md-card class="card-post">
@@ -52,8 +52,8 @@
                         </md-card>
                     </div>
                 </div>
-                <div flex="33"></div>
-                <div flex="33" class="east-side" layout="column" ng-init="autor2 = 'Isabel Aparici'">
+                <div flex="33" hide-xs></div>
+                <div flex="50" flex-gt-xs="33" class="east-side" layout="column" ng-init="autor2 = 'Isabel Aparici'">
                     <h2>East side by<br>{{autor2}}</h2>
                     <div ng-repeat="entrada in entradas track by $index" ng-if="entrada.autor == autor2">
                         <md-card class="card-post">

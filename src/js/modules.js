@@ -32,11 +32,11 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
     console.log('contenido');
     var raiz = this;
     raiz.rutaHeader = 'views/navbar.html';
-    //raiz.rutaBody = 'views/portfolio.html';
-    //raiz.claseContenido = 'portfolio';
+    raiz.rutaBody = 'views/portfolio.html';
+    raiz.claseContenido = 'portfolio';
     //-----------------------------------
-    raiz.rutaBody = 'views/blogs.html';
-    raiz.claseContenido = 'blogs';
+    //raiz.rutaBody = 'views/blogs.html';
+    //raiz.claseContenido = 'blogs';
     //-----------------------------------
     raiz.rutaFooter = 'views/footer.html';
     raiz.rutaLogoPreloader = 'views/logoAnimado.html';
@@ -119,9 +119,9 @@ app.controller('animaLogo', ['$scope','$timeout','$rootScope',function($scope,$t
 app.controller('encabezado', [function(){
     console.log('encabezado');
     var raiz = this;
-    //raiz.selectedTab = 'pagina1';
+    raiz.selectedTab = 'pagina1';
     //---------------------------
-    raiz.selectedTab = 'pagina3';
+    //raiz.selectedTab = 'pagina3';
     //---------------------------
 }]);
 app.controller('portfolio', ['$http','$scope',function($http,$scope){
@@ -299,6 +299,7 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
                     rand = Math.floor(Math.random()*url.length);
                     url = url[rand].replace(/<iframe[\w\W]+data-thumbnail-src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g,'$1');
                     tipo = 'video';
+                    console.log();
                 } else {
                     url = valor.content.match(/<img[^>]+src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g);
                     if (url) {
@@ -310,11 +311,33 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
                         tipo = '';
                     }
                 }
+                var conVideo = valor.content.replace(/<iframe[^>]+(height|width)="([0-9]+)"[^>]+(height|width)="([0-9]+)"[^>]*>/g,function(match,p1,p2,p3,p4){
+                    var alto,ancho,salida,medida1,medida2,k,altoMax;
+                    var anchoMax = angular.element(angular.element(document.getElementsByClassName('cuerpo')[0]).children()[0]).children()[0].clientWidth - 32;
+                    if (p1 == 'width') {
+                        ancho = Number(p2);
+                        alto = Number(p4);
+                        k = alto / ancho;
+                        altoMax = anchoMax * k;
+                        medida1 = 'width="'+anchoMax+'"';
+                        medida2 = 'height="'+altoMax+'"';
+                    } else {
+                        ancho = Number(p4);
+                        alto = Number(p2);
+                        k = alto / ancho;
+                        altoMax = anchoMax * k;
+                        medida1 = 'height="'+altoMax+'"';
+                        medida2 = 'width="'+anchoMax+'"';
+                    }
+                    console.log(anchoMax,altoMax);
+                    salida = match.replace(/(<iframe[^>]+)((height|width)="[0-9]+")([^>]+)((height|width)="[0-9]+")([^>]*>)/g,'$1'+medida1+'$4'+medida2+'$7');
+                    return salida;
+                });
                 $scope.entradas.push(
                     {
                         'id': valor.id,
                         'titulo': valor.title,
-                        'contenido': valor.content,
+                        'contenido': conVideo,
                         'labels': valor.labels,
                         'media': {'url': url, 'tipo': tipo}
                     }
@@ -424,6 +447,55 @@ app.directive('ocColumnas', ['$window',function($window){
                 scope.flex = Math.floor(100/columnas);
                 scope.col = [];
                 for (var i=0;i<columnas;i++) {scope.col[i] = i;}
+            }
+        }
+    };
+}]);
+app.directive('ocBordeInferior',['$document','$window',function($document,$window){
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+            var el = element[0];
+            var anchoEl,altoEl,altoNavbar;
+            var contenedor = el.parentElement;
+            calculaDim();
+            $document.bind('scroll',function(){
+                if (contenedor.getBoundingClientRect().top > altoNavbar) {
+                    angular.element(el).css('position','absolute');
+                    angular.element(el).css('top','');
+                } else {
+                    angular.element(el).css('position','fixed');
+                    angular.element(el).css('top',altoNavbar+'px');
+                }
+            });
+            angular.element($window).bind('resize',function(){
+                calculaDim();
+                scope.$digest();
+            });
+            function calculaDim() {
+                altoNavbar = document.getElementById('navbar').clientHeight;
+                anchoEl = contenedor.clientWidth;
+                altoEl = window.innerHeight - altoNavbar;
+                var k = 3/2;
+                var maxAncho = altoEl * k;
+                var size = (maxAncho / anchoEl) * 100;
+                var pos = 100-(size/2)-(size/50)+50;
+                if (anchoEl < maxAncho) {
+                    angular.element(el).css('background-size',String(size)+'%');
+                    angular.element(el).css('background-position-x',String(pos)+'%');
+                } else {
+                    angular.element(el).css('background-size','130%');
+                    angular.element(el).css('background-position-x','80%');
+                }
+                if (window.innerWidth > 599 && window.innerWidth < 960) {
+                    angular.element(el).css('background-image', 'url(assets/img/bgBinario_sm.jpg)');
+                } else if (window.innerWidth > 959 && window.innerWidth < 1920) {
+                    angular.element(el).css('background-image', 'url(assets/img/bgBinario_md.jpg)');
+                } else if (window.innerWidth > 1919) {
+                    angular.element(el).css('background-image', 'url(assets/img/bgBinario_lg.jpg)');
+                }
+                angular.element(el).css('height',String(altoEl)+'px');
+                angular.element(el).css('width',String(anchoEl)+'px');
             }
         }
     };
