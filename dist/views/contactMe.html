@@ -1,0 +1,23 @@
+<div ng-controller="contactme as cm" class="contact-me" flex layout="column" layout-fill layout-align="start center" scroll-abajo>
+    <md-content class="content">
+        <md-toolbar class="barra md-accent">
+            <div class="md-toolbar-tools">
+                <h2 class="titulo-general">Send me a message</h2>
+            </div>
+        </md-toolbar>
+        <form name="contacto" class="formulario">
+            <md-input-container class="md-block">
+                <label>Name</label>
+                <input type="text" ng-model="msg.name">
+            </md-input-container>
+            <md-input-container class="md-block">
+                <label>Email</label>
+                <input type="email" ng-model="msg.email">
+            </md-input-container>
+            <md-input-container class="md-block">
+                <label>Subject</label>
+                <input type="text" ng-model="msg.email">
+            </md-input-container>
+        </form>
+    </md-content>
+</div>

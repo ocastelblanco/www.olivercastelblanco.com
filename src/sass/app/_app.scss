@@ -651,6 +651,45 @@ $diametro-circulo: 220px;
                 }
             }
         }
+        // Contact me
+        &.contact-me {
+            background-color: $color-primario;
+        }
+        .contact-me {
+            background-color: $color-primario;
+            position: relative;
+            @media (min-width: $bp-gt-xs) and (max-width: $bp-sm) {
+                margin-top: $alto-encabezado-sm;
+            }
+            @media (min-width: $bp-gt-sm) {
+                margin-top: $alto-encabezado-gt-sm;
+            }
+            .content {
+                width: 100%;
+                @media (max-width: $bp-xs) {
+                    margin-top: $m14;
+                    width: 100%;
+                }
+                @media (min-width: $bp-gt-sm) {
+                    margin-top: ($m16 * -1);
+                    width: $ancho-fichas-gt-sm;
+                    min-height: $alto-encabezado-gt-sm;
+                    overflow: hidden;
+                }
+                .barra {
+                    .md-toolbar-tools {
+                        .titulo-general {
+                            position: absolute;
+                            font-family: $tipo-titulos;
+                            @include ng-fade_cruzado(1.5s,linear);
+                        }
+                    }
+                }
+                .formulario {
+                    padding: $m12;
+                }
+            }
+        }
     }
 }
 // @keyframes
