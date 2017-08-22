@@ -5,19 +5,42 @@
                 <h2 class="titulo-general">Send me a message</h2>
             </div>
         </md-toolbar>
-        <form name="contacto" class="formulario">
+        <form name="contacto" class="formulario" ng-submit="cm.enviar(msg)">
             <md-input-container class="md-block">
                 <label>Name</label>
-                <input type="text" ng-model="msg.name">
+                <input type="text" name="name" ng-model="msg.name" required minlength="5">
+                <div ng-messages="contacto.name.$error" role="alert">
+                    <div ng-message="required">Please enter a value for this field.</div>
+                    <div ng-message="minlength">This field most have at least 5 characters long.</div>
+                </div>
             </md-input-container>
             <md-input-container class="md-block">
                 <label>Email</label>
-                <input type="email" ng-model="msg.email">
+                <input type="email" name="email" ng-model="msg.email" required>
+                <div ng-messages="contacto.email.$error" role="alert">
+                    <div ng-message="required">Please enter a value for this field.</div>
+                    <div ng-message="email">This field must be a valid email address.</div>
+                </div>
             </md-input-container>
             <md-input-container class="md-block">
                 <label>Subject</label>
-                <input type="text" ng-model="msg.email">
+                <input type="text" name="subject" ng-model="msg.subject" required minlength="5">
+                <div ng-messages="contacto.subject.$error" role="alert">
+                    <div ng-message="required">Please enter a value for this field.</div>
+                    <div ng-message="minlength">This field most have at least 5 characters long.</div>
+                </div>
             </md-input-container>
+            <md-input-container class="md-block">
+                <label>Message</label>
+                <textarea ng-model="msg.message" name="message" required minlength="10"></textarea>
+                <div ng-messages="contacto.message.$error" role="alert">
+                    <div ng-message="required">Please enter a value for this field.</div>
+                    <div ng-message="minlength">This field most have at least 10 characters long.</div>
+                </div>
+            </md-input-container>
+            <div>
+                <md-button type="submit" class="md-raised md-primary">Submit</md-button>
+            </div>
         </form>
     </md-content>
 </div>

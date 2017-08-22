@@ -7,6 +7,7 @@ var app = angular.module('app', [
     'ngAnimate',
     'ngAria',
     'ngMaterial',
+    'ngMessages',
     'ngRoute',
     'ngSanitize'
 ]);
@@ -48,6 +49,15 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
         raiz.rutaBody = 'views/'+destino+'.html';
         raiz.claseContenido = destino;
     };
+    var salida = '';
+    for (var i = 0;i<raiz.claseContenido.length;i++) {
+        if (raiz.claseContenido.charCodeAt(i) < 97) {
+            salida += "-" + String.fromCharCode(raiz.claseContenido.charCodeAt(i) + 32);
+        } else {
+            salida += raiz.claseContenido.substr(i,1);
+        }
+    }
+    raiz.claseContenido = salida;
     var rutasBgHeaders = [];
     $http.get('assets/img/index.json').then(function(resp){
         var bgHeaders = resp.data.bgHeader;
@@ -377,6 +387,9 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
 app.controller('contactme',[function(){
     console.log('contactMe');
     var raiz = this;
+    raiz.enviar = function(msg) {
+        console.log(msg);
+    };
 }]);
 // Directivas
 app.directive('scrollAbajo', ['$document','$timeout',function ($document,$timeout) {
