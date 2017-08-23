@@ -1,15 +1,25 @@
-/* global angular */
+/* global angular firebase */
 var flickr_api_key = '516c801b319d21342af7881ea6471812';
 var flickr_user_id = '97546219%40N00';
 var blogger_api_key = 'AIzaSyBmSolgBGsEjnkT-KF8_p1puXjAXSKhQS4';
 var blogger_blogs = ['2924552721978703143','8845133391114104188','2994125734899716427'];
+var config = {
+    apiKey: "AIzaSyARXtM8JStW3UmgERWH_ufd_ixPqc5qytE",
+    authDomain: "www-olivercastelblanco-com.firebaseapp.com",
+    databaseURL: "https://www-olivercastelblanco-com.firebaseio.com",
+    projectId: "www-olivercastelblanco-com",
+    storageBucket: "www-olivercastelblanco-com.appspot.com",
+    messagingSenderId: "850614628513"
+};
+firebase.initializeApp(config);
 var app = angular.module('app', [
     'ngAnimate',
     'ngAria',
     'ngMaterial',
     'ngMessages',
     'ngRoute',
-    'ngSanitize'
+    'ngSanitize',
+    'firebase'
 ]);
 app.config(function($mdThemingProvider) {
     $mdThemingProvider
@@ -70,7 +80,7 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
                         cargaEstiloBgHeader();
                     }
                 } else {
-                    raiz.estiloBgHeader = {'background-image': 'url(\'assets/img/bg-header.jpg\')'};
+                    raiz.estiloBgHeader = {'background-image': 'url(\'https://firebasestorage.googleapis.com/v0/b/www-olivercastelblanco-com.appspot.com/o/assets%2Fimg%2Fbg-header.jpg?alt=media&token=4933e065-14dc-438a-a481-23b1a5867937\')'};
                 }
             });
         }
@@ -384,11 +394,15 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
         raiz.modoPost = false;
     };
 }]);
-app.controller('contactme',[function(){
+app.controller('contactme',['$firebaseArray',function($firebaseArray){
     console.log('contactMe');
     var raiz = this;
+    var ref = firebase.database().ref('mensajes');
+    var obj = $firebaseArray(ref); 
     raiz.enviar = function(msg) {
-        console.log(msg);
+        var hoy  = new Date();
+        msg.date = hoy.getFullYear()+'-'+a2digitos(hoy.getMonth()+1)+'-'+hoy.getDate()+' '+hoy.toLocaleTimeString('es-CO');
+        obj.$add(msg);
     };
 }]);
 // Directivas
@@ -505,11 +519,11 @@ app.directive('ocBordeInferior',['$document','$window',function($document,$windo
                     angular.element(el).css('background-position-x','80%');
                 }
                 if (window.innerWidth > 599 && window.innerWidth < 960) {
-                    angular.element(el).css('background-image', 'url(assets/img/bgBinario_sm.jpg)');
+                    angular.element(el).css('background-image', 'url(\'https://firebasestorage.googleapis.com/v0/b/www-olivercastelblanco-com.appspot.com/o/assets%2Fimg%2FbgBinario_sm.jpg?alt=media&token=9dda553d-7875-4838-9f2d-9d8a89a311c4\')');
                 } else if (window.innerWidth > 959 && window.innerWidth < 1920) {
-                    angular.element(el).css('background-image', 'url(assets/img/bgBinario_md.jpg)');
+                    angular.element(el).css('background-image', 'url(\'https://firebasestorage.googleapis.com/v0/b/www-olivercastelblanco-com.appspot.com/o/assets%2Fimg%2FbgBinario_md.jpg?alt=media&token=7e074692-ff81-4737-b523-9db25297ea62\')');
                 } else if (window.innerWidth > 1919) {
-                    angular.element(el).css('background-image', 'url(assets/img/bgBinario_lg.jpg)');
+                    angular.element(el).css('background-image', 'url(\'https://firebasestorage.googleapis.com/v0/b/www-olivercastelblanco-com.appspot.com/o/assets%2Fimg%2FbgBinario_lg.jpg?alt=media&token=a6419e39-7e85-44af-8959-f0a1f70d584b\')');
                 }
                 angular.element(el).css('height',String(altoEl)+'px');
                 angular.element(el).css('width',String(anchoEl)+'px');
@@ -592,3 +606,13 @@ app.filter('simpleTexto', function(){
         return salida;
     };
 });
+//Funciones generales
+function a2digitos(num) {
+    var salida;
+    if (num < 10) {
+        salida = "0"+String(num);
+    } else {
+        salida = String(num);
+    }
+    return salida;
+}

@@ -22,6 +22,13 @@ module.exports = function(grunt) {
                         src: '**/*.js',
                         dest: 'dist',
                         ext: '.min.js'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'node_modules/firebase/',
+                        src: ['firebase-app.js','firebase-database.js','firebase-storage.js'],
+                        dest: 'dist/assets/js/',
+                        ext: '.min.js'
                     }
                 ]
             }
@@ -46,7 +53,8 @@ module.exports = function(grunt) {
                             'node_modules/angular-material/angular-material.min.js',
                             'node_modules/angular-messages/angular-messages.min.js',
                             'node_modules/angular-route/angular-route.min.js',
-                            'node_modules/angular-sanitize/angular-sanitize.min.js'
+                            'node_modules/angular-sanitize/angular-sanitize.min.js',
+                            'node_modules/angularfire/dist/angularfire.min.js'
                         ],
                         dest: 'dist/assets/js/',
                         flatten: true
