@@ -5,7 +5,7 @@
                 <h2 class="titulo-general">Send me a message</h2>
             </div>
         </md-toolbar>
-        <form name="contacto" class="formulario" ng-submit="cm.enviar(msg)">
+        <form name="contacto" class="formulario" ng-submit="cm.enviar(msg)" ng-if="!cm.enviado">
             <md-input-container class="md-block">
                 <label>Name</label>
                 <input type="text" name="name" ng-model="msg.name" required minlength="5">
@@ -42,5 +42,9 @@
                 <md-button type="submit" class="md-raised md-primary">Submit</md-button>
             </div>
         </form>
+        <div class="gracias" ng-if="cm.enviado" layout="column" layout-align="center center">
+            <ng-include src="cont.rutaLogoPreloader" ng-if="!cm.gracias"></ng-include>
+            <div class="mensaje" ng-if="cm.gracias">¡gracias!</div>
+        </div>
     </md-content>
 </div>

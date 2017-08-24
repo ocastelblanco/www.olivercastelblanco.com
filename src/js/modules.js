@@ -394,15 +394,21 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
         raiz.modoPost = false;
     };
 }]);
-app.controller('contactme',['$firebaseArray',function($firebaseArray){
+app.controller('contactme',['$firebaseArray','$rootScope',function($firebaseArray,$rootScope){
     console.log('contactMe');
     var raiz = this;
     var ref = firebase.database().ref('mensajes');
     var obj = $firebaseArray(ref); 
+    raiz.enviado = false;
+    raiz.gracias = false;
     raiz.enviar = function(msg) {
         var hoy  = new Date();
         msg.date = hoy.getFullYear()+'-'+a2digitos(hoy.getMonth()+1)+'-'+hoy.getDate()+' '+hoy.toLocaleTimeString('es-CO');
         obj.$add(msg);
+        raiz.enviado = true;
+        $rootScope.$on('finPrecarga',function(e,a){
+            raiz.gracias = true;
+        });
     };
 }]);
 // Directivas
