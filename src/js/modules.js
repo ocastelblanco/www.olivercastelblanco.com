@@ -43,11 +43,11 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
     console.log('contenido');
     var raiz = this;
     raiz.rutaHeader = 'views/navbar.html';
-    //raiz.rutaBody = 'views/portfolio.html';
-    //raiz.claseContenido = 'portfolio';
+    raiz.rutaBody = 'views/portfolio.html';
+    raiz.claseContenido = 'portfolio';
     //-----------------------------------
-    raiz.rutaBody = 'views/contactMe.html';
-    raiz.claseContenido = 'contactMe';
+    //raiz.rutaBody = 'views/contactMe.html';
+    //raiz.claseContenido = 'contactMe';
     //-----------------------------------
     raiz.rutaFooter = 'views/footer.html';
     raiz.rutaLogoPreloader = 'views/logoAnimado.html';
@@ -139,9 +139,9 @@ app.controller('animaLogo', ['$scope','$timeout','$rootScope',function($scope,$t
 app.controller('encabezado', [function(){
     console.log('encabezado');
     var raiz = this;
-    //raiz.selectedTab = 'pagina1';
+    raiz.selectedTab = 'pagina1';
     //---------------------------
-    raiz.selectedTab = 'pagina4';
+    //raiz.selectedTab = 'pagina4';
     //---------------------------
 }]);
 app.controller('portfolio', ['$http','$scope',function($http,$scope){
