@@ -2,7 +2,7 @@
     <div class="ficha" ng-repeat="ficha in fuente.fichas track by $index" ng-if="$index % col.length == num">
         <md-card>
             <div class="imagen-16-9">
-                <img class="md-card-image" ng-src="assets/projects/{{ficha.ruta}}/card-image.jpg">
+                <img class="md-card-image" ng-src="{{ficha.cardImage}}">
             </div>
             <md-card-title>
                 <md-card-title-text>

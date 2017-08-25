@@ -144,10 +144,20 @@ app.controller('encabezado', [function(){
     //raiz.selectedTab = 'pagina4';
     //---------------------------
 }]);
-app.controller('portfolio', ['$http','$scope',function($http,$scope){
+app.controller('portfolio', ['$http','$scope','$firebaseStorage',function($http,$scope,$firebaseStorage){
     console.log('portfolio');
+    var ref = firebase.storage().ref('assets/projects/');
     $http.get('assets/projects/index.json').then(function(resp){
-        $scope.fichas = resp.data;
+        $scope.fichas = [];
+        angular.forEach(resp.data,function(valor, llave) {
+            var cardImage = $firebaseStorage(ref.child(valor.ruta+'/card-image.jpg'));
+            cardImage.$getDownloadURL().then(function(url){
+                valor.cardImage = url;
+                $scope.fichas[llave] = valor;
+            }).catch(function(error){
+                $scope.fichas[llave] = valor;
+            });
+        });
     }, function(error){
         console.log('error',error);
     });
