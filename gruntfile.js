@@ -54,7 +54,8 @@ module.exports = function(grunt) {
                             'node_modules/angular-messages/angular-messages.min.js',
                             'node_modules/angular-route/angular-route.min.js',
                             'node_modules/angular-sanitize/angular-sanitize.min.js',
-                            'node_modules/angularfire/dist/angularfire.min.js'
+                            'node_modules/angularfire/dist/angularfire.min.js',
+                            'node_modules/angular-recaptcha/release/angular-recaptcha.min.js'
                         ],
                         dest: 'dist/assets/js/',
                         flatten: true

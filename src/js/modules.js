@@ -3,6 +3,7 @@ var flickr_api_key = '516c801b319d21342af7881ea6471812';
 var flickr_user_id = '97546219%40N00';
 var blogger_api_key = 'AIzaSyBmSolgBGsEjnkT-KF8_p1puXjAXSKhQS4';
 var blogger_blogs = ['2924552721978703143','8845133391114104188','2994125734899716427'];
+var recaptcha_key = '6LdRbDAUAAAAAFJx_5UvNWkcUT1efJ6tXS5H7DpB';
 var config = {
     apiKey: "AIzaSyARXtM8JStW3UmgERWH_ufd_ixPqc5qytE",
     authDomain: "www-olivercastelblanco-com.firebaseapp.com",
@@ -19,7 +20,8 @@ var app = angular.module('app', [
     'ngMessages',
     'ngRoute',
     'ngSanitize',
-    'firebase'
+    'firebase',
+    'vcRecaptcha'
 ]);
 app.config(function($mdThemingProvider) {
     $mdThemingProvider
@@ -57,17 +59,9 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
     });
     raiz.ir = function(destino) {
         raiz.rutaBody = 'views/'+destino+'.html';
-        raiz.claseContenido = destino;
+        raiz.claseContenido = obtieneNombreClase(destino);
     };
-    var salida = '';
-    for (var i = 0;i<raiz.claseContenido.length;i++) {
-        if (raiz.claseContenido.charCodeAt(i) < 97) {
-            salida += "-" + String.fromCharCode(raiz.claseContenido.charCodeAt(i) + 32);
-        } else {
-            salida += raiz.claseContenido.substr(i,1);
-        }
-    }
-    raiz.claseContenido = salida;
+    raiz.claseContenido = obtieneNombreClase(raiz.claseContenido);
     var rutasBgHeaders = [];
     $http.get('assets/img/index.json').then(function(resp){
         var bgHeaders = resp.data.bgHeader;
@@ -116,6 +110,17 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
         } else if (ancho >= 1920) {
             raiz.estiloBgHeader = _estiloBgHeader.xl;
         }
+    }
+    function obtieneNombreClase(entrada) {
+        var salida = '';
+        for (var i = 0;i<entrada.length;i++) {
+            if (entrada.charCodeAt(i) < 97) {
+                salida += "-" + String.fromCharCode(entrada.charCodeAt(i) + 32);
+            } else {
+                salida += entrada.substr(i,1);
+            }
+        }
+        return salida;
     }
 }]);
 app.controller('animaLogo', ['$scope','$timeout','$rootScope',function($scope,$timeout,$rootScope){
@@ -407,6 +412,7 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
 app.controller('contactme',['$firebaseArray','$rootScope',function($firebaseArray,$rootScope){
     console.log('contactMe');
     var raiz = this;
+    raiz.recaptcha_key = recaptcha_key;
     var ref = firebase.database().ref('mensajes');
     var obj = $firebaseArray(ref); 
     raiz.enviado = false;

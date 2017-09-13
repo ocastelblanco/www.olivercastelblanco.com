@@ -38,8 +38,11 @@
                     <div ng-message="minlength">This field most have at least 10 characters long.</div>
                 </div>
             </md-input-container>
-            <div>
-                <md-button type="submit" class="md-raised md-primary">Submit</md-button>
+            <div class="recaptcha">
+                <div vc-recaptcha key="cm.recaptcha_key" ng-model="msg.recaptcha"></div>
+            </div>
+            <div class="recaptcha">
+                <md-button type="submit" class="md-raised md-primary" ng-disabled="!msg.recaptcha">Submit</md-button>
             </div>
         </form>
         <div class="gracias" ng-if="cm.enviado" layout="column" layout-align="center center">

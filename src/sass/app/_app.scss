@@ -195,8 +195,13 @@ $diametro-circulo: 220px;
                 .md-toolbar-tools {
                     width: $ancho-fichas-gt-sm + $m4;
                     .md-icon-button {
-                        overflow: visible;
-                        width: 100%;
+                        @media (max-width: $bp-sm) {
+                            overflow: hidden;
+                        }
+                        @media (min-width: $bp-gt-sm) {
+                            overflow: visible;
+                            width: 100%;
+                        }
                         md-icon {
                             float: left;
                             font-size: $m6;
