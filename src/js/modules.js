@@ -149,9 +149,10 @@ app.controller('encabezado', [function(){
     //raiz.selectedTab = 'pagina4';
     //---------------------------
 }]);
-app.controller('portfolio', ['$http','$scope','$firebaseStorage',function($http,$scope,$firebaseStorage){
+app.controller('portfolio', ['$http','$scope','$firebaseStorage','$rootScope','$mdDialog',function($http,$scope,$firebaseStorage,$rootScope,$mdDialog){
     console.log('portfolio');
     var ref = firebase.storage().ref('assets/projects/');
+    var elementos = {};
     $http.get('assets/projects/index.json').then(function(resp){
         $scope.fichas = [];
         angular.forEach(resp.data,function(valor, llave) {
@@ -162,10 +163,46 @@ app.controller('portfolio', ['$http','$scope','$firebaseStorage',function($http,
             }).catch(function(error){
                 $scope.fichas[llave] = valor;
             });
+            if (valor.tabs) {
+                angular.forEach(valor.tabs,function(cont, id) {
+                    angular.forEach(cont.elementos,function(value, key) {
+                        var img = $firebaseStorage(ref.child(valor.ruta+'/'+value.nombre));
+                        img.$getDownloadURL().then(function(url){
+                            valor.tabs[id].elementos[key].ruta = url;
+                        }).catch(function(error){
+                            console.log('error',error);
+                        });
+                    });
+                });
+            }
+            elementos[valor.ruta] = valor;
         });
     }, function(error){
         console.log('error',error);
     });
+    $rootScope.$on('abreFichaProyecto',function(ev,ruta){
+        $mdDialog.show({
+            controller: ProyectoController,
+            templateUrl: 'views/projDialog.tmpl.html',
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true,
+            fullscreen: true,
+            locals: {
+                elemento: elementos[ruta]
+            },
+            bindToController: true
+        })
+        .then(function() {
+            console.log('Dialog cerrado');
+        });
+    });
+    function ProyectoController($scope,$mdDialog,locals) {
+        $scope.elemento = locals.elemento;
+        $scope.cancel = function() {
+            $mdDialog.cancel();
+        };
+    }
 }]);
 app.controller('photos', ['apiFlickr','$timeout','$window',function(apiFlickr,$timeout,$window){
     console.log('photos');
@@ -468,7 +505,7 @@ app.directive('scrollAbajo', ['$document','$timeout',function ($document,$timeou
         }
     };
 }]);
-app.directive('ocColumnas', ['$window',function($window){
+app.directive('ocColumnas', ['$window','$rootScope',function($window,$rootScope){
     return {
         restrict: 'E',
         scope: {
@@ -476,6 +513,7 @@ app.directive('ocColumnas', ['$window',function($window){
             colSm: '=ocColSm',
             colLg: '=ocColLg',
             fuente: '=ocFuente',
+            open: '&',
             callback: '&'
         },
         templateUrl: function(element,attrs) {
@@ -488,6 +526,9 @@ app.directive('ocColumnas', ['$window',function($window){
                 calculaCol();
                 scope.$digest();
             });
+            scope.open = function(txt) {
+                $rootScope.$emit('abreFichaProyecto',txt);
+            };
             function calculaCol() {
                 var columnas;
                 if (window.innerWidth < 600) {

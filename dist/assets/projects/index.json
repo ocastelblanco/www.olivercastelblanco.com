@@ -1,52 +1,80 @@
 [
-    {
-        "en": {
-            "titulo": "LAFT virtual course",
-            "cliente": "BASC",
-            "tipo": "Moodle course",
-            "descripcion": "HTML5 & CSS3 with jQuery and Bootstrap 3 for Moodle 2."
-        },
-        "fecha": "2017-02",
-        "ruta": "laft"
+  {
+    "en": {
+      "titulo": "LAFT virtual course",
+      "cliente": "BASC",
+      "tipo": "Moodle course",
+      "descripcion": "HTML5 & CSS3 with jQuery and Bootstrap 3 for Moodle 2."
     },
-    {
-        "en": {
-            "titulo": "Vocational survey",
-            "cliente": "Politécnico Grancolombiano University",
-            "tipo": "Web app",
-            "descripcion": "HTML5 & CSS3 with AngularJS and Bootstrap 3."
-        },
-        "fecha": "2016-12",
-        "ruta": "polivocacional"
+    "fecha": "2017-02",
+    "ruta": "laft",
+    "tabs": [
+      {
+        "nombre": "discarded",
+        "elementos": [
+          {
+            "nombre": "cursoPlantilla1.jpg",
+            "descripcion": "First sketch. Discarded because poor UX."
+          },
+          {
+            "nombre": "cursoPlantilla2.jpg",
+            "descripcion": "Second sketch. Discarded because poor UI."
+          }
+        ]
+      },
+      {
+        "nombre": "wireframes",
+        "elementos": [
+          {
+            "nombre": "img01.jpg",
+            "descripcion": "Home wireframe."
+          },
+          {
+            "nombre": "img02.jpg",
+            "descripcion": "Second page wireframe."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "en": {
+      "titulo": "Vocational survey",
+      "cliente": "Politécnico Grancolombiano University",
+      "tipo": "Web app",
+      "descripcion": "HTML5 & CSS3 with AngularJS and Bootstrap 3."
     },
-    {
-        "en": {
-            "titulo": "Ciudadanías virtual course",
-            "cliente": "CISP - Comitato Internazionale per lo Sviluppo del Popoli",
-            "tipo": "Moodle course & customized theme",
-            "descripcion": "HTML5 & CSS3 width jQuery, Bootstrap 3 and PHP for Moodle 2."
-        },
-        "fecha": "2014-03",
-        "ruta": "ciudadanias"
+    "fecha": "2016-12",
+    "ruta": "polivocacional"
+  },
+  {
+    "en": {
+      "titulo": "Ciudadanías virtual course",
+      "cliente": "CISP - Comitato Internazionale per lo Sviluppo del Popoli",
+      "tipo": "Moodle course & customized theme",
+      "descripcion": "HTML5 & CSS3 width jQuery, Bootstrap 3 and PHP for Moodle 2."
     },
-    {
-        "en": {
-            "titulo": "VirtualEduca mobile app",
-            "cliente": "Ministry of National Education - Colombia",
-            "tipo": "Mobile app",
-            "descripcion": "HTML5, CSS3 and JS with Phonegap/Cordova."
-        },
-        "fecha": "2013-03",
-        "ruta": "virtualeduca"
+    "fecha": "2014-03",
+    "ruta": "ciudadanias"
+  },
+  {
+    "en": {
+      "titulo": "VirtualEduca mobile app",
+      "cliente": "Ministry of National Education - Colombia",
+      "tipo": "Mobile app",
+      "descripcion": "HTML5, CSS3 and JS with Phonegap/Cordova."
     },
-    {
-        "en": {
-            "titulo": "MEC virtual course",
-            "cliente": "Ministry of National Education - Colombia",
-            "tipo": "Moodle course",
-            "descripcion": "HTML5, CSS3 and JS for Moodle 2."
-        },
-        "fecha": "2012-06",
-        "ruta": "mec"
-    }
+    "fecha": "2013-03",
+    "ruta": "virtualeduca"
+  },
+  {
+    "en": {
+      "titulo": "MEC virtual course",
+      "cliente": "Ministry of National Education - Colombia",
+      "tipo": "Moodle course",
+      "descripcion": "HTML5, CSS3 and JS for Moodle 2."
+    },
+    "fecha": "2012-06",
+    "ruta": "mec"
+  }
 ]

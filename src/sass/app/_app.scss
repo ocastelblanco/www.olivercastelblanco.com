@@ -76,7 +76,7 @@ $diametro-circulo: 220px;
     .md-button {
         font-family: $tipo-titulos;
     }
-// Preloader
+    // Preloader
     .preloader {
         display: flex;
         justify-content: center;
@@ -637,6 +637,32 @@ $diametro-circulo: 220px;
                         font-family: $tipo-titulos;
                         color: $color-blanco;
                     }
+                }
+            }
+        }
+    }
+}
+// Project dialog
+.proj-dialog {
+    .barra {
+        font-family: $tipo-titulos;
+    }
+    .contenido {
+        .tabs {
+            .imagen {
+                max-width: 100%;
+            }
+        }
+        .description {
+            background-color: $color-primario;
+            color: $color-blanco;
+            .elemento {
+                .titulo {
+                    font-family: $tipo-titulos;
+                    text-transform: uppercase;
+                }
+                .contenido {
+                    font-size: 0.75em;
                 }
             }
         }
