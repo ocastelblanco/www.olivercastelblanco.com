@@ -47,6 +47,26 @@
     }
   }
 }
+@mixin ng-der_izq($tiempo,$function) {
+  &.ng-enter {
+    transition: $tiempo $function all $tiempo;
+    opacity: 0;
+    right: -100%;
+    &.ng-enter-active {
+      opacity: 1;
+      right: 0;
+    }
+  }
+  &.ng-leave {
+    transition: $tiempo $function all;
+    opacity: 1;
+    right: 0;
+    &.ng-leave-active {
+      opacity: 0;
+      right: 100%;
+    }
+  }
+}
 // Animación de logo
 @mixin logo() {
   .logo {

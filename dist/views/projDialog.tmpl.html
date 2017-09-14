@@ -8,15 +8,15 @@
             </md-button>
         </div>
     </md-toolbar>
-    <md-dialog-content class="contenido" flex layout="row">
-        <md-tabs class="tabs" md-dynamic-height md-border-bottom flex="70" flex-sm="100" ng-if="elemento.tabs">
+    <md-dialog-content class="contenido" flex layout-gt-sm="row" layout="column">
+        <md-tabs class="tabs" md-dynamic-height md-border-bottom flex="100" flex-gt-sm="70" ng-if="elemento.tabs">
             <md-tab ng-repeat="tab in elemento.tabs" label="{{tab.nombre}}">
                 <md-content class="md-padding">
-                    <img class="imagen" ng-src="{{tab.elementos[0].ruta}}">
+                    <oc-carousel oc-fuente="{tab}"></oc-carousel>
                 </md-content>
             </md-tab>
         </md-tabs>
-        <md-content layout-padding class="description" flex="30" flex-sm="100">
+        <md-content layout-padding class="description" flex="100" flex-gt-sm="30">
             <div class="elemento" ng-if="elemento.en.cliente">
                 <span class="titulo">Client:</span>
                 <span class="contenido">{{elemento.en.cliente}}</span>

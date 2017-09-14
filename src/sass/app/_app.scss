@@ -649,8 +649,48 @@ $diametro-circulo: 220px;
     }
     .contenido {
         .tabs {
-            .imagen {
-                max-width: 100%;
+            md-tabs-content-wrapper {
+                max-height: 100%;
+                overflow: scroll;
+            }
+            @media (max-width: $bp-gt-sm) {
+                overflow: scroll;
+            }
+        }
+        .oc-carousel {
+            position: relative;
+            .wrapper {
+                overflow: hidden;
+                .slide {
+                    position: relative;
+                    margin-bottom: $baseline-grid * 6.5;
+                    .imagen {
+                        max-width: 100%;
+                    }
+                    .texto {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        background-color: rgba(0,0,0,.4);
+                        width: 100%;
+                        p {
+                            font-size: 0.75em;
+                            color: $color-blanco;
+                            padding: 0 1em;
+                        }
+                    }
+                    @include ng-der_izq(0.5s,ease-out);
+                }
+            }
+            .izq {
+                position: fixed;
+                top: $m16;
+                left: 0;
+            }
+            .der {
+                position: fixed;
+                top: $m16;
+                right: 0;
             }
         }
         .description {

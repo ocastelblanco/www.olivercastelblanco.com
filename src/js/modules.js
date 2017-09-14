@@ -594,6 +594,34 @@ app.directive('ocBordeInferior',['$document','$window',function($document,$windo
         }
     };
 }]);
+app.directive('ocCarousel', ['$window','$rootScope',function($window,$rootScope){
+    return {
+        restrict: 'E',
+        scope: {
+            fuente: '=ocFuente',
+            izq: '&',
+            der: '&'
+        },
+        templateUrl: function(element,attrs) {
+            return 'views/carousel.tmpl.html';
+        },
+        link: function(scope,element,attrs) {
+            var total = scope.fuente.tab.elementos.length;
+            scope.izq = function() {
+                if (scope.visible == 0) {
+                    scope.visible = total;
+                }
+                scope.visible--;
+            }
+            scope.der = function() {
+                scope.visible++;
+                if (scope.visible == total) {
+                    scope.visible = 0;
+                }
+            }
+        }
+    };
+}]);
 // Servicios
 app.service('apiFlickr',['$http',function($http){
     var apiFlickr = {
