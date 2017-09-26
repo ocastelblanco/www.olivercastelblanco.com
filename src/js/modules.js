@@ -191,16 +191,23 @@ app.controller('portfolio', ['$http','$scope','$firebaseStorage','$rootScope','$
             locals: {
                 elemento: elementos[ruta]
             },
-            bindToController: true
+            bindToController: true,
+            onComplete: function(scope, element) {
+                var navbar = angular.element(document.getElementById('navbar'))[0];
+                var fondoNavbar = navbar.children[0];
+                angular.element(fondoNavbar).css('opacity',1);
+            }
         })
         .then(function() {
             console.log('Dialog cerrado');
+        }, function(){
+            console.log('Dialog descartado');
         });
     });
     function ProyectoController($scope,$mdDialog,locals) {
         $scope.elemento = locals.elemento;
         $scope.cancel = function() {
-            $mdDialog.cancel();
+            $mdDialog.hide();
         };
     }
 }]);
@@ -612,13 +619,13 @@ app.directive('ocCarousel', ['$window','$rootScope',function($window,$rootScope)
                     scope.visible = total;
                 }
                 scope.visible--;
-            }
+            };
             scope.der = function() {
                 scope.visible++;
                 if (scope.visible == total) {
                     scope.visible = 0;
                 }
-            }
+            };
         }
     };
 }]);

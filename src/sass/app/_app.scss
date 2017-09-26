@@ -134,13 +134,18 @@ $diametro-circulo: 220px;
                 top: 0;
                 left: 0;
                 min-width: 100%;
-                z-index: 9999;
+                z-index: 1;
                 @media (min-width: $bp-gt-sm) {
                     background-color: transparent;
                 }
                 @media (max-width: $bp-sm) {
                     background-color: $color-primario;
                     box-shadow: 0px 0px 1px 0px $color-negro;
+                }
+                @media (max-width: $bp-xs) {
+                    padding-left: 0;
+                    padding-right: 0;
+                    overflow: visible;
                 }
                 .fondo {
                     background-color: $color-primario;
@@ -151,34 +156,92 @@ $diametro-circulo: 220px;
                     left: 0;
                     z-index: -1;
                     @media (min-width: $bp-gt-xs) {
+                        //display: none;
                         opacity: 0;
                     }
                     @media (max-width: $bp-xs) {
-                        opacity: 1;
-                    }
-                }
-                .logo {
-                    height: $logo-height;
-                    padding: $logo-padding;
-                    border-radius: $logo-border-radius;
-                    font-size: $logo-font-size;
-                    background-color: $color-primario-dark;
-                    font-family: $tipo-titulos;
-                    color: $color-blanco;
-                    overflow: hidden;
-                    text-transform: uppercase;
-                    float: left;
-                    div {
-                        float: left;
-                        overflow: hidden;
-                        margin: 0;
-                        &:last-of-type {
-                            margin-left: -0.22em;
-                        }
+                        //opacity: 1;
+                        display: none;
                     }
                 }
                 .md-nav-bar {
                     border: 0;
+                    @media (max-width: $bp-xs) {
+                        height: $m7;
+                        md-nav-ink-bar {
+                            display: none;
+                        }
+                    }
+                    ._md-nav-bar-list {
+                        @media (max-width: $bp-xs) {
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: space-around;
+                            align-items: start;
+                            .logo {
+                                order: 3;
+                                min-width: $m10;
+                            }
+                            .pag1 {
+                                order: 1;
+                            }
+                            .pag2 {
+                                order: 2;
+                            }
+                            .pag3 {
+                                order: 4;
+                            }
+                            .pag4 {
+                                order: 5;
+                            }
+                            ._md-nav-button {
+                                padding: $m1 $m4;
+                                min-height: 2em;
+                                min-width: 3em;
+                                ._md-nav-button-text {
+                                    font-size: 1.75em;
+                                    .txt {
+                                        display: none;
+                                    }
+                                    .fa {
+                                        display: inline-block;
+                                    }
+                                }
+                            }
+                        }
+                        @media (min-width: $bp-gt-xs) {
+                            ._md-nav-button-text {
+                                .txt {
+                                    display: inline;
+                                }
+                                .fa {
+                                    display: none;
+                                }
+                            }
+                        }
+                        .logo {
+                            height: $logo-height;
+                            padding: $logo-padding;
+                            border-radius: $logo-border-radius;
+                            font-size: $logo-font-size;
+                            background-color: $color-primario-dark;
+                            font-family: $tipo-titulos;
+                            color: $color-blanco;
+                            overflow: hidden;
+                            text-transform: uppercase;
+                            @media (min-width: $bp-gt-xs) {
+                                float: left;
+                            }
+                            div {
+                                float: left;
+                                overflow: hidden;
+                                margin: 0;
+                                &:last-of-type {
+                                    margin-left: -0.22em;
+                                }
+                            }
+                        }
+                    }
                     .md-button {
                         font-family: $tipo-titulos;
                         &.md-unselected {
@@ -247,7 +310,10 @@ $diametro-circulo: 220px;
                 padding: $m6;
                 width: $ancho-fichas-gt-sm;
                 @media (max-width: $bp-xs) {
-                    margin-top: $m14;
+                    margin-top: $m11;
+                }
+                @media (min-width: $bp-gt-xs) {
+                    margin-top: ($m1 * -1);
                 }
                 @media (min-width: $bp-gt-sm) {
                     margin-top: ($m16 * -1);

@@ -1,19 +1,23 @@
 <div class="fondo-header"><div class="fondo" ng-style="cont.estiloBgHeader"></div><div class="overlay"></div></div>
 <md-content class="navbar" ng-controller="encabezado as ec" id="navbar">
     <div class="fondo"></div>
-    <div class="logo"><div>o</div><div>c</div></div>
     <md-nav-bar md-selected-nav-item="ec.selectedTab" nav-bar-aria-label="barra de navegación">
-        <md-nav-item name="pagina1" md-nav-click="cont.ir('portfolio')">
-            portfolio
+    <div class="logo"><div>o</div><div>c</div></div>
+        <md-nav-item class="pag1" name="pagina1" md-nav-click="cont.ir('portfolio')">
+            <span class="txt">portfolio</span>
+            <i class="fa fa-briefcase" aria-hidden="true"></i>
         </md-nav-item>
-        <md-nav-item name="pagina2" md-nav-click="cont.ir('photos')">
-            photos
+        <md-nav-item class="pag2" name="pagina2" md-nav-click="cont.ir('photos')">
+            <span class="txt">photos</span>
+            <i class="fa fa-picture-o" aria-hidden="true"></i>
         </md-nav-item>
-        <md-nav-item name="pagina3" md-nav-click="cont.ir('blogs')">
-            blogs
+        <md-nav-item class="pag3" name="pagina3" md-nav-click="cont.ir('blogs')">
+            <span class="txt">blogs</span>
+            <i class="fa fa-newspaper-o" aria-hidden="true"></i>
         </md-nav-item>
-        <md-nav-item name="pagina4" md-nav-click="cont.ir('contactMe')">
-            contact me
+        <md-nav-item class="pag4" name="pagina4" md-nav-click="cont.ir('contactMe')">
+            <span class="txt">contact me</span>
+            <i class="fa fa-comments" aria-hidden="true"></i>
         </md-nav-item>
     </md-nav-bar>
 </md-content>

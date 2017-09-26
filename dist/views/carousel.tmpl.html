@@ -7,12 +7,12 @@
             </figcaption>
         </figure>
     </div>
-    <div class="izq">
+    <div class="izq" ng-if="fuente.tab.elementos.length > 1">
         <md-button class="md-fab md-mini" aria-label="Previous" ng-click="izq($index)">
             <md-icon ng-bind="'arrow_back'"></md-icon>
         </md-button>
     </div>
-    <div class="der">
+    <div class="der" ng-if="fuente.tab.elementos.length > 1">
         <md-button class="md-fab md-mini" aria-label="Next" ng-click="der($index)">
             <md-icon ng-bind="'arrow_forward'"></md-icon>
         </md-button>
