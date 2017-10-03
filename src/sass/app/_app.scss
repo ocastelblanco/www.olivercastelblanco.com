@@ -134,7 +134,7 @@ $diametro-circulo: 220px;
                 top: 0;
                 left: 0;
                 min-width: 100%;
-                z-index: 1;
+                z-index: 10;
                 @media (min-width: $bp-gt-sm) {
                     background-color: transparent;
                 }
@@ -575,7 +575,7 @@ $diametro-circulo: 220px;
                     }
                     .lista-entradas {
                         position: relative;
-                        z-index: 99;
+                        z-index: 8;
                         .west-side,
                         .east-side {
                             h2 {

@@ -49,13 +49,166 @@
   },
   {
     "en": {
+      "titulo": "Quién Quiere Ser Solidario",
+      "cliente": "Infomotion & Juriscoop",
+      "tipo": "Web game.",
+      "descripcion": "HTML5 & CSS3 with jQuery and Bootstrap 3."
+    },
+    "fecha": "2014-09",
+    "ruta": "qqss",
+    "tabs": [
+      {
+        "nombre": "wireframes",
+        "elementos": [
+          {
+            "nombre": "QQSS_Wireframes1.jpg",
+            "descripcion": "First six pages wiframes."
+          },
+          {
+            "nombre": "QQSS_Wireframes2.jpg",
+            "descripcion": "Pages 7 to 12 wireframes."
+          }
+        ]
+      },
+      {
+        "nombre": "game",
+        "elementos": [
+          {
+            "nombre": "QQSS_Screen1.png",
+            "descripcion": "Intro"
+          },
+          {
+            "nombre": "QQSS_Screen2.png",
+            "descripcion": "Start game"
+          },
+          {
+            "nombre": "QQSS_Screen3.png",
+            "descripcion": "Question / answers interface"
+          },
+          {
+            "nombre": "QQSS_Screen4.png",
+            "descripcion": "Time over"
+          },
+          {
+            "nombre": "QQSS_Screen5.png",
+            "descripcion": "Confirmation window"
+          },
+          {
+            "nombre": "QQSS_Screen6.png",
+            "descripcion": "Wrong answer"
+          },
+          {
+            "nombre": "QQSS_Screen7.png",
+            "descripcion": "Use 50/50 help"
+          },
+          {
+            "nombre": "QQSS_Screen8.png",
+            "descripcion": "Right answer"
+          },
+          {
+            "nombre": "QQSS_Screen9.png",
+            "descripcion": "External help"
+          },
+          {
+            "nombre": "QQSS_Screen10.png",
+            "descripcion": "Calling an expert help"
+          },
+          {
+            "nombre": "QQSS_Screen11.png",
+            "descripcion": "Help pop-up"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "en": {
       "titulo": "Ciudadanías virtual course",
       "cliente": "CISP - Comitato Internazionale per lo Sviluppo del Popoli",
-      "tipo": "Moodle course & customized theme",
-      "descripcion": "HTML5 & CSS3 width jQuery, Bootstrap 3 and PHP for Moodle 2."
+      "tipo": "Moodle course, customized Moodle theme & registration system.",
+      "descripcion": "HTML5 & CSS3 with jQuery, Bootstrap 3 and PHP for Moodle 2. HTML5, CSS3, jQuery, Bootstrap 3, PHP/MySQL for registration system."
     },
     "fecha": "2014-03",
-    "ruta": "ciudadanias"
+    "ruta": "ciudadanias",
+    "tabs": [
+      {
+        "nombre": "discarded",
+        "elementos": [
+          {
+            "nombre": "Ciudadanias_Discarded.jpg",
+            "descripcion": "First main course interface mockup, discarded."
+          }
+        ]
+      },
+      {
+        "nombre": "dashboard wireframes",
+        "elementos": [
+          {
+            "nombre": "Ciudadanias_wireframes1.jpg",
+            "descripcion": "Login wireframe."
+          },
+          {
+            "nombre": "Ciudadanias_wireframes2.jpg",
+            "descripcion": "Home wireframe."
+          },
+          {
+            "nombre": "Ciudadanias_wireframes3.jpg",
+            "descripcion": "Participants wireframe."
+          },
+          {
+            "nombre": "Ciudadanias_wireframes4.jpg",
+            "descripcion": "Project detail wireframe."
+          }
+        ]
+      },
+      {
+        "nombre": "Registration page",
+        "elementos": [
+          {
+            "nombre": "Ciudadanias_Intro.jpg",
+            "descripcion": "Initiatives registration intro page."
+          },
+          {
+            "nombre": "Ciudadanias_Registro.jpg",
+            "descripcion": "Initiatives registration form page."
+          }
+        ]
+      },
+      {
+        "nombre": "dashboard",
+        "elementos": [
+          {
+            "nombre": "Ciudadanias_Dashboard1.jpg",
+            "descripcion": "Main dashboard page, using Morris and Flot Chart JS."
+          },
+          {
+            "nombre": "Ciudadanias_Dashboard2.png",
+            "descripcion": "Aprobation page."
+          },
+          {
+            "nombre": "Ciudadanias_Dashboard3.png",
+            "descripcion": "Initiative detail modal window."
+          },
+          {
+            "nombre": "Ciudadanias_Dashboard4.png",
+            "descripcion": "Download CSV or Excel files from database."
+          }
+        ]
+      },
+      {
+        "nombre": "Moodle course",
+        "elementos": [
+          {
+            "nombre": "Ciudadanias_Screen1.png",
+            "descripcion": "Course home page."
+          },
+          {
+            "nombre": "Ciudadanias_Screen2.png",
+            "descripcion": "Course module page."
+          }
+        ]
+      }
+    ]
   },
   {
     "en": {
@@ -65,7 +218,67 @@
       "descripcion": "HTML5, CSS3 and JS with Phonegap/Cordova."
     },
     "fecha": "2013-03",
-    "ruta": "virtualeduca"
+    "ruta": "virtualeduca",
+    "tabs": [
+      {
+        "nombre": "sketches",
+        "elementos": [
+          {
+            "nombre": "VirtualEduca_Sketch1.jpg",
+            "descripcion": "First page first mockup."
+          },
+          {
+            "nombre": "VirtualEduca_Sketch2.jpg",
+            "descripcion": "Initial menu mockup."
+          },
+          {
+            "nombre": "VirtualEduca_Sketch3.jpg",
+            "descripcion": "Second sub-menu mockup."
+          },
+          {
+            "nombre": "VirtualEduca_Sketch4.jpg",
+            "descripcion": "Big sub-menu mockup."
+          },
+          {
+            "nombre": "VirtualEduca_Sketch5.jpg",
+            "descripcion": "Internal page mockup."
+          }
+        ]
+      },
+      {
+        "nombre": "screenshots",
+        "elementos": [
+          {
+            "nombre": "VirtualEduca_Screen1.jpg",
+            "descripcion": "Main menu."
+          },
+          {
+            "nombre": "VirtualEduca_Screen2.jpg",
+            "descripcion": "Big sub-menu expanded."
+          },
+          {
+            "nombre": "VirtualEduca_Screen3.jpg",
+            "descripcion": "Small sub-menu."
+          },
+          {
+            "nombre": "VirtualEduca_Screen4.jpg",
+            "descripcion": "Internal page."
+          },
+          {
+            "nombre": "VirtualEduca_Screen5.jpg",
+            "descripcion": "Internal page."
+          },
+          {
+            "nombre": "VirtualEduca_Screen6.jpg",
+            "descripcion": "Internal page."
+          },
+          {
+            "nombre": "VirtualEduca_Screen7.jpg",
+            "descripcion": "Internal page."
+          }
+        ]
+      }
+    ]
   },
   {
     "en": {
@@ -75,6 +288,37 @@
       "descripcion": "HTML5, CSS3 and JS for Moodle 2."
     },
     "fecha": "2012-06",
-    "ruta": "mec"
+    "ruta": "mec",
+    "tabs": [
+      {
+        "nombre": "Screenshots",
+        "elementos": [
+          {
+            "nombre": "MEC_Screen1.png",
+            "descripcion": "First screen, collapsed sections."
+          },
+          {
+            "nombre": "MEC_Screen2.png",
+            "descripcion": "First section expanded."
+          },
+          {
+            "nombre": "MEC_Screen3.png",
+            "descripcion": "Second section expanded."
+          },
+          {
+            "nombre": "MEC_Screen4.png",
+            "descripcion": "Third section expanded."
+          },
+          {
+            "nombre": "MEC_Screen5.png",
+            "descripcion": "Footer expanded."
+          },
+          {
+            "nombre": "MEC_Screen6.png",
+            "descripcion": "Section with YouTube video embedded."
+          }
+        ]
+      }
+    ]
   }
 ]

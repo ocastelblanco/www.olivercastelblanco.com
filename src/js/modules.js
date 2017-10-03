@@ -2,7 +2,7 @@
 var flickr_api_key = '516c801b319d21342af7881ea6471812';
 var flickr_user_id = '97546219%40N00';
 var blogger_api_key = 'AIzaSyBmSolgBGsEjnkT-KF8_p1puXjAXSKhQS4';
-var blogger_blogs = ['2924552721978703143','8845133391114104188','2994125734899716427'];
+var blogger_blogs = ['2924552721978703143',/*'8845133391114104188',*/'2994125734899716427','8460214497105138981'];
 var recaptcha_key = '6LdRbDAUAAAAAFJx_5UvNWkcUT1efJ6tXS5H7DpB';
 var config = {
     apiKey: "AIzaSyARXtM8JStW3UmgERWH_ufd_ixPqc5qytE",
@@ -378,7 +378,6 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
                     rand = Math.floor(Math.random()*url.length);
                     url = url[rand].replace(/<iframe[\w\W]+data-thumbnail-src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g,'$1');
                     tipo = 'video';
-                    console.log();
                 } else {
                     url = valor.content.match(/<img[^>]+src="(https?:\/\/[a-zA-Z0-9.\/_+]*)"/g);
                     if (url) {
@@ -408,7 +407,6 @@ app.controller('blogs',['apiBlogger','$timeout','$scope','$sce',function(apiBlog
                         medida1 = 'height="'+altoMax+'"';
                         medida2 = 'width="'+anchoMax+'"';
                     }
-                    console.log(anchoMax,altoMax);
                     salida = match.replace(/(<iframe[^>]+)((height|width)="[0-9]+")([^>]+)((height|width)="[0-9]+")([^>]*>)/g,'$1'+medida1+'$4'+medida2+'$7');
                     return salida;
                 });
@@ -476,12 +474,12 @@ app.directive('scrollAbajo', ['$document','$timeout',function ($document,$timeou
     return {
         restrict: 'A',
         link: function (scope, element, attrs) {
-            var doc = angular.element($document)[0].body;
+            //var doc = angular.element($document)[0].body;
             var margen = window.getComputedStyle(element[0], null).getPropertyValue('margin-top');
             margen = parseInt(margen,10);
             var margenNegativa = window.getComputedStyle(element[0].children[0], null).getPropertyValue('margin-top');
             margenNegativa = parseInt(margenNegativa, 10);
-            var alturaBarra,top,margenInf,margenSup,navbar,fondoNavbar,opacidad,fondoHeader;
+            var alturaBarra,top,margenInf,margenSup,navbar,fondoNavbar,opacidad,fondoHeader,html;
             $timeout(function(){
                 navbar = angular.element(document.getElementById('navbar'))[0];
                 fondoNavbar = navbar.children[0];
@@ -491,9 +489,11 @@ app.directive('scrollAbajo', ['$document','$timeout',function ($document,$timeou
                 margenInf = top+margenNegativa;
                 margenSup = margen+margenNegativa;
                 fondoHeader =  angular.element(document.getElementsByClassName('fondo-header'))[0];
+                html = document.getElementsByTagName('html')[0];
             },100);
-            $document.bind("scroll", function () {
-                var opacidadActual = 1-(((margenSup-margenInf)-(doc.scrollTop-margenInf))/(margenSup-margenInf));
+            $document.on("scroll", function () {
+                //var opacidadActual = 1-(((margenSup-margenInf)-(doc.scrollTop-margenInf))/(margenSup-margenInf));
+                var opacidadActual = 1-(((margenSup-margenInf)-(html.scrollTop-margenInf))/(margenSup-margenInf));
                 var opacidadImagen = 1;
                 if (opacidadActual > 1) {
                     opacidadActual = 1;
