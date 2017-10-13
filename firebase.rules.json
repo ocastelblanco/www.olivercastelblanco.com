@@ -3,6 +3,10 @@
     "mensajes": {
       ".read": true,
       ".write": true
+    },
+    "portfolio": {
+      ".read": true,
+      ".write": false
     }
   }
 }

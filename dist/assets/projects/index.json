@@ -1,44 +1,6 @@
 [
   {
     "en": {
-      "titulo": "LAFT virtual course",
-      "cliente": "BASC",
-      "tipo": "Moodle course",
-      "descripcion": "HTML5 & CSS3 with jQuery and Bootstrap 3 for Moodle 2."
-    },
-    "fecha": "2017-02",
-    "ruta": "laft",
-    "tabs": [
-      {
-        "nombre": "discarded",
-        "elementos": [
-          {
-            "nombre": "cursoPlantilla1.jpg",
-            "descripcion": "First sketch. Discarded because poor UX."
-          },
-          {
-            "nombre": "cursoPlantilla2.jpg",
-            "descripcion": "Second sketch. Discarded because poor UI."
-          }
-        ]
-      },
-      {
-        "nombre": "wireframes",
-        "elementos": [
-          {
-            "nombre": "img01.jpg",
-            "descripcion": "Home wireframe."
-          },
-          {
-            "nombre": "img02.jpg",
-            "descripcion": "Second page wireframe."
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "en": {
       "titulo": "Vocational survey",
       "cliente": "Politécnico Grancolombiano University",
       "tipo": "Web app",
@@ -46,6 +8,110 @@
     },
     "fecha": "2016-12",
     "ruta": "polivocacional"
+  },
+  {
+    "en": {
+      "titulo": "Gestión del Riesgo en la Cadena de Abastecimiento virtual course",
+      "cliente": "BASC",
+      "tipo": "Moodle course",
+      "descripcion": "HTML5 & CSS3 with jQuery and Bootstrap 3 for Moodle 2."
+    },
+    "fecha": "2016-03",
+    "ruta": "grca",
+    "tabs": [
+      {
+        "nombre": "Screenshots",
+        "elementos": [
+          {
+            "nombre": "GRCA_Home.png",
+            "descripcion": "Moodle home page"
+          },
+          {
+            "nombre": "GRCA_Page1.png",
+            "descripcion": "Content page"
+          },
+          {
+            "nombre": "GRCA_Page2.png",
+            "descripcion": "Content page"
+          },
+          {
+            "nombre": "GRCA_Page3.png",
+            "descripcion": "Content page"
+          },
+          {
+            "nombre": "GRCA_Page4.png",
+            "descripcion": "Content page"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "en": {
+      "titulo": "Lavado de Activos y Financiación del Terrorismo virtual course",
+      "cliente": "BASC",
+      "tipo": "Moodle course",
+      "descripcion": "HTML5 & CSS3 with jQuery and Bootstrap 3 for Moodle 2."
+    },
+    "fecha": "2015-02",
+    "ruta": "laft",
+    "tabs": [
+      {
+        "nombre": "discarded",
+        "elementos": [
+          {
+            "nombre": "cursoPlantilla1.jpg",
+            "descripcion": "First sketch"
+          },
+          {
+            "nombre": "cursoPlantilla2.jpg",
+            "descripcion": "Second sketch"
+          },
+          {
+            "nombre": "LAFT_CharacterProposal.png",
+            "descripcion": "Character proposal"
+          }
+        ]
+      },
+      {
+        "nombre": "IA & final character",
+        "elementos": [
+          {
+            "nombre": "LAFT_MapaNavegacion.png",
+            "descripcion": "Information Architecture"
+          },
+          {
+            "nombre": "LAFT_FinalCharacter.png",
+            "descripcion": "Final character head size variations"
+          }
+        ]
+      },
+      {
+        "nombre": "Screenshots",
+        "elementos": [
+          {
+            "nombre": "LAFT_Home.png",
+            "descripcion": "Moodle course home"
+          },
+          {
+            "nombre": "LAFT_Page1.png",
+            "descripcion": "Content page"
+          },
+          {
+            "nombre": "LAFT_Page2.png",
+            "descripcion": "Content page"
+          },
+          {
+            "nombre": "LAFT_Page3.png",
+            "descripcion": "Content page"
+          },
+          {
+            "nombre": "LAFT_Page4.png",
+            "descripcion": "Content page"
+          }
+        ]
+      }
+    ]
   },
   {
     "en": {
@@ -316,6 +382,172 @@
           {
             "nombre": "MEC_Screen6.png",
             "descripcion": "Section with YouTube video embedded."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "en": {
+      "titulo": "Paisaje Cultural Cafetero course",
+      "cliente": "Colombian Coffee Growers Federation",
+      "tipo": "Moodle course",
+      "descripcion": "HTML5, CSS3 and JS."
+    },
+    "fecha": "2011-07",
+    "ruta": "pcc",
+    "tabs": [
+      {
+        "nombre": "Sketches",
+        "elementos": [
+          {
+            "nombre": "PCC_Boceto1.jpg",
+            "descripcion": "Main page - First sketch"
+          },
+          {
+            "nombre": "PCC_Boceto2.jpg",
+            "descripcion": "Main page - First sketch"
+          },
+          {
+            "nombre": "PCC_Boceto3.jpg",
+            "descripcion": "Main page - First sketch"
+          },
+          {
+            "nombre": "PCC_Boceto4.jpg",
+            "descripcion": "Main page - First sketch"
+          }
+        ]
+      },
+      {
+        "nombre": "Final proposal",
+        "elementos": [
+          {
+            "nombre": "PCC_MapaContenidos.jpg",
+            "descripcion": "Content map"
+          },
+          {
+            "nombre": "PCC_UsoReticula.jpg",
+            "descripcion": "Grid"
+          },
+          {
+            "nombre": "PCC_VisualProposal1.jpg",
+            "descripcion": "Visual proposal"
+          },
+          {
+            "nombre": "PCC_VisualProposal2.jpg",
+            "descripcion": "Visual proposal"
+          },
+          {
+            "nombre": "PCC_VisualProposal3.jpg",
+            "descripcion": "Visual proposal"
+          },
+          {
+            "nombre": "PCC_VisualProposal4.jpg",
+            "descripcion": "Visual proposal"
+          },
+          {
+            "nombre": "PCC_VisualProposal5.jpg",
+            "descripcion": "Visual proposal"
+          },
+          {
+            "nombre": "PCC_VisualProposal6.jpg",
+            "descripcion": "Visual proposal"
+          },
+          {
+            "nombre": "PCC_VisualProposal7.jpg",
+            "descripcion": "Visual proposal"
+          }
+        ]
+      },
+      {
+        "nombre": "Screenshots",
+        "elementos": [
+          {
+            "nombre": "PCC_Screen1.jpg",
+            "descripcion": "Home - Module 1"
+          },
+          {
+            "nombre": "PCC_Screen2.jpg",
+            "descripcion": "First level menu"
+          },
+          {
+            "nombre": "PCC_Screen3.jpg",
+            "descripcion": "First level menu expanded - Video"
+          },
+          {
+            "nombre": "PCC_Screen4.jpg",
+            "descripcion": "Content page - Pagination expanded"
+          },
+          {
+            "nombre": "PCC_Screen5.jpg",
+            "descripcion": "Content page"
+          },
+          {
+            "nombre": "PCC_Screen6.jpg",
+            "descripcion": "Second level menu"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "en": {
+      "titulo": "Cursos virtules de seguridad - BASC",
+      "cliente": "BASC",
+      "tipo": "Moodle course",
+      "descripcion": "HTML, CSS & Flash (ActionScript 3) for Moodle 2."
+    },
+    "fecha": "2011-03",
+    "ruta": "seguridad",
+    "tabs": [
+      {
+        "nombre": "1st course screenshots",
+        "elementos": [
+          {
+            "nombre": "SegFi_Screen01.png",
+            "descripcion": "Instalations security"
+          },
+          {
+            "nombre": "SegFi_Screen02.png",
+            "descripcion": "Instalations security"
+          }
+        ]
+      },
+      {
+        "nombre": "2nd course screenshots",
+        "elementos": [
+          {
+            "nombre": "SegIn_Screen01.png",
+            "descripcion": "Information security"
+          },
+          {
+            "nombre": "SegIn_Screen02.png",
+            "descripcion": "Information security"
+          },
+          {
+            "nombre": "SegIn_Screen03.png",
+            "descripcion": "Information security"
+          }
+        ]
+      },
+      {
+        "nombre": "3rd course screenshots",
+        "elementos": [
+          {
+            "nombre": "SegPe_Screen01.png",
+            "descripcion": "People security"
+          },
+          {
+            "nombre": "SegPe_Screen02.png",
+            "descripcion": "People security"
+          },
+          {
+            "nombre": "SegPe_Screen03.png",
+            "descripcion": "People security"
+          },
+          {
+            "nombre": "SegPe_Screen04.png",
+            "descripcion": "People security"
           }
         ]
       }

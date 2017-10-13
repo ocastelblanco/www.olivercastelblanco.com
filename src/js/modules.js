@@ -149,13 +149,16 @@ app.controller('encabezado', [function(){
     //raiz.selectedTab = 'pagina4';
     //---------------------------
 }]);
-app.controller('portfolio', ['$http','$scope','$firebaseStorage','$rootScope','$mdDialog',function($http,$scope,$firebaseStorage,$rootScope,$mdDialog){
+app.controller('portfolio', ['$http','$scope','$firebaseStorage','$rootScope','$mdDialog','$firebaseArray',function($http,$scope,$firebaseStorage,$rootScope,$mdDialog,$firebaseArray){
     console.log('portfolio');
     var ref = firebase.storage().ref('assets/projects/');
+    var refe = firebase.database().ref();
+    var portfolioRef = refe.child('portfolio');
+    var lista = $firebaseArray(portfolioRef);
     var elementos = {};
-    $http.get('assets/projects/index.json').then(function(resp){
+    lista.$loaded().then(function(resp){
         $scope.fichas = [];
-        angular.forEach(resp.data,function(valor, llave) {
+        angular.forEach(resp,function(valor, llave) {
             var cardImage = $firebaseStorage(ref.child(valor.ruta+'/card-image.jpg'));
             cardImage.$getDownloadURL().then(function(url){
                 valor.cardImage = url;
@@ -177,9 +180,7 @@ app.controller('portfolio', ['$http','$scope','$firebaseStorage','$rootScope','$
             }
             elementos[valor.ruta] = valor;
         });
-    }, function(error){
-        console.log('error',error);
-    });
+    }).catch(function(error){console.log('error',error);});
     $rootScope.$on('abreFichaProyecto',function(ev,ruta){
         $mdDialog.show({
             controller: ProyectoController,
@@ -462,6 +463,7 @@ app.controller('contactme',['$firebaseArray','$rootScope',function($firebaseArra
     raiz.enviar = function(msg) {
         var hoy  = new Date();
         msg.date = hoy.getFullYear()+'-'+a2digitos(hoy.getMonth()+1)+'-'+hoy.getDate()+' '+hoy.toLocaleTimeString('es-CO');
+        msg.recaptcha = null;
         obj.$add(msg);
         raiz.enviado = true;
         $rootScope.$on('finPrecarga',function(e,a){
