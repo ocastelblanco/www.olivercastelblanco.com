@@ -12,6 +12,10 @@ var config = {
     storageBucket: "www-olivercastelblanco-com.appspot.com",
     messagingSenderId: "850614628513"
 };
+var idioma = String(window.navigator.userLanguage || window.navigator.language).substr(0,2);
+if (idioma != 'es' && idioma != 'en') {
+    idioma = 'en';
+}
 firebase.initializeApp(config);
 var app = angular.module('app', [
     'ngAnimate',
@@ -41,19 +45,34 @@ app.config(function($mdThemingProvider) {
 app.controller('main', ['$http',function($http){
     console.log('main');
 }]);
-app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function($rootScope,$http,apiFlickr,$window){
+app.controller('contenido', ['$rootScope','$http','apiFlickr','$window','$firebaseObject','$mdMenu',function($rootScope,$http,apiFlickr,$window,$firebaseObject,$mdMenu){
     console.log('contenido');
     var raiz = this;
-    raiz.rutaHeader = 'views/navbar.html';
-    raiz.rutaBody = 'views/portfolio.html';
-    raiz.claseContenido = 'portfolio';
-    //-----------------------------------
-    //raiz.rutaBody = 'views/contactMe.html';
-    //raiz.claseContenido = 'contactMe';
-    //-----------------------------------
-    raiz.rutaFooter = 'views/footer.html';
-    raiz.rutaLogoPreloader = 'views/logoAnimado.html';
-    raiz.cargado = false;
+    var refInterfaz = firebase.database().ref('interfaz');
+    var refBgHeader = firebase.database().ref('bgHeader');
+    var bgHeader = $firebaseObject(refBgHeader);
+    raiz.interfaz = $firebaseObject(refInterfaz);
+    raiz.interfaz.$loaded().then(function(resp){
+        raiz.idioma = idioma;
+        raiz.cambiaIdioma = function(id) {
+            raiz.idioma = id;
+            idioma = id;
+        };
+        raiz.rutaHeader = 'views/navbar.html';
+        raiz.rutaBody = 'views/portfolio.html';
+        raiz.claseContenido = 'portfolio';
+        //-----------------------------------
+        //raiz.rutaBody = 'views/contactMe.html';
+        //raiz.claseContenido = 'contactMe';
+        //-----------------------------------
+        raiz.rutaFooter = 'views/footer.html';
+        raiz.rutaLogoPreloader = 'views/logoAnimado.html';
+        raiz.cargado = false;
+        raiz.claseContenido = obtieneNombreClase(raiz.claseContenido);
+        raiz.openMenu = function($mdMenu,ev) {
+            $mdMenu.open(ev);
+        };
+    }).catch(function(error){console.log('error',error);});
     $rootScope.$on('finPrecarga',function(e,a){
         raiz.cargado = true;
     });
@@ -61,24 +80,22 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window',function
         raiz.rutaBody = 'views/'+destino+'.html';
         raiz.claseContenido = obtieneNombreClase(destino);
     };
-    raiz.claseContenido = obtieneNombreClase(raiz.claseContenido);
     var rutasBgHeaders = [];
-    $http.get('assets/img/index.json').then(function(resp){
-        var bgHeaders = resp.data.bgHeader;
-        for (var i = 0;i < resp.data.bgHeader.length;i++) {
-            var header = resp.data.bgHeader[i];
-            apiFlickr.bgHeader(header).then(function(resp){
+    bgHeader.$loaded().then(function(resp){
+        angular.forEach(bgHeader,function(valor, llave) {
+            apiFlickr.bgHeader(valor).then(function(resp){
                 if (resp) {
                     rutasBgHeaders.push(resp.sizes);
-                    if (rutasBgHeaders.length == bgHeaders.length) {
+                    if (rutasBgHeaders.length == Object.keys(bgHeader).length-4) {
                         cargaEstiloBgHeader();
                     }
                 } else {
                     raiz.estiloBgHeader = {'background-image': 'url(\'https://firebasestorage.googleapis.com/v0/b/www-olivercastelblanco-com.appspot.com/o/assets%2Fimg%2Fbg-header.jpg?alt=media&token=4933e065-14dc-438a-a481-23b1a5867937\')'};
                 }
             });
-        }
-    });
+            
+        });
+    }).catch(function(error){console.log('error',error);});
     function cargaEstiloBgHeader() {
         var numImagen = Math.floor(Math.random() * rutasBgHeaders.length);
         var imagen = rutasBgHeaders[numImagen];
@@ -715,4 +732,42 @@ function a2digitos(num) {
         salida = String(num);
     }
     return salida;
+}
+// From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+if (!Object.keys) {
+  Object.keys = (function() {
+    'use strict';
+    var hasOwnProperty = Object.prototype.hasOwnProperty,
+        hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
+        dontEnums = [
+          'toString',
+          'toLocaleString',
+          'valueOf',
+          'hasOwnProperty',
+          'isPrototypeOf',
+          'propertyIsEnumerable',
+          'constructor'
+        ],
+        dontEnumsLength = dontEnums.length;
+
+    return function(obj) {
+      if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
+        throw new TypeError('Object.keys called on non-object');
+      }
+      var result = [], prop, i;
+      for (prop in obj) {
+        if (hasOwnProperty.call(obj, prop)) {
+          result.push(prop);
+        }
+      }
+      if (hasDontEnumBug) {
+        for (i = 0; i < dontEnumsLength; i++) {
+          if (hasOwnProperty.call(obj, dontEnums[i])) {
+            result.push(dontEnums[i]);
+          }
+        }
+      }
+      return result;
+    };
+  }());
 }

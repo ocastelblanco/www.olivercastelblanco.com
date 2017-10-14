@@ -2,22 +2,49 @@
 <md-content class="navbar" ng-controller="encabezado as ec" id="navbar">
     <div class="fondo"></div>
     <md-nav-bar md-selected-nav-item="ec.selectedTab" nav-bar-aria-label="barra de navegación">
-    <div class="logo"><div>o</div><div>c</div></div>
+        <div class="logo"><div>o</div><div>c</div></div>
         <md-nav-item class="pag1" name="pagina1" md-nav-click="cont.ir('portfolio')">
-            <span class="txt">portfolio</span>
+            <span class="txt">
+                {{cont.interfaz.navbar.portafolio[cont.idioma]}}
+            </span>
             <i class="fa fa-briefcase" aria-hidden="true"></i>
         </md-nav-item>
         <md-nav-item class="pag2" name="pagina2" md-nav-click="cont.ir('photos')">
-            <span class="txt">photos</span>
+            <span class="txt">
+                {{cont.interfaz.navbar.fotos[cont.idioma]}}
+            </span>
             <i class="fa fa-picture-o" aria-hidden="true"></i>
         </md-nav-item>
         <md-nav-item class="pag3" name="pagina3" md-nav-click="cont.ir('blogs')">
-            <span class="txt">blogs</span>
+            <span class="txt">
+                {{cont.interfaz.navbar.blogs[cont.idioma]}}
+            </span>
             <i class="fa fa-newspaper-o" aria-hidden="true"></i>
         </md-nav-item>
         <md-nav-item class="pag4" name="pagina4" md-nav-click="cont.ir('contactMe')">
-            <span class="txt">contact me</span>
+            <span class="txt">
+                {{cont.interfaz.navbar.contacto[cont.idioma]}}
+            </span>
             <i class="fa fa-comments" aria-hidden="true"></i>
         </md-nav-item>
+        <md-menu class="idioma">
+            <md-button class="md-icon-button" aria-label="Select language" ng-click="cont.openMenu($mdMenu,$event)">
+                <md-icon md-menu-origin md-svg-icon="assets/flags/{{cont.idioma}}.svg"></md-icon>
+            </md-button>
+            <md-menu-content width="2">
+                <md-menu-item>
+                    <md-button ng-click="cont.cambiaIdioma('es')">
+                        <md-icon md-svg-icon="assets/flags/es.svg" md-menu-align-target></md-icon>
+                        Español
+                    </md-button>
+                </md-menu-item>
+                <md-menu-item>
+                    <md-button ng-click="cont.cambiaIdioma('en')">
+                        <md-icon md-svg-icon="assets/flags/en.svg" md-menu-align-target></md-icon>
+                        English
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
     </md-nav-bar>
 </md-content>

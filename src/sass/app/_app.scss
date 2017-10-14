@@ -208,6 +208,9 @@ $diametro-circulo: 220px;
                                     }
                                 }
                             }
+                            .idioma {
+                                display: none;
+                            }
                         }
                         @media (min-width: $bp-gt-xs) {
                             ._md-nav-button-text {
@@ -217,6 +220,10 @@ $diametro-circulo: 220px;
                                 .fa {
                                     display: none;
                                 }
+                            }
+                            .idioma {
+                                position: absolute;
+                                right: 2em;
                             }
                         }
                         .logo {

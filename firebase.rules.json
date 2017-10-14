@@ -3,8 +3,16 @@
     "mensajes": {
       ".read": true,
       ".write": true
-    },
+  	},
     "portfolio": {
+      ".read": true,
+      ".write": false
+    },
+    "bgHeader": {
+      ".read": true,
+      ".write": false
+    },
+    "interfaz": {
       ".read": true,
       ".write": false
     }
