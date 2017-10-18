@@ -45,8 +45,9 @@ app.config(function($mdThemingProvider) {
 app.controller('main', ['$http',function($http){
     console.log('main');
 }]);
-app.controller('contenido', ['$rootScope','$http','apiFlickr','$window','$firebaseObject','$mdMenu',function($rootScope,$http,apiFlickr,$window,$firebaseObject,$mdMenu){
+app.controller('contenido', ['$rootScope','$http','apiFlickr','$window','$firebaseObject','$mdMenu','$timeout','$scope',function($rootScope,$http,apiFlickr,$window,$firebaseObject,$mdMenu,$timeout,$scope){
     console.log('contenido');
+    var fondo,html,fondoOpacity,htmlScrollTop;
     var raiz = this;
     var refInterfaz = firebase.database().ref('interfaz');
     var refBgHeader = firebase.database().ref('bgHeader');
@@ -57,7 +58,13 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window','$fireba
         raiz.cambiaIdioma = function(id) {
             raiz.idioma = id;
             idioma = id;
+            $rootScope.$broadcast('cambiaIdioma',idioma);
         };
+        $scope.$on("$mdMenuClose", function() {
+            $timeout(function(){
+                html.scrollTop = htmlScrollTop;
+            });
+        });
         raiz.rutaHeader = 'views/navbar.html';
         raiz.rutaBody = 'views/portfolio.html';
         raiz.claseContenido = 'portfolio';
@@ -70,7 +77,14 @@ app.controller('contenido', ['$rootScope','$http','apiFlickr','$window','$fireba
         raiz.cargado = false;
         raiz.claseContenido = obtieneNombreClase(raiz.claseContenido);
         raiz.openMenu = function($mdMenu,ev) {
+            fondo = angular.element(document.getElementById('fondo-navbar'))[0];
+            html = angular.element(document.getElementsByTagName('html'))[0];
+            fondoOpacity = fondo.style.opacity;
+            htmlScrollTop = html.scrollTop;
             $mdMenu.open(ev);
+            $timeout(function(){
+                fondo.style.opacity = fondoOpacity;
+            });
         };
     }).catch(function(error){console.log('error',error);});
     $rootScope.$on('finPrecarga',function(e,a){
@@ -166,13 +180,21 @@ app.controller('encabezado', [function(){
     //raiz.selectedTab = 'pagina4';
     //---------------------------
 }]);
-app.controller('portfolio', ['$http','$scope','$firebaseStorage','$rootScope','$mdDialog','$firebaseArray',function($http,$scope,$firebaseStorage,$rootScope,$mdDialog,$firebaseArray){
+app.controller('portfolio', ['$http','$scope','$firebaseStorage','$rootScope','$mdDialog','$firebaseArray','$firebaseObject','$timeout',function($http,$scope,$firebaseStorage,$rootScope,$mdDialog,$firebaseArray,$firebaseObject,$timeout){
     console.log('portfolio');
+    var fondo,html,fondoOpacity,htmlScrollTop;
+    var raiz = this;
+    raiz.idioma = idioma;
     var ref = firebase.storage().ref('assets/projects/');
     var refe = firebase.database().ref();
     var portfolioRef = refe.child('portfolio');
     var lista = $firebaseArray(portfolioRef);
+    var portfolioRef = firebase.database().ref('contenido/portfolio');
+    var portfolio = $firebaseObject(portfolioRef);
     var elementos = {};
+    portfolio.$loaded().then(function(resp){
+        raiz.portfolio = portfolio;
+    }).catch(function(error){console.log('error',error)});
     lista.$loaded().then(function(resp){
         $scope.fichas = [];
         angular.forEach(resp,function(valor, llave) {
@@ -207,25 +229,42 @@ app.controller('portfolio', ['$http','$scope','$firebaseStorage','$rootScope','$
             clickOutsideToClose: true,
             fullscreen: true,
             locals: {
-                elemento: elementos[ruta]
+                elemento: elementos[ruta],
+                idioma: raiz.idioma,
+                dialog: portfolio.dialog
             },
             bindToController: true,
             onComplete: function(scope, element) {
-                var navbar = angular.element(document.getElementById('navbar'))[0];
-                var fondoNavbar = navbar.children[0];
-                angular.element(fondoNavbar).css('opacity',1);
+                fondo.style.opacity = fondoOpacity;
+            },
+            onRemoving: function(scope,element) {
+                html.scrollTop = htmlScrollTop;
+            },
+            onShowing: function(scope,element) {
+                $timeout(function() {
+                    fondo.style.opacity = fondoOpacity;
+                });
             }
         })
         .then(function() {
-            console.log('Dialog cerrado');
+            console.log('Dialog hide');
         }, function(){
-            console.log('Dialog descartado');
+            console.log('Dialog close');
         });
     });
     function ProyectoController($scope,$mdDialog,locals) {
         $scope.elemento = locals.elemento;
+        $scope.idioma = locals.idioma;
+        $scope.dialog = locals.dialog;
+        fondo = angular.element(document.getElementById('fondo-navbar'))[0];
+        html = angular.element(document.getElementsByTagName('html'))[0];
+        fondoOpacity = fondo.style.opacity;
+        htmlScrollTop = html.scrollTop;
         $scope.cancel = function() {
             $mdDialog.hide();
+            $timeout(function(){
+                html.scrollTop = htmlScrollTop;
+            });
         };
     }
 }]);
@@ -531,7 +570,7 @@ app.directive('scrollAbajo', ['$document','$timeout',function ($document,$timeou
         }
     };
 }]);
-app.directive('ocColumnas', ['$window','$rootScope',function($window,$rootScope){
+app.directive('ocColumnas', ['$window','$rootScope','$firebaseObject',function($window,$rootScope,$firebaseObject){
     return {
         restrict: 'E',
         scope: {
@@ -546,11 +585,17 @@ app.directive('ocColumnas', ['$window','$rootScope',function($window,$rootScope)
             return 'views/'+attrs.ocTemplate+'.tmpl.html';
         },
         link: function(scope,element,attrs) {
+            var ref = firebase.database().ref('contenido/portfolio/ficha');
+            scope.interfaz = $firebaseObject(ref);
             calculaCol();
             var ventana = angular.element($window);
             ventana.bind("resize",function(){
                 calculaCol();
                 scope.$digest();
+            });
+            scope.idioma = idioma;
+            $rootScope.$on('cambiaIdioma',function(e,a){
+                scope.idioma = idioma;
             });
             scope.open = function(txt) {
                 $rootScope.$emit('abreFichaProyecto',txt);

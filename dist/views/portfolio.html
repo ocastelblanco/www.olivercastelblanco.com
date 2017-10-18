@@ -5,21 +5,19 @@
                 <img src="https://firebasestorage.googleapis.com/v0/b/www-olivercastelblanco-com.appspot.com/o/assets%2Fimg%2Foliver-cuadrado.png?alt=media&token=58574e15-f23f-40f7-84d3-5b32aa6bc24f" alt="Oliver">
             </div>
             <div class="intro" flex>
-                <md-card-title-text class="titulo">A little about me</md-card-title-text>
-                <md-card-content class="texto">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi lobortis nisi eu consequat maximus. Vestibulum in suscipit ante, et luctus orci. Fusce dapibus, turpis ac vestibulum elementum, tellus metus interdum tortor, in suscipit erat massa ut mauris. Nam commodo luctus facilisis. Pellentesque a nulla felis. Cras scelerisque sagittis nunc a viverra. Vivamus varius sit amet justo vel viverra. Sed ut tortor nisi.
-                </md-card-content>
+                <md-card-title-text class="titulo">{{pf.portfolio.resumen.titulo[cont.idioma]}}</md-card-title-text>
+                <md-card-content class="texto">{{pf.portfolio.resumen.contenido[cont.idioma]}}</md-card-content>
             </div>
         </div>
         <div layout="row" layout-align="end center">
             <md-button class="md-warn md-raised">
                 <md-icon ng-bind="'file_download'"></md-icon>
-                Download resume
+                {{cont.interfaz.portfolio.hv[cont.idioma]}}
             </md-button>
         </div>
     </md-card>
     <div class="titulo-seccion">
-        <h1>Portfolio</h1>
+        <h1>{{pf.portfolio.titulo[cont.idioma]}}</h1>
     </div>
     <oc-columnas oc-col-xs="1" oc-col-sm="2" oc-col-lg="3" oc-fuente="{fichas}" flex layout="row" layout-align="start start" oc-template="projCard" layout-wrap class="fichas"></oc-columnas>
 </div>

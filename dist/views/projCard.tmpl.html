@@ -6,23 +6,23 @@
             </div>
             <md-card-title>
                 <md-card-title-text>
-                    <span class="md-headline">{{ficha.en.titulo}}</span>
-                    <span class="md-subhead">{{ficha.en.tipo}}</span>
+                    <span class="md-headline">{{ficha.datos.titulo[idioma]}}</span>
+                    <span class="md-subhead">{{ficha.datos.tipo[idioma]}}</span>
                 </md-card-title-text>
             </md-card-title>
             <md-card-actions layout="row" layout-align="end center">
                 <md-button class="md-warn md-raised" ng-click="open(ficha.ruta);">
-                    View project
+                    {{interfaz.actioncall[idioma]}}
                 </md-button>
             </md-card-actions>
             <md-card-content>
                 <div class="cliente">
-                    <span>Made for</span>
-                    <span>{{ficha.en.cliente}}</span>
+                    <span>{{interfaz.cliente[idioma]}}</span>
+                    <span>{{ficha.datos.cliente[idioma]}}</span>
                 </div>
                 <div class="descripcion">
-                    <span>Developed in</span>
-                    <span>{{ficha.en.descripcion}}</span>
+                    <span>{{interfaz.descripcion[idioma]}}</span>
+                    <span>{{ficha.datos.descripcion[idioma]}}</span>
                 </div>
             </md-card-content>
         </md-card>

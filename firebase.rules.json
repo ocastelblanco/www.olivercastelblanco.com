@@ -15,6 +15,10 @@
     "interfaz": {
       ".read": true,
       ".write": false
-    }
+    },
+    "contenido": {
+      ".read": true,
+      ".write": false
+    },
   }
 }

@@ -1,7 +1,7 @@
-<md-dialog aria-label="{{elemento.en.titulo}}" class="proj-dialog">
+<md-dialog aria-label="{{elemento.datos.titulo[idioma]}}" class="proj-dialog">
     <md-toolbar class="md-accent barra">
         <div class="md-toolbar-tools">
-            <h2>{{elemento.en.titulo}}</h2>
+            <h2>{{elemento.datos.titulo[idioma]}}</h2>
             <span flex></span>
             <md-button class="md-icon-button" ng-click="cancel()">
                 <md-icon ng-bind="'close'" aria-label="Close dialog"></md-icon>
@@ -10,34 +10,34 @@
     </md-toolbar>
     <md-dialog-content class="contenido" flex layout-gt-sm="row" layout="column">
         <md-tabs class="tabs" md-dynamic-height md-border-bottom flex="100" flex-gt-sm="70" ng-if="elemento.tabs">
-            <md-tab ng-repeat="tab in elemento.tabs" label="{{tab.nombre}}">
-                <md-content class="md-padding">
+            <md-tab ng-repeat="tab in elemento.tabs" label="{{tab.nombre[idioma]}}">
+                <md-content class="md-padding" ng-init="tab.idioma = idioma">
                     <oc-carousel oc-fuente="{tab}"></oc-carousel>
                 </md-content>
             </md-tab>
         </md-tabs>
         <md-content layout-padding class="description" flex="100" flex-gt-sm="30">
-            <div class="elemento" ng-if="elemento.en.cliente">
-                <span class="titulo">Client:</span>
-                <span class="contenido">{{elemento.en.cliente}}</span>
+            <div class="elemento" ng-if="elemento.datos.cliente[idioma]">
+                <span class="titulo">{{dialog.cliente[idioma]}}:</span>
+                <span class="contenido">{{elemento.datos.cliente[idioma]}}</span>
             </div>
-            <div class="elemento" ng-if="elemento.en.tipo">
-                <span class="titulo">Type:</span>
-                <span class="contenido">{{elemento.en.tipo}}</span>
+            <div class="elemento" ng-if="elemento.datos.tipo[idioma]">
+                <span class="titulo">{{dialog.tipo[idioma]}}:</span>
+                <span class="contenido">{{elemento.datos.tipo[idioma]}}</span>
             </div>
-            <div class="elemento" ng-if="elemento.en.descripcion">
-                <span class="titulo">Description:</span>
-                <span class="contenido">{{elemento.en.descripcion}}</span>
+            <div class="elemento" ng-if="elemento.datos.descripcion[idioma]">
+                <span class="titulo">{{dialog.descripcion[idioma]}}:</span>
+                <span class="contenido">{{elemento.datos.descripcion[idioma]}}</span>
             </div>
             <div class="elemento" ng-if="elemento.fecha">
-                <span class="titulo">Date:</span>
+                <span class="titulo">{{dialog.fecha[idioma]}}:</span>
                 <span class="contenido">{{elemento.fecha}}</span>
             </div>
         </md-content>
     </md-dialog-content>
     <md-dialog-actions layout="row">
         <md-button ng-click="cancel()">
-            Close
+            {{dialog.cerrar[idioma]}}
         </md-button>
     </md-dialog-actions>
 </md-dialog>
