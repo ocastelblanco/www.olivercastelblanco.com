@@ -128,6 +128,20 @@ $diametro-circulo: 220px;
                     }
                 }
             }
+            .texto-encabezado {
+                color: $color-blanco;
+                position: fixed;
+                width: 100%;
+                top: $m4 * 10;
+                .nombre {
+                    font-family: $tipo-titulos;
+                    font-size: $m12;
+                }
+                .oficio {
+                    font-family: $tipo-contenido;
+                    font-size: $m5;
+                }
+            }
             .navbar {
                 padding: $m2 $m4;
                 position: fixed;

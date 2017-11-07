@@ -1,4 +1,12 @@
 <div class="fondo-header"><div class="fondo" ng-style="cont.estiloBgHeader"></div><div class="overlay"></div></div>
+<div class="texto-encabezado" layout="column" layout-align="center center">
+    <div class="nombre" flex>
+        {{cont.interfaz.navbar.encabezado.nombre[cont.idioma]}}
+    </div>
+    <div class="oficio" flex>
+        {{cont.interfaz.navbar.encabezado.oficio[cont.idioma]}}
+    </div>
+</div>
 <md-content class="navbar" ng-controller="encabezado as ec" id="navbar">
     <div class="fondo" id="fondo-navbar"></div>
     <md-nav-bar md-selected-nav-item="ec.selectedTab" nav-bar-aria-label="barra de navegación">
