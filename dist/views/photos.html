@@ -5,7 +5,9 @@
                 <md-button class="md-icon-button" aria-label="volver" ng-class="{'visible':ph.modoAlbum,'invisible':!ph.modoAlbum}" ng-click="ph.volverAlbumes()">
                     <md-icon ng-bind="'arrow_back'"></md-icon>
                 </md-button>
-                <h2 class="titulo-general" ng-class="{'visible':!ph.modoAlbum,'invisible':ph.modoAlbum}">Photosets</h2>
+                <h2 class="titulo-general" ng-class="{'visible':!ph.modoAlbum,'invisible':ph.modoAlbum}">
+                    {{cont.interfaz.fotos.titulo[cont.idioma]}}
+                </h2>
                 <h2 class="titulo-album" ng-class="{'visible':ph.modoAlbum,'invisible':!ph.modoAlbum}">{{ph.nombreAlbum}}</h2>
             </div>
         </md-toolbar>

@@ -16,7 +16,9 @@
                 <div ng-bind-html="entrada.contenido | simpleTexto"></div>
             </md-card-content>
             <md-card-actions layout="row" layout-align="end center">
-                <md-button class="md-raised md-warn" ng-click="callback({index: $index})">Read more</md-button>
+                <md-button class="md-raised md-warn" ng-click="callback({index: $index})">
+                    {{interfaz.verEntrada[idioma]}}
+                </md-button>
             </md-card-actions>
         </md-card>
     </div>

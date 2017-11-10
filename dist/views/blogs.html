@@ -8,7 +8,9 @@
                 <md-button class="md-icon-button" aria-label="volver" ng-if="bl.modoPost" ng-click="bl.volverPost()">
                     <md-icon ng-bind="'arrow_back'"></md-icon>
                 </md-button>
-                <h2 class="titulo-general" ng-if="!bl.modoEntradas">Blogs</h2>
+                <h2 class="titulo-general" ng-if="!bl.modoEntradas">
+                    {{cont.interfaz.blogs.titulo[cont.idioma]}}
+                </h2>
                 <h2 class="titulo-blog" ng-if="bl.modoEntradas">{{bl.nombreBlog}}</h2>
             </div>
         </md-toolbar>
@@ -22,7 +24,9 @@
                         </md-card-title-text>
                     </md-card-title>
                     <md-card-actions layout="row" layout-align="end center">
-                        <md-button class="md-raised" ng-click="bl.abrirBlog($index)">Open posts</md-button>
+                        <md-button class="md-raised" ng-click="bl.abrirBlog($index)">
+                            {{cont.interfaz.blogs.botonAbrir[cont.idioma]}}
+                        </md-button>
                     </md-card-actions>
                 </md-card>
             </div>
