@@ -189,8 +189,8 @@ app.controller('portfolio', ['$http','$scope','$firebaseStorage','$rootScope','$
     var refe = firebase.database().ref();
     var portfolioRef = refe.child('portfolio');
     var lista = $firebaseArray(portfolioRef);
-    var portfolioRef = firebase.database().ref('contenido/portfolio');
-    var portfolio = $firebaseObject(portfolioRef);
+    var portfolioRefCont = firebase.database().ref('contenido/portfolio');
+    var portfolio = $firebaseObject(portfolioRefCont);
     var elementos = {};
     portfolio.$loaded().then(function(resp){
         raiz.portfolio = portfolio;
