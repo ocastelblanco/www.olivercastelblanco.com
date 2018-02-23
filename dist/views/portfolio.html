@@ -6,7 +6,9 @@
             </div>
             <div class="intro" flex>
                 <md-card-title-text class="titulo">{{pf.portfolio.resumen.titulo[cont.idioma]}}</md-card-title-text>
-                <md-card-content class="texto">{{pf.portfolio.resumen.contenido[cont.idioma]}}</md-card-content>
+                <md-card-content class="texto">
+                    <ng-bind-html ng-bind-html="pf.portfolio.resumen.contenido[cont.idioma]"></ng-bind-html>
+                </md-card-content>
             </div>
         </div>
         <div layout="row" layout-align="end center">
