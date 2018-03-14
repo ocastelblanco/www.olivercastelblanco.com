@@ -391,8 +391,10 @@ $diametro-circulo: 220px;
                         width: 100%;
                         position: relative;
                         height: 175px;
-                        padding: 56.25% 0 0 0;
                         overflow: hidden;
+                        @-moz-document url-prefix() {
+                            padding: 56.25% 0 0 0;
+                        }
                         >img {
                             position: absolute;
                             display: block;
@@ -770,12 +772,12 @@ $diametro-circulo: 220px;
                 }
             }
             .izq {
-                position: fixed;
+                position: absolute;
                 top: $m16;
                 left: 0;
             }
             .der {
-                position: fixed;
+                position: absolute;
                 top: $m16;
                 right: 0;
             }
