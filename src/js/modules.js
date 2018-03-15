@@ -565,6 +565,7 @@ app.directive('scrollAbajo', ['$document','$timeout',function ($document,$timeou
                     }
                     angular.element(navbar).css('box-shadow', '0px 0px 1px 0px rgba(0,0,0,'+opacidadActual+')');
                     angular.element(fondoHeader).css('opacity',opacidadImagen);
+                    //console.log(opacidad, opacidadActual, opacidadImagen);
                 }
             });
         }
