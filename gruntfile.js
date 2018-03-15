@@ -95,20 +95,18 @@ module.exports = function(grunt) {
                     },
                 ],
             },
-        }/*,
+        },
         ftp_push: {
             your_target: {
                 options: {
-                    authKey: "DevC3-6",
-                    host: "ftp.c3visual.com",
+                    authKey: "OliverCastelblanco",
+                    host: "ftp.olivercastelblanco.com",
                     dest: "/",
                     port: 21
                 },
-                */
-                //files: [{expand: true, cwd: 'dist', src: '**/*'}]
-                /*
+                files: [{expand: true, cwd: 'dist', src: '**/*'}]
             }
-        }*/
+        }
     });
 
     grunt.loadNpmTasks('grunt-contrib-copy');
@@ -119,5 +117,5 @@ module.exports = function(grunt) {
     
     grunt.registerTask('default', ['watch']);
     grunt.registerTask('actualizar', ['copy', 'sass', 'uglify']);
-    //grunt.registerTask('deploy', ['copy', 'sass', 'uglify', 'ftp_push']);
+    grunt.registerTask('deploy', ['copy', 'sass', 'uglify', 'ftp_push']);
 };
