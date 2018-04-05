@@ -14,7 +14,7 @@
     "angular-sanitize": "^1.6.4",
     "angularfire": "^2.3.0",
     "firebase": "^4.3.0",
-    "firebase-tools": "^3.9.2",
+    "firebase-tools": "^3.17.6",
     "font-awesome": "^4.7.0",
     "grunt": "^1.0.1",
     "grunt-contrib-copy": "^1.0.0",
