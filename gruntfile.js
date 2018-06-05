@@ -118,4 +118,5 @@ module.exports = function(grunt) {
     grunt.registerTask('default', ['watch']);
     grunt.registerTask('actualizar', ['copy', 'sass', 'uglify']);
     grunt.registerTask('deploy', ['copy', 'sass', 'uglify', 'ftp_push']);
+    grunt.registerTask('ftp', ['ftp_push']);
 };
