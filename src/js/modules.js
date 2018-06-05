@@ -1,7 +1,7 @@
 /* global angular firebase */
 var flickr_api_key = '516c801b319d21342af7881ea6471812';
 var flickr_user_id = '97546219%40N00';
-var blogger_api_key = 'AIzaSyBmSolgBGsEjnkT-KF8_p1puXjAXSKhQS4';
+var blogger_api_key = 'AIzaSyApRO-hxzMAmH4ZofXjl-AaO-cLxqmxcAM';
 var blogger_blogs = ['2924552721978703143',/*'8845133391114104188',*/'2994125734899716427','8460214497105138981'];
 var recaptcha_key = '6LdRbDAUAAAAAFJx_5UvNWkcUT1efJ6tXS5H7DpB';
 var config = {
