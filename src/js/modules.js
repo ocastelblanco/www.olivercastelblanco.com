@@ -18,13 +18,13 @@ if (idioma != 'es' && idioma != 'en') {
 }
 firebase.initializeApp(config);
 var app = angular.module('app', [
+    'ngRoute',
+    'firebase',
+    'ngMaterial',
+    'ngSanitize',
     'ngAnimate',
     'ngAria',
-    'ngMaterial',
     'ngMessages',
-    'ngRoute',
-    'ngSanitize',
-    'firebase',
     'vcRecaptcha'
 ]);
 app.config(function($mdThemingProvider) {
