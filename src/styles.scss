@@ -1,1 +1,10 @@
-/* You can add global styles to this file, and also import other style files */
+@use "styles/typo" as typo;
+@use "styles/color" as color;
+@import url("https://fonts.googleapis.com/css2?family=Lato&display=swap");
+
+html {
+  body {
+    @include typo.alcance("body");
+    color: color.$gris-900;
+  }
+}

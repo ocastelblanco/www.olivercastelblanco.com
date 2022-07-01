@@ -51,6 +51,7 @@
               "src/manifest.webmanifest"
             ],
             "styles": [
+              "node_modules/the-new-css-reset/css/reset.css",
               "src/styles.scss"
             ],
             "scripts": [],
@@ -126,7 +127,25 @@
             ],
             "scripts": []
           }
+        },
+        {
+          "storybook": {
+            "builder": "@storybook/angular:start-storybook",
+            "options": {
+              "browserTarget": "angular-cli:build",
+              "port": 6006
+            }
+          },
+          "build-storybook": {
+            "builder": "@storybook/angular:build-storybook",
+            "options": {
+              "browserTarget": "angular-cli:build"
+            }
+          }
         }
+      },
+      "cli": {
+        "analytics": "fb298f74-023f-4482-a06d-af599bae1f6d"
       }
     }
   },

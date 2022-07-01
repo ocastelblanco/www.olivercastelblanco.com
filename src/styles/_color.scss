@@ -1,0 +1,65 @@
+// Módulos SASS
+@use "sass:color";
+
+// Colores base
+$blanco: #ffffff;
+$negro: #000000;
+$primario: #039be5;
+$acento: #ef6c00;
+$gris-900: #333333;
+$sombra-arrojada: #1f2687; // rgb(31,38,135)
+
+// Variables neomorfistas
+$var-fondo: 10%;
+$var-inset: 30%;
+
+// Mixins con estilos
+@mixin fondo-opaco($tipo) {
+  @if $tipo == "primario" {
+    background: linear-gradient(
+      145deg,
+      color.scale($primario, $lightness: $var-fondo),
+      color.scale($primario, $blackness: $var-fondo)
+    );
+  }
+  @if $tipo == "acento" {
+    background: linear-gradient(
+      145deg,
+      color.scale($acento, $lightness: $var-fondo),
+      color.scale($acento, $blackness: $var-fondo)
+    );
+  }
+}
+
+@mixin fondo-transparente($tipo) {
+  @if $tipo == "blanco" {
+    background: rgba($blanco, 0.25);
+  }
+  @if $tipo == "primario" {
+    background: rgba($primario, 0.25);
+  }
+}
+
+@mixin borde($tipo) {
+  @if $tipo == "blanco" {
+    border: 1px solid rgba($blanco, 0.18);
+  }
+}
+
+@mixin sombra($tipo) {
+  @if $tipo == "inset" {
+    box-shadow: inset 0px 4px 16px rgba($sombra-arrojada, 0.25);
+  }
+  @if $tipo == "drop" {
+    box-shadow: 0px 8px 32px rgba($sombra-arrojada, 0.37);
+    backdrop-filter: blur(4px);
+  }
+  @if $tipo == "boton-primario" {
+    box-shadow: inset 4px 4px 8px color.scale($primario, $blackness: $var-inset),
+      inset -4px -4px 8px color.scale($primario, $lightness: $var-inset);
+  }
+  @if $tipo == "boton-acento" {
+    box-shadow: inset 4px 4px 8px color.scale($acento, $blackness: $var-inset),
+      inset -4px -4px 8px color.scale($acento, $lightness: $var-inset);
+  }
+}

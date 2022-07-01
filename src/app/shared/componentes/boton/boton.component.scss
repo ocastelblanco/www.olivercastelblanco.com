@@ -1,0 +1,66 @@
+@use "/src/styles/typo" as typo;
+@use "/src/styles/color" as color;
+
+.envoltura-boton {
+  box-sizing: border-box;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  height: 50px;
+  border-radius: 25px;
+  @include color.borde("blanco");
+  @include color.sombra("inset");
+  .boton {
+    @include typo.alcance("boton");
+    color: color.$blanco;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    padding: 10px 20px;
+    gap: 10px;
+    height: 40px;
+    &.icono {
+      width: 40px;
+    }
+    &:hover,
+    &:focus,
+    &.over,
+    &.press {
+      border: 1px solid color.$blanco;
+    }
+    &.primario {
+      &:not(.over):not(:hover):not(:focus):not(.press) {
+        border: 1px solid color.$primario;
+        @include color.fondo-opaco("primario");
+      }
+      &:hover,
+      &:focus,
+      &.over,
+      &.press {
+        background: color.$primario;
+      }
+      &.press {
+        @include color.sombra("boton-primario");
+      }
+    }
+    &.acento {
+      &:not(.over):not(:hover):not(:focus):not(.press) {
+        border: 1px solid color.$acento;
+        @include color.fondo-opaco("acento");
+      }
+      &:hover,
+      &:focus,
+      &.over,
+      &.press {
+        background: color.$acento;
+      }
+      &.press {
+        @include color.sombra("boton-acento");
+      }
+    }
+  }
+}

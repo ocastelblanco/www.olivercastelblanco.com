@@ -1,0 +1,1530 @@
+{
+    "pipes": [],
+    "interfaces": [
+        {
+            "name": "User",
+            "id": "interface-User-9c7e5f1bbbab702cb032307d130876cb68969b0cd4eedef32a0c8cad8081a54e5f8f577ed6ad4539c1b99a1d246cb34031d198c2ea8eba440e64e91b14f01fdc",
+            "file": "src/stories/User.ts",
+            "deprecated": false,
+            "deprecationMessage": "",
+            "type": "interface",
+            "sourceCode": "export interface User {}\n",
+            "properties": [],
+            "indexSignatures": [],
+            "methods": []
+        }
+    ],
+    "injectables": [],
+    "guards": [],
+    "interceptors": [],
+    "classes": [],
+    "directives": [],
+    "components": [
+        {
+            "name": "AppComponent",
+            "id": "component-AppComponent-7efb1aaacbb912f7ca6685a3cd1e127233fafeb54de42c380c3089243a4bf63e0a8ccd029674a977fdf29e7d7c0972dbaea68c7d5f8f82371cfed192f1df8aeb",
+            "file": "src/app/app.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "oca-root",
+            "styleUrls": [
+                "./app.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./app.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\n\n@Component({\n  selector: 'oca-root',\n  templateUrl: './app.component.html',\n  styleUrls: ['./app.component.scss']\n})\nexport class AppComponent { }\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "",
+                    "styleUrl": "./app.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "templateData": "<p>Principal</p>\n<oca-icono></oca-icono>"
+        },
+        {
+            "name": "BotonComponent",
+            "id": "component-BotonComponent-4fa12f8ef1dab06e8a04a5cf5e49004e10e4823e53599032396994c4a6e327dec661ef19516778208733a7f1302ff3bddac5a33e60076a6352e505f05108235f",
+            "file": "src/app/shared/componentes/boton/boton.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "oca-boton",
+            "styleUrls": [
+                "./boton.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./boton.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "contenido",
+                    "defaultValue": "'texto'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 9,
+                    "type": "\"texto\" | \"icono+texto\" | \"icono\"",
+                    "decorators": []
+                },
+                {
+                    "name": "estado",
+                    "defaultValue": "'activo'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 12,
+                    "type": "\"activo\" | \"over\" | \"press\"",
+                    "decorators": []
+                },
+                {
+                    "name": "label",
+                    "defaultValue": "'Aceptar'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 11,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "tipo",
+                    "defaultValue": "'primario'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 10,
+                    "type": "\"primario\" | \"acento\"",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [
+                {
+                    "name": "ngOnInit",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 14,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input, OnInit, Renderer2, ViewContainerRef } from '@angular/core';\n\n@Component({\n  selector: 'oca-boton',\n  templateUrl: './boton.component.html',\n  styleUrls: ['./boton.component.scss']\n})\nexport class BotonComponent implements OnInit {\n  @Input() contenido: 'texto' | 'icono+texto' | 'icono' = 'texto';\n  @Input() tipo: 'primario' | 'acento' = 'primario';\n  @Input() label: string = 'Aceptar';\n  @Input() estado: 'activo' | 'over' | 'press' = 'activo';\n  constructor(private vista: ViewContainerRef, private renderer: Renderer2) { }\n  ngOnInit(): void {\n    const componente: HTMLElement = this.vista.element.nativeElement;\n    const boton: HTMLElement = componente.getElementsByTagName('button')[0];\n    const envoltura: HTMLElement = this.renderer.createElement('div');\n    this.renderer.addClass(envoltura, 'envoltura-boton');\n    this.renderer.removeChild(componente, boton);\n    this.renderer.appendChild(componente, envoltura);\n    this.renderer.appendChild(envoltura, boton);\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "@use \"/src/styles/typo\" as typo;\n@use \"/src/styles/color\" as color;\n\n.envoltura-boton {\n  box-sizing: border-box;\n  display: inline-flex;\n  justify-content: center;\n  align-items: center;\n  padding: 5px;\n  height: 50px;\n  border-radius: 25px;\n  @include color.borde(\"blanco\");\n  @include color.sombra(\"inset\");\n  .boton {\n    @include typo.alcance(\"boton\");\n    color: color.$blanco;\n    cursor: pointer;\n    display: flex;\n    flex-direction: row;\n    justify-content: center;\n    align-items: center;\n    border-radius: 20px;\n    padding: 10px 20px;\n    gap: 10px;\n    height: 40px;\n    &:hover,\n    &:focus,\n    &.over,\n    &.press {\n      border: 1px solid color.$blanco;\n    }\n    &.primario {\n      &:not(.over):not(:hover):not(:focus):not(.press) {\n        border: 1px solid color.$primario;\n        @include color.fondo-opaco(\"primario\");\n      }\n      &:hover,\n      &:focus,\n      &.over,\n      &.press {\n        background: color.$primario;\n      }\n      &.press {\n        @include color.sombra(\"boton-primario\");\n      }\n    }\n    &.acento {\n      &:not(.over):not(:hover):not(:focus):not(.press) {\n        border: 1px solid color.$acento;\n        @include color.fondo-opaco(\"acento\");\n      }\n      &:hover,\n      &:focus,\n      &.over,\n      &.press {\n        background: color.$acento;\n      }\n      &.press {\n        @include color.sombra(\"boton-acento\");\n      }\n    }\n  }\n}\n",
+                    "styleUrl": "./boton.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "constructorObj": {
+                "name": "constructor",
+                "description": "",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "args": [
+                    {
+                        "name": "vista",
+                        "type": "ViewContainerRef",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    },
+                    {
+                        "name": "renderer",
+                        "type": "Renderer2",
+                        "deprecated": false,
+                        "deprecationMessage": ""
+                    }
+                ],
+                "line": 12,
+                "jsdoctags": [
+                    {
+                        "name": "vista",
+                        "type": "ViewContainerRef",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    },
+                    {
+                        "name": "renderer",
+                        "type": "Renderer2",
+                        "deprecated": false,
+                        "deprecationMessage": "",
+                        "tagName": {
+                            "text": "param"
+                        }
+                    }
+                ]
+            },
+            "implements": [
+                "OnInit"
+            ],
+            "templateData": "<button class=\"boton\"\n        [ngClass]=\"[tipo, estado, contenido]\"\n        (mousedown)=\"estado = 'press'\"\n        (mouseup)=\"estado = 'over'\"\n        (mouseout)=\"estado = 'activo'\"\n        (mouseover)=\"estado = 'over'\">\n  {{label}}\n</button>"
+        },
+        {
+            "name": "ButtonComponent",
+            "id": "component-ButtonComponent-4ef205c97a334c309aa4001c8ab4a6d9571dcae18d0e85aaf0d367467ab5d3a9f13ab3573726f1fcb409bc9b49894dadfb80b1bbe1b6ba7041455ad9d4922004",
+            "file": "src/stories/button.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "storybook-button",
+            "styleUrls": [
+                "./button.css"
+            ],
+            "styles": [],
+            "template": "<button   type=\"button\"\n   (click)=\"onClick.emit($event)\"\n   [ngClass]=\"classes\"\n   [ngStyle]=\"{ 'background-color': backgroundColor }\"\n >\n   {{ label }}\n </button>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "backgroundColor",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n\nWhat background color to use\n",
+                    "description": "<p>What background color to use</p>\n",
+                    "line": 26,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "label",
+                    "defaultValue": "'Button'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "jsdoctags": [
+                        {
+                            "pos": 711,
+                            "end": 724,
+                            "flags": 4227072,
+                            "modifierFlagsCache": 0,
+                            "transformFlags": 0,
+                            "kind": 325,
+                            "tagName": {
+                                "pos": 712,
+                                "end": 720,
+                                "flags": 4227072,
+                                "modifierFlagsCache": 0,
+                                "transformFlags": 0,
+                                "kind": 79,
+                                "escapedText": "required"
+                            },
+                            "comment": ""
+                        }
+                    ],
+                    "rawdescription": "\n\nButton contents\n\n",
+                    "description": "<p>Button contents</p>\n",
+                    "line": 40,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "primary",
+                    "defaultValue": "false",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n\nIs this the principal call to action on the page?\n",
+                    "description": "<p>Is this the principal call to action on the page?</p>\n",
+                    "line": 20,
+                    "type": "boolean",
+                    "decorators": []
+                },
+                {
+                    "name": "size",
+                    "defaultValue": "'medium'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n\nHow large should the button be?\n",
+                    "description": "<p>How large should the button be?</p>\n",
+                    "line": 32,
+                    "type": "\"small\" | \"medium\" | \"large\"",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "onClick",
+                    "defaultValue": "new EventEmitter<Event>()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "rawdescription": "\n\nOptional click handler\n",
+                    "description": "<p>Optional click handler</p>\n",
+                    "line": 46,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input, Output, EventEmitter } from '@angular/core';\n\n@Component({\n  selector: 'storybook-button',\n  template: ` <button\n    type=\"button\"\n    (click)=\"onClick.emit($event)\"\n    [ngClass]=\"classes\"\n    [ngStyle]=\"{ 'background-color': backgroundColor }\"\n  >\n    {{ label }}\n  </button>`,\n  styleUrls: ['./button.css'],\n})\nexport default class ButtonComponent {\n  /**\n   * Is this the principal call to action on the page?\n   */\n  @Input()\n  primary = false;\n\n  /**\n   * What background color to use\n   */\n  @Input()\n  backgroundColor?: string;\n\n  /**\n   * How large should the button be?\n   */\n  @Input()\n  size: 'small' | 'medium' | 'large' = 'medium';\n\n  /**\n   * Button contents\n   *\n   * @required\n   */\n  @Input()\n  label = 'Button';\n\n  /**\n   * Optional click handler\n   */\n  @Output()\n  onClick = new EventEmitter<Event>();\n\n  public get classes(): string[] {\n    const mode = this.primary ? 'storybook-button--primary' : 'storybook-button--secondary';\n\n    return ['storybook-button', `storybook-button--${this.size}`, mode];\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".storybook-button {\n  font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;\n  font-weight: 700;\n  border: 0;\n  border-radius: 3em;\n  cursor: pointer;\n  display: inline-block;\n  line-height: 1;\n}\n.storybook-button--primary {\n  color: white;\n  background-color: #1ea7fd;\n}\n.storybook-button--secondary {\n  color: #333;\n  background-color: transparent;\n  box-shadow: rgba(0, 0, 0, 0.15) 0px 0px 0px 1px inset;\n}\n.storybook-button--small {\n  font-size: 12px;\n  padding: 10px 16px;\n}\n.storybook-button--medium {\n  font-size: 14px;\n  padding: 11px 20px;\n}\n.storybook-button--large {\n  font-size: 16px;\n  padding: 12px 24px;\n}\n",
+                    "styleUrl": "./button.css"
+                }
+            ],
+            "stylesData": "",
+            "accessors": {
+                "classes": {
+                    "name": "classes",
+                    "getSignature": {
+                        "name": "classes",
+                        "type": "[]",
+                        "returnType": "string[]",
+                        "line": 48
+                    }
+                }
+            }
+        },
+        {
+            "name": "HeaderComponent",
+            "id": "component-HeaderComponent-a557eec14f72c438a8033301f4d6ce023e0a1844a3b06ec2b38794a612acc31735ae78a5ee10071b230c8c20d699eb914554e69d07ade54adb371da8efb464cc",
+            "file": "src/stories/header.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "storybook-header",
+            "styleUrls": [
+                "./header.css"
+            ],
+            "styles": [],
+            "template": "<header>    <div class=\"wrapper\">\n      <div>\n        <svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\">\n          <g fill=\"none\" fillRule=\"evenodd\">\n            <path\n              d=\"M10 0h12a10 10 0 0110 10v12a10 10 0 01-10 10H10A10 10 0 010 22V10A10 10 0 0110 0z\"\n              fill=\"#FFF\"\n            />\n            <path\n              d=\"M5.3 10.6l10.4 6v11.1l-10.4-6v-11zm11.4-6.2l9.7 5.5-9.7 5.6V4.4z\"\n              fill=\"#555AB9\"\n            />\n            <path\n              d=\"M27.2 10.6v11.2l-10.5 6V16.5l10.5-6zM15.7 4.4v11L6 10l9.7-5.5z\"\n              fill=\"#91BAF8\"\n            />\n          </g>\n        </svg>\n        <h1>Acme</h1>\n      </div>\n      <div>\n        <div *ngIf=\"user\">\n          <span class=\"welcome\">\n            Welcome, <b>{{ user.name }}</b\n            >!\n          </span>\n          <storybook-button\n            *ngIf=\"user\"\n            size=\"small\"\n            (onClick)=\"onLogout.emit($event)\"\n            label=\"Log out\"\n          ></storybook-button>\n        </div>\n        <div *ngIf=\"!user\">\n          <storybook-button\n            *ngIf=\"!user\"\n            size=\"small\"\n            class=\"margin-left\"\n            (onClick)=\"onLogin.emit($event)\"\n            label=\"Log in\"\n          ></storybook-button>\n          <storybook-button\n            *ngIf=\"!user\"\n            primary\n            size=\"small\"\n            primary=\"true\"\n            class=\"margin-left\"\n            (onClick)=\"onCreateAccount.emit($event)\"\n            label=\"Sign up\"\n          ></storybook-button>\n        </div>\n      </div>\n    </div>\n  </header>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "user",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 65,
+                    "type": "User | null",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [
+                {
+                    "name": "onCreateAccount",
+                    "defaultValue": "new EventEmitter<Event>()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 74,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "onLogin",
+                    "defaultValue": "new EventEmitter<Event>()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 68,
+                    "type": "EventEmitter"
+                },
+                {
+                    "name": "onLogout",
+                    "defaultValue": "new EventEmitter<Event>()",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 71,
+                    "type": "EventEmitter"
+                }
+            ],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input, Output, EventEmitter } from '@angular/core';\nimport { User } from './User';\n\n@Component({\n  selector: 'storybook-header',\n  template: `<header>\n    <div class=\"wrapper\">\n      <div>\n        <svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\">\n          <g fill=\"none\" fillRule=\"evenodd\">\n            <path\n              d=\"M10 0h12a10 10 0 0110 10v12a10 10 0 01-10 10H10A10 10 0 010 22V10A10 10 0 0110 0z\"\n              fill=\"#FFF\"\n            />\n            <path\n              d=\"M5.3 10.6l10.4 6v11.1l-10.4-6v-11zm11.4-6.2l9.7 5.5-9.7 5.6V4.4z\"\n              fill=\"#555AB9\"\n            />\n            <path\n              d=\"M27.2 10.6v11.2l-10.5 6V16.5l10.5-6zM15.7 4.4v11L6 10l9.7-5.5z\"\n              fill=\"#91BAF8\"\n            />\n          </g>\n        </svg>\n        <h1>Acme</h1>\n      </div>\n      <div>\n        <div *ngIf=\"user\">\n          <span class=\"welcome\">\n            Welcome, <b>{{ user.name }}</b\n            >!\n          </span>\n          <storybook-button\n            *ngIf=\"user\"\n            size=\"small\"\n            (onClick)=\"onLogout.emit($event)\"\n            label=\"Log out\"\n          ></storybook-button>\n        </div>\n        <div *ngIf=\"!user\">\n          <storybook-button\n            *ngIf=\"!user\"\n            size=\"small\"\n            class=\"margin-left\"\n            (onClick)=\"onLogin.emit($event)\"\n            label=\"Log in\"\n          ></storybook-button>\n          <storybook-button\n            *ngIf=\"!user\"\n            primary\n            size=\"small\"\n            primary=\"true\"\n            class=\"margin-left\"\n            (onClick)=\"onCreateAccount.emit($event)\"\n            label=\"Sign up\"\n          ></storybook-button>\n        </div>\n      </div>\n    </div>\n  </header>`,\n  styleUrls: ['./header.css'],\n})\nexport default class HeaderComponent {\n  @Input()\n  user: User | null = null;\n\n  @Output()\n  onLogin = new EventEmitter<Event>();\n\n  @Output()\n  onLogout = new EventEmitter<Event>();\n\n  @Output()\n  onCreateAccount = new EventEmitter<Event>();\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": ".wrapper {\n  font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;\n  border-bottom: 1px solid rgba(0, 0, 0, 0.1);\n  padding: 15px 20px;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n}\n\nsvg {\n  display: inline-block;\n  vertical-align: top;\n}\n\nh1 {\n  font-weight: 900;\n  font-size: 20px;\n  line-height: 1;\n  margin: 6px 0 6px 10px;\n  display: inline-block;\n  vertical-align: top;\n}\n\nbutton + button {\n  margin-left: 10px;\n}\n\n.welcome {\n  color: #333;\n  font-size: 14px;\n  margin-right: 10px;\n}\n",
+                    "styleUrl": "./header.css"
+                }
+            ],
+            "stylesData": ""
+        },
+        {
+            "name": "IconoComponent",
+            "id": "component-IconoComponent-0d0043ae0033349fbc20910fe5258e9962ed6c171e863d18b76b83943eeb28da445352fe7f3b387d95640384d37305f6f3f75ec0123a3b5eab09897c743835a3",
+            "file": "src/app/shared/componentes/icono/icono.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "oca-icono",
+            "styleUrls": [
+                "./icono.component.scss"
+            ],
+            "styles": [],
+            "templateUrl": [
+                "./icono.component.html"
+            ],
+            "viewProviders": [],
+            "inputsClass": [
+                {
+                    "name": "color",
+                    "defaultValue": "'blanco'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 11,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "icono",
+                    "defaultValue": "'home'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 10,
+                    "type": "string",
+                    "decorators": []
+                },
+                {
+                    "name": "iconos",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 12,
+                    "type": "any",
+                    "decorators": []
+                },
+                {
+                    "name": "tamano",
+                    "defaultValue": "'pequeño'",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "line": 9,
+                    "type": "string",
+                    "decorators": []
+                }
+            ],
+            "outputsClass": [],
+            "propertiesClass": [],
+            "methodsClass": [],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component, Input } from '@angular/core';\n\n@Component({\n  selector: 'oca-icono',\n  templateUrl: './icono.component.html',\n  styleUrls: ['./icono.component.scss']\n})\nexport class IconoComponent {\n  @Input() tamano: string = 'pequeño';\n  @Input() icono: string = 'home';\n  @Input() color: string = 'blanco';\n  @Input() iconos: any;\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "@use \"/src/styles/color\" as color;\n@use \"/src/styles/typo\" as typo;\n\n.icono {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  &.gris-900 {\n    color: color.$gris-900;\n  }\n  &.blanco {\n    color: color.$blanco;\n  }\n  &.xs {\n    width: typo.$icon-xs-size;\n    height: typo.$icon-xs-size;\n    font-size: typo.$icon-xs-size - 3;\n  }\n  &.md {\n    width: typo.$icon-md-size;\n    height: typo.$icon-md-size;\n    font-size: typo.$icon-md-size - 5;\n  }\n}\n",
+                    "styleUrl": "./icono.component.scss"
+                }
+            ],
+            "stylesData": "",
+            "templateData": "<fa-icon class=\"icono\"\n         [class.xs]=\"tamano === 'pequeño'\"\n         [class.md]=\"tamano === 'mediano'\"\n         [ngClass]=\"[color]\"\n         [icon]=\"iconos[icono]\">\n</fa-icon>"
+        },
+        {
+            "name": "PageComponent",
+            "id": "component-PageComponent-7126d8c2607c946741c651482413b43feb72b2d63cac9d3ac173fde206a5e635eb4cdbf7ca7ac9327c7d4d05cf7ef619144c34c11609ad677081d0ee4e855064",
+            "file": "src/stories/page.component.ts",
+            "encapsulation": [],
+            "entryComponents": [],
+            "inputs": [],
+            "outputs": [],
+            "providers": [],
+            "selector": "storybook-page",
+            "styleUrls": [
+                "./page.css"
+            ],
+            "styles": [],
+            "template": "<article>    <storybook-header\n      [user]=\"user\"\n      (onLogout)=\"doLogout()\"\n      (onLogin)=\"doLogin()\"\n      (onCreateAccount)=\"doCreateAccount()\"\n    ></storybook-header>\n    <section>\n      <h2>Pages in Storybook</h2>\n      <p>\n        We recommend building UIs with a\n        <a href=\"https://componentdriven.org\" target=\"_blank\" rel=\"noopener noreferrer\">\n          <strong>component-driven</strong>\n        </a>\n        process starting with atomic components and ending with pages.\n      </p>\n      <p>\n        Render pages with mock data. This makes it easy to build and review page states without\n        needing to navigate to them in your app. Here are some handy patterns for managing page data\n        in Storybook:\n      </p>\n      <ul>\n        <li>\n          Use a higher-level connected component. Storybook helps you compose such data from the\n          \"args\" of child component stories\n        </li>\n        <li>\n          Assemble data in the page component from your services. You can mock these services out\n          using Storybook.\n        </li>\n      </ul>\n      <p>\n        Get a guided tutorial on component-driven development at\n        <a href=\"https://storybook.js.org/tutorials/\" target=\"_blank\" rel=\"noopener noreferrer\">\n          Storybook tutorials\n        </a>\n        . Read more in the\n        <a href=\"https://storybook.js.org/docs\" target=\"_blank\" rel=\"noopener noreferrer\"> docs </a>\n        .\n      </p>\n      <div class=\"tip-wrapper\">\n        <span class=\"tip\">Tip</span> Adjust the width of the canvas with the\n        <svg width=\"10\" height=\"10\" viewBox=\"0 0 12 12\" xmlns=\"http://www.w3.org/2000/svg\">\n          <g fill=\"none\" fillRule=\"evenodd\">\n            <path\n              d=\"M1.5 5.2h4.8c.3 0 .5.2.5.4v5.1c-.1.2-.3.3-.4.3H1.4a.5.5 0 01-.5-.4V5.7c0-.3.2-.5.5-.5zm0-2.1h6.9c.3 0 .5.2.5.4v7a.5.5 0 01-1 0V4H1.5a.5.5 0 010-1zm0-2.1h9c.3 0 .5.2.5.4v9.1a.5.5 0 01-1 0V2H1.5a.5.5 0 010-1zm4.3 5.2H2V10h3.8V6.2z\"\n              id=\"a\"\n              fill=\"#999\"\n            />\n          </g>\n        </svg>\n        Viewports addon in the toolbar\n      </div>\n    </section>\n  </article>",
+            "templateUrl": [],
+            "viewProviders": [],
+            "inputsClass": [],
+            "outputsClass": [],
+            "propertiesClass": [
+                {
+                    "name": "user",
+                    "defaultValue": "null",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "User | null",
+                    "optional": false,
+                    "description": "",
+                    "line": 64
+                }
+            ],
+            "methodsClass": [
+                {
+                    "name": "doCreateAccount",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 74,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "doLogin",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 70,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                },
+                {
+                    "name": "doLogout",
+                    "args": [],
+                    "optional": false,
+                    "returnType": "void",
+                    "typeParameters": [],
+                    "line": 66,
+                    "deprecated": false,
+                    "deprecationMessage": ""
+                }
+            ],
+            "deprecated": false,
+            "deprecationMessage": "",
+            "hostBindings": [],
+            "hostListeners": [],
+            "description": "",
+            "rawdescription": "\n",
+            "type": "component",
+            "sourceCode": "import { Component } from '@angular/core';\nimport { User } from './User';\n\n@Component({\n  selector: 'storybook-page',\n  template: `<article>\n    <storybook-header\n      [user]=\"user\"\n      (onLogout)=\"doLogout()\"\n      (onLogin)=\"doLogin()\"\n      (onCreateAccount)=\"doCreateAccount()\"\n    ></storybook-header>\n    <section>\n      <h2>Pages in Storybook</h2>\n      <p>\n        We recommend building UIs with a\n        <a href=\"https://componentdriven.org\" target=\"_blank\" rel=\"noopener noreferrer\">\n          <strong>component-driven</strong>\n        </a>\n        process starting with atomic components and ending with pages.\n      </p>\n      <p>\n        Render pages with mock data. This makes it easy to build and review page states without\n        needing to navigate to them in your app. Here are some handy patterns for managing page data\n        in Storybook:\n      </p>\n      <ul>\n        <li>\n          Use a higher-level connected component. Storybook helps you compose such data from the\n          \"args\" of child component stories\n        </li>\n        <li>\n          Assemble data in the page component from your services. You can mock these services out\n          using Storybook.\n        </li>\n      </ul>\n      <p>\n        Get a guided tutorial on component-driven development at\n        <a href=\"https://storybook.js.org/tutorials/\" target=\"_blank\" rel=\"noopener noreferrer\">\n          Storybook tutorials\n        </a>\n        . Read more in the\n        <a href=\"https://storybook.js.org/docs\" target=\"_blank\" rel=\"noopener noreferrer\"> docs </a>\n        .\n      </p>\n      <div class=\"tip-wrapper\">\n        <span class=\"tip\">Tip</span> Adjust the width of the canvas with the\n        <svg width=\"10\" height=\"10\" viewBox=\"0 0 12 12\" xmlns=\"http://www.w3.org/2000/svg\">\n          <g fill=\"none\" fillRule=\"evenodd\">\n            <path\n              d=\"M1.5 5.2h4.8c.3 0 .5.2.5.4v5.1c-.1.2-.3.3-.4.3H1.4a.5.5 0 01-.5-.4V5.7c0-.3.2-.5.5-.5zm0-2.1h6.9c.3 0 .5.2.5.4v7a.5.5 0 01-1 0V4H1.5a.5.5 0 010-1zm0-2.1h9c.3 0 .5.2.5.4v9.1a.5.5 0 01-1 0V2H1.5a.5.5 0 010-1zm4.3 5.2H2V10h3.8V6.2z\"\n              id=\"a\"\n              fill=\"#999\"\n            />\n          </g>\n        </svg>\n        Viewports addon in the toolbar\n      </div>\n    </section>\n  </article>`,\n  styleUrls: ['./page.css'],\n})\nexport default class PageComponent {\n  user: User | null = null;\n\n  doLogout() {\n    this.user = null;\n  }\n\n  doLogin() {\n    this.user = { name: 'Jane Doe' };\n  }\n\n  doCreateAccount() {\n    this.user = { name: 'Jane Doe' };\n  }\n}\n",
+            "assetsDirs": [],
+            "styleUrlsData": [
+                {
+                    "data": "section {\n  font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;\n  font-size: 14px;\n  line-height: 24px;\n  padding: 48px 20px;\n  margin: 0 auto;\n  max-width: 600px;\n  color: #333;\n}\n\nsection h2 {\n  font-weight: 900;\n  font-size: 32px;\n  line-height: 1;\n  margin: 0 0 4px;\n  display: inline-block;\n  vertical-align: top;\n}\n\nsection p {\n  margin: 1em 0;\n}\n\nsection a {\n  text-decoration: none;\n  color: #1ea7fd;\n}\n\nsection ul {\n  padding-left: 30px;\n  margin: 1em 0;\n}\n\nsection li {\n  margin-bottom: 8px;\n}\n\nsection .tip {\n  display: inline-block;\n  border-radius: 1em;\n  font-size: 11px;\n  line-height: 12px;\n  font-weight: 700;\n  background: #e7fdd8;\n  color: #66bf3c;\n  padding: 4px 12px;\n  margin-right: 10px;\n  vertical-align: top;\n}\n\nsection .tip-wrapper {\n  font-size: 13px;\n  line-height: 20px;\n  margin-top: 40px;\n  margin-bottom: 40px;\n}\n\nsection .tip-wrapper svg {\n  display: inline-block;\n  height: 12px;\n  width: 12px;\n  margin-right: 4px;\n  vertical-align: top;\n  margin-top: 3px;\n}\n\nsection .tip-wrapper svg path {\n  fill: #1ea7fd;\n}\n",
+                    "styleUrl": "./page.css"
+                }
+            ],
+            "stylesData": ""
+        }
+    ],
+    "modules": [
+        {
+            "name": "AppModule",
+            "id": "module-AppModule-fc93de6e8e9f896119bd1c3b5a7e3b2637087539ab6ebbf3cf710130150a9fbbd512b2ae239c007a757d89f671b382d9a171a04bbfdcf80c0370935a916b5dd4",
+            "description": "",
+            "deprecationMessage": "",
+            "deprecated": false,
+            "file": "src/app/app.module.ts",
+            "methods": [],
+            "sourceCode": "import { NgModule } from '@angular/core';\nimport { BrowserModule } from '@angular/platform-browser';\n\nimport { AppRoutingModule } from './app-routing.module';\nimport { AppComponent } from './app.component';\nimport { ServiceWorkerModule } from '@angular/service-worker';\nimport { environment } from '../environments/environment';\nimport { BotonComponent } from './shared/componentes/boton/boton.component';\nimport { IconoComponent } from './shared/componentes/icono/icono.component';\nimport { FontAwesomeModule } from '@fortawesome/angular-fontawesome';\n\n@NgModule({\n  declarations: [\n    AppComponent,\n    BotonComponent,\n    IconoComponent\n  ],\n  imports: [\n    BrowserModule,\n    AppRoutingModule,\n    ServiceWorkerModule.register('ngsw-worker.js', {\n      enabled: environment.production,\n      // Register the ServiceWorker as soon as the application is stable\n      // or after 30 seconds (whichever comes first).\n      registrationStrategy: 'registerWhenStable:30000'\n    }),\n    FontAwesomeModule,\n  ],\n  providers: [],\n  bootstrap: [AppComponent]\n})\nexport class AppModule { }\n",
+            "children": [
+                {
+                    "type": "providers",
+                    "elements": []
+                },
+                {
+                    "type": "declarations",
+                    "elements": [
+                        {
+                            "name": "AppComponent"
+                        },
+                        {
+                            "name": "BotonComponent"
+                        },
+                        {
+                            "name": "IconoComponent"
+                        }
+                    ]
+                },
+                {
+                    "type": "imports",
+                    "elements": [
+                        {
+                            "name": "AppRoutingModule"
+                        }
+                    ]
+                },
+                {
+                    "type": "exports",
+                    "elements": []
+                },
+                {
+                    "type": "bootstrap",
+                    "elements": [
+                        {
+                            "name": "AppComponent"
+                        }
+                    ]
+                },
+                {
+                    "type": "classes",
+                    "elements": []
+                }
+            ]
+        },
+        {
+            "name": "AppRoutingModule",
+            "id": "module-AppRoutingModule-78922b3ae99d2c5249b333980bd5afde1b120b2cc6fedfd41b8b2cc90f279797cb4b22e183bf7e1d1dfab8c6100e77e7812c110234d81f866f544f28a3e18b15",
+            "description": "",
+            "deprecationMessage": "",
+            "deprecated": false,
+            "file": "src/app/app-routing.module.ts",
+            "methods": [],
+            "sourceCode": "import { NgModule } from '@angular/core';\nimport { RouterModule, Routes } from '@angular/router';\n\nconst routes: Routes = [];\n\n@NgModule({\n  imports: [RouterModule.forRoot(routes)],\n  exports: [RouterModule]\n})\nexport class AppRoutingModule { }\n",
+            "children": [
+                {
+                    "type": "providers",
+                    "elements": []
+                },
+                {
+                    "type": "declarations",
+                    "elements": []
+                },
+                {
+                    "type": "imports",
+                    "elements": []
+                },
+                {
+                    "type": "exports",
+                    "elements": []
+                },
+                {
+                    "type": "bootstrap",
+                    "elements": []
+                },
+                {
+                    "type": "classes",
+                    "elements": []
+                }
+            ]
+        }
+    ],
+    "miscellaneous": {
+        "variables": [
+            {
+                "name": "context",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/test.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "require.context('./', true, /\\.spec\\.ts$/)"
+            },
+            {
+                "name": "environment",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/environments/environment.prod.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n  production: true\n}"
+            },
+            {
+                "name": "environment",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/environments/environment.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "object",
+                "defaultValue": "{\n  production: false\n}"
+            },
+            {
+                "name": "Icono",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/componentes/boton/boton.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<BotonComponent>",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "Icono",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<IconoComponent>",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "iconos",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "any",
+                "defaultValue": "{}"
+            },
+            {
+                "name": "IconoTexto",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/componentes/boton/boton.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<BotonComponent>",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "Large",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/Button.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "listaIconos",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "IconDefinition[]",
+                "defaultValue": "[\n  faHome,\n  faTimes,\n  faCheck,\n  faArrowLeft,\n  faImages,\n  faBookOpen,\n  faPaperPlane,\n  faLanguage,\n  faBullhorn,\n  faCaretDown,\n  faDownload,\n  faGithub,\n  faLinkedin,\n  ocaBar23,\n  ocaLUL,\n]"
+            },
+            {
+                "name": "LoggedIn",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/Header.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "LoggedIn",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/Page.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "LoggedOut",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/Header.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "LoggedOut",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/Page.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "nombreIconos",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "string[]",
+                "defaultValue": "[\n  'home',\n  'close',\n  'check',\n  'back',\n  'images',\n  'libroAbierto',\n  'send',\n  'idioma',\n  'megafono',\n  'caretDown',\n  'download',\n  'github',\n  'linkedin',\n  'bar23',\n  'LUL'\n]"
+            },
+            {
+                "name": "ocaBar23",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "IconDefinition",
+                "defaultValue": "{\n  prefix: \"oca\" as IconPrefix,\n  iconName: \"bar23\" as IconName,\n  icon: [\n    800,\n    800,\n    [],\n    \"e001\",\n    \"M604.9,622.8c-4.1-3.1-9.7-3.1-13.8,0c-1.9,1.7-3.3,3.9-4,6.3c-0.9,3-1.3,6.2-1.2,9.3v1.2c-0.1,3.2,0.4,6.4,1.2,9.5c0.7,2.5,2.1,4.7,4,6.3c2,1.6,4.4,2.3,7,2.2c2.5,0.1,4.9-0.7,6.8-2.3c1.9-1.7,3.2-3.9,3.9-6.3c0.9-3.1,1.3-6.3,1.3-9.5v-1.2c0.1-3.2-0.4-6.3-1.3-9.3C608.1,626.7,606.8,624.5,604.9,622.8z M264,645.6c-1.7,1.4-2.7,3.6-2.7,5.8c-0.1,1.9,0.6,3.7,2,4.9c1.6,1.2,3.6,1.9,5.6,1.7c2.2,0,4.4-0.5,6.4-1.5c1.9-0.9,3.5-2.3,4.7-4v-9.4h-8C268.5,643.2,265.8,644,264,645.6z M216.2,622.9c-1.8-1.6-4.1-2.4-6.5-2.3c-2.2-0.1-4.4,0.5-6.2,1.7c-1.7,1.2-3.2,2.8-4.1,4.6v24.9c1,1.7,2.5,3.2,4.2,4.2c1.8,1,3.9,1.5,5.9,1.4c4.1,0,7.1-1.5,8.9-4.4s2.7-7.1,2.7-12.4v-1.2c0.1-3.4-0.3-6.8-1.2-10.1C219.3,627,218,624.7,216.2,622.9z M592.5,146.7l-197-54.2l-195.8,54.1l196.8,87.3L592.5,146.7z M761.2,247.4C677.1,48,447.2-45.5,247.8,38.6c-46.7,19.7-89.1,48.3-125,84.2c-153.1,153.1-153.1,401.3,0,554.4s401.3,153.1,554.4,0C789.9,564.3,823.1,394.4,761.2,247.4L761.2,247.4z M168,145.8c0-0.2,0-0.3,0-0.5c0-0.2,0-0.5,0-0.7c0-0.1,0-0.2,0-0.3v-0.2c0-0.3,0.1-0.5,0.1-0.8s0-0.3,0.1-0.4s0.2-0.6,0.3-0.8c0-0.1,0.1-0.2,0.1-0.2c0.1-0.3,0.3-0.7,0.5-1l0.2-0.2c0.1-0.2,0.3-0.5,0.5-0.7s0.2-0.2,0.3-0.3c0.2-0.2,0.3-0.4,0.5-0.5c0.1-0.1,0.2-0.2,0.4-0.3l0.3-0.3l0.2-0.2c0.1-0.1,0.3-0.2,0.4-0.3s0.4-0.2,0.6-0.3l0.4-0.2c0.2-0.1,0.5-0.2,0.8-0.3c0.1,0,0.2-0.1,0.3-0.1l219.5-60.7c1.4-0.4,2.9-0.4,4.2,0l220.7,60.7c0.1,0,0.2,0.1,0.3,0.1c0.3,0.1,0.5,0.2,0.8,0.3c0.1,0.1,0.3,0.1,0.4,0.2c0.2,0.1,0.4,0.2,0.6,0.3l0.4,0.3l0.2,0.2l0.3,0.2l0.4,0.3c0.2,0.2,0.3,0.3,0.5,0.5l0.3,0.3c0.2,0.2,0.3,0.4,0.5,0.6c0.1,0.1,0.1,0.2,0.2,0.3c0.2,0.3,0.4,0.7,0.5,1l0.1,0.3c0.1,0.3,0.2,0.6,0.3,0.8c0,0.1,0.1,0.3,0.1,0.4c0,0.2,0.1,0.5,0.1,0.7c0,0.1,0,0.1,0,0.2c0,0.1,0,0.2,0,0.3c0,0.2,0,0.5,0,0.7c0,0.2,0,0.3,0,0.5c0,0.1,0,0.2,0,0.2l-35.4,250.3c-0.3,2.1-1.4,4-3.1,5.3L400.9,540.9l-0.1,0.1c-0.2,0.2-0.5,0.3-0.7,0.5l-0.3,0.2h-0.1c-0.3,0.2-0.7,0.3-1,0.4l-0.2,0.1c-0.3,0.1-0.6,0.2-0.9,0.2h-0.3c-0.4,0.1-0.8,0.1-1.1,0.1l0,0c-0.4,0-0.8,0-1.1-0.1h-0.3c-0.3-0.1-0.6-0.1-0.9-0.2l-0.3-0.1c-0.3-0.1-0.7-0.2-1-0.4h-0.1l-0.3-0.2c-0.3-0.1-0.5-0.3-0.7-0.5l-0.1-0.1L206.1,401.6c-1.7-1.3-2.8-3.2-3.1-5.3L168,146C168,145.9,168,145.9,168,145.8z M237.1,640.7c0.1,5.3-0.8,10.5-2.6,15.5c-1.5,4.1-4.2,7.6-7.7,10.2c-3.6,2.5-8,3.8-12.4,3.6c-3.3,0.1-6.5-0.7-9.4-2.2c-2.7-1.5-4.9-3.7-6.6-6.3l-1.1,7.3h-13.9v-74.7l-8.6-1.7v-9.7h24.6v32.7c1.6-2.3,3.8-4.2,6.4-5.5c2.7-1.3,5.8-2,8.8-1.9c4.4-0.1,8.7,1.3,12.3,3.9c3.6,2.9,6.2,6.7,7.7,11c1.9,5.3,2.8,11,2.6,16.6L237.1,640.7z M302.5,668.9h-20c-0.4-1-0.8-2.1-1.2-3.3c-0.4-1.1-0.7-2.3-0.9-3.5c-1.8,2.4-4.1,4.3-6.8,5.8c-2.8,1.5-5.9,2.3-9.1,2.2c-5.9,0-10.6-1.6-14.1-4.8c-3.5-3.2-5.2-7.5-5.2-13c-0.1-3.5,1-7,3.1-9.9c2.3-3,5.4-5.4,9-6.7c4.7-1.7,9.8-2.6,14.8-2.4h7.9v-4.4c0.1-2.6-0.8-5.1-2.5-7c-1.7-1.8-4.2-2.7-7.5-2.7c-1.6,0-3.1,0.2-4.7,0.6c-1.3,0.4-2.6,1-3.7,1.8l-1.3,7.9h-11.5l-0.2-15.5c3.2-1.8,6.6-3.2,10.1-4.3c4-1.1,8.1-1.7,12.2-1.7c7.8,0,14,1.8,18.5,5.4s6.8,8.8,6.8,15.5v24.6c0,0.8,0,1.6,0,2.4c0,0.8,0.1,1.5,0.2,2.3l6.2,0.9L302.5,668.9z M350.6,623.8l-8-0.4c-1.9-0.2-3.9,0.2-5.5,1.2c-1.5,1-2.8,2.3-3.8,3.8v29.2l7.7,1.7v9.7h-31.5v-9.7l7.7-1.7v-37l-8.5-1.7v-9.7h23.6l0.6,7.4l0.1,1.3c1.2-2.9,3.1-5.4,5.5-7.3c2.2-1.7,5-2.6,7.8-2.5c1.1,0,2.1,0.1,3.1,0.2c1,0.1,2,0.4,3,0.6L350.6,623.8zM412.6,668.9h-54.8v-10.5l26-28c2.2-2.5,4.3-5.1,6.2-7.8c1.3-1.9,2.4-3.9,3.2-6c0.6-1.7,1-3.6,1-5.4c0.1-2.9-0.9-5.7-2.7-7.9c-1.8-2.2-4.4-3.3-7.9-3.3c-3.7,0-6.5,1.2-8.4,3.6s-2.9,5.7-2.9,10h-15.7l-0.1-0.3c-0.2-4.6,0.9-9.1,3.1-13.1c2.2-3.9,5.5-7.1,9.5-9.2c4.5-2.4,9.6-3.6,14.7-3.5c4.9-0.1,9.8,0.9,14.2,3c3.8,1.8,6.9,4.7,9.1,8.2c2.2,3.7,3.3,7.9,3.2,12.2c0,3.1-0.6,6.1-1.7,9c-1.4,3.2-3.2,6.2-5.4,8.9c-2.4,3.1-5.6,6.7-9.4,10.8l-15.6,16.8l0.1,0.3h20.8l0.8-7.7h12.5L412.6,668.9zM471.3,659c-2.5,3.6-6,6.4-10,8.2c-9.1,3.8-19.3,3.8-28.4,0.2c-4-1.6-7.5-4.4-10-7.9c-2.5-3.7-3.7-8.1-3.5-12.5l0.1-0.3h15.6c0,2,0.5,4,1.4,5.7c1,1.7,2.4,3,4,3.9c1.9,1,4.1,1.5,6.2,1.4c3.7,0,6.6-1,8.8-3.1c2.1-2.1,3.2-5,3.2-8.7s-1.1-6.7-3.2-8.8s-5.3-3.1-9.6-3.1h-8.7v-12.1h9c2.2,0.1,4.4-0.4,6.3-1.4c1.6-0.8,2.9-2.2,3.7-3.8c0.8-1.8,1.3-3.8,1.2-5.8c0.2-2.9-0.8-5.8-2.8-8.1c-1.8-2-4.5-3-8-3c-1.9,0-3.8,0.4-5.6,1.2c-1.6,0.8-2.9,2-3.8,3.5c-0.9,1.6-1.4,3.4-1.4,5.2h-15.6l-0.1-0.3c-0.2-4,0.9-8,3.1-11.4c2.3-3.4,5.6-6.1,9.4-7.8c4.3-2,9.1-2.9,13.8-2.8c8.1,0,14.6,2,19.6,5.9c4.9,4,7.4,9.6,7.4,16.8c0,3.6-1,7.2-3.1,10.2c-2.4,3.3-5.6,5.8-9.3,7.4c4.1,1.3,7.6,3.9,10.2,7.3c2.4,3.3,3.6,7.3,3.5,11.4C475.1,650.8,473.8,655.3,471.3,659z M500.8,668.9h-16.1v-14.1h16.1V668.9z M558.6,660.4c-1.9,3.1-4.6,5.6-7.8,7.1c-3.4,1.6-7.6,2.5-12.8,2.5c-5.2,0.1-10.4-1.2-14.9-3.9c-4.2-2.6-7.5-6.3-9.6-10.7c-2.3-4.9-3.5-10.2-3.4-15.6v-1.7c-0.1-5.4,1.1-10.7,3.4-15.6c2.2-4.4,5.5-8,9.6-10.6c4.4-2.7,9.5-4,14.7-3.9c4.7-0.1,9.5,0.7,13.9,2.5c3.5,1.4,6.6,3.4,9.5,5.8l-0.1,17.1H549l-2.2-10.7c-1-0.9-2.1-1.7-3.4-2.2c-1.3-0.5-2.7-0.8-4.1-0.8c-2.6-0.1-5.2,0.7-7.3,2.2c-2,1.6-3.5,3.8-4.3,6.3c-1,3.2-1.5,6.5-1.4,9.9v1.7c-0.1,3.4,0.4,6.8,1.6,10.1c0.8,2.3,2.3,4.3,4.3,5.8c1.8,1.2,3.9,1.9,6,1.9c2.5,0.1,4.9-0.7,6.8-2.2c1.8-1.7,3.1-3.9,3.6-6.3h13.7l0.2,0.3C561.9,653.3,560.6,657.1,558.6,660.4L558.6,660.4z M626.1,639.6c0.1,5.5-1,10.9-3.4,15.8c-2.1,4.4-5.5,8.2-9.7,10.7c-4.6,2.7-9.8,4-15.1,3.8c-5.3,0.2-10.6-1.2-15.2-3.9c-4.2-2.6-7.6-6.3-9.7-10.7c-2.3-4.9-3.5-10.3-3.4-15.8v-1.2c-0.1-5.4,1-10.8,3.4-15.8c2.1-4.4,5.5-8.1,9.7-10.7c9.4-5.2,20.8-5.2,30.2,0c4.2,2.6,7.5,6.3,9.7,10.7c2.3,4.9,3.5,10.3,3.4,15.8L626.1,639.6z M388.1,518.5l0.4-270.6L282.7,201l-96.8-42.9l32.5,232.7L388.1,518.5z M303.8,279.1c-6-10.3-13.9-17.9-23.4-22.8c-6-3.1-11.2-4.7-15.4-4.7s-7,0.8-8.3,2.7s-3.1,8.1-5.4,18.6c-0.3,0.1-0.6,0.3-0.9,0.5c-1.4-0.8-2.8-1.6-4.2-2.3c-0.4-0.5-0.7-1.1-1-1.7c1.1-10.3,1.8-20.9,2-31.7c6.2-4.6,12.2-6.6,18-6c6.6,0.9,13,2.9,19,5.9c8.9,4.5,17,10.3,24.1,17.2c8.2,7.9,14.9,17.3,19.7,27.7c4.9,10.2,7.6,21.4,7.7,32.7c0.2,7.4-1.3,14.7-4.3,21.4c-2.7,6-6.9,11.3-12.3,15.1c-5.2,3.8-12.3,7.7-20.9,11.8c-5.7,2.7-11.3,5.5-16.8,8.1c-5.3,2.6-10.6,5.1-15.7,7.6c6.8,4.7,13.7,9.5,20.7,14.4c7.2,5,14.5,10.1,22,15.3c7,4.9,13.5,9.3,19.6,13.2s11.7,7.5,16.8,10.4c0.3,0.6,0.6,1.1,0.9,1.6c-0.6,3.5-0.9,7.1-0.8,10.7c0,3.5,0.2,6.9,0.8,10.3c-0.3,0.2-0.6,0.5-0.9,0.7c-5.9-4.6-14.9-11.3-26.6-20.1c-11.4-8.5-18.8-13.9-22.3-16.4s-7.6-5.5-12.3-8.8s-9.7-6.9-15.3-10.9c-11-7.6-18.3-12.5-22-15c-0.4-0.6-0.8-1.3-1.2-1.9c-0.1-1.7-0.1-3.4-0.2-5.1c5.1-2.9,10.3-5.8,15.6-8.7c5.4-3,11-6.2,16.7-9.3c6.4-3.4,12.4-7.4,18.1-11.9c4.9-4,8.6-7.8,10.9-11.5c4.7-7.5,7.1-16.2,6.9-25.1C313,300.2,309.9,289.5,303.8,279.1z M573.3,390.8l32.9-232.7l-76.4,34l-125.3,55.8l-0.4,270.5L573.3,390.8z M448.8,401.3l1.8-0.3c2.3,4.2,5.5,7.9,9.3,10.9c3.2,2.3,7.9,2.7,14,1.4c6.8-1.7,13.4-4.3,19.4-7.9c8.7-5,15.6-10.4,20.8-16.4c5.2-5.8,9.5-12.4,12.7-19.5c3.2-6.8,5.2-14,6-21.5c1-9.9-1-16.3-6-19.1s-12.8-1.7-23.1,3.7c-3.3,1.8-6.5,3.8-9.6,6c-2.9,2.1-7.3,5.9-13.4,11.2c-0.5-0.1-0.9-0.3-1.4-0.4c1.1-4.8,2.3-9.7,3.5-14.5c7.1-3.3,11.8-5.6,14.1-6.8c10-5.2,18.4-12.9,24.4-22.4c6.4-9.8,10-19.4,10.9-29.1c0.8-8.6-1.6-14.4-7.3-17.4s-13.6-2.4-23.1,2.2c-6.7,3.2-12.9,7.5-18.4,12.5c-5.5,4.9-10.4,10.3-14.8,16.2c-1.7,3.9-4.4,11.1-8.1,21.7c-0.5,0.6-0.9,1.2-1.4,1.9c-2.1,1.1-4.3,2.1-6.4,3.2c-0.4-0.2-0.7-0.4-1.1-0.6c3-11.7,6.1-23.5,9.2-35.7c6.1-9.3,13.5-17.7,21.9-25c8.3-7.1,17.5-13,27.4-17.6c7.5-3.4,14.1-5.5,19.9-6.1s10.5,0,14.5,2c7.8,3.9,10.9,11.6,9.6,23.2c-1,8.7-4.3,17.7-9.9,27.1c-6.5,10.6-13.9,20.6-22.2,29.8c7.1-2.9,13-4.5,17.7-5s8.2,0.1,10.6,1.9c4.7,3.4,6.6,9.6,5.4,18.4c-1.7,14-9.8,30-24,48c-6.8,8.7-14.3,16.7-22.5,24c-7.8,6.9-16.4,13.1-25.4,18.4c-4.9,2.9-10,5.4-15.2,7.7c-5.6,2-11.2,3.7-17,5c-1.8-8.6-4.6-16.9-8.3-24.9c0.2-0.6,0.4-1.3,0.7-2L448.8,401.3z\"\n  ]\n}"
+            },
+            {
+                "name": "ocaLUL",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "IconDefinition",
+                "defaultValue": "{\n  prefix: \"oca\" as IconPrefix,\n  iconName: \"LUL\" as IconName,\n  icon: [\n    512,\n    512,\n    [],\n    \"e002\",\n    \"M403,261.8v18.4c0,0.7,0.1,1.3,0.3,2c0.2,1,0.5,2,1,2.9c0.4,0.9,1,1.8,1.6,2.5c0.6,0.7,1.6,1.1,2.5,1.1h16.7c1.1-0.2,2.2-0.6,3.2-1.2c1.7-0.8,3.6-1.7,5.7-2.7s4.1-2.1,6.1-3.3c1.5-0.8,3-1.8,4.4-2.9c1-0.9,2.1-1.8,3.1-2.6c0.8-0.7,1.8-1.2,2.9-1.3c0.4-1.1,1-2.2,1.6-3.2c0.6-0.4,1.3-0.6,2-0.5c1.2,0.1,2.3,0.6,3.3,1.3c1.4,0.8,2.1,1.6,2.1,2.4c-0.4,1.6-1,3.1-1.6,4.6c-1.1,2.7-2.4,5.6-4,8.9s-3.2,6.4-5,9.5c-1.8,3-3.5,5.1-5,6.1c-0.4,0.5-1.5,0.9-3.4,1.1s-3.9,0.4-5.9,0.5c-2.3,0.1-5,0.2-8,0.2h-9.1c-2.7,0-5.5-0.3-8.1-0.8c-2.7-0.5-4.5-0.5-5.4,0.2l-2.5,0.6l-9.3,2.1c-0.8,0-1.6-0.1-2.4-0.3c-1.2-0.2-2.6-0.5-4-0.8s-2.8-0.6-4-0.8c-0.8-0.1-1.6-0.2-2.4-0.3c-1,0-2,0.1-2.9,0.4c-0.8,0.2-1.6,0.5-2.3,0.8c-0.8,0.4-1.5,0.7-2.3,1c-1.2,0.1-2.3-0.3-3.2-1c-0.7-0.6-1.2-1.4-1.5-2.3c-0.3-0.9-0.5-1.8-0.6-2.7c-0.1-0.9-0.1-1.6-0.1-2.1c0-2.7,0.9-4.4,2.6-5c1.9-0.7,3.8-1.2,5.7-1.6c2-0.4,4-1.2,5.7-2.3c1.7-1.1,2.6-3.4,2.6-7.1v-16.3l0.8-7.4h-14.1l-7.7,14.5c-1,1.5-2.5,2.5-4.1,3.1h-0.4c-2.1,0-3.8-1.6-4-3.6l-5.5-60.8l-10,127.3c0,0.1,0,0.2-0.1,0.3c0,0.1,0,0.3-0.1,0.4s-0.1,0.3-0.1,0.4s-0.1,0.2-0.1,0.3c-0.1,0.2-0.2,0.3-0.3,0.5c0,0-0.1,0.1-0.1,0.2c-0.2,0.2-0.3,0.4-0.5,0.5l-0.1,0.1c-0.2,0.1-0.3,0.3-0.5,0.4l-0.2,0.1c-0.1,0.1-0.3,0.2-0.5,0.2c-0.1,0-0.2,0.1-0.3,0.1c-0.2,0.1-0.3,0.1-0.5,0.1h-0.1c-0.2,0-0.4,0-0.6,0h-0.3h-0.2c-0.2,0-0.4,0-0.5,0l-0.3-0.1c-0.1,0-0.3-0.1-0.4-0.2l-0.3-0.1l-0.4-0.2l-0.2-0.2c-0.1-0.1-0.3-0.2-0.4-0.4l-0.2-0.2c-0.2-0.2-0.3-0.4-0.4-0.6l0,0c-0.1-0.2-0.2-0.4-0.3-0.7c0-0.1,0-0.2-0.1-0.3s-0.1-0.3-0.1-0.4l-13.7-91.3l-2,7.5c0,0.1-0.1,0.2-0.1,0.4c0,0.1-0.1,0.2-0.1,0.2c-0.2,0.4-0.5,0.8-0.8,1.2l-0.2,0.1c-0.1,0.1-0.2,0.2-0.4,0.3l-0.2,0.1c-0.1,0.1-0.3,0.1-0.4,0.2l-0.3,0.1c-0.2,0.1-0.3,0.1-0.5,0.1l-0.2,0.1c-0.2,0-0.5,0.1-0.8,0.1h-19.3c-0.1,0.5-0.2,1-0.4,1.5l-0.8,3.1c0,0.8,0.1,1.6,0.4,2.4c0.3,0.7,0.5,1.4,0.8,2c0.3,0.6,0.4,1.2,0.4,1.8v2.4c0.1,1.2-0.1,2.5-0.4,3.7c-0.9,1.1-1.3,2.5-1.2,3.9c-0.1,2-0.9,4-2.2,5.5c-1.8,2.3-3.3,4.7-4.7,7.3c0,1.8-0.9,3.4-2.4,4.4c-1.6,1.2-3.3,2.7-5.1,4.4c-0.9,1-1.6,1.8-2.1,2.4c-0.5,0.5-0.9,1-1.5,1.5c-0.5,0.4-1,0.7-1.5,1c-0.6,0.3-1.4,0.6-2.4,1c-4,1.9-8.2,3-12.6,3.4c-4.1,0.3-7.1,0.5-8.9,0.5c-2.2,0-4.6-0.1-7.3-0.4c-2.7-0.3-5.4-0.7-8-1.4c-2.6-0.6-5.2-1.4-7.7-2.3c-2.3-0.8-4.4-2-6.2-3.5l-3.9-5.5c-1.1-1.5-2-3-2.7-4.7c-0.8-1.7-1.5-3.2-2.1-4.6c-0.8-1.7-1.5-3.4-2.1-5.2v-13c0-1.9-0.4-3.8-1.1-5.5c-0.7-2-1-4-1-6.1h-8.6l-7.7,14.6c-1,1.4-2.5,2.5-4.1,3.1h-0.4c-2.1,0-3.8-1.6-4-3.6l-5.5-60.8l-10,127.3c0,0.1,0,0.2-0.1,0.3c0,0.1,0,0.3-0.1,0.4c0,0.1-0.1,0.3-0.2,0.4c0,0.1-0.1,0.2-0.1,0.3c-0.1,0.2-0.2,0.3-0.3,0.5c0,0.1-0.1,0.1-0.1,0.2c-0.2,0.2-0.3,0.4-0.5,0.5c0,0-0.1,0.1-0.1,0.1c-0.1,0.1-0.3,0.3-0.5,0.4l-0.2,0.1c-0.1,0.1-0.3,0.2-0.4,0.2c-0.1,0-0.2,0.1-0.3,0.1c-0.2,0.1-0.3,0.1-0.5,0.1h-0.1c-0.2,0-0.4,0-0.6,0h-0.3h-0.2l-0.5,0l-0.3-0.1c-0.1,0-0.3-0.1-0.4-0.2l-0.3-0.1c-0.1-0.1-0.3-0.2-0.4-0.2c-0.1,0-0.2-0.1-0.2-0.2c-0.1-0.1-0.3-0.2-0.4-0.4l-0.1-0.2c-0.2-0.2-0.3-0.4-0.4-0.6l0,0c-0.1-0.2-0.2-0.4-0.3-0.7c0-0.1,0-0.2-0.1-0.3s-0.1-0.3-0.1-0.4l-13.7-91.3l-1.9,7.5c0,0.1-0.1,0.2-0.1,0.4l-0.1,0.2c-0.2,0.4-0.5,0.8-0.8,1.2l-0.2,0.1l-0.4,0.3l-0.2,0.1c-0.1,0.1-0.3,0.2-0.4,0.2l-0.3,0.1c-0.2,0.1-0.3,0.1-0.5,0.1l-0.2,0c-0.2,0.1-0.5,0.1-0.7,0.1l0,0l-58.2,0.1v20.3c0,0.7,0.1,1.3,0.3,2c0.2,1,0.5,2,1,2.9c0.4,0.9,1,1.8,1.7,2.5c0.6,0.7,1.6,1.1,2.5,1.1h16.7c1.1-0.2,2.2-0.6,3.2-1.2c1.7-0.8,3.7-1.7,5.7-2.7s4.1-2.1,6.1-3.3c1.5-0.9,3-1.8,4.4-2.9c1-0.9,2.1-1.8,3.1-2.6c0.8-0.7,1.8-1.2,2.9-1.3c0.4-1.1,1-2.2,1.6-3.2c0.6-0.4,1.3-0.6,2-0.5c1.2,0.1,2.3,0.6,3.3,1.3c1.4,0.8,2.1,1.6,2.1,2.4c-0.4,1.6-1,3.1-1.6,4.6c-1.1,2.7-2.4,5.6-4,8.9c-1.6,3.3-3.2,6.5-5,9.5s-3.5,5.1-5,6.1c-0.4,0.5-1.5,0.9-3.4,1.1s-3.8,0.4-5.9,0.5c-2.3,0.1-5,0.2-8,0.2h-9.1c-2.7,0-5.5-0.3-8.1-0.8c-2.7-0.5-4.5-0.5-5.4,0.2l-2.5,0.6l-9.3,2.1c-0.8,0-1.6-0.1-2.4-0.3c-1.2-0.2-2.6-0.5-4-0.8s-2.7-0.6-4-0.8c-0.8-0.1-1.6-0.2-2.4-0.3c-1,0-2,0.1-2.9,0.4c-0.8,0.2-1.6,0.5-2.3,0.8c-0.8,0.4-1.5,0.7-2.3,1c-1.2,0.1-2.3-0.3-3.2-1c-0.7-0.6-1.2-1.4-1.6-2.3c-0.3-0.9-0.5-1.8-0.6-2.7c-0.1-0.9-0.1-1.6-0.1-2.1c0-2.7,0.9-4.4,2.6-5c1.9-0.7,3.8-1.2,5.7-1.6c2-0.4,4-1.2,5.7-2.3c1.8-1.1,2.6-3.4,2.6-7.1v-16.3l0.8-7.3L9.1,260l0,0c-0.1,0-0.2,0-0.3,0c2.1,134.6,111.9,243,247,243s244.9-108.5,247-243.1H403V261.8z M227.9,262.4v13c-0.8,1.7-1,2.8-0.6,3.2c0.4,0.7,0.6,1.4,0.6,2.2l2.1,5.2c1.1,1.7,2.3,3.2,3.7,4.6c1.1,1.1,2.4,2.1,3.9,2.8c1.6,0.8,3.3,1.2,5,1.5c2.4,0.3,4.9,0.4,7.4,0.4c1.6-0.2,3.2-0.6,4.7-1.2c2.1-0.8,4.2-1.7,6.2-2.7c0.4-1,1.1-1.9,1.8-2.6c1.1-1.1,2.1-2.3,3-3.5c1.4-1.8,2.7-3.8,3.8-5.8c1.7-3.1,3.1-6.3,4.4-9.6v-7.6c0-0.5,0-1.4,0.1-2.5h-46L227.9,262.4z M59.8,251.9v-6.2c0-0.5,0.1-1.5,0.2-3s0.3-3.1,0.6-4.8c0.2-1.9,0.6-4,1-6.2c0-1-0.3-2-0.9-2.9c-0.5-0.7-0.8-1.6-0.9-2.5v-2.1c0-3.6-0.5-6.1-1.7-7.5c-1-1.3-2.3-2.3-3.7-3.1c-1.3-0.7-2.5-1.5-3.7-2.4c-1.1-0.9-1.7-2.7-1.7-5.4c0-1.2,0.3-2.4,0.9-3.4c0.5-0.9,1.2-1.7,2-2.4c0.7-0.6,1.5-1.1,2.3-1.4c0.6-0.2,1.2-0.3,1.8-0.4h42.1c1.8,0,3.6,0.5,5.1,1.6c1.6,0.9,2.5,2.6,2.4,4.5v3.7c-1.4,1-2.8,1.9-4.1,2.7c-1,0.6-2.1,1.3-3.1,1.8c-0.6,0.4-1.4,0.7-2.1,0.9h-5.8c-4.4-0.4-8.3,2.9-8.7,7.3c0,0.5,0,0.9,0,1.4v5.8c0,3.8-0.5,7.7-1.3,11.4c-0.8,4.1-1.6,8.1-2.4,11.8v0.8l55.1-0.1l6.1-23.4l0,0l0,0v-0.1c0.1-0.2,0.1-0.4,0.2-0.6c0.1-0.1,0.1-0.2,0.2-0.4c0.1-0.1,0.1-0.2,0.2-0.3c0.1-0.1,0.2-0.2,0.3-0.3s0.1-0.2,0.2-0.2s0.2-0.2,0.3-0.3l0.3-0.2l0.4-0.2c0.1-0.1,0.2-0.1,0.3-0.1c0.5-0.2,1-0.3,1.6-0.2c0.3,0,0.5,0,0.8,0.1l0,0l0.2,0.1c0.2,0.1,0.4,0.1,0.5,0.2c0.1,0.1,0.3,0.2,0.4,0.2c0.1,0,0.2,0.1,0.2,0.1c0.1,0.1,0.3,0.2,0.4,0.3l0.2,0.2c0.1,0.1,0.2,0.2,0.3,0.4l0.2,0.3c0.1,0.1,0.1,0.3,0.2,0.4s0.1,0.2,0.1,0.3c0.1,0.3,0.2,0.5,0.2,0.8l11.4,76.1l11-139.5c0,0,0,0,0-0.1s0.1-0.3,0.1-0.4s0-0.2,0.1-0.3c0-0.1,0.1-0.2,0.1-0.4c0-0.1,0.1-0.3,0.2-0.4c0-0.1,0.1-0.2,0.2-0.3s0.1-0.2,0.2-0.4l0.2-0.2c0.1-0.1,0.2-0.2,0.3-0.3l0.3-0.2c0.1-0.1,0.2-0.2,0.4-0.2l0.3-0.1c0.1-0.1,0.3-0.1,0.4-0.2l0.3-0.1c0.2,0,0.3-0.1,0.5-0.1h0.1c0.1,0,0.2,0,0.3,0s0.2,0,0.4,0h0.1c0.1,0,0.3,0,0.4,0.1l0.4,0.1c0.1,0,0.2,0.1,0.4,0.1l0.4,0.2l0.3,0.2c0.1,0.1,0.2,0.1,0.4,0.2s0.2,0.2,0.3,0.2l0.3,0.3c0.1,0.1,0.2,0.2,0.2,0.3c0.1,0.1,0.1,0.2,0.2,0.3c0.1,0.1,0.1,0.2,0.1,0.3c0.1,0.1,0.1,0.2,0.2,0.4c0,0.1,0.1,0.2,0.1,0.4c0,0.1,0.1,0.3,0.1,0.4c0,0,0,0,0,0.1l8.6,95.1l3.4-6.5c1.4-1.3,3.1-2,5-2.1h9.6v-4c0.3-1.3,0.6-2.6,1-3.9l0.8-3.1c0.2-0.7,0.3-1.4,0.4-2.1c-0.4-1.8-0.8-3.4-1.2-4.8c-0.5-2-0.9-4-1-6c0.3-1.1,0.6-2.1,1-3.1c0.3-0.9,0.5-1.7,0.8-2.5c0.2-0.6,0.4-1.3,0.4-1.9v-10.7c0-0.9-0.8-1.7-2.3-2.3c-1.7-0.7-3.4-1.2-5.1-1.6c-1.9-0.4-3.6-0.9-5-1.4s-2.2-1-2-1.6c0.1-1.9,0.8-3.6,2.1-5c1.1-1.5,2.9-2.5,4.8-2.5l9.3-2.1h3.7c1.6,0.2,3.1,0.5,4.6,1.1c2,0.7,4.2,1,6.3,1.1h16.1c1.8,0,2.9,0.4,3.2,1.2c0.3,0.6,0.4,1.3,0.5,1.9c0,2.9-0.4,4.8-1.2,5.9c-0.7,1-1.8,1.8-3,2.1c-1.3,0.3-2.6,0.5-3.9,0.5c-1.3,0-2.7,0.3-3.9,0.9c-1.4,0.7-2.4,1.9-3,3.3c-0.8,1.6-1.2,4.2-1.2,7.9c0,0.6,0.1,1.2,0.2,1.8c0.1,0.9,0.3,1.8,0.5,2.7s0.4,1.9,0.6,2.7c0.2,0.6,0.3,1.2,0.3,1.9v24h46.5c0-0.8,0.1-1.5,0.1-2.3c0.2-2.7,0.4-5.3,0.6-7.7s0.3-4,0.3-4.8c-0.3-0.4-0.5-0.9-0.8-1.4c-0.4-0.8-0.7-1.6-0.8-2.5v-9.1l-1.7-10.9v-3.7c0.1-1.1-0.4-2.2-1.4-2.8c-0.9-0.5-1.9-0.8-2.9-1.1c-1.4-0.2-2.7-0.5-3.8-0.8c-1.1-0.2-1.8-1.2-1.6-2.3c0-1.2,0.3-2.3,0.8-3.4c0.5-1.1,1.1-2.1,1.8-3.1c0.7-0.9,1.5-1.7,2.4-2.3c0.7-0.5,1.6-0.8,2.5-0.9c1.7,0.9,3.6,1.6,5.4,2.1c1.7,0.7,3.4,1.2,5.2,1.6c1.8,0.4,3.7,0.6,5.6,0.6h7.6c1.5,0,3-0.2,4.5-0.5c1.6-0.3,3.2-0.4,4.8-0.4c1.4,0,2.7,0.5,3.8,1.4c1,0.8,1.5,2.5,1.5,4.9c0.4,1.2,0.6,2.4,0.8,3.7c0.1,1,0.2,1.9,0.1,2.9c0,0.7-0.3,1.5-0.9,1.9h-9.3c-1.6,0-3.1,1-3.8,2.4c-0.9,1.5-1.4,3.3-1.5,5.1c-0.5,1.5-0.9,3.1-1.2,4.7c-0.2,0.9-0.1,1.8,0.2,2.7c0.1,0.7,0.4,1.3,1,1.8l-2.3,7c0.6,1,1.1,2.1,1.3,3.2c0.2,1.1,0.4,2.1,0.7,3c0.1,1.2,0.3,2.2,0.4,3.1c0,0.6-0.2,1.2-0.4,1.8c-0.3,0.8-0.5,1.6-0.8,2.5l-0.8,2.7c-0.1,0.3-0.1,0.5-0.2,0.7h15.7l6.1-23.4l0,0l0,0c0,0,0-0.1,0-0.1c0.1-0.2,0.1-0.4,0.2-0.6c0.1-0.1,0.1-0.3,0.2-0.4c0.1-0.1,0.1-0.2,0.2-0.3c0.1-0.1,0.2-0.2,0.3-0.4c0.1-0.1,0.1-0.1,0.2-0.2c0.1-0.1,0.2-0.2,0.4-0.3c0.1-0.1,0.2-0.1,0.3-0.2c0.1-0.1,0.3-0.2,0.4-0.2l0.3-0.1c0.5-0.2,1-0.3,1.6-0.2c0.3,0,0.5,0.1,0.8,0.1l0,0h0.1c0.2,0.1,0.4,0.1,0.6,0.2c0.1,0.1,0.3,0.1,0.4,0.2l0.3,0.2c0.1,0.1,0.2,0.2,0.3,0.3c0.1,0.1,0.2,0.1,0.2,0.2c0.1,0.1,0.2,0.2,0.2,0.3c0.1,0.1,0.2,0.2,0.2,0.3c0.1,0.1,0.1,0.3,0.2,0.4c0,0.1,0.1,0.2,0.1,0.3c0.1,0.3,0.2,0.5,0.2,0.8l11.4,76.1l11-139.5c0,0,0,0,0-0.1c0-0.2,0-0.3,0.1-0.4c0-0.1,0-0.2,0.1-0.3s0.1-0.2,0.1-0.4s0.1-0.2,0.2-0.4s0.1-0.2,0.2-0.3s0.2-0.2,0.2-0.4s0.1-0.1,0.2-0.2s0.2-0.2,0.3-0.3c0.1-0.1,0.2-0.1,0.3-0.2c0.1-0.1,0.2-0.2,0.4-0.2l0.3-0.1c0.1-0.1,0.3-0.1,0.4-0.2l0.3-0.1l0.5-0.1h0.1c0.1,0,0.2,0,0.3,0s0.2,0,0.4,0h0.1c0.1,0,0.3,0,0.4,0.1l0.4,0.1l0.3,0.1l0.4,0.2l0.2,0.2c0.1,0.1,0.3,0.2,0.4,0.3l0.2,0.2c0.1,0.1,0.2,0.2,0.3,0.3c0.1,0.1,0.1,0.2,0.2,0.3c0.1,0.1,0.2,0.2,0.2,0.4s0.1,0.2,0.1,0.3c0.1,0.1,0.1,0.3,0.2,0.4c0,0.1,0.1,0.2,0.1,0.3c0,0.1,0.1,0.3,0.1,0.4s0,0,0,0.1l8.6,95.1l3.4-6.5c0.8-1.5,2.5-2.3,4.2-2c0.3-0.1,0.5-0.1,0.8-0.1h15.8v-6.2c0-0.5,0.1-1.5,0.2-3s0.3-3.1,0.6-4.8c0.3-1.9,0.6-4,1-6.2c0-1-0.3-2-0.9-2.9c-0.5-0.7-0.8-1.6-0.9-2.5v-2.1c0-3.6-0.6-6.1-1.6-7.5c-1-1.3-2.3-2.3-3.7-3.1c-1.3-0.7-2.5-1.5-3.7-2.4c-1.1-0.9-1.6-2.7-1.6-5.4c0-1.2,0.3-2.4,0.9-3.4c0.5-0.9,1.2-1.7,2-2.4c0.7-0.6,1.5-1.1,2.3-1.4c0.6-0.2,1.2-0.3,1.8-0.4H423c1.8,0,3.6,0.5,5.1,1.6c1.6,0.9,2.5,2.6,2.4,4.5v3.7c-1.4,1-2.8,1.9-4.1,2.7c-1,0.6-2.1,1.3-3.1,1.8c-0.6,0.4-1.4,0.7-2.1,0.9h-5.8c-4.4-0.4-8.3,2.9-8.7,7.3c0,0.5,0,0.9,0,1.4v5.8c0,3.8-0.5,7.7-1.3,11.4c-0.8,4.1-1.6,8.1-2.4,11.8v0.7h99.7C500.5,117.4,390.7,9,255.7,9S10.9,117.4,8.8,252c0.1,0,0.2,0,0.3,0L59.8,251.9z M251.6,175.4c0.9-1.3,1.7-2.7,2.3-4.2c0.1-1.3,0.5-2.5,1.2-3.6l1.9-3.4c-0.1-1.7,0.3-3.5,1.2-4.9c0.8-1.2,1.2-2.7,1.2-4.2c-0.1-1.5,0.2-3,0.8-4.4c0.5-0.8,0.7-1.7,0.8-2.6c1.6-1.9,3.2-3.9,4.6-5.9c1.4-1.9,2.9-3.8,4.5-5.5c1.9-2.5,3.8-4.9,5.4-7.4c1.6-2.4,3.4-4.6,5.4-6.6c0.9,0,1.8-0.1,2.6-0.3c1.1-0.3,2.1-0.9,2.8-1.8c1,0,2-0.3,2.9-0.8c0.9-0.5,1.9-0.8,2.9-0.8c1.7,0,2.6,0.7,2.9,2.1c0.2,1.2,0.4,2.4,0.4,3.7v7c0,1.5-0.1,2.9-0.6,4.4c-0.4,1.1-1,2.2-1.8,3.1c-0.9,1.1-1.8,2-2.9,2.9c-1.4,1.2-2.7,2.4-3.9,3.8c-1.7,1.6-3.3,3.4-4.6,5.3c-1.3,2-2.9,3.7-4.7,5.3c-0.7,0.8-1.2,1.7-1.5,2.6c-0.4,1-0.9,2-1.5,2.8c-0.9,1.3-1.8,2.6-2.8,3.8l-2.4,2.8c-0.8,1-1.6,2-2.3,3.1c-0.9,1.3-1.6,2.8-2.1,4.3l-1.1,2.1c-0.5,0.9-1,1.8-1.5,2.7c-0.5,0.9-1.2,1.7-2,2.3c-0.7,0.6-1.6,1-2.5,1c-1.6,0-3.1-0.6-4.4-1.6c-1.4-1.1-2.1-2.7-2-4.5C250.6,177.3,250.9,176.3,251.6,175.4z\"\n  ]\n}"
+            },
+            {
+                "name": "Primary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/Button.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "require",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/test.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "literal type"
+            },
+            {
+                "name": "Secondary",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/Button.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "Small",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/Button.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "",
+                "defaultValue": "Template.bind({})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/Button.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<Button>",
+                "defaultValue": "(args: Button) => ({\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/Header.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<Header>",
+                "defaultValue": "(args: Header) => ({\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/stories/Page.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<Page>",
+                "defaultValue": "(args: Page) => ({\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/componentes/boton/boton.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<BotonComponent>",
+                "defaultValue": "(args: BotonComponent) => ({\n  props: args,\n})"
+            },
+            {
+                "name": "Template",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<IconoComponent>",
+                "defaultValue": "(args: IconoComponent) => ({\n  props: {\n    ...args,\n    iconos: iconos,\n  },\n})"
+            },
+            {
+                "name": "Texto",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "src/app/shared/componentes/boton/boton.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Story<BotonComponent>",
+                "defaultValue": "Template.bind({})"
+            }
+        ],
+        "functions": [],
+        "typealiases": [],
+        "enumerations": [],
+        "groupedVariables": {
+            "src/test.ts": [
+                {
+                    "name": "context",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/test.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "require.context('./', true, /\\.spec\\.ts$/)"
+                },
+                {
+                    "name": "require",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/test.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "literal type"
+                }
+            ],
+            "src/environments/environment.prod.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/environments/environment.prod.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n  production: true\n}"
+                }
+            ],
+            "src/environments/environment.ts": [
+                {
+                    "name": "environment",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/environments/environment.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "object",
+                    "defaultValue": "{\n  production: false\n}"
+                }
+            ],
+            "src/app/shared/componentes/boton/boton.stories.ts": [
+                {
+                    "name": "Icono",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/componentes/boton/boton.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<BotonComponent>",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "IconoTexto",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/componentes/boton/boton.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<BotonComponent>",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/componentes/boton/boton.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<BotonComponent>",
+                    "defaultValue": "(args: BotonComponent) => ({\n  props: args,\n})"
+                },
+                {
+                    "name": "Texto",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/componentes/boton/boton.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<BotonComponent>",
+                    "defaultValue": "Template.bind({})"
+                }
+            ],
+            "src/app/shared/componentes/icono/icono.stories.ts": [
+                {
+                    "name": "Icono",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<IconoComponent>",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "iconos",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "any",
+                    "defaultValue": "{}"
+                },
+                {
+                    "name": "listaIconos",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "IconDefinition[]",
+                    "defaultValue": "[\n  faHome,\n  faTimes,\n  faCheck,\n  faArrowLeft,\n  faImages,\n  faBookOpen,\n  faPaperPlane,\n  faLanguage,\n  faBullhorn,\n  faCaretDown,\n  faDownload,\n  faGithub,\n  faLinkedin,\n  ocaBar23,\n  ocaLUL,\n]"
+                },
+                {
+                    "name": "nombreIconos",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "string[]",
+                    "defaultValue": "[\n  'home',\n  'close',\n  'check',\n  'back',\n  'images',\n  'libroAbierto',\n  'send',\n  'idioma',\n  'megafono',\n  'caretDown',\n  'download',\n  'github',\n  'linkedin',\n  'bar23',\n  'LUL'\n]"
+                },
+                {
+                    "name": "ocaBar23",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "IconDefinition",
+                    "defaultValue": "{\n  prefix: \"oca\" as IconPrefix,\n  iconName: \"bar23\" as IconName,\n  icon: [\n    800,\n    800,\n    [],\n    \"e001\",\n    \"M604.9,622.8c-4.1-3.1-9.7-3.1-13.8,0c-1.9,1.7-3.3,3.9-4,6.3c-0.9,3-1.3,6.2-1.2,9.3v1.2c-0.1,3.2,0.4,6.4,1.2,9.5c0.7,2.5,2.1,4.7,4,6.3c2,1.6,4.4,2.3,7,2.2c2.5,0.1,4.9-0.7,6.8-2.3c1.9-1.7,3.2-3.9,3.9-6.3c0.9-3.1,1.3-6.3,1.3-9.5v-1.2c0.1-3.2-0.4-6.3-1.3-9.3C608.1,626.7,606.8,624.5,604.9,622.8z M264,645.6c-1.7,1.4-2.7,3.6-2.7,5.8c-0.1,1.9,0.6,3.7,2,4.9c1.6,1.2,3.6,1.9,5.6,1.7c2.2,0,4.4-0.5,6.4-1.5c1.9-0.9,3.5-2.3,4.7-4v-9.4h-8C268.5,643.2,265.8,644,264,645.6z M216.2,622.9c-1.8-1.6-4.1-2.4-6.5-2.3c-2.2-0.1-4.4,0.5-6.2,1.7c-1.7,1.2-3.2,2.8-4.1,4.6v24.9c1,1.7,2.5,3.2,4.2,4.2c1.8,1,3.9,1.5,5.9,1.4c4.1,0,7.1-1.5,8.9-4.4s2.7-7.1,2.7-12.4v-1.2c0.1-3.4-0.3-6.8-1.2-10.1C219.3,627,218,624.7,216.2,622.9z M592.5,146.7l-197-54.2l-195.8,54.1l196.8,87.3L592.5,146.7z M761.2,247.4C677.1,48,447.2-45.5,247.8,38.6c-46.7,19.7-89.1,48.3-125,84.2c-153.1,153.1-153.1,401.3,0,554.4s401.3,153.1,554.4,0C789.9,564.3,823.1,394.4,761.2,247.4L761.2,247.4z M168,145.8c0-0.2,0-0.3,0-0.5c0-0.2,0-0.5,0-0.7c0-0.1,0-0.2,0-0.3v-0.2c0-0.3,0.1-0.5,0.1-0.8s0-0.3,0.1-0.4s0.2-0.6,0.3-0.8c0-0.1,0.1-0.2,0.1-0.2c0.1-0.3,0.3-0.7,0.5-1l0.2-0.2c0.1-0.2,0.3-0.5,0.5-0.7s0.2-0.2,0.3-0.3c0.2-0.2,0.3-0.4,0.5-0.5c0.1-0.1,0.2-0.2,0.4-0.3l0.3-0.3l0.2-0.2c0.1-0.1,0.3-0.2,0.4-0.3s0.4-0.2,0.6-0.3l0.4-0.2c0.2-0.1,0.5-0.2,0.8-0.3c0.1,0,0.2-0.1,0.3-0.1l219.5-60.7c1.4-0.4,2.9-0.4,4.2,0l220.7,60.7c0.1,0,0.2,0.1,0.3,0.1c0.3,0.1,0.5,0.2,0.8,0.3c0.1,0.1,0.3,0.1,0.4,0.2c0.2,0.1,0.4,0.2,0.6,0.3l0.4,0.3l0.2,0.2l0.3,0.2l0.4,0.3c0.2,0.2,0.3,0.3,0.5,0.5l0.3,0.3c0.2,0.2,0.3,0.4,0.5,0.6c0.1,0.1,0.1,0.2,0.2,0.3c0.2,0.3,0.4,0.7,0.5,1l0.1,0.3c0.1,0.3,0.2,0.6,0.3,0.8c0,0.1,0.1,0.3,0.1,0.4c0,0.2,0.1,0.5,0.1,0.7c0,0.1,0,0.1,0,0.2c0,0.1,0,0.2,0,0.3c0,0.2,0,0.5,0,0.7c0,0.2,0,0.3,0,0.5c0,0.1,0,0.2,0,0.2l-35.4,250.3c-0.3,2.1-1.4,4-3.1,5.3L400.9,540.9l-0.1,0.1c-0.2,0.2-0.5,0.3-0.7,0.5l-0.3,0.2h-0.1c-0.3,0.2-0.7,0.3-1,0.4l-0.2,0.1c-0.3,0.1-0.6,0.2-0.9,0.2h-0.3c-0.4,0.1-0.8,0.1-1.1,0.1l0,0c-0.4,0-0.8,0-1.1-0.1h-0.3c-0.3-0.1-0.6-0.1-0.9-0.2l-0.3-0.1c-0.3-0.1-0.7-0.2-1-0.4h-0.1l-0.3-0.2c-0.3-0.1-0.5-0.3-0.7-0.5l-0.1-0.1L206.1,401.6c-1.7-1.3-2.8-3.2-3.1-5.3L168,146C168,145.9,168,145.9,168,145.8z M237.1,640.7c0.1,5.3-0.8,10.5-2.6,15.5c-1.5,4.1-4.2,7.6-7.7,10.2c-3.6,2.5-8,3.8-12.4,3.6c-3.3,0.1-6.5-0.7-9.4-2.2c-2.7-1.5-4.9-3.7-6.6-6.3l-1.1,7.3h-13.9v-74.7l-8.6-1.7v-9.7h24.6v32.7c1.6-2.3,3.8-4.2,6.4-5.5c2.7-1.3,5.8-2,8.8-1.9c4.4-0.1,8.7,1.3,12.3,3.9c3.6,2.9,6.2,6.7,7.7,11c1.9,5.3,2.8,11,2.6,16.6L237.1,640.7z M302.5,668.9h-20c-0.4-1-0.8-2.1-1.2-3.3c-0.4-1.1-0.7-2.3-0.9-3.5c-1.8,2.4-4.1,4.3-6.8,5.8c-2.8,1.5-5.9,2.3-9.1,2.2c-5.9,0-10.6-1.6-14.1-4.8c-3.5-3.2-5.2-7.5-5.2-13c-0.1-3.5,1-7,3.1-9.9c2.3-3,5.4-5.4,9-6.7c4.7-1.7,9.8-2.6,14.8-2.4h7.9v-4.4c0.1-2.6-0.8-5.1-2.5-7c-1.7-1.8-4.2-2.7-7.5-2.7c-1.6,0-3.1,0.2-4.7,0.6c-1.3,0.4-2.6,1-3.7,1.8l-1.3,7.9h-11.5l-0.2-15.5c3.2-1.8,6.6-3.2,10.1-4.3c4-1.1,8.1-1.7,12.2-1.7c7.8,0,14,1.8,18.5,5.4s6.8,8.8,6.8,15.5v24.6c0,0.8,0,1.6,0,2.4c0,0.8,0.1,1.5,0.2,2.3l6.2,0.9L302.5,668.9z M350.6,623.8l-8-0.4c-1.9-0.2-3.9,0.2-5.5,1.2c-1.5,1-2.8,2.3-3.8,3.8v29.2l7.7,1.7v9.7h-31.5v-9.7l7.7-1.7v-37l-8.5-1.7v-9.7h23.6l0.6,7.4l0.1,1.3c1.2-2.9,3.1-5.4,5.5-7.3c2.2-1.7,5-2.6,7.8-2.5c1.1,0,2.1,0.1,3.1,0.2c1,0.1,2,0.4,3,0.6L350.6,623.8zM412.6,668.9h-54.8v-10.5l26-28c2.2-2.5,4.3-5.1,6.2-7.8c1.3-1.9,2.4-3.9,3.2-6c0.6-1.7,1-3.6,1-5.4c0.1-2.9-0.9-5.7-2.7-7.9c-1.8-2.2-4.4-3.3-7.9-3.3c-3.7,0-6.5,1.2-8.4,3.6s-2.9,5.7-2.9,10h-15.7l-0.1-0.3c-0.2-4.6,0.9-9.1,3.1-13.1c2.2-3.9,5.5-7.1,9.5-9.2c4.5-2.4,9.6-3.6,14.7-3.5c4.9-0.1,9.8,0.9,14.2,3c3.8,1.8,6.9,4.7,9.1,8.2c2.2,3.7,3.3,7.9,3.2,12.2c0,3.1-0.6,6.1-1.7,9c-1.4,3.2-3.2,6.2-5.4,8.9c-2.4,3.1-5.6,6.7-9.4,10.8l-15.6,16.8l0.1,0.3h20.8l0.8-7.7h12.5L412.6,668.9zM471.3,659c-2.5,3.6-6,6.4-10,8.2c-9.1,3.8-19.3,3.8-28.4,0.2c-4-1.6-7.5-4.4-10-7.9c-2.5-3.7-3.7-8.1-3.5-12.5l0.1-0.3h15.6c0,2,0.5,4,1.4,5.7c1,1.7,2.4,3,4,3.9c1.9,1,4.1,1.5,6.2,1.4c3.7,0,6.6-1,8.8-3.1c2.1-2.1,3.2-5,3.2-8.7s-1.1-6.7-3.2-8.8s-5.3-3.1-9.6-3.1h-8.7v-12.1h9c2.2,0.1,4.4-0.4,6.3-1.4c1.6-0.8,2.9-2.2,3.7-3.8c0.8-1.8,1.3-3.8,1.2-5.8c0.2-2.9-0.8-5.8-2.8-8.1c-1.8-2-4.5-3-8-3c-1.9,0-3.8,0.4-5.6,1.2c-1.6,0.8-2.9,2-3.8,3.5c-0.9,1.6-1.4,3.4-1.4,5.2h-15.6l-0.1-0.3c-0.2-4,0.9-8,3.1-11.4c2.3-3.4,5.6-6.1,9.4-7.8c4.3-2,9.1-2.9,13.8-2.8c8.1,0,14.6,2,19.6,5.9c4.9,4,7.4,9.6,7.4,16.8c0,3.6-1,7.2-3.1,10.2c-2.4,3.3-5.6,5.8-9.3,7.4c4.1,1.3,7.6,3.9,10.2,7.3c2.4,3.3,3.6,7.3,3.5,11.4C475.1,650.8,473.8,655.3,471.3,659z M500.8,668.9h-16.1v-14.1h16.1V668.9z M558.6,660.4c-1.9,3.1-4.6,5.6-7.8,7.1c-3.4,1.6-7.6,2.5-12.8,2.5c-5.2,0.1-10.4-1.2-14.9-3.9c-4.2-2.6-7.5-6.3-9.6-10.7c-2.3-4.9-3.5-10.2-3.4-15.6v-1.7c-0.1-5.4,1.1-10.7,3.4-15.6c2.2-4.4,5.5-8,9.6-10.6c4.4-2.7,9.5-4,14.7-3.9c4.7-0.1,9.5,0.7,13.9,2.5c3.5,1.4,6.6,3.4,9.5,5.8l-0.1,17.1H549l-2.2-10.7c-1-0.9-2.1-1.7-3.4-2.2c-1.3-0.5-2.7-0.8-4.1-0.8c-2.6-0.1-5.2,0.7-7.3,2.2c-2,1.6-3.5,3.8-4.3,6.3c-1,3.2-1.5,6.5-1.4,9.9v1.7c-0.1,3.4,0.4,6.8,1.6,10.1c0.8,2.3,2.3,4.3,4.3,5.8c1.8,1.2,3.9,1.9,6,1.9c2.5,0.1,4.9-0.7,6.8-2.2c1.8-1.7,3.1-3.9,3.6-6.3h13.7l0.2,0.3C561.9,653.3,560.6,657.1,558.6,660.4L558.6,660.4z M626.1,639.6c0.1,5.5-1,10.9-3.4,15.8c-2.1,4.4-5.5,8.2-9.7,10.7c-4.6,2.7-9.8,4-15.1,3.8c-5.3,0.2-10.6-1.2-15.2-3.9c-4.2-2.6-7.6-6.3-9.7-10.7c-2.3-4.9-3.5-10.3-3.4-15.8v-1.2c-0.1-5.4,1-10.8,3.4-15.8c2.1-4.4,5.5-8.1,9.7-10.7c9.4-5.2,20.8-5.2,30.2,0c4.2,2.6,7.5,6.3,9.7,10.7c2.3,4.9,3.5,10.3,3.4,15.8L626.1,639.6z M388.1,518.5l0.4-270.6L282.7,201l-96.8-42.9l32.5,232.7L388.1,518.5z M303.8,279.1c-6-10.3-13.9-17.9-23.4-22.8c-6-3.1-11.2-4.7-15.4-4.7s-7,0.8-8.3,2.7s-3.1,8.1-5.4,18.6c-0.3,0.1-0.6,0.3-0.9,0.5c-1.4-0.8-2.8-1.6-4.2-2.3c-0.4-0.5-0.7-1.1-1-1.7c1.1-10.3,1.8-20.9,2-31.7c6.2-4.6,12.2-6.6,18-6c6.6,0.9,13,2.9,19,5.9c8.9,4.5,17,10.3,24.1,17.2c8.2,7.9,14.9,17.3,19.7,27.7c4.9,10.2,7.6,21.4,7.7,32.7c0.2,7.4-1.3,14.7-4.3,21.4c-2.7,6-6.9,11.3-12.3,15.1c-5.2,3.8-12.3,7.7-20.9,11.8c-5.7,2.7-11.3,5.5-16.8,8.1c-5.3,2.6-10.6,5.1-15.7,7.6c6.8,4.7,13.7,9.5,20.7,14.4c7.2,5,14.5,10.1,22,15.3c7,4.9,13.5,9.3,19.6,13.2s11.7,7.5,16.8,10.4c0.3,0.6,0.6,1.1,0.9,1.6c-0.6,3.5-0.9,7.1-0.8,10.7c0,3.5,0.2,6.9,0.8,10.3c-0.3,0.2-0.6,0.5-0.9,0.7c-5.9-4.6-14.9-11.3-26.6-20.1c-11.4-8.5-18.8-13.9-22.3-16.4s-7.6-5.5-12.3-8.8s-9.7-6.9-15.3-10.9c-11-7.6-18.3-12.5-22-15c-0.4-0.6-0.8-1.3-1.2-1.9c-0.1-1.7-0.1-3.4-0.2-5.1c5.1-2.9,10.3-5.8,15.6-8.7c5.4-3,11-6.2,16.7-9.3c6.4-3.4,12.4-7.4,18.1-11.9c4.9-4,8.6-7.8,10.9-11.5c4.7-7.5,7.1-16.2,6.9-25.1C313,300.2,309.9,289.5,303.8,279.1z M573.3,390.8l32.9-232.7l-76.4,34l-125.3,55.8l-0.4,270.5L573.3,390.8z M448.8,401.3l1.8-0.3c2.3,4.2,5.5,7.9,9.3,10.9c3.2,2.3,7.9,2.7,14,1.4c6.8-1.7,13.4-4.3,19.4-7.9c8.7-5,15.6-10.4,20.8-16.4c5.2-5.8,9.5-12.4,12.7-19.5c3.2-6.8,5.2-14,6-21.5c1-9.9-1-16.3-6-19.1s-12.8-1.7-23.1,3.7c-3.3,1.8-6.5,3.8-9.6,6c-2.9,2.1-7.3,5.9-13.4,11.2c-0.5-0.1-0.9-0.3-1.4-0.4c1.1-4.8,2.3-9.7,3.5-14.5c7.1-3.3,11.8-5.6,14.1-6.8c10-5.2,18.4-12.9,24.4-22.4c6.4-9.8,10-19.4,10.9-29.1c0.8-8.6-1.6-14.4-7.3-17.4s-13.6-2.4-23.1,2.2c-6.7,3.2-12.9,7.5-18.4,12.5c-5.5,4.9-10.4,10.3-14.8,16.2c-1.7,3.9-4.4,11.1-8.1,21.7c-0.5,0.6-0.9,1.2-1.4,1.9c-2.1,1.1-4.3,2.1-6.4,3.2c-0.4-0.2-0.7-0.4-1.1-0.6c3-11.7,6.1-23.5,9.2-35.7c6.1-9.3,13.5-17.7,21.9-25c8.3-7.1,17.5-13,27.4-17.6c7.5-3.4,14.1-5.5,19.9-6.1s10.5,0,14.5,2c7.8,3.9,10.9,11.6,9.6,23.2c-1,8.7-4.3,17.7-9.9,27.1c-6.5,10.6-13.9,20.6-22.2,29.8c7.1-2.9,13-4.5,17.7-5s8.2,0.1,10.6,1.9c4.7,3.4,6.6,9.6,5.4,18.4c-1.7,14-9.8,30-24,48c-6.8,8.7-14.3,16.7-22.5,24c-7.8,6.9-16.4,13.1-25.4,18.4c-4.9,2.9-10,5.4-15.2,7.7c-5.6,2-11.2,3.7-17,5c-1.8-8.6-4.6-16.9-8.3-24.9c0.2-0.6,0.4-1.3,0.7-2L448.8,401.3z\"\n  ]\n}"
+                },
+                {
+                    "name": "ocaLUL",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "IconDefinition",
+                    "defaultValue": "{\n  prefix: \"oca\" as IconPrefix,\n  iconName: \"LUL\" as IconName,\n  icon: [\n    512,\n    512,\n    [],\n    \"e002\",\n    \"M403,261.8v18.4c0,0.7,0.1,1.3,0.3,2c0.2,1,0.5,2,1,2.9c0.4,0.9,1,1.8,1.6,2.5c0.6,0.7,1.6,1.1,2.5,1.1h16.7c1.1-0.2,2.2-0.6,3.2-1.2c1.7-0.8,3.6-1.7,5.7-2.7s4.1-2.1,6.1-3.3c1.5-0.8,3-1.8,4.4-2.9c1-0.9,2.1-1.8,3.1-2.6c0.8-0.7,1.8-1.2,2.9-1.3c0.4-1.1,1-2.2,1.6-3.2c0.6-0.4,1.3-0.6,2-0.5c1.2,0.1,2.3,0.6,3.3,1.3c1.4,0.8,2.1,1.6,2.1,2.4c-0.4,1.6-1,3.1-1.6,4.6c-1.1,2.7-2.4,5.6-4,8.9s-3.2,6.4-5,9.5c-1.8,3-3.5,5.1-5,6.1c-0.4,0.5-1.5,0.9-3.4,1.1s-3.9,0.4-5.9,0.5c-2.3,0.1-5,0.2-8,0.2h-9.1c-2.7,0-5.5-0.3-8.1-0.8c-2.7-0.5-4.5-0.5-5.4,0.2l-2.5,0.6l-9.3,2.1c-0.8,0-1.6-0.1-2.4-0.3c-1.2-0.2-2.6-0.5-4-0.8s-2.8-0.6-4-0.8c-0.8-0.1-1.6-0.2-2.4-0.3c-1,0-2,0.1-2.9,0.4c-0.8,0.2-1.6,0.5-2.3,0.8c-0.8,0.4-1.5,0.7-2.3,1c-1.2,0.1-2.3-0.3-3.2-1c-0.7-0.6-1.2-1.4-1.5-2.3c-0.3-0.9-0.5-1.8-0.6-2.7c-0.1-0.9-0.1-1.6-0.1-2.1c0-2.7,0.9-4.4,2.6-5c1.9-0.7,3.8-1.2,5.7-1.6c2-0.4,4-1.2,5.7-2.3c1.7-1.1,2.6-3.4,2.6-7.1v-16.3l0.8-7.4h-14.1l-7.7,14.5c-1,1.5-2.5,2.5-4.1,3.1h-0.4c-2.1,0-3.8-1.6-4-3.6l-5.5-60.8l-10,127.3c0,0.1,0,0.2-0.1,0.3c0,0.1,0,0.3-0.1,0.4s-0.1,0.3-0.1,0.4s-0.1,0.2-0.1,0.3c-0.1,0.2-0.2,0.3-0.3,0.5c0,0-0.1,0.1-0.1,0.2c-0.2,0.2-0.3,0.4-0.5,0.5l-0.1,0.1c-0.2,0.1-0.3,0.3-0.5,0.4l-0.2,0.1c-0.1,0.1-0.3,0.2-0.5,0.2c-0.1,0-0.2,0.1-0.3,0.1c-0.2,0.1-0.3,0.1-0.5,0.1h-0.1c-0.2,0-0.4,0-0.6,0h-0.3h-0.2c-0.2,0-0.4,0-0.5,0l-0.3-0.1c-0.1,0-0.3-0.1-0.4-0.2l-0.3-0.1l-0.4-0.2l-0.2-0.2c-0.1-0.1-0.3-0.2-0.4-0.4l-0.2-0.2c-0.2-0.2-0.3-0.4-0.4-0.6l0,0c-0.1-0.2-0.2-0.4-0.3-0.7c0-0.1,0-0.2-0.1-0.3s-0.1-0.3-0.1-0.4l-13.7-91.3l-2,7.5c0,0.1-0.1,0.2-0.1,0.4c0,0.1-0.1,0.2-0.1,0.2c-0.2,0.4-0.5,0.8-0.8,1.2l-0.2,0.1c-0.1,0.1-0.2,0.2-0.4,0.3l-0.2,0.1c-0.1,0.1-0.3,0.1-0.4,0.2l-0.3,0.1c-0.2,0.1-0.3,0.1-0.5,0.1l-0.2,0.1c-0.2,0-0.5,0.1-0.8,0.1h-19.3c-0.1,0.5-0.2,1-0.4,1.5l-0.8,3.1c0,0.8,0.1,1.6,0.4,2.4c0.3,0.7,0.5,1.4,0.8,2c0.3,0.6,0.4,1.2,0.4,1.8v2.4c0.1,1.2-0.1,2.5-0.4,3.7c-0.9,1.1-1.3,2.5-1.2,3.9c-0.1,2-0.9,4-2.2,5.5c-1.8,2.3-3.3,4.7-4.7,7.3c0,1.8-0.9,3.4-2.4,4.4c-1.6,1.2-3.3,2.7-5.1,4.4c-0.9,1-1.6,1.8-2.1,2.4c-0.5,0.5-0.9,1-1.5,1.5c-0.5,0.4-1,0.7-1.5,1c-0.6,0.3-1.4,0.6-2.4,1c-4,1.9-8.2,3-12.6,3.4c-4.1,0.3-7.1,0.5-8.9,0.5c-2.2,0-4.6-0.1-7.3-0.4c-2.7-0.3-5.4-0.7-8-1.4c-2.6-0.6-5.2-1.4-7.7-2.3c-2.3-0.8-4.4-2-6.2-3.5l-3.9-5.5c-1.1-1.5-2-3-2.7-4.7c-0.8-1.7-1.5-3.2-2.1-4.6c-0.8-1.7-1.5-3.4-2.1-5.2v-13c0-1.9-0.4-3.8-1.1-5.5c-0.7-2-1-4-1-6.1h-8.6l-7.7,14.6c-1,1.4-2.5,2.5-4.1,3.1h-0.4c-2.1,0-3.8-1.6-4-3.6l-5.5-60.8l-10,127.3c0,0.1,0,0.2-0.1,0.3c0,0.1,0,0.3-0.1,0.4c0,0.1-0.1,0.3-0.2,0.4c0,0.1-0.1,0.2-0.1,0.3c-0.1,0.2-0.2,0.3-0.3,0.5c0,0.1-0.1,0.1-0.1,0.2c-0.2,0.2-0.3,0.4-0.5,0.5c0,0-0.1,0.1-0.1,0.1c-0.1,0.1-0.3,0.3-0.5,0.4l-0.2,0.1c-0.1,0.1-0.3,0.2-0.4,0.2c-0.1,0-0.2,0.1-0.3,0.1c-0.2,0.1-0.3,0.1-0.5,0.1h-0.1c-0.2,0-0.4,0-0.6,0h-0.3h-0.2l-0.5,0l-0.3-0.1c-0.1,0-0.3-0.1-0.4-0.2l-0.3-0.1c-0.1-0.1-0.3-0.2-0.4-0.2c-0.1,0-0.2-0.1-0.2-0.2c-0.1-0.1-0.3-0.2-0.4-0.4l-0.1-0.2c-0.2-0.2-0.3-0.4-0.4-0.6l0,0c-0.1-0.2-0.2-0.4-0.3-0.7c0-0.1,0-0.2-0.1-0.3s-0.1-0.3-0.1-0.4l-13.7-91.3l-1.9,7.5c0,0.1-0.1,0.2-0.1,0.4l-0.1,0.2c-0.2,0.4-0.5,0.8-0.8,1.2l-0.2,0.1l-0.4,0.3l-0.2,0.1c-0.1,0.1-0.3,0.2-0.4,0.2l-0.3,0.1c-0.2,0.1-0.3,0.1-0.5,0.1l-0.2,0c-0.2,0.1-0.5,0.1-0.7,0.1l0,0l-58.2,0.1v20.3c0,0.7,0.1,1.3,0.3,2c0.2,1,0.5,2,1,2.9c0.4,0.9,1,1.8,1.7,2.5c0.6,0.7,1.6,1.1,2.5,1.1h16.7c1.1-0.2,2.2-0.6,3.2-1.2c1.7-0.8,3.7-1.7,5.7-2.7s4.1-2.1,6.1-3.3c1.5-0.9,3-1.8,4.4-2.9c1-0.9,2.1-1.8,3.1-2.6c0.8-0.7,1.8-1.2,2.9-1.3c0.4-1.1,1-2.2,1.6-3.2c0.6-0.4,1.3-0.6,2-0.5c1.2,0.1,2.3,0.6,3.3,1.3c1.4,0.8,2.1,1.6,2.1,2.4c-0.4,1.6-1,3.1-1.6,4.6c-1.1,2.7-2.4,5.6-4,8.9c-1.6,3.3-3.2,6.5-5,9.5s-3.5,5.1-5,6.1c-0.4,0.5-1.5,0.9-3.4,1.1s-3.8,0.4-5.9,0.5c-2.3,0.1-5,0.2-8,0.2h-9.1c-2.7,0-5.5-0.3-8.1-0.8c-2.7-0.5-4.5-0.5-5.4,0.2l-2.5,0.6l-9.3,2.1c-0.8,0-1.6-0.1-2.4-0.3c-1.2-0.2-2.6-0.5-4-0.8s-2.7-0.6-4-0.8c-0.8-0.1-1.6-0.2-2.4-0.3c-1,0-2,0.1-2.9,0.4c-0.8,0.2-1.6,0.5-2.3,0.8c-0.8,0.4-1.5,0.7-2.3,1c-1.2,0.1-2.3-0.3-3.2-1c-0.7-0.6-1.2-1.4-1.6-2.3c-0.3-0.9-0.5-1.8-0.6-2.7c-0.1-0.9-0.1-1.6-0.1-2.1c0-2.7,0.9-4.4,2.6-5c1.9-0.7,3.8-1.2,5.7-1.6c2-0.4,4-1.2,5.7-2.3c1.8-1.1,2.6-3.4,2.6-7.1v-16.3l0.8-7.3L9.1,260l0,0c-0.1,0-0.2,0-0.3,0c2.1,134.6,111.9,243,247,243s244.9-108.5,247-243.1H403V261.8z M227.9,262.4v13c-0.8,1.7-1,2.8-0.6,3.2c0.4,0.7,0.6,1.4,0.6,2.2l2.1,5.2c1.1,1.7,2.3,3.2,3.7,4.6c1.1,1.1,2.4,2.1,3.9,2.8c1.6,0.8,3.3,1.2,5,1.5c2.4,0.3,4.9,0.4,7.4,0.4c1.6-0.2,3.2-0.6,4.7-1.2c2.1-0.8,4.2-1.7,6.2-2.7c0.4-1,1.1-1.9,1.8-2.6c1.1-1.1,2.1-2.3,3-3.5c1.4-1.8,2.7-3.8,3.8-5.8c1.7-3.1,3.1-6.3,4.4-9.6v-7.6c0-0.5,0-1.4,0.1-2.5h-46L227.9,262.4z M59.8,251.9v-6.2c0-0.5,0.1-1.5,0.2-3s0.3-3.1,0.6-4.8c0.2-1.9,0.6-4,1-6.2c0-1-0.3-2-0.9-2.9c-0.5-0.7-0.8-1.6-0.9-2.5v-2.1c0-3.6-0.5-6.1-1.7-7.5c-1-1.3-2.3-2.3-3.7-3.1c-1.3-0.7-2.5-1.5-3.7-2.4c-1.1-0.9-1.7-2.7-1.7-5.4c0-1.2,0.3-2.4,0.9-3.4c0.5-0.9,1.2-1.7,2-2.4c0.7-0.6,1.5-1.1,2.3-1.4c0.6-0.2,1.2-0.3,1.8-0.4h42.1c1.8,0,3.6,0.5,5.1,1.6c1.6,0.9,2.5,2.6,2.4,4.5v3.7c-1.4,1-2.8,1.9-4.1,2.7c-1,0.6-2.1,1.3-3.1,1.8c-0.6,0.4-1.4,0.7-2.1,0.9h-5.8c-4.4-0.4-8.3,2.9-8.7,7.3c0,0.5,0,0.9,0,1.4v5.8c0,3.8-0.5,7.7-1.3,11.4c-0.8,4.1-1.6,8.1-2.4,11.8v0.8l55.1-0.1l6.1-23.4l0,0l0,0v-0.1c0.1-0.2,0.1-0.4,0.2-0.6c0.1-0.1,0.1-0.2,0.2-0.4c0.1-0.1,0.1-0.2,0.2-0.3c0.1-0.1,0.2-0.2,0.3-0.3s0.1-0.2,0.2-0.2s0.2-0.2,0.3-0.3l0.3-0.2l0.4-0.2c0.1-0.1,0.2-0.1,0.3-0.1c0.5-0.2,1-0.3,1.6-0.2c0.3,0,0.5,0,0.8,0.1l0,0l0.2,0.1c0.2,0.1,0.4,0.1,0.5,0.2c0.1,0.1,0.3,0.2,0.4,0.2c0.1,0,0.2,0.1,0.2,0.1c0.1,0.1,0.3,0.2,0.4,0.3l0.2,0.2c0.1,0.1,0.2,0.2,0.3,0.4l0.2,0.3c0.1,0.1,0.1,0.3,0.2,0.4s0.1,0.2,0.1,0.3c0.1,0.3,0.2,0.5,0.2,0.8l11.4,76.1l11-139.5c0,0,0,0,0-0.1s0.1-0.3,0.1-0.4s0-0.2,0.1-0.3c0-0.1,0.1-0.2,0.1-0.4c0-0.1,0.1-0.3,0.2-0.4c0-0.1,0.1-0.2,0.2-0.3s0.1-0.2,0.2-0.4l0.2-0.2c0.1-0.1,0.2-0.2,0.3-0.3l0.3-0.2c0.1-0.1,0.2-0.2,0.4-0.2l0.3-0.1c0.1-0.1,0.3-0.1,0.4-0.2l0.3-0.1c0.2,0,0.3-0.1,0.5-0.1h0.1c0.1,0,0.2,0,0.3,0s0.2,0,0.4,0h0.1c0.1,0,0.3,0,0.4,0.1l0.4,0.1c0.1,0,0.2,0.1,0.4,0.1l0.4,0.2l0.3,0.2c0.1,0.1,0.2,0.1,0.4,0.2s0.2,0.2,0.3,0.2l0.3,0.3c0.1,0.1,0.2,0.2,0.2,0.3c0.1,0.1,0.1,0.2,0.2,0.3c0.1,0.1,0.1,0.2,0.1,0.3c0.1,0.1,0.1,0.2,0.2,0.4c0,0.1,0.1,0.2,0.1,0.4c0,0.1,0.1,0.3,0.1,0.4c0,0,0,0,0,0.1l8.6,95.1l3.4-6.5c1.4-1.3,3.1-2,5-2.1h9.6v-4c0.3-1.3,0.6-2.6,1-3.9l0.8-3.1c0.2-0.7,0.3-1.4,0.4-2.1c-0.4-1.8-0.8-3.4-1.2-4.8c-0.5-2-0.9-4-1-6c0.3-1.1,0.6-2.1,1-3.1c0.3-0.9,0.5-1.7,0.8-2.5c0.2-0.6,0.4-1.3,0.4-1.9v-10.7c0-0.9-0.8-1.7-2.3-2.3c-1.7-0.7-3.4-1.2-5.1-1.6c-1.9-0.4-3.6-0.9-5-1.4s-2.2-1-2-1.6c0.1-1.9,0.8-3.6,2.1-5c1.1-1.5,2.9-2.5,4.8-2.5l9.3-2.1h3.7c1.6,0.2,3.1,0.5,4.6,1.1c2,0.7,4.2,1,6.3,1.1h16.1c1.8,0,2.9,0.4,3.2,1.2c0.3,0.6,0.4,1.3,0.5,1.9c0,2.9-0.4,4.8-1.2,5.9c-0.7,1-1.8,1.8-3,2.1c-1.3,0.3-2.6,0.5-3.9,0.5c-1.3,0-2.7,0.3-3.9,0.9c-1.4,0.7-2.4,1.9-3,3.3c-0.8,1.6-1.2,4.2-1.2,7.9c0,0.6,0.1,1.2,0.2,1.8c0.1,0.9,0.3,1.8,0.5,2.7s0.4,1.9,0.6,2.7c0.2,0.6,0.3,1.2,0.3,1.9v24h46.5c0-0.8,0.1-1.5,0.1-2.3c0.2-2.7,0.4-5.3,0.6-7.7s0.3-4,0.3-4.8c-0.3-0.4-0.5-0.9-0.8-1.4c-0.4-0.8-0.7-1.6-0.8-2.5v-9.1l-1.7-10.9v-3.7c0.1-1.1-0.4-2.2-1.4-2.8c-0.9-0.5-1.9-0.8-2.9-1.1c-1.4-0.2-2.7-0.5-3.8-0.8c-1.1-0.2-1.8-1.2-1.6-2.3c0-1.2,0.3-2.3,0.8-3.4c0.5-1.1,1.1-2.1,1.8-3.1c0.7-0.9,1.5-1.7,2.4-2.3c0.7-0.5,1.6-0.8,2.5-0.9c1.7,0.9,3.6,1.6,5.4,2.1c1.7,0.7,3.4,1.2,5.2,1.6c1.8,0.4,3.7,0.6,5.6,0.6h7.6c1.5,0,3-0.2,4.5-0.5c1.6-0.3,3.2-0.4,4.8-0.4c1.4,0,2.7,0.5,3.8,1.4c1,0.8,1.5,2.5,1.5,4.9c0.4,1.2,0.6,2.4,0.8,3.7c0.1,1,0.2,1.9,0.1,2.9c0,0.7-0.3,1.5-0.9,1.9h-9.3c-1.6,0-3.1,1-3.8,2.4c-0.9,1.5-1.4,3.3-1.5,5.1c-0.5,1.5-0.9,3.1-1.2,4.7c-0.2,0.9-0.1,1.8,0.2,2.7c0.1,0.7,0.4,1.3,1,1.8l-2.3,7c0.6,1,1.1,2.1,1.3,3.2c0.2,1.1,0.4,2.1,0.7,3c0.1,1.2,0.3,2.2,0.4,3.1c0,0.6-0.2,1.2-0.4,1.8c-0.3,0.8-0.5,1.6-0.8,2.5l-0.8,2.7c-0.1,0.3-0.1,0.5-0.2,0.7h15.7l6.1-23.4l0,0l0,0c0,0,0-0.1,0-0.1c0.1-0.2,0.1-0.4,0.2-0.6c0.1-0.1,0.1-0.3,0.2-0.4c0.1-0.1,0.1-0.2,0.2-0.3c0.1-0.1,0.2-0.2,0.3-0.4c0.1-0.1,0.1-0.1,0.2-0.2c0.1-0.1,0.2-0.2,0.4-0.3c0.1-0.1,0.2-0.1,0.3-0.2c0.1-0.1,0.3-0.2,0.4-0.2l0.3-0.1c0.5-0.2,1-0.3,1.6-0.2c0.3,0,0.5,0.1,0.8,0.1l0,0h0.1c0.2,0.1,0.4,0.1,0.6,0.2c0.1,0.1,0.3,0.1,0.4,0.2l0.3,0.2c0.1,0.1,0.2,0.2,0.3,0.3c0.1,0.1,0.2,0.1,0.2,0.2c0.1,0.1,0.2,0.2,0.2,0.3c0.1,0.1,0.2,0.2,0.2,0.3c0.1,0.1,0.1,0.3,0.2,0.4c0,0.1,0.1,0.2,0.1,0.3c0.1,0.3,0.2,0.5,0.2,0.8l11.4,76.1l11-139.5c0,0,0,0,0-0.1c0-0.2,0-0.3,0.1-0.4c0-0.1,0-0.2,0.1-0.3s0.1-0.2,0.1-0.4s0.1-0.2,0.2-0.4s0.1-0.2,0.2-0.3s0.2-0.2,0.2-0.4s0.1-0.1,0.2-0.2s0.2-0.2,0.3-0.3c0.1-0.1,0.2-0.1,0.3-0.2c0.1-0.1,0.2-0.2,0.4-0.2l0.3-0.1c0.1-0.1,0.3-0.1,0.4-0.2l0.3-0.1l0.5-0.1h0.1c0.1,0,0.2,0,0.3,0s0.2,0,0.4,0h0.1c0.1,0,0.3,0,0.4,0.1l0.4,0.1l0.3,0.1l0.4,0.2l0.2,0.2c0.1,0.1,0.3,0.2,0.4,0.3l0.2,0.2c0.1,0.1,0.2,0.2,0.3,0.3c0.1,0.1,0.1,0.2,0.2,0.3c0.1,0.1,0.2,0.2,0.2,0.4s0.1,0.2,0.1,0.3c0.1,0.1,0.1,0.3,0.2,0.4c0,0.1,0.1,0.2,0.1,0.3c0,0.1,0.1,0.3,0.1,0.4s0,0,0,0.1l8.6,95.1l3.4-6.5c0.8-1.5,2.5-2.3,4.2-2c0.3-0.1,0.5-0.1,0.8-0.1h15.8v-6.2c0-0.5,0.1-1.5,0.2-3s0.3-3.1,0.6-4.8c0.3-1.9,0.6-4,1-6.2c0-1-0.3-2-0.9-2.9c-0.5-0.7-0.8-1.6-0.9-2.5v-2.1c0-3.6-0.6-6.1-1.6-7.5c-1-1.3-2.3-2.3-3.7-3.1c-1.3-0.7-2.5-1.5-3.7-2.4c-1.1-0.9-1.6-2.7-1.6-5.4c0-1.2,0.3-2.4,0.9-3.4c0.5-0.9,1.2-1.7,2-2.4c0.7-0.6,1.5-1.1,2.3-1.4c0.6-0.2,1.2-0.3,1.8-0.4H423c1.8,0,3.6,0.5,5.1,1.6c1.6,0.9,2.5,2.6,2.4,4.5v3.7c-1.4,1-2.8,1.9-4.1,2.7c-1,0.6-2.1,1.3-3.1,1.8c-0.6,0.4-1.4,0.7-2.1,0.9h-5.8c-4.4-0.4-8.3,2.9-8.7,7.3c0,0.5,0,0.9,0,1.4v5.8c0,3.8-0.5,7.7-1.3,11.4c-0.8,4.1-1.6,8.1-2.4,11.8v0.7h99.7C500.5,117.4,390.7,9,255.7,9S10.9,117.4,8.8,252c0.1,0,0.2,0,0.3,0L59.8,251.9z M251.6,175.4c0.9-1.3,1.7-2.7,2.3-4.2c0.1-1.3,0.5-2.5,1.2-3.6l1.9-3.4c-0.1-1.7,0.3-3.5,1.2-4.9c0.8-1.2,1.2-2.7,1.2-4.2c-0.1-1.5,0.2-3,0.8-4.4c0.5-0.8,0.7-1.7,0.8-2.6c1.6-1.9,3.2-3.9,4.6-5.9c1.4-1.9,2.9-3.8,4.5-5.5c1.9-2.5,3.8-4.9,5.4-7.4c1.6-2.4,3.4-4.6,5.4-6.6c0.9,0,1.8-0.1,2.6-0.3c1.1-0.3,2.1-0.9,2.8-1.8c1,0,2-0.3,2.9-0.8c0.9-0.5,1.9-0.8,2.9-0.8c1.7,0,2.6,0.7,2.9,2.1c0.2,1.2,0.4,2.4,0.4,3.7v7c0,1.5-0.1,2.9-0.6,4.4c-0.4,1.1-1,2.2-1.8,3.1c-0.9,1.1-1.8,2-2.9,2.9c-1.4,1.2-2.7,2.4-3.9,3.8c-1.7,1.6-3.3,3.4-4.6,5.3c-1.3,2-2.9,3.7-4.7,5.3c-0.7,0.8-1.2,1.7-1.5,2.6c-0.4,1-0.9,2-1.5,2.8c-0.9,1.3-1.8,2.6-2.8,3.8l-2.4,2.8c-0.8,1-1.6,2-2.3,3.1c-0.9,1.3-1.6,2.8-2.1,4.3l-1.1,2.1c-0.5,0.9-1,1.8-1.5,2.7c-0.5,0.9-1.2,1.7-2,2.3c-0.7,0.6-1.6,1-2.5,1c-1.6,0-3.1-0.6-4.4-1.6c-1.4-1.1-2.1-2.7-2-4.5C250.6,177.3,250.9,176.3,251.6,175.4z\"\n  ]\n}"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/app/shared/componentes/icono/icono.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<IconoComponent>",
+                    "defaultValue": "(args: IconoComponent) => ({\n  props: {\n    ...args,\n    iconos: iconos,\n  },\n})"
+                }
+            ],
+            "src/stories/Button.stories.ts": [
+                {
+                    "name": "Large",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/Button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Primary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/Button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Secondary",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/Button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Small",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/Button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/Button.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<Button>",
+                    "defaultValue": "(args: Button) => ({\n  props: args,\n})"
+                }
+            ],
+            "src/stories/Header.stories.ts": [
+                {
+                    "name": "LoggedIn",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/Header.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "LoggedOut",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/Header.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/Header.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<Header>",
+                    "defaultValue": "(args: Header) => ({\n  props: args,\n})"
+                }
+            ],
+            "src/stories/Page.stories.ts": [
+                {
+                    "name": "LoggedIn",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/Page.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "LoggedOut",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/Page.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "",
+                    "defaultValue": "Template.bind({})"
+                },
+                {
+                    "name": "Template",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "src/stories/Page.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "Story<Page>",
+                    "defaultValue": "(args: Page) => ({\n  props: args,\n})"
+                }
+            ]
+        },
+        "groupedFunctions": {},
+        "groupedEnumerations": {},
+        "groupedTypeAliases": {}
+    },
+    "routes": {
+        "name": "<root>",
+        "kind": "module",
+        "className": "AppModule",
+        "children": [
+            {
+                "name": "routes",
+                "filename": "src/app/app-routing.module.ts",
+                "module": "AppRoutingModule",
+                "children": [],
+                "kind": "module"
+            }
+        ]
+    },
+    "coverage": {
+        "count": 2,
+        "status": "low",
+        "files": [
+            {
+                "filePath": "src/app/app.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "AppComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/boton/boton.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "BotonComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/7",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/boton/boton.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Icono",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/boton/boton.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "IconoTexto",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/boton/boton.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/boton/boton.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Texto",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/icono/icono.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "IconoComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/icono/icono.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Icono",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/icono/icono.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "iconos",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/icono/icono.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "listaIconos",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/icono/icono.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "nombreIconos",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/icono/icono.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "ocaBar23",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/icono/icono.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "ocaLUL",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/app/shared/componentes/icono/icono.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/environments/environment.prod.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "environment",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/environments/environment.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "environment",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/Button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Large",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/Button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Primary",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/Button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Secondary",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/Button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Small",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/Button.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/Header.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LoggedIn",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/Header.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LoggedOut",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/Header.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/Page.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LoggedIn",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/Page.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "LoggedOut",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/Page.stories.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "Template",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/User.ts",
+                "type": "interface",
+                "linktype": "interface",
+                "name": "User",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/button.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "ButtonComponent",
+                "coveragePercent": 83,
+                "coverageCount": "5/6",
+                "status": "very-good"
+            },
+            {
+                "filePath": "src/stories/header.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "HeaderComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/stories/page.component.ts",
+                "type": "component",
+                "linktype": "component",
+                "name": "PageComponent",
+                "coveragePercent": 0,
+                "coverageCount": "0/5",
+                "status": "low"
+            },
+            {
+                "filePath": "src/test.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "context",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
+            {
+                "filePath": "src/test.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "require",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            }
+        ]
+    }
+}

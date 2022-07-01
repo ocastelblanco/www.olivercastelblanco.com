@@ -1,0 +1,14 @@
+<button class="boton"
+        [ngClass]="[tipo, estado, contenido]"
+        (mousedown)="estado = 'press'"
+        (mouseup)="estado = 'over'"
+        (mouseout)="estado = 'activo'"
+        (mouseover)="estado = 'over'">
+  <oca-icono *ngIf="contenido !== 'texto'"
+             [tamano]="'pequeño'"
+             [icono]="'check'"
+             [color]="'blanco'"
+             [iconos]="icono.iconos">
+  </oca-icono>
+  <span *ngIf="contenido !== 'icono'">{{label}}</span>
+</button>
