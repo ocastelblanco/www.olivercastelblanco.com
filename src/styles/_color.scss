@@ -4,14 +4,36 @@
 // Colores base
 $blanco: #ffffff;
 $negro: #000000;
-$primario: #039be5;
-$acento: #ef6c00;
-$gris-900: #333333;
+$primario: #039be5; // rgb(3, 155, 229)
+$acento: #ef6c00; // rgb(239, 108, 0)
+$gris-900: #333333; // rgb(51, 51, 51)
 $sombra-arrojada: #1f2687; // rgb(31,38,135)
 
 // Variables neomorfistas
 $var-fondo: 10%;
 $var-inset: 30%;
+
+// Paleta de colores
+$primario-900: #03569b;
+$primario-800: #0376bd;
+$primario-700: #0387d1;
+$primario-600: $primario; // Para mantener compatibilidad
+$primario-500: #02a8f4;
+$primario-400: #28b5f6;
+$primario-300: #4ec2f7;
+$primario-200: #81d3fa;
+$primario-100: #b3e5fc;
+$primario-50: #e1f5fe;
+$acento-900: #e65000;
+$acento-800: $acento; // Compatibilidad
+$acento-700: #f57c00;
+$acento-600: #fb8c00;
+$acento-500: #ff9800;
+$acento-400: #ffa726;
+$acento-300: #ffb74d;
+$acento-200: #ffcc80;
+$acento-100: #ffe0b2;
+$acento-50: #fff3e0;
 
 // Mixins con estilos
 @mixin fondo-opaco($tipo) {

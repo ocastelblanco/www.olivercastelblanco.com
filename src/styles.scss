@@ -2,8 +2,49 @@
 @use "styles/color" as color;
 @import url("https://fonts.googleapis.com/css2?family=Lato&display=swap");
 
+// Listado de colores principales
+$colores: (
+  colorBlanco: color.$blanco,
+  colorNegro: color.$negro,
+  colorPrimario: color.$primario,
+  colorAcento: color.$acento,
+  colorGris900: color.$gris-900,
+  colorSombraArrojada: color.$sombra-arrojada,
+  colorPrimario900: color.$primario-900,
+  colorPrimario800: color.$primario-800,
+  colorPrimario700: color.$primario-700,
+  colorPrimario600: color.$primario-600,
+  colorPrimario500: color.$primario-500,
+  colorPrimario400: color.$primario-400,
+  colorPrimario300: color.$primario-300,
+  colorPrimario200: color.$primario-200,
+  colorPrimario100: color.$primario-100,
+  colorPrimario50: color.$primario-50,
+  colorAcento900: color.$acento-900,
+  colorAcento800: color.$acento-800,
+  colorAcento700: color.$acento-700,
+  colorAcento600: color.$acento-600,
+  colorAcento500: color.$acento-500,
+  colorAcento400: color.$acento-400,
+  colorAcento300: color.$acento-300,
+  colorAcento200: color.$acento-200,
+  colorAcento100: color.$acento-100,
+  colorAcento50: color.$acento-50,
+);
+// Genera variables CSS para los colores
+@function nombre-propiedad($nombre) {
+  @return "--" + $nombre;
+}
+@mixin define-nombre-propiedad($nombre, $valor) {
+  #{nombre-propiedad($nombre)}: $valor;
+}
+
+// Estilos generales directos al DOM
 html {
   body {
+    @each $nombre, $valor in $colores {
+      @include define-nombre-propiedad($nombre, $valor);
+    }
     @include typo.alcance("body");
     color: color.$gris-900;
   }

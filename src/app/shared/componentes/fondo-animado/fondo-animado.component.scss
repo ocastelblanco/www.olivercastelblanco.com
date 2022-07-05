@@ -1,0 +1,12 @@
+#contenido {
+  width: 100%;
+  height: 100%;
+}
+#fondo-animado {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  filter: contrast(70%) brightness(200%);
+}
