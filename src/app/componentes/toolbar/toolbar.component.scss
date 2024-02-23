@@ -1,0 +1,53 @@
+@use "sass:map";
+@use "@angular/material" as mat;
+@use "styles.scss" as estilos;
+
+$typography-config: mat.get-typography-config(estilos.$ocastelblanco-theme);
+$claro: map.get(estilos.$oc-basico, claro);
+$oscuro: map.get(estilos.$oc-basico, oscuro);
+
+$alto: map.get(estilos.$oc-tamanos, alto-toolbar);
+
+.toolbar {
+  height: $alto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  position: fixed;
+  width: 100%;
+  background-color: $claro;
+  .nombre {
+    @include mat.typography-level($typography-config, "especial");
+    position: relative;
+    display: flex;
+    align-items: center;
+    .iniciales {
+      position: relative;
+      display: flex;
+      align-items: center;
+      border-radius: 16px;
+      div {
+        width: 12px;
+        height: 30px;
+        padding-top: 2px;
+        padding-bottom: 0;
+        &:first-of-type {
+          padding-left: 3px;
+        }
+        &:last-of-type {
+          position: absolute;
+          right: 6px;
+        }
+      }
+    }
+    .resto {
+      display: flex;
+      position: absolute;
+      left: 18px;
+      div:last-of-type {
+        margin-left: 22px;
+      }
+    }
+  }
+}

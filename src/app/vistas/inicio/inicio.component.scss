@@ -1,0 +1,10 @@
+@use "sass:map";
+@use "@angular/material" as mat;
+@use "styles.scss" as estilos;
+
+$typography-config: mat.get-typography-config(estilos.$ocastelblanco-theme);
+$claro: map.get(estilos.$oc-basico, claro);
+$oscuro: map.get(estilos.$oc-basico, oscuro);
+
+.inicio {
+}

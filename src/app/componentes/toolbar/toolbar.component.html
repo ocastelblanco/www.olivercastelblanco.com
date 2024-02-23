@@ -1,0 +1,18 @@
+<div class="toolbar">
+  <div class="menu"></div>
+  <div class="nombre"
+       (click)="comprimeNombre()"
+       @nombre>
+    <div class="iniciales"
+         [@iniciales]="comprimido ? 'comprimido' : 'extendido'">
+      <div>O</div>
+      <div>C</div>
+    </div>
+    <div class="resto"
+         [@resto]="comprimido ? 'comprimido' : 'extendido'">
+      <div>liver</div>
+      <div>astelblanco</div>
+    </div>
+  </div>
+  <div class="aux"></div>
+</div>

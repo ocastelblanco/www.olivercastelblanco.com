@@ -1,0 +1,32 @@
+@use "sass:map";
+@use "@angular/material" as mat;
+@use "styles.scss" as estilos;
+
+$typography-config: mat.get-typography-config(estilos.$ocastelblanco-theme);
+$claro: map.get(estilos.$oc-basico, claro);
+$oscuro: map.get(estilos.$oc-basico, oscuro);
+$acento: map.get(estilos.$oc-basico, acento);
+
+$alto-toolbar: map.get(estilos.$oc-tamanos, alto-toolbar);
+$margen: 32px;
+
+.contenedor {
+  padding-top: $alto-toolbar;
+  width: 100vw;
+  height: calc(100vh - $alto-toolbar);
+  .contenido {
+    margin: 0 $margen $margen $margen;
+    height: calc(100% - $margen);
+    border: 1px solid $oscuro;
+    &::before {
+      content: "";
+      display: block;
+      width: calc(100% - ($margen * 2));
+      height: calc(100% - $margen - $alto-toolbar);
+      position: absolute;
+      z-index: -9;
+      filter: contrast(170%) brightness(750%);
+      background: linear-gradient(6deg, rgba($oscuro, 0.75), rgba($claro, 0.2)), url("/assets/img/fondo.svg");
+    }
+  }
+}

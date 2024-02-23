@@ -1,37 +1,53 @@
-// Custom Theming for Angular Material
-// For more information: https://material.angular.io/guide/theming
+@use "sass:map";
+@use "sass:math";
 @use "@angular/material" as mat;
-// Plus imports for other components in your app.
+@use "./estilos/tema" as tema;
 
-// Include the common styles for Angular Material. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
-// Be sure that you only ever include this mixin once!
+// Core
 @include mat.core();
 
-// Define the palettes for your theme using the Material Design palettes available in palette.scss
-// (imported above). For each palette, you can optionally specify a default, lighter, and darker
-// hue. Available color palettes: https://material.io/design/color/
-$ocastelblanco-primary: mat.define-palette(mat.$indigo-palette);
-$ocastelblanco-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
-
-// The warn palette is optional (defaults to red).
+// Paletas
+$ocastelblanco-primary: mat.define-palette(tema.$oc-primario);
+$ocastelblanco-accent: mat.define-palette(tema.$oc-primario, A200, A100, A400);
 $ocastelblanco-warn: mat.define-palette(mat.$red-palette);
+$oc-basico: tema.$oc-basico;
 
-// Create the theme object. A theme consists of configurations for individual
-// theming systems such as "color" or "typography".
+$oc-tipografia: map.merge(
+  mat.define-typography-config(),
+  (
+    body-1: tema.$body-1,
+    body-2: tema.$body-2,
+    body-3: tema.$body-3,
+    body-4: tema.$body-4,
+    body-5: tema.$body-5,
+    heading-1: tema.$heading-1,
+    heading-2: tema.$heading-2,
+    heading-3: tema.$heading-3,
+    heading-4: tema.$heading-4,
+    caption-1: tema.$caption-1,
+    caption-2: tema.$caption-2,
+    caption-3: tema.$caption-3,
+    especial: tema.$especial
+  )
+);
+@include mat.typography-hierarchy($oc-tipografia);
+
+// Tamalños y estilos
+$oc-tamanos: tema.$oc-tamanos;
+
+// Create the theme object
 $ocastelblanco-theme: mat.define-light-theme(
   (
     color: (
       primary: $ocastelblanco-primary,
       accent: $ocastelblanco-accent,
       warn: $ocastelblanco-warn
-    )
+    ),
+    typography: $oc-tipografia
   )
 );
 
-// Include theme styles for core and each component used in your app.
-// Alternatively, you can import and @include the theme mixins for each component
-// that you are using.
+// Include theme styles
 @include mat.all-component-themes($ocastelblanco-theme);
 
 /* You can add global styles to this file, and also import other style files */
@@ -42,5 +58,6 @@ body {
 }
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: "Alegreya Sans", "Helvetica Neue", sans-serif;
+  color: map.get($oc-basico, "oscuro");
 }
