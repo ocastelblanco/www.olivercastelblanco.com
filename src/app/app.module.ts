@@ -14,6 +14,7 @@ import { IconoComponent } from './shared/componentes/icono/icono.component';
 import { ContenedorComponent } from './sitioweb/vistas/contenedor/contenedor.component';
 import { InicioComponent } from './sitioweb/vistas/inicio/inicio.component';
 import { FondoAnimadoComponent } from './shared/componentes/fondo-animado/fondo-animado.component';
+import { BarraComponent } from './shared/componentes/barra/barra.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { FondoAnimadoComponent } from './shared/componentes/fondo-animado/fondo-
     ContenedorComponent,
     InicioComponent,
     FondoAnimadoComponent,
+    BarraComponent,
   ],
   imports: [
     BrowserModule,

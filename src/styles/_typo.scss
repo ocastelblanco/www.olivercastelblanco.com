@@ -1,7 +1,9 @@
 $typo-primaria: "Lato", "Helvetica Neue", Helvetica, Arial, sans-serif;
 $regular-size: 16px;
+$lg-size: 24px;
 $icon-xs-size: 24px;
 $icon-md-size: 36px;
+
 @mixin alcance($alcance) {
   @if $alcance == "body" {
     font-family: $typo-primaria;
