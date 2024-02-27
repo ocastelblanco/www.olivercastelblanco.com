@@ -95,10 +95,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "ocastelblanco:build:production"
+              "buildTarget": "ocastelblanco:build:production"
             },
             "development": {
-              "browserTarget": "ocastelblanco:build:development"
+              "buildTarget": "ocastelblanco:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -106,7 +106,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ocastelblanco:build"
+            "buildTarget": "ocastelblanco:build"
           }
         },
         "test": {
