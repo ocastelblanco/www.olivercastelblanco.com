@@ -14,12 +14,14 @@ $max-width: $min-width - 1px;
   position: absolute;
   top: 0;
   left: 0;
-  z-index: -1;
+  pointer-events: none;
   @media (max-width: var.$br-max-xs) {
     justify-content: flex-end;
     align-items: flex-start;
   }
   .selector-wrapper {
+    pointer-events: all;
+    cursor: pointer;
     @include color.fondo-transparente("blanco");
     @include color.borde("blanco");
     @include color.sombra("drop");
@@ -42,8 +44,6 @@ $max-width: $min-width - 1px;
     .selector {
       display: flex;
       align-items: center;
-      .oca-icono {
-      }
       .oca-icono-selector {
         .icono {
           font-size: 16px;
@@ -51,6 +51,9 @@ $max-width: $min-width - 1px;
           height: 24px;
         }
       }
+    }
+    &:hover {
+      @include color.fondo-transparente("primario");
     }
   }
 }
