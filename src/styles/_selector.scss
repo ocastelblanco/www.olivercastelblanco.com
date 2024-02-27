@@ -2,48 +2,30 @@
 @use "./variables" as var;
 @use "./typo" as typo;
 
-$min-width: var.$br-min-md + 252px;
-$max-width: $min-width - 1px;
-
 .oca-selector {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 110px;
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  @media (max-width: var.$br-max-xs) {
-    justify-content: flex-end;
-    align-items: flex-start;
-  }
+  width: fit-content;
   .selector-wrapper {
-    pointer-events: all;
-    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     @include color.fondo-transparente("blanco");
     @include color.borde("blanco");
     @include color.sombra("drop");
-    width: 70px;
-    height: 42px;
     border-radius: 25px;
-    padding: 4px 13px;
-    @media (min-width: $min-width) {
-      margin-left: 980px;
-      margin-top: -28px;
-    }
-    @media (max-width: $max-width) and (min-width: var.$br-min-md) {
-      margin-left: 708px;
-      margin-top: 160px;
-    }
-    @media (max-width: var.$br-max-xs) {
-      margin-right: 8px;
-      margin-top: 8px;
-    }
-    .selector {
+    & > * {
       display: flex;
       align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      width: 80px;
+      height: 42px;
+      padding: 4px 12px;
+      border-radius: 25px;
+      &:hover {
+        @include color.fondo-transparente("primario");
+      }
+    }
+    .selector {
       .oca-icono-selector {
         .icono {
           font-size: 16px;
@@ -52,8 +34,11 @@ $max-width: $min-width - 1px;
         }
       }
     }
-    &:hover {
-      @include color.fondo-transparente("primario");
+    .svg {
+      .img-svg {
+        width: auto;
+        height: 18px;
+      }
     }
   }
 }
