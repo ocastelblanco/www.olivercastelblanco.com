@@ -68,6 +68,13 @@ $barra-margen: 20px;
         text-decoration: none;
         color: color.$gris-900;
       }
+      &:hover:not(.activo) {
+        @include color.fondo-transparente("primario");
+      }
+      &.activo {
+        @include color.sombra("inset");
+        cursor: auto;
+      }
     }
   }
 }

@@ -22,7 +22,18 @@
       "es2020",
       "dom"
     ],
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "paths": {
+      "@componentes/*": [
+        "./src/app/shared/componentes/*"
+      ],
+      "@servicios/*": [
+        "./src/app/shared/servicios/*"
+      ],
+      "@vistas/*": [
+        "./src/app/sitioweb/vistas/*"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

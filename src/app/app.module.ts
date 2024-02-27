@@ -16,6 +16,7 @@ import { ContenedorComponent } from './sitioweb/vistas/contenedor/contenedor.com
 import { InicioComponent } from './sitioweb/vistas/inicio/inicio.component';
 import { FondoAnimadoComponent } from './shared/componentes/fondo-animado/fondo-animado.component';
 import { BarraComponent } from './shared/componentes/barra/barra.component';
+import { SelectorComponent } from './shared/componentes/selector/selector.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { BarraComponent } from './shared/componentes/barra/barra.component';
     FondoAnimadoComponent,
     BarraComponent,
     LogoComponent,
+    SelectorComponent,
   ],
   imports: [
     BrowserModule,
@@ -41,6 +43,7 @@ import { BarraComponent } from './shared/componentes/barra/barra.component';
     FontAwesomeModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  exports: []
 })
 export class AppModule { }

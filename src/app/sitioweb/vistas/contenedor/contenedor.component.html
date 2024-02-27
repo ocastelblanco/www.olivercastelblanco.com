@@ -4,13 +4,21 @@
               (click)="logoComprimido = !logoComprimido">
     </oca-logo>
     <a class="elemento"
+       routerLink="/inicio"
+       routerLinkActive="activo"
        icono="home">
       Inicio
     </a>
     <a class="elemento"
-       icono="images">
-      Fotos
+       routerLinkActive="activo"
+       icono="megafono">
+      Contácteme
     </a>
   </nav>
+  <div oca-selector>
+    <a class="selector"
+       icono="idioma">
+    </a>
+  </div>
   <router-outlet></router-outlet>
 </div>
