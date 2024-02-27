@@ -1,3 +1,4 @@
+@use "sass:math";
 @use "./color" as color;
 @use "./variables" as var;
 @use "./typo" as typo;
@@ -16,7 +17,7 @@ $barra-margen: 20px;
     .barra-wrapper {
       @media (min-width: var.$br-min-md) {
         height: $barra-md-alto;
-        border-radius: ($barra-md-alto / 2);
+        border-radius: math.div($barra-md-alto, 2);
         padding: $barra-padding;
         max-width: $barra-max-width;
         min-width: $barra-min-width;
@@ -28,6 +29,7 @@ $barra-margen: 20px;
           border-radius: 25px;
           span.texto {
             font-size: typo.$lg-size;
+            margin-left: 10px;
           }
         }
       }
@@ -51,7 +53,9 @@ $barra-margen: 20px;
   }
   .barra-wrapper {
     display: flex;
-    @include color.fondo-transparente("blanco");
+    align-items: center;
+    gap: 16px;
+    @include color.fondo-transparente("primario");
     @include color.borde("blanco");
     @include color.sombra("drop");
     a.elemento {

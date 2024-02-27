@@ -1,0 +1,17 @@
+<div class="logo"
+     [@logo]="logoReducido">
+  <div class="nombre"
+       @nombre>
+    <div class="iniciales"
+         [@iniciales]="comprimido ? 'comprimido' : 'extendido'"
+         (@iniciales.start)="cambiaLogoReducido()">
+      <div>O</div>
+      <div>C</div>
+    </div>
+    <div class="resto"
+         [@resto]="comprimido ? 'comprimido' : 'extendido'">
+      <div>liver</div>
+      <div>astelblanco</div>
+    </div>
+  </div>
+</div>

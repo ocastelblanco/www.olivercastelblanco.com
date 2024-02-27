@@ -1,0 +1,52 @@
+@use "/src/styles/typo" as typo;
+@use "/src/styles/color" as color;
+
+$modulo: 48px;
+$tamano: $modulo * 0.75;
+
+.logo {
+  height: calc($tamano * 2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 calc($modulo / 4) 0 0;
+  position: relative;
+  width: calc($modulo * 7);
+  background-color: transparent;
+  overflow: hidden;
+  .nombre {
+    font-family: typo.$typo-especial;
+    font-size: $tamano;
+    position: relative;
+    display: flex;
+    align-items: center;
+    .iniciales {
+      position: relative;
+      display: flex;
+      align-items: center;
+      border-radius: calc($modulo / 2);
+      div {
+        width: calc($tamano / 2);
+        height: calc($modulo - 2px);
+        padding-top: 0;
+        padding-bottom: 0;
+        margin: 1px 0;
+        &:first-of-type {
+          padding-left: calc($modulo / 10);
+        }
+        &:last-of-type {
+          position: absolute;
+          right: calc($tamano / 4);
+        }
+      }
+    }
+    .resto {
+      display: flex;
+      position: absolute;
+      left: calc($tamano * 0.75);
+      div:last-of-type {
+        margin-left: ($tamano - 2px);
+      }
+    }
+  }
+}

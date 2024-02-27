@@ -1,5 +1,8 @@
 <div class="contenedor">
   <nav oca-barra-horizontal>
+    <oca-logo [comprimido]="logoComprimido"
+              (click)="logoComprimido = !logoComprimido">
+    </oca-logo>
     <a class="elemento"
        icono="home">
       Inicio

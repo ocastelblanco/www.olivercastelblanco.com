@@ -3,6 +3,7 @@
 @use "styles/barra" as barra;
 
 @import url("https://fonts.googleapis.com/css2?family=Lato&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Viga&display=swap");
 
 // Listado de colores principales
 $colores: (
@@ -31,7 +32,7 @@ $colores: (
   colorAcento300: color.$acento-300,
   colorAcento200: color.$acento-200,
   colorAcento100: color.$acento-100,
-  colorAcento50: color.$acento-50,
+  colorAcento50: color.$acento-50
 );
 // Genera variables CSS para los colores
 @function nombre-propiedad($nombre) {

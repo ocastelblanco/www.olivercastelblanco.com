@@ -10,6 +10,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 // Shared components
 import { BotonComponent } from './shared/componentes/boton/boton.component';
 import { IconoComponent } from './shared/componentes/icono/icono.component';
+import { LogoComponent } from './shared/componentes/logo/logo.component';
 // Views components
 import { ContenedorComponent } from './sitioweb/vistas/contenedor/contenedor.component';
 import { InicioComponent } from './sitioweb/vistas/inicio/inicio.component';
@@ -25,6 +26,7 @@ import { BarraComponent } from './shared/componentes/barra/barra.component';
     InicioComponent,
     FondoAnimadoComponent,
     BarraComponent,
+    LogoComponent,
   ],
   imports: [
     BrowserModule,
