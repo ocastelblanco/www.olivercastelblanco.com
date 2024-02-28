@@ -15,18 +15,16 @@ $barra-margen: 20px;
   &.horizontal {
     justify-content: center;
     .barra-wrapper {
+      height: $barra-md-alto;
+      margin: $barra-margen;
+      padding: $barra-padding;
+      gap: 16px;
+      @include color.fondo-transparente("primario");
       @media (min-width: var.$br-min-md) {
-        height: $barra-md-alto;
-        border-radius: math.div($barra-md-alto, 2);
-        padding: $barra-padding;
         max-width: $barra-max-width;
         min-width: $barra-min-width;
-        margin: $barra-margen;
         a.elemento {
-          align-items: center;
-          padding: 7px 7px 10px 7px;
-          height: 50px;
-          border-radius: 25px;
+          padding: 0 14px;
           span.texto {
             font-size: typo.$lg-size;
             margin-left: 10px;
@@ -34,8 +32,11 @@ $barra-margen: 20px;
         }
       }
       @media (max-width: var.$br-max-xs) {
-        flex-direction: column;
+        .oca-logo {
+          display: none;
+        }
         a.elemento {
+          width: 50px;
           span.texto {
             display: none;
           }
@@ -44,23 +45,44 @@ $barra-margen: 20px;
     }
   }
   &.vertical {
-    flex-direction: column;
-    a.elemento {
-      span.texto {
-        display: none;
+    .barra-wrapper {
+      flex-direction: column;
+      gap: 8px;
+      padding: math.div($barra-padding, 2);
+      @include color.fondo-transparente("blanco");
+      a.elemento {
+        position: relative;
+        width: 50px;
+        span.texto {
+          display: none;
+          position: absolute;
+          padding: 6px 8px;
+          left: 60px;
+          border-radius: 4px;
+          @include color.fondo-transparente("primario");
+        }
+        &:hover {
+          span.texto {
+            display: inline-block;
+            animation: 300ms 1 normal slidein;
+          }
+        }
       }
     }
   }
   .barra-wrapper {
     display: flex;
     align-items: center;
-    gap: 16px;
-    @include color.fondo-transparente("primario");
+    border-radius: math.div($barra-md-alto, 2);
     @include color.borde("blanco");
     @include color.sombra("drop");
     a.elemento {
       cursor: pointer;
       display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 50px;
+      border-radius: 25px;
       @include color.fondo-transparente("blanco");
       &:link,
       &:visited,
@@ -76,5 +98,15 @@ $barra-margen: 20px;
         cursor: auto;
       }
     }
+  }
+}
+@keyframes slidein {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0%);
+    opacity: 1;
   }
 }

@@ -1,6 +1,7 @@
 <div id="contenedor">
   <nav oca-barra-horizontal>
     <oca-logo [comprimido]="logoComprimido"
+              class="oca-logo"
               (click)="logoComprimido = !logoComprimido">
     </oca-logo>
     <a class="elemento"
@@ -30,5 +31,15 @@
       EN
     </a>
   </div>
+  <nav oca-barra-vertical>
+    <a class="elemento"
+       icono="github">
+      GitHub
+    </a>
+    <a class="elemento"
+       icono="linkedin">
+      LinkedIn
+    </a>
+  </nav>
   <router-outlet></router-outlet>
 </div>
