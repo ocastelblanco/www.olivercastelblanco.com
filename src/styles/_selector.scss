@@ -7,12 +7,12 @@
   .selector-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 8px;
     @include color.fondo-transparente("blanco");
     @include color.borde("blanco");
     @include color.sombra("drop");
     border-radius: 25px;
-    & > * {
+    & > *:not(.enlaces),
+    .enlaces > .svg {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -33,11 +33,23 @@
           height: 24px;
         }
       }
+      &.desplegado {
+        .oca-icono-selector {
+          .icono {
+            transform: rotate(180deg);
+          }
+        }
+      }
     }
-    .svg {
-      .img-svg {
-        width: auto;
-        height: 18px;
+    .enlaces {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      .svg {
+        .img-svg {
+          width: auto;
+          height: 18px;
+        }
       }
     }
   }
