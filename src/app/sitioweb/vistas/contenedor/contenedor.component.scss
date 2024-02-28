@@ -1,5 +1,21 @@
+@use "../../../../styles/variables" as var;
+
+$br-min: var.$br-max-xs + 204;
+$br-max: $br-min - 1;
+
 #contenedor {
+  position: relative;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  .oca-selector {
+    position: absolute;
+    right: 14px;
+    @media (min-width: $br-min) {
+      top: 20px;
+    }
+    @media (max-width: $br-max) {
+      top: 112px;
+    }
+  }
 }

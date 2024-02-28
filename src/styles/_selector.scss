@@ -11,6 +11,8 @@
     @include color.borde("blanco");
     @include color.sombra("drop");
     border-radius: 25px;
+    overflow: hidden;
+    height: 42px;
     & > *:not(.enlaces),
     .enlaces > .svg {
       display: flex;
@@ -19,6 +21,7 @@
       cursor: pointer;
       width: 80px;
       height: 42px;
+      min-height: 42px;
       padding: 4px 12px;
       border-radius: 25px;
       &:hover {
@@ -33,18 +36,12 @@
           height: 24px;
         }
       }
-      &.desplegado {
-        .oca-icono-selector {
-          .icono {
-            transform: rotate(180deg);
-          }
-        }
-      }
     }
     .enlaces {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      transform-origin: top left;
       .svg {
         .img-svg {
           width: auto;

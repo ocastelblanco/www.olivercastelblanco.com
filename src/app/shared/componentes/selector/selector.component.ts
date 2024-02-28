@@ -18,14 +18,8 @@ export class SelectorComponent implements OnInit {
   private enlaces: ElementRef = this.renderer.createElement('div');
   private plegado: boolean = true;
   private selector!: HTMLElement;
-  private animacionEntrada: AnimationFactory = this.animationBuilder.build([
-    style({ transform: 'translateX(-100%)' }),
-    animate('400ms ease-in', style({ transform: 'translateY(0%)' }))
-  ]);
-  private animacionSalida: AnimationFactory = this.animationBuilder.build([
-    style({ transform: 'translateX(0%)' }),
-    animate('400ms ease-out', style({ transform: 'translateY(-100%)' }))
-  ]);
+  private wrapper!: HTMLElement;
+  private caretDownIcon!: HTMLElement;
   constructor(
     private _elemento: ElementRef,
     private renderer: Renderer2,
@@ -35,7 +29,7 @@ export class SelectorComponent implements OnInit {
   ) { }
   ngOnInit(): void {
     this.elemento = this._elemento.nativeElement;
-    const wrapper: HTMLElement = this.elemento.querySelector('.selector-wrapper') as HTMLElement;
+    this.wrapper = this.elemento.querySelector('.selector-wrapper') as HTMLElement;
     // Convierte todos los <a> con clase 'selector' en botón desplegable
     this.selector = this.elemento.querySelector('.selector') as HTMLElement;
     this.funciones.creaIcono(this.selector, this.vista, this.renderer);
@@ -44,12 +38,12 @@ export class SelectorComponent implements OnInit {
     iconoComponenteRef.instance.color = 'gris-900';
     iconoComponenteRef.instance.tamano = 'mediano';
     iconoComponenteRef.instance.icono = 'caretDown';
-    const iconoComponente: HTMLElement = iconoComponenteRef.location.nativeElement;
-    this.renderer.addClass(iconoComponente, 'oca-icono-selector');
-    this.renderer.appendChild(this.selector, iconoComponente);
+    this.caretDownIcon = iconoComponenteRef.location.nativeElement;
+    this.renderer.addClass(this.caretDownIcon, 'oca-icono-selector');
+    this.renderer.appendChild(this.selector, this.caretDownIcon);
     // Crea el contenedor div.enlaces
     this.renderer.addClass(this.enlaces, 'enlaces');
-    this.renderer.appendChild(wrapper, this.enlaces);
+    this.renderer.appendChild(this.wrapper, this.enlaces);
     // Crea enlaces con iconos SVG externos
     const listaSVG: HTMLCollection = this.elemento.getElementsByClassName('svg');
     for (let i: number = 0; i < listaSVG.length; i++) {
@@ -72,18 +66,36 @@ export class SelectorComponent implements OnInit {
     this.selector.addEventListener('click', this.pliega.bind(this));
   }
   pliega(): void {
+    const alto: string = (((this.listaEnlaces.length + 1) * 42) + ((this.listaEnlaces.length - 1) * 8)) + 'px';
+    const animaDespliegue: AnimationFactory = this.animationBuilder.build([
+      style({ height: '*' }),
+      animate('300ms ease-in', style({ height: alto }))
+    ]);
+    const animaPliegue: AnimationFactory = this.animationBuilder.build([
+      style({ height: alto }),
+      animate('300ms ease-in', style({ height: '42px' }))
+    ]);
+    const animaGiroAbre: AnimationFactory = this.animationBuilder.build([
+      style({ transform: 'rotate(0deg' }),
+      animate('300ms ease-in', style({ transform: 'rotate(180deg' }))
+    ]);
+    const animaGiroCierra: AnimationFactory = this.animationBuilder.build([
+      style({ transform: 'rotate(180deg' }),
+      animate('300ms ease-in', style({ transform: 'rotate(0deg' }))
+    ]);
     if (this.plegado) {
-      this.listaEnlaces.forEach((svg: HTMLElement) => {
-        this.renderer.appendChild(this.enlaces, svg);
-        this.animacionEntrada.create(svg).play();
-      });
+      animaDespliegue.create(this.wrapper).play();
+      animaGiroAbre.create(this.caretDownIcon).play();
+      this.listaEnlaces.forEach((svg: HTMLElement) => this.renderer.appendChild(this.enlaces, svg));
       this.renderer.addClass(this.selector, 'desplegado');
     } else {
-      this.listaEnlaces.forEach((svg: HTMLElement) => {
-        this.renderer.removeChild(this.enlaces, svg);
-        this.animacionSalida.create(svg).play();
+      animaGiroCierra.create(this.caretDownIcon).play();
+      const player: AnimationPlayer = animaPliegue.create(this.wrapper);
+      player.play();
+      player.onDone(() => {
+        this.listaEnlaces.forEach((svg: HTMLElement) => this.renderer.removeChild(this.enlaces, svg));
+        this.renderer.removeClass(this.selector, 'desplegado');
       });
-      this.renderer.removeClass(this.selector, 'desplegado');
     }
     this.plegado = !this.plegado;
   }
