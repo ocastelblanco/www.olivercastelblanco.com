@@ -60,11 +60,17 @@ $acento-50: #fff3e0;
   @if $tipo == "primario" {
     background: rgba($primario, 0.25);
   }
+  @if $tipo == "primario-dark" {
+    background: rgba($primario, 0.45);
+  }
 }
 
 @mixin borde($tipo) {
   @if $tipo == "blanco" {
     border: 1px solid rgba($blanco, 0.18);
+  }
+  @if $tipo == "primario" {
+    border: 1px solid rgba($primario, 0.18);
   }
 }
 
@@ -77,11 +83,13 @@ $acento-50: #fff3e0;
     backdrop-filter: blur(4px);
   }
   @if $tipo == "boton-primario" {
-    box-shadow: inset 4px 4px 8px color.scale($primario, $blackness: $var-inset),
+    box-shadow:
+      inset 4px 4px 8px color.scale($primario, $blackness: $var-inset),
       inset -4px -4px 8px color.scale($primario, $lightness: $var-inset);
   }
   @if $tipo == "boton-acento" {
-    box-shadow: inset 4px 4px 8px color.scale($acento, $blackness: $var-inset),
+    box-shadow:
+      inset 4px 4px 8px color.scale($acento, $blackness: $var-inset),
       inset -4px -4px 8px color.scale($acento, $lightness: $var-inset);
   }
 }

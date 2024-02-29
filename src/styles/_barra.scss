@@ -9,8 +9,39 @@ $barra-max-width: 1024px;
 $barra-min-width: 780px;
 $barra-margen: 20px;
 
+/* MIXINS */
+@mixin tooltip($direccion) {
+  span.texto {
+    display: none;
+    position: absolute;
+    padding: 6px 8px;
+    border-radius: 4px;
+    @include color.fondo-transparente("primario");
+    @if $direccion == "horizontal" {
+      left: 60px;
+    }
+    @if $direccion == "vertical" {
+      top: 74px;
+    }
+  }
+  &:hover {
+    span.texto {
+      display: inline-block;
+      animation-duration: 300ms;
+      animation-timing-function: ease-out;
+      animation-iteration-count: 1;
+      animation-direction: normal;
+      @if $direccion == "horizontal" {
+        animation-name: slideinH;
+      }
+      @if $direccion == "vertical" {
+        animation-name: slideinV;
+      }
+    }
+  }
+}
+
 .barra {
-  z-index: 9;
   display: flex;
   &.horizontal {
     justify-content: center;
@@ -37,14 +68,13 @@ $barra-margen: 20px;
         }
         a.elemento {
           width: 50px;
-          span.texto {
-            display: none;
-          }
+          @include tooltip("vertical");
         }
       }
     }
   }
   &.vertical {
+    max-width: 62px;
     .barra-wrapper {
       flex-direction: column;
       gap: 8px;
@@ -53,20 +83,7 @@ $barra-margen: 20px;
       a.elemento {
         position: relative;
         width: 50px;
-        span.texto {
-          display: none;
-          position: absolute;
-          padding: 6px 8px;
-          left: 60px;
-          border-radius: 4px;
-          @include color.fondo-transparente("primario");
-        }
-        &:hover {
-          span.texto {
-            display: inline-block;
-            animation: 300ms 1 normal slidein;
-          }
-        }
+        @include tooltip("horizontal");
       }
     }
   }
@@ -100,9 +117,19 @@ $barra-margen: 20px;
     }
   }
 }
-@keyframes slidein {
+@keyframes slideinH {
   from {
     transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+@keyframes slideinV {
+  from {
+    transform: translateY(-100%);
     opacity: 0;
   }
   to {

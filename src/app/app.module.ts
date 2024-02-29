@@ -17,6 +17,7 @@ import { InicioComponent } from './sitioweb/vistas/inicio/inicio.component';
 import { FondoAnimadoComponent } from './shared/componentes/fondo-animado/fondo-animado.component';
 import { BarraComponent } from './shared/componentes/barra/barra.component';
 import { SelectorComponent } from './shared/componentes/selector/selector.component';
+import { CardComponent } from './shared/componentes/card/card.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { SelectorComponent } from './shared/componentes/selector/selector.compon
     BarraComponent,
     LogoComponent,
     SelectorComponent,
+    CardComponent,
   ],
   imports: [
     BrowserModule,

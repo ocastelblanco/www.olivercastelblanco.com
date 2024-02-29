@@ -1,0 +1,68 @@
+@use "sass:math";
+@use "./color" as color;
+@use "./variables" as var;
+@use "./typo" as typo;
+
+.card {
+  display: flex;
+  justify-content: center;
+  .card-wrapper {
+    @include color.fondo-transparente("primario-dark");
+    @include color.borde("blanco");
+    @include color.sombra("drop");
+    border-radius: 25px;
+    max-width: 1024px;
+    padding: 16px;
+    color: color.$blanco;
+    .titulo {
+      width: 100%;
+      text-align: center;
+      @include typo.alcance("card-title");
+    }
+    .contenedor {
+      display: flex;
+      padding: 16px 0;
+      .foto {
+        max-width: 180px;
+        max-height: 180px;
+        aspect-ratio: 1/1;
+        @include color.sombra("inset");
+        padding: 8px;
+        border-radius: 50%;
+      }
+      .contenido {
+        padding: 0 16px;
+        max-width: 28em;
+        p:not(:first-of-type) {
+          margin-top: 1em;
+        }
+      }
+    }
+    .accion {
+      a,
+      button {
+        display: flex;
+        align-items: center;
+        width: fit-content;
+        gap: 8px;
+        padding: 0px 12px;
+        color: color.$blanco;
+        @include typo.alcance("boton");
+        @include color.fondo-opaco("acento");
+        @include color.borde("blanco");
+        @include color.sombra("inset");
+        cursor: pointer;
+        height: 50px;
+        border-radius: 25px;
+        .oca-icono {
+          .icono {
+            color: color.$blanco;
+          }
+        }
+        &:hover {
+          @include color.borde("primario");
+        }
+      }
+    }
+  }
+}
