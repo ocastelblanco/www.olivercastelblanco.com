@@ -1,4 +1,5 @@
-<div id="contenedor">
+<div id="contenedor"
+     *ngIf="interfaz && idioma !== undefined">
   <nav oca-barra-horizontal>
     <oca-logo [comprimido]="logoComprimido"
               class="oca-logo"
@@ -7,7 +8,8 @@
     <a class="elemento"
        routerLink="/inicio"
        routerLinkActive="activo"
-       icono="home">
+       icono="home"
+       [innerHTML]="interfaz.contenidos['oca-contenedor'].nav.inicio[idioma]">
       Inicio
     </a>
     <a class="elemento"

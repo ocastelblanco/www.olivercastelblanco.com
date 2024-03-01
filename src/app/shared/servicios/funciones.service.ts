@@ -1,4 +1,4 @@
-import { Injectable, ComponentRef, ViewContainerRef, Renderer2 } from '@angular/core';
+import { Injectable, ComponentRef, ViewContainerRef, Renderer2, WritableSignal, signal } from '@angular/core';
 import { IconoComponent } from '@componentes/icono/icono.component';
 import { iconos } from '@componentes/icono/icono.lista';
 
@@ -6,6 +6,7 @@ import { iconos } from '@componentes/icono/icono.lista';
   providedIn: 'root'
 })
 export class FuncionesService {
+  public idioma: WritableSignal<number> = signal(0);
   constructor() { }
   creaIcono(parent: HTMLElement, vista: ViewContainerRef, renderer: Renderer2): void {
     const icono: string = parent.getAttribute('icono') as string;
