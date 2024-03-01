@@ -1,0 +1,40 @@
+{
+  "estructura": {
+    "idiomas": [
+      {
+        "sigla": "ES",
+        "idioma": "Español",
+        "bandera": "co"
+      },
+      {
+        "sigla": "EN",
+        "idioma": "English",
+        "bandera": "gb"
+      }
+    ]
+  },
+  "contenidos": {
+    "oca-contenedor": {
+      "nav": {
+        "inicio": [
+          "Inicio",
+          "Home"
+        ],
+        "contacteme": [
+          "Contácteme",
+          "Contact me"
+        ]
+      }
+    },
+    "oca-inicio": {
+      "contenido": [
+        "<p>Soy un hacedor. Necesito convertir mi actividad profesional en productos que puedan ser usados; primero como diseñador industrial, luego como programador, ahora como desarrollador de productos web.</p><p>Por las mismas razones, soy un aprendiz. Estoy constantemente aprendiendo nuevas formas de hacer las cosas para que sean más eficientes, más eficaces y, especialmente, mejor diseñadas para el usuario final.</p>",
+        "<p>I'm a doer. I need to transform all my professional activity in products used by people; first, as industrial designer, then as programmer and now as e-learning products developer.</p><p>At the same time, I'm a learner. I'm always learning about new ways of doing things that can be more efficient, more effective and, mainly, best suited for the final user.</p>"
+      ],
+      "descargar-hv": [
+        "Descargar HV",
+        "Download resume"
+      ]
+    }
+  }
+}
