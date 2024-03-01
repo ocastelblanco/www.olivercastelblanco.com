@@ -1,0 +1,14 @@
+<a [ngClass]="clase"
+   [routerLink]="datos.enlace"
+   [routerLinkActive]="datos.activeLink ? 'activo' : ''"
+   [target]="datos.blank ? '_blank' : '_self'">
+  <oca-icono class="oca-icono"
+             color="gris-900"
+             tamano="mediano"
+             [icono]="datos.icono"
+             [iconos]="iconos">
+  </oca-icono>
+  <span class="texto"
+        [innerHTML]="datos.textos[idioma] | safe: 'html'">
+  </span>
+</a>

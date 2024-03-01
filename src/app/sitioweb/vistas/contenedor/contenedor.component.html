@@ -1,22 +1,13 @@
 <div id="contenedor"
      *ngIf="interfaz && idioma !== undefined">
-  <nav oca-barra-horizontal>
+  <nav oca-barra-horizontal
+       class="nav-bar"
+       [vinculos]="interfaz.barraHorizontal"
+       [idioma]="idioma">
     <oca-logo [comprimido]="logoComprimido"
               class="oca-logo"
               (click)="logoComprimido = !logoComprimido">
     </oca-logo>
-    <a class="elemento"
-       routerLink="/inicio"
-       routerLinkActive="activo"
-       icono="home"
-       [innerHTML]="interfaz.contenidos['oca-contenedor'].nav.inicio[idioma]">
-      Inicio
-    </a>
-    <a class="elemento"
-       routerLinkActive="activo"
-       icono="megafono">
-      Contácteme
-    </a>
   </nav>
   <div oca-selector>
     <a class="selector"
@@ -34,31 +25,9 @@
     </a>
   </div>
   <nav oca-barra-vertical
-       class="proyectos">
-    <a class="elemento"
-       href="https://github.com/ocastelblanco"
-       target="_blank"
-       icono="github">
-      GitHub
-    </a>
-    <a class="elemento"
-       href="https://www.linkedin.com/in/oliver-castelblanco-mart%C3%ADnez-95144217/"
-       target="_blank"
-       icono="linkedin">
-      LinkedIn
-    </a>
-    <a class="elemento"
-       href="https://www.bar23.co"
-       target="_blank"
-       icono="bar23">
-      bar23.co
-    </a>
-    <a class="elemento"
-       href="https://www.letiende.co"
-       target="_blank"
-       icono="leTiende">
-      LeTiende.co
-    </a>
+       class="proyectos"
+       [vinculos]="interfaz.proyectos"
+       [idioma]="idioma">
   </nav>
   <router-outlet></router-outlet>
 </div>

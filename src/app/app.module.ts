@@ -3,19 +3,25 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 // External modules
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-// Shared elements
+// Shared components
 import { BotonComponent } from './shared/componentes/boton/boton.component';
 import { IconoComponent } from './shared/componentes/icono/icono.component';
 import { LogoComponent } from './shared/componentes/logo/logo.component';
+// Views components
+import { AppComponent } from './app.component';
+import { ContenedorComponent } from './sitioweb/vistas/contenedor/contenedor.component';
+import { InicioComponent } from './sitioweb/vistas/inicio/inicio.component';
 import { FondoAnimadoComponent } from './shared/componentes/fondo-animado/fondo-animado.component';
 import { BarraComponent } from './shared/componentes/barra/barra.component';
 import { SelectorComponent } from './shared/componentes/selector/selector.component';
 import { CardComponent } from './shared/componentes/card/card.component';
+import { TextoComponent } from './shared/componentes/texto/texto.component';
+import { SafePipe } from './shared/pipes/safe.pipe';
+import { VinculoComponent } from './shared/componentes/vinculo/vinculo.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +35,9 @@ import { CardComponent } from './shared/componentes/card/card.component';
     LogoComponent,
     SelectorComponent,
     CardComponent,
+    TextoComponent,
+    SafePipe,
+    VinculoComponent,
   ],
   imports: [
     BrowserModule,

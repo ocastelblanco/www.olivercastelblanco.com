@@ -10,11 +10,11 @@ import { FuncionesService } from '@servicios/funciones.service';
 export class ContenedorComponent implements OnInit {
   logoComprimido: boolean = false;
   idioma!: number;
-  interfaz!: any;
+  interfaz: any;
   constructor(private funciones: FuncionesService, private data: DataService) {
     effect(() => this.idioma = this.funciones.idioma());
     this.data.getInterfaz().subscribe((_interfaz: any) => {
-      if (_interfaz) this.interfaz = _interfaz;
+      if (_interfaz) this.interfaz = _interfaz.contenidos.contenedor;
     });
   }
   ngOnInit(): void {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'span[oca-texto]',
@@ -7,6 +7,9 @@ import { Component } from '@angular/core';
   },
   template: '<div class="texto-wrapper"><ng-content></ng-content></div>'
 })
-export class TextoComponent {
-
+export class TextoComponent implements OnInit {
+  @Input() texto!: string;
+  ngOnInit(): void {
+    console.log(this.texto);
+  }
 }
