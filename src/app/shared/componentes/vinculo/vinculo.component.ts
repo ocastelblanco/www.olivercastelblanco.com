@@ -4,8 +4,7 @@ import { iconos } from '@componentes/icono/icono.lista';
 
 @Component({
   selector: 'oca-vinculo',
-  templateUrl: './vinculo.component.html',
-  styleUrl: './vinculo.component.scss'
+  templateUrl: './vinculo.component.html'
 })
 export class VinculoComponent {
   @Input() clase!: string;
