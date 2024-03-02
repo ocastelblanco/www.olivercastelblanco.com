@@ -11,6 +11,7 @@ export class ContenedorComponent implements OnInit {
   logoComprimido: boolean = false;
   idioma!: number;
   interfaz: any;
+  idiomaPlegado: boolean = true;
   constructor(private funciones: FuncionesService, private data: DataService) {
     effect(() => this.idioma = this.funciones.idioma());
     this.data.getInterfaz().subscribe((_interfaz: any) => {
@@ -19,5 +20,9 @@ export class ContenedorComponent implements OnInit {
   }
   ngOnInit(): void {
     setTimeout(() => this.logoComprimido = true, 2000);
+  }
+  cambiaIdioma(idioma: number): void {
+    this.funciones.idioma.set(idioma);
+    this.idiomaPlegado = !this.idiomaPlegado;
   }
 }

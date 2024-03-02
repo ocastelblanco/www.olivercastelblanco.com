@@ -1,4 +1,4 @@
-import { Component, ComponentRef, ElementRef, Input, OnInit, Renderer2, ViewContainerRef } from '@angular/core';
+import { Component, ComponentRef, ElementRef, Input, OnChanges, OnInit, Renderer2, SimpleChanges, ViewContainerRef } from '@angular/core';
 import { VinculoComponent } from '@componentes/vinculo/vinculo.component';
 import { FuncionesService, Vinculo } from '@servicios/funciones.service';
 
@@ -12,16 +12,21 @@ import { FuncionesService, Vinculo } from '@servicios/funciones.service';
   exportAs: 'ocaBarra',
   template: '<div class="barra-wrapper"><ng-content></ng-content></div>',
 })
-export class BarraComponent implements OnInit {
+export class BarraComponent implements OnInit, OnChanges {
   @Input() vinculos: Vinculo[] = [];
   @Input() idioma: number = 0;
   private elemento!: HTMLElement;
+  private elementos: Array<ComponentRef<VinculoComponent>> = [];
   constructor(
     private _elemento: ElementRef,
     private renderer: Renderer2,
     private vista: ViewContainerRef,
     private funciones: FuncionesService
   ) { }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['idioma'].isFirstChange())
+      this.elementos.forEach((el: ComponentRef<VinculoComponent>) => el.instance.idioma = changes['idioma'].currentValue);
+  }
   ngOnInit(): void {
     this.elemento = this._elemento.nativeElement;
     const wrapper: HTMLElement = this.elemento.querySelector('.barra-wrapper') as HTMLElement;
@@ -33,6 +38,7 @@ export class BarraComponent implements OnInit {
         vinculoComponentRef.instance.idioma = this.idioma;
         const vinculoComponente: HTMLElement = vinculoComponentRef.location.nativeElement;
         this.renderer.appendChild(wrapper, vinculoComponente);
+        this.elementos.push(vinculoComponentRef);
       });
     } else {
       // Convierte todos los <a> con clase 'elemento' en botones con ícono

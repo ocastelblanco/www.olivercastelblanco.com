@@ -9,17 +9,20 @@
               (click)="logoComprimido = !logoComprimido">
     </oca-logo>
   </nav>
-  <div oca-selector>
+  <div oca-selector
+       [plegado]="idiomaPlegado">
     <a class="selector"
        icono="idioma">
     </a>
     <a class="svg"
        fuente="flags"
+       (click)="cambiaIdioma(0)"
        svg="co">
       ES
     </a>
     <a class="svg"
        fuente="flags"
+       (click)="cambiaIdioma(1)"
        svg="gb">
       EN
     </a>

@@ -30,7 +30,7 @@
           "nombre": "contacteme",
           "textos": [
             "Contácteme",
-            "Contact me"
+            "Contact&nbsp;me"
           ],
           "icono": "megafono",
           "activeLink": true
@@ -70,8 +70,8 @@
         {
           "nombre": "letiende",
           "textos": [
-            "LeTiende",
-            "LeTiende"
+            "Le&nbsp;Tiende",
+            "Le&nbsp;Tiende"
           ],
           "icono": "leTiende",
           "enlace": "https://www.letiende.co",
@@ -85,8 +85,8 @@
         "<p>I'm a doer. I need to transform all my professional activity in products used by people; first, as industrial designer, then as programmer and now as e-learning products developer.</p><p>At the same time, I'm a learner. I'm always learning about new ways of doing things that can be more efficient, more effective and, mainly, best suited for the final user.</p>"
       ],
       "descargarHV": [
-        "Descargar HV",
-        "Download resume"
+        "Descargar&nbsp;HV",
+        "Download&nbsp;resume"
       ]
     }
   }

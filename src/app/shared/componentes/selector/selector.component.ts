@@ -1,4 +1,4 @@
-import { Component, ComponentRef, ElementRef, OnInit, Renderer2, ViewContainerRef } from '@angular/core';
+import { Component, ComponentRef, ElementRef, Input, OnChanges, OnInit, Renderer2, SimpleChanges, ViewContainerRef } from '@angular/core';
 import { FuncionesService } from '@servicios/funciones.service';
 import { IconoComponent } from '@componentes/icono/icono.component';
 import { iconos } from '@componentes/icono/icono.lista';
@@ -10,13 +10,13 @@ import { AnimationBuilder, AnimationFactory, AnimationPlayer, animate, style } f
     'class': 'oca-selector'
   },
   exportAs: 'ocaSelector',
-  template: '<div class="selector-wrapper"><ng-content selector="elemento"></ng-content></div>'
+  template: '<div class="selector-wrapper"><ng-content></ng-content></div>'
 })
-export class SelectorComponent implements OnInit {
+export class SelectorComponent implements OnInit, OnChanges {
+  @Input() plegado: boolean = true;
   private elemento!: HTMLElement;
   private listaEnlaces: Array<HTMLElement> = [];
   private enlaces: ElementRef = this.renderer.createElement('div');
-  private plegado: boolean = true;
   private selector!: HTMLElement;
   private wrapper!: HTMLElement;
   private caretDownIcon!: HTMLElement;
@@ -27,6 +27,12 @@ export class SelectorComponent implements OnInit {
     private funciones: FuncionesService,
     private animationBuilder: AnimationBuilder
   ) { }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['plegado'].isFirstChange()) {
+      this.plegado = false;
+      this.pliega();
+    }
+  }
   ngOnInit(): void {
     this.elemento = this._elemento.nativeElement;
     this.wrapper = this.elemento.querySelector('.selector-wrapper') as HTMLElement;
