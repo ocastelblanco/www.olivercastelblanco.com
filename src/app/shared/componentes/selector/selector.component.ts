@@ -1,4 +1,4 @@
-import { Component, ComponentRef, ElementRef, Input, OnChanges, OnInit, Renderer2, SimpleChanges, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, Component, ComponentRef, ElementRef, Input, OnChanges, OnInit, Renderer2, SimpleChanges, ViewContainerRef } from '@angular/core';
 import { FuncionesService } from '@servicios/funciones.service';
 import { IconoComponent } from '@componentes/icono/icono.component';
 import { iconos } from '@componentes/icono/icono.lista';
@@ -12,7 +12,7 @@ import { AnimationBuilder, AnimationFactory, AnimationPlayer, animate, style } f
   exportAs: 'ocaSelector',
   template: '<div class="selector-wrapper"><ng-content></ng-content></div>'
 })
-export class SelectorComponent implements OnInit, OnChanges {
+export class SelectorComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() plegado: boolean = true;
   private elemento!: HTMLElement;
   private listaEnlaces: Array<HTMLElement> = [];
@@ -34,6 +34,11 @@ export class SelectorComponent implements OnInit, OnChanges {
     }
   }
   ngOnInit(): void {
+  }
+  ngAfterViewInit(): void {
+    setTimeout(() => this.init(), 500);
+  }
+  init() {
     this.elemento = this._elemento.nativeElement;
     this.wrapper = this.elemento.querySelector('.selector-wrapper') as HTMLElement;
     // Convierte todos los <a> con clase 'selector' en botón desplegable

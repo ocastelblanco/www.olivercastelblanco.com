@@ -9,6 +9,12 @@ export interface Vinculo {
   enlace?: string;
   blank?: boolean;
   activeLink?: boolean;
+  download?: boolean;
+}
+export interface Idioma {
+  sigla: string;
+  idioma: string;
+  bandera: string;
 }
 
 @Injectable({

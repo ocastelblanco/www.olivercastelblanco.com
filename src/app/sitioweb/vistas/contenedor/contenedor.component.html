@@ -1,36 +1,32 @@
 <div id="contenedor"
      *ngIf="interfaz && idioma !== undefined">
-  <nav oca-barra-horizontal
-       class="nav-bar"
-       [vinculos]="interfaz.barraHorizontal"
-       [idioma]="idioma">
-    <oca-logo [comprimido]="logoComprimido"
-              class="oca-logo"
-              (click)="logoComprimido = !logoComprimido">
-    </oca-logo>
-  </nav>
-  <div oca-selector
-       [plegado]="idiomaPlegado">
-    <a class="selector"
-       icono="idioma">
-    </a>
-    <a class="svg"
-       fuente="flags"
-       (click)="cambiaIdioma(0)"
-       svg="co">
-      ES
-    </a>
-    <a class="svg"
-       fuente="flags"
-       (click)="cambiaIdioma(1)"
-       svg="gb">
-      EN
-    </a>
-  </div>
-  <nav oca-barra-vertical
-       class="proyectos"
-       [vinculos]="interfaz.proyectos"
-       [idioma]="idioma">
-  </nav>
-  <router-outlet></router-outlet>
+   <nav oca-barra-horizontal
+        class="nav-bar"
+        [vinculos]="interfaz.barraHorizontal"
+        [idioma]="idioma">
+      <oca-logo [comprimido]="logoComprimido"
+                class="oca-logo"
+                (click)="logoComprimido = !logoComprimido">
+      </oca-logo>
+   </nav>
+   <div oca-selector
+        [plegado]="idiomaPlegado">
+      <a class="selector"
+         icono="idioma">
+      </a>
+      <ng-container *ngFor="let idiomaLink of idiomas; index as num">
+         <a class="svg"
+            fuente="flags"
+            (click)="cambiaIdioma(num)"
+            [attr.svg]="idiomaLink.bandera"
+            [innerHTML]="idiomaLink.sigla | safe:'html'">
+         </a>
+      </ng-container>
+   </div>
+   <nav oca-barra-vertical
+        class="proyectos"
+        [vinculos]="interfaz.proyectos"
+        [idioma]="idioma">
+   </nav>
+   <router-outlet></router-outlet>
 </div>
