@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'oca-icono',
@@ -9,5 +10,5 @@ export class IconoComponent {
   @Input() tamano: string = 'pequeño';
   @Input() icono: string = 'home';
   @Input() color: string = 'blanco';
-  @Input() iconos: any;
+  @Input() iconos: { [key: string]: IconDefinition } = {};
 }

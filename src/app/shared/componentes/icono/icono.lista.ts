@@ -88,5 +88,5 @@ export const listaIconos: IconDefinition[] = [
   ocaLUL,
   leTiende
 ];
-export const iconos: any = {};
+export const iconos: { [key: string]: IconDefinition } = {};
 listaIconos.forEach((icono: IconDefinition, index: number) => iconos[nombreIconos[index]] = icono);

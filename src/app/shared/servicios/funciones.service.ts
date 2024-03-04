@@ -10,6 +10,8 @@ export interface Vinculo {
   blank?: boolean;
   activeLink?: boolean;
   download?: boolean;
+  contenido?: 'texto' | 'icono+texto' | 'icono';
+  tipo?: 'primario' | 'acento';
 }
 export interface Idioma {
   sigla: string;
@@ -23,7 +25,7 @@ export interface Idioma {
 export class FuncionesService {
   public idioma: WritableSignal<number> = signal(0);
   constructor() { }
-  creaIcono(parent: HTMLElement, vista: ViewContainerRef, renderer: Renderer2, _icono: string | null = null): void {
+  creaIcono(parent: HTMLElement, vista: ViewContainerRef, renderer: Renderer2, _icono: string | null = null): HTMLElement {
     const icono: string = _icono ?? parent.getAttribute('icono') as string;
     const iconoComponenteRef: ComponentRef<IconoComponent> = vista.createComponent(IconoComponent);
     iconoComponenteRef.instance.iconos = iconos;
@@ -33,5 +35,6 @@ export class FuncionesService {
     const iconoComponente: HTMLElement = iconoComponenteRef.location.nativeElement;
     renderer.addClass(iconoComponente, 'oca-icono');
     renderer.appendChild(parent, iconoComponente);
+    return iconoComponente;
   }
 }

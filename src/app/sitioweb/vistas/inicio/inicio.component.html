@@ -4,18 +4,22 @@
     <div class="titulo">Oliver Castelblanco</div>
     <img class="foto"
          src="assets/imgs/oliver.jpg">
-    <div class="contenido">
-      <p>Soy un hacedor. Necesito convertir mi actividad profesional en productos que puedan ser usados; primero como
-        diseñador industrial, luego como programador, ahora como desarrollador de productos web.</p>
-      <p>Por las mismas razones, soy un aprendiz. Estoy constantemente aprendiendo nuevas formas de hacer las cosas para
-        que sean más eficientes, más eficaces y, especialmente, mejor diseñadas para el usuario final.</p>
+    <div class="contenido"
+         [innerHTML]="interfaz.presentacion.textos[idioma] | safe: 'html'">
     </div>
     <div class="accion">
-      <a download
-         href="assets/docs/Resume_OliverCastelblanco.pdf"
-         icono="download">
-        Descargar HV
-      </a>
+      <ng-container *ngFor="let boton of interfaz.accion">
+        <a oca-boton
+           icono="download"
+           contenido="icono+texto"
+           tipo="acento"
+           [attr.descarga]="boton.download"
+           href="assets/docs/Resume_OliverCastelblanco.pdf">
+          <span class="texto"
+                [innerHTML]="boton.textos[idioma]">
+          </span>
+        </a>
+      </ng-container>
     </div>
   </div>
 </div>

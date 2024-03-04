@@ -88,16 +88,20 @@
           "<p>I'm a doer. I need to transform all my professional activity in products used by people; first, as industrial designer, then as programmer and now as e-learning products developer.</p><p>At the same time, I'm a learner. I'm always learning about new ways of doing things that can be more efficient, more effective and, mainly, best suited for the final user.</p>"
         ]
       },
-      "descargarHV": {
-        "nombre": "descargarHV",
-        "icono": "download",
-        "textos": [
-          "Descargar&nbsp;HV",
-          "Download&nbsp;resume"
-        ],
-        "enlace": "",
-        "download": true
-      }
+      "accion": [
+        {
+          "nombre": "descargarHV",
+          "icono": "download",
+          "textos": [
+            "Descargar HV",
+            "Download resume"
+          ],
+          "enlace": "assets/docs/Resume_OliverCastelblanco.pdf",
+          "download": true,
+          "contenido": "texto+icono",
+          "tipo": "acento"
+        }
+      ]
     }
   }
 }

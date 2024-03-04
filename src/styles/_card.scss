@@ -38,31 +38,5 @@
         }
       }
     }
-    .accion {
-      a,
-      button {
-        display: flex;
-        align-items: center;
-        width: fit-content;
-        gap: 8px;
-        padding: 0px 12px;
-        color: color.$blanco;
-        @include typo.alcance("boton");
-        @include color.fondo-opaco("acento");
-        @include color.borde("blanco");
-        @include color.sombra("inset");
-        cursor: pointer;
-        height: 50px;
-        border-radius: 25px;
-        .oca-icono {
-          .icono {
-            color: color.$blanco;
-          }
-        }
-        &:hover {
-          @include color.borde("primario");
-        }
-      }
-    }
   }
 }

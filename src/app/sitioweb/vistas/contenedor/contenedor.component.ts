@@ -1,6 +1,6 @@
 import { Component, OnInit, effect } from '@angular/core';
 import { DataService } from '@servicios/data.service';
-import { FuncionesService, Idioma } from '@servicios/funciones.service';
+import { FuncionesService, Idioma, Vinculo } from '@servicios/funciones.service';
 
 @Component({
   selector: 'oca-contenedor',
@@ -11,7 +11,7 @@ export class ContenedorComponent implements OnInit {
   logoComprimido: boolean = false;
   idioma!: number;
   idiomas: Idioma[] = [];
-  interfaz: any;
+  interfaz!: { [key: string]: Vinculo[] };
   idiomaPlegado: boolean = true;
   constructor(private funciones: FuncionesService, private data: DataService) {
     effect(() => this.idioma = this.funciones.idioma());
