@@ -21,23 +21,10 @@ export class CardComponent implements OnInit {
     const foto: HTMLElement = wrapper.querySelector('.foto') as HTMLElement;
     const contenido: HTMLElement = wrapper.querySelector('.contenido') as HTMLElement;
     const accion: HTMLElement = wrapper.querySelector('.accion') as HTMLElement;
-    //const enlaces: NodeListOf<HTMLElement> = accion.querySelectorAll('*');
     this.renderer.addClass(contenedor, 'contenedor');
     this.renderer.appendChild(wrapper, contenedor);
     this.renderer.appendChild(contenedor, foto);
     this.renderer.appendChild(contenedor, contenido);
     this.renderer.appendChild(wrapper, accion);
-    /*
-    for (let i: number = 0; i < enlaces.length; i++) {
-      const enlace: HTMLElement = enlaces.item(i);
-      const texto: any = this.renderer.createText(enlace.innerHTML);
-      const span: HTMLElement = this.renderer.createElement('span');
-      this.renderer.addClass(span, 'texto');
-      this.renderer.appendChild(span, texto);
-      enlace.innerHTML = '';
-      this.funciones.creaIcono(enlace, this.vista, this.renderer);
-      this.renderer.appendChild(enlace, span);
-    }
-    */
   }
 }

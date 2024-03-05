@@ -19,7 +19,6 @@ import { FondoAnimadoComponent } from './shared/componentes/fondo-animado/fondo-
 import { BarraComponent } from './shared/componentes/barra/barra.component';
 import { SelectorComponent } from './shared/componentes/selector/selector.component';
 import { CardComponent } from './shared/componentes/card/card.component';
-import { TextoComponent } from './shared/componentes/texto/texto.component';
 import { SafePipe } from './shared/pipes/safe.pipe';
 import { VinculoComponent } from './shared/componentes/vinculo/vinculo.component';
 
@@ -35,7 +34,6 @@ import { VinculoComponent } from './shared/componentes/vinculo/vinculo.component
     LogoComponent,
     SelectorComponent,
     CardComponent,
-    TextoComponent,
     SafePipe,
     VinculoComponent,
   ],
