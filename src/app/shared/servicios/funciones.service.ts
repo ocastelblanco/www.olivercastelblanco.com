@@ -18,6 +18,16 @@ export interface Idioma {
   idioma: string;
   bandera: string;
 }
+export interface Proyecto {
+  nombre: string;
+  titulo: string;
+  portada: string;
+  capturas: string[];
+  descripcion: string[];
+  enlace: string;
+  fecha: string;
+  cliente: string;
+}
 
 @Injectable({
   providedIn: 'root'

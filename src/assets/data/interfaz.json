@@ -102,6 +102,25 @@
           "tipo": "acento"
         }
       ]
-    }
+    },
+    "proyectos": [
+      {
+        "nombre": "letiende",
+        "titulo": "Le Tiende",
+        "portada": "",
+        "capturas": [
+          "",
+          "",
+          ""
+        ],
+        "descripcion": [
+          "",
+          ""
+        ],
+        "enlace": "",
+        "fecha": "",
+        "cliente": ""
+      }
+    ]
   }
 }
