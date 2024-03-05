@@ -1,5 +1,6 @@
 @use "/src/styles/typo" as typo;
 @use "/src/styles/color" as color;
+@use "/src/styles/variables" as var;
 
 .wrapper-boton {
   box-sizing: border-box;
@@ -24,9 +25,15 @@
     gap: 10px;
     height: 40px;
     .oca-icono {
+      @media (max-width: var.$br-max-2xs) {
+        display: none;
+      }
       .icono {
         color: color.$blanco;
       }
+    }
+    .texto {
+      text-align: center;
     }
     &:hover,
     &:focus,

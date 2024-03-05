@@ -6,7 +6,7 @@ $br-max: $br-min - 1;
 #contenedor {
   position: relative;
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   .oca-selector {
     position: absolute;
     right: 14px;

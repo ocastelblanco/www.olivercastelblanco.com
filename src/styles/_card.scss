@@ -6,6 +6,7 @@
 .card {
   display: flex;
   justify-content: center;
+  width: calc(100% - 78px - 96px);
   .card-wrapper {
     @include color.fondo-transparente("primario-dark");
     @include color.borde("blanco");
@@ -14,14 +15,23 @@
     max-width: 1024px;
     padding: 16px;
     color: color.$blanco;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     .titulo {
-      width: 100%;
-      text-align: center;
       @include typo.alcance("card-title");
+      text-align: center;
     }
     .contenedor {
       display: flex;
       padding: 16px 0;
+      @media (max-width: var.$br-max-xs) {
+        flex-direction: column;
+        align-items: center;
+      }
+      @media (min-width: var.$br-min-md) {
+        flex-direction: row;
+      }
       .foto {
         max-width: 180px;
         max-height: 180px;
@@ -36,6 +46,19 @@
         p:not(:first-of-type) {
           margin-top: 1em;
         }
+      }
+    }
+    .accion {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      @media (max-width: var.$br-max-xs) {
+        flex-direction: column;
+        align-items: center;
+      }
+      @media (min-width: var.$br-min-md) {
+        flex-direction: row;
+        justify-content: flex-start;
       }
     }
   }
