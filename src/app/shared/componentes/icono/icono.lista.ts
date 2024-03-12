@@ -14,6 +14,9 @@ import {
   faBullhorn,
   faCaretDown,
   faDownload,
+  faBriefcase,
+  faArrowUpRightFromSquare,
+  faArrowRight,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faGithub,
@@ -68,7 +71,11 @@ export const nombreIconos: string[] = [
   'linkedin',
   'bar23',
   'LUL',
-  'leTiende'
+  'leTiende',
+  'portafolio',
+  'abreExterno',
+  'siguiente',
+  'anterior'
 ];
 export const listaIconos: IconDefinition[] = [
   faHome,
@@ -86,7 +93,11 @@ export const listaIconos: IconDefinition[] = [
   faLinkedin,
   ocaBar23,
   ocaLUL,
-  leTiende
+  leTiende,
+  faBriefcase,
+  faArrowUpRightFromSquare,
+  faArrowRight,
+  faArrowLeft,
 ];
 export const iconos: { [key: string]: IconDefinition } = {};
 listaIconos.forEach((icono: IconDefinition, index: number) => iconos[nombreIconos[index]] = icono);

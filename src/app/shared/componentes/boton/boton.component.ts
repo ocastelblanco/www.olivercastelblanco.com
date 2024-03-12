@@ -25,6 +25,7 @@ export class BotonComponent implements OnInit {
     this.renderer.listen(componente, 'mouseup', (ev: any) => this.cambiaEstado(componente, ev));
     this.renderer.listen(componente, 'mouseout', (ev: any) => this.cambiaEstado(componente, ev));
     this.renderer.listen(componente, 'mouseover', (ev: any) => this.cambiaEstado(componente, ev));
+    this.renderer.setAttribute(componente, 'icono', this.icono)
     switch (this.contenido) {
       case 'icono+texto':
         this.funciones.creaIcono(componente, this.vista, this.renderer);

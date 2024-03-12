@@ -11,16 +11,18 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { BotonComponent } from './shared/componentes/boton/boton.component';
 import { IconoComponent } from './shared/componentes/icono/icono.component';
 import { LogoComponent } from './shared/componentes/logo/logo.component';
-// Views components
-import { AppComponent } from './app.component';
-import { ContenedorComponent } from './sitioweb/vistas/contenedor/contenedor.component';
-import { InicioComponent } from './sitioweb/vistas/inicio/inicio.component';
 import { FondoAnimadoComponent } from './shared/componentes/fondo-animado/fondo-animado.component';
 import { BarraComponent } from './shared/componentes/barra/barra.component';
 import { SelectorComponent } from './shared/componentes/selector/selector.component';
 import { CardComponent } from './shared/componentes/card/card.component';
 import { SafePipe } from './shared/pipes/safe.pipe';
 import { VinculoComponent } from './shared/componentes/vinculo/vinculo.component';
+// Views components
+import { AppComponent } from './app.component';
+import { ContenedorComponent } from './sitioweb/vistas/contenedor/contenedor.component';
+import { InicioComponent } from './sitioweb/vistas/inicio/inicio.component';
+import { PortafolioComponent } from './sitioweb/vistas/portafolio/portafolio.component';
+import { CarruselComponent } from './shared/componentes/carrusel/carrusel.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +38,8 @@ import { VinculoComponent } from './shared/componentes/vinculo/vinculo.component
     CardComponent,
     SafePipe,
     VinculoComponent,
+    PortafolioComponent,
+    CarruselComponent,
   ],
   imports: [
     BrowserModule,

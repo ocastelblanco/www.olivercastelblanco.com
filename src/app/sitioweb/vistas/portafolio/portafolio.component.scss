@@ -1,0 +1,17 @@
+.portafolio {
+  .proyecto {
+    max-width: 778px;
+    .contenido {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      max-width: none;
+      .portada {
+        width: 40%;
+      }
+      .descripcion {
+        width: 60%;
+      }
+    }
+  }
+}

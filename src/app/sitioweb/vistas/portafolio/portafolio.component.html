@@ -1,0 +1,38 @@
+<div oca-fondo-animado
+     class="portafolio">
+  @for (proyecto of proyectos; track proyectos) {
+  <div oca-card
+       class="proyecto">
+    <div class="titulo"
+         [innerHTML]="proyecto.titulo | safe:'html'">
+    </div>
+    <div class="contenido">
+      <img [src]="proyecto.portada"
+           class="portada">
+      <div class="descripcion"
+           [innerHTML]="proyecto.descripcion[idioma]">
+      </div>
+    </div>
+    <div oca-carrusel
+         class="carrusel">
+      @for (captura of proyecto.capturas; track captura) {
+      <img [src]="captura"
+           class="captura">
+      }
+    </div>
+    @if (proyecto.enlace && proyecto.enlace.contenido && proyecto.enlace.tipo){
+    <div class="accion">
+      <a [href]="proyecto.enlace.enlace"
+         oca-boton
+         [icono]="proyecto.enlace.icono"
+         [contenido]="proyecto.enlace.contenido"
+         [tipo]="proyecto.enlace.tipo">
+        <span class="texto"
+              [innerHTML]="proyecto.enlace.textos[idioma]">
+        </span>
+      </a>
+    </div>
+    }
+  </div>
+  }
+</div>
