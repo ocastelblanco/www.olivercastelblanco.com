@@ -12,4 +12,7 @@ export class VinculoComponent {
   @Input() datos!: Vinculo;
   @Input() idioma: number = 0;
   iconos: { [key: string]: IconDefinition } = iconos;
+  esExterna(): boolean {
+    return this.datos.enlace?.includes('http') as boolean;
+  }
 }
