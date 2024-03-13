@@ -17,8 +17,19 @@
         display: flex;
         flex-wrap: nowrap;
         & > * {
-          height: 240px;
+          cursor: pointer;
+          height: 120px;
           width: auto;
+          padding: 0 1px;
+          &:first-of-type {
+            padding-left: 2px;
+          }
+          &:last-of-type {
+            padding-right: 2px;
+          }
+          &:hover {
+            @include color.sombra("drop");
+          }
         }
       }
     }

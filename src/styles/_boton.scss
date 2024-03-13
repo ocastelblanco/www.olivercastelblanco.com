@@ -45,7 +45,7 @@
     &.press {
       border: 1px solid color.$blanco;
     }
-    &.primario {
+    &.primario:not(.inactivo) {
       &:not(.over):not(:hover):not(:focus):not(.press) {
         border: 1px solid color.$primario;
         @include color.fondo-opaco("primario");
@@ -60,7 +60,7 @@
         @include color.sombra("boton-primario");
       }
     }
-    &.acento {
+    &.acento:not(.inactivo) {
       &:not(.over):not(:hover):not(:focus):not(.press) {
         border: 1px solid color.$acento;
         @include color.fondo-opaco("acento");
@@ -71,9 +71,14 @@
       &.press {
         background: color.$acento;
       }
-      &.press {
+      &.press:not(.inactivo) {
         @include color.sombra("boton-acento");
       }
+    }
+    &.inactivo {
+      border: 1px solid color.$gris-300;
+      @include color.fondo-opaco("inactivo");
+      cursor: not-allowed;
     }
   }
 }

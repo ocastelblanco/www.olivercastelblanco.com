@@ -7,6 +7,7 @@ $negro: #000000;
 $primario: #039be5; // rgb(3, 155, 229)
 $acento: #ef6c00; // rgb(239, 108, 0)
 $gris-900: #333333; // rgb(51, 51, 51)
+$gris-300: #e0e0e0; // rgb(224, 224, 224)
 $sombra-arrojada: #1f2687; // rgb(31,38,135)
 
 // Variables neomorfistas
@@ -51,6 +52,13 @@ $acento-50: #fff3e0;
       color.scale($acento, $blackness: $var-fondo)
     );
   }
+  @if $tipo == "inactivo" {
+    background: linear-gradient(
+      145deg,
+      color.scale($gris-300, $lightness: $var-fondo),
+      color.scale($gris-300, $blackness: $var-fondo)
+    );
+  }
 }
 
 @mixin fondo-transparente($tipo) {
@@ -71,6 +79,15 @@ $acento-50: #fff3e0;
   }
   @if $tipo == "primario" {
     border: 1px solid rgba($primario, 0.18);
+  }
+  @if $tipo == "acento" {
+    border: 1px solid rgba($acento, 0.18);
+  }
+  @if $tipo == "gris-900" {
+    border: 1px solid rgba($gris-900, 0.18);
+  }
+  @if $tipo == "gris-300" {
+    border: 1px solid rgba($gris-300, 0.18);
   }
 }
 

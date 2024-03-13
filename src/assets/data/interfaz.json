@@ -117,15 +117,56 @@
       {
         "nombre": "letiende",
         "titulo": "Le Tiende",
-        "portada": "https://placehold.co/400x400",
+        "portada": "https://placehold.co/600x400?text=Portada",
         "capturas": [
-          "https://placehold.co/400x500",
-          "https://placehold.co/500x400",
-          "https://placehold.co/320x400",
-          "https://placehold.co/400x320",
-          "https://placehold.co/420x400",
-          "https://placehold.co/400x420",
-          "https://placehold.co/400x400"
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/500x400?text=Captura%201"
+          },
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/400x400?text=Captura%202"
+          },
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/300x400?text=Captura%203"
+          },
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/600x600?text=Captura%204"
+          },
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/600x500?text=Captura%205"
+          },
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/600x300?text=Captura%206"
+          },
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/300x400?text=Captura%207"
+          },
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/300x300?text=Captura%208"
+          },
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/300x500?text=Captura%209"
+          },
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/300x600?text=Captura%2010"
+          },
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/500x500?text=Captura%2011"
+          },
+          {
+            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "img": "https://placehold.co/500x600?text=Captura%2012"
+          }
         ],
         "descripcion": [
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Odio aenean sed adipiscing diam donec adipiscing tristique risus nec. Lacus sed viverra tellus in hac. Nulla facilisi morbi tempus iaculis urna id. Porta nibh venenatis cras sed felis eget velit. Tellus id interdum velit laoreet id donec ultrices tincidunt arcu. Nam at lectus urna duis. Vitae ultricies leo integer malesuada nunc vel risus. Odio aenean sed adipiscing diam. Euismod quis viverra nibh cras pulvinar mattis nunc sed. Non tellus orci ac auctor augue.",

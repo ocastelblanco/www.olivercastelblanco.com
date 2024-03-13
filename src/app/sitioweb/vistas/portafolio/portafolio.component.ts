@@ -2,11 +2,16 @@ import { Component, effect } from '@angular/core';
 import { DataService } from '@servicios/data.service';
 import { FuncionesService, Vinculo } from '@servicios/funciones.service';
 
+interface Captura {
+  img: string;
+  txt: string;
+}
+
 interface Proyecto {
   nombre: string;
   titulo: string;
   portada: string;
-  capturas: string[];
+  capturas: Captura[];
   descripcion: string[];
   enlace?: Vinculo;
   fecha?: string;
