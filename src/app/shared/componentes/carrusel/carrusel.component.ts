@@ -26,15 +26,30 @@ import { Component, ElementRef, Renderer2 } from '@angular/core';
 export class CarruselComponent {
   pos: number = 0;
   constructor(private el: ElementRef, private renderer: Renderer2) { }
-  retrocede(): void { }
+  retrocede(): void {
+    if (this.pos > 0) {
+      const wrapper: HTMLElement = this.el.nativeElement.getElementsByClassName('wrapper-elementos').item(0);
+      const anchoElementos: number = this.el.nativeElement.getElementsByClassName('elementos').item(0).offsetWidth;
+      const derecha: number = this.getAnchos().filter((e: number, i: number) => i >= this.pos).reduce((a: number, b: number) => a + b);
+      this.pos--;
+      const izquierda: number = this.pos > 0 ?
+        this.getAnchos()
+          .filter((e: number, i: number) => i < this.pos)
+          .reduce((a: number, b: number) => a + b) :
+        0;
+      console.log(izquierda);
+      this.renderer.setStyle(wrapper, 'transform', 'translateX(-' + izquierda + 'px');
+    }
+  }
   avanza(): void {
     const wrapper: HTMLElement = this.el.nativeElement.getElementsByClassName('wrapper-elementos').item(0);
     const anchoElementos: number = this.el.nativeElement.getElementsByClassName('elementos').item(0).offsetWidth;
-    const anchoWrapper: number = this.getAnchos().reduce((a: number, b: number) => a + b);
     const derecha: number = this.getAnchos().filter((e: number, i: number) => i >= this.pos).reduce((a: number, b: number) => a + b);
-    const izquierda: number = this.pos > 0 ? this.getAnchos().filter((e: number, i: number) => i < this.pos).reduce((a: number, b: number) => a + b) : this.getAnchos()[0];
+    if (derecha > anchoElementos) this.pos++;
+    const izquierda: number = this.getAnchos()
+      .filter((e: number, i: number) => i < this.pos)
+      .reduce((a: number, b: number) => a + b);
     this.renderer.setStyle(wrapper, 'transform', 'translateX(-' + izquierda + 'px');
-    this.pos++;
   }
   getAnchos(): number[] {
     const anchos: number[] = [];
