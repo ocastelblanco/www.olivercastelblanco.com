@@ -4,35 +4,7 @@ import { animationFrameScheduler } from 'rxjs';
 
 @Component({
   selector: 'div[oca-carrusel]',
-  template: `
-    <div class="wrapper-carrusel">
-      <div class="elementos">
-        <div class="wrapper-elementos">
-          <ng-content></ng-content>
-        </div>
-      </div>
-      <div class="controles">
-        <button oca-boton
-                [class.inactivo]="!controlActivo(-1)"
-                class="control anterior"
-                contenido="icono"
-                tipo="acento"
-                icono="anterior"
-                (click)="accionaControl(-1)">
-          <span class="texto">Anterior</span>
-        </button>
-        <button oca-boton
-                [class.inactivo]="!controlActivo(1)"
-                class="control siguiente"
-                contenido="icono"
-                tipo="acento"
-                icono="siguiente"
-                (click)="accionaControl(1)">
-          <span class="texto">Siguiente</span>
-      </button>
-      </div>
-    </div>
-  `,
+  templateUrl: './carrusel.component.html',
   host: {
     'class': 'carrusel'
   }

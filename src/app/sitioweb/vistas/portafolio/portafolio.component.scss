@@ -1,3 +1,11 @@
+@use "../../../../styles/color" as color;
+
+@mixin img-hor() {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .portafolio {
   .proyecto {
     max-width: 778px;
@@ -15,6 +23,42 @@
       .descripcion {
         width: 60%;
       }
+    }
+  }
+}
+.overlay {
+  .header {
+    display: flex;
+    justify-content: flex-end;
+  }
+  .contenido {
+    display: flex;
+    gap: 16px;
+    padding: 25px;
+    &.horizontal,
+    &.estandar {
+      flex-direction: column;
+      .captura {
+        @include img-hor();
+      }
+    }
+    &.vertical {
+      .captura {
+        width: fit-content;
+        @media (orientation: portrait) {
+          @include img-hor();
+        }
+      }
+    }
+    @media (orientation: portrait) {
+      flex-direction: column;
+    }
+    .captura {
+      max-height: calc(80vh - 150px);
+    }
+    .texto {
+      max-width: 35em;
+      color: color.$blanco;
     }
   }
 }

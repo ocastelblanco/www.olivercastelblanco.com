@@ -29,7 +29,7 @@ export interface Proyecto {
   cliente: string;
 }
 
-interface Captura {
+export interface Captura {
   img: string;
   txt: string;
 }

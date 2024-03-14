@@ -1,5 +1,5 @@
-<div oca-fondo-animado
-     class="portafolio">
+<div class="portafolio"
+     oca-fondo-animado>
   @for (proyecto of proyectos; track proyectos) {
   <div oca-card
        class="proyecto">
@@ -17,7 +17,7 @@
          class="carrusel">
       @for (captura of proyecto.capturas; track captura) {
       <img [src]="captura.img"
-           (click)="abreCaptura(proyecto)"
+           (click)="abreCaptura(captura, $event)"
            class="captura">
       }
     </div>
@@ -38,7 +38,28 @@
   }
 </div>
 <div oca-overlay
+     class="overlay"
      [visible]="overlayVisible"
+     (cerrar)="overlayVisible = false"
      [data]="overlayData">
-  Este es el overlay
+  <div class="header">
+    <button oca-boton
+            icono="close"
+            contenido="icono"
+            tipo="acento"
+            class="cerrar"
+            (click)="overlayVisible = false">
+      <span class="texto">Cerrar</span>
+    </button>
+  </div>
+  <section class="contenido"
+           [ngClass]="propCapOver">
+    <div class="captura">
+      <img [src]="overlayData.img"
+           (load)="propCaptura($event)">
+    </div>
+    <div class="texto"
+         [innerHTML]="overlayData.txt | safe: 'html'">
+    </div>
+  </section>
 </div>
