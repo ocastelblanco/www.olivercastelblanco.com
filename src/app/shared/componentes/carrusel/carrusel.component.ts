@@ -48,7 +48,6 @@ export class CarruselComponent {
       const izquierda: number = ocultos.length ? ocultos.reduce((a: number, b: number) => a + b) : 0;
       const wrapper: HTMLElement = this.elemento.querySelector('.wrapper-elementos') as HTMLElement;
       this.animaMovimiento(izquierda);
-      //this.renderer.setStyle(wrapper, 'transform', 'translateX(-' + izquierda + 'px)');
       this.setInactivo();
     }
   }

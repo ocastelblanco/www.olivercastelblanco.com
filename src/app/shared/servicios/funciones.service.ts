@@ -29,6 +29,22 @@ export interface Proyecto {
   cliente: string;
 }
 
+interface Captura {
+  img: string;
+  txt: string;
+}
+
+export interface ProyectoPortafolio {
+  nombre: string;
+  titulo: string;
+  portada: string;
+  capturas: Captura[];
+  descripcion: string[];
+  enlace?: Vinculo;
+  fecha?: string;
+  cliente: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })

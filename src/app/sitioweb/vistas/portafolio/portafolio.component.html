@@ -17,6 +17,7 @@
          class="carrusel">
       @for (captura of proyecto.capturas; track captura) {
       <img [src]="captura.img"
+           (click)="abreCaptura(proyecto)"
            class="captura">
       }
     </div>
@@ -35,4 +36,9 @@
     }
   </div>
   }
+</div>
+<div oca-overlay
+     [visible]="overlayVisible"
+     [data]="overlayData">
+  Este es el overlay
 </div>

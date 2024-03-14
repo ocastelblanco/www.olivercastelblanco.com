@@ -23,6 +23,7 @@ import { ContenedorComponent } from './sitioweb/vistas/contenedor/contenedor.com
 import { InicioComponent } from './sitioweb/vistas/inicio/inicio.component';
 import { PortafolioComponent } from './sitioweb/vistas/portafolio/portafolio.component';
 import { CarruselComponent } from './shared/componentes/carrusel/carrusel.component';
+import { OverlayComponent } from './shared/componentes/overlay/overlay.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { CarruselComponent } from './shared/componentes/carrusel/carrusel.compon
     VinculoComponent,
     PortafolioComponent,
     CarruselComponent,
+    OverlayComponent,
   ],
   imports: [
     BrowserModule,
