@@ -1,6 +1,6 @@
 <div class="portafolio"
      oca-fondo-animado>
-  @for (proyecto of proyectos; track proyectos) {
+  @for (proyecto of proyectos; track proyectos; let numProy = $index) {
   <div oca-card
        class="proyecto">
     <div class="titulo"
@@ -15,9 +15,9 @@
     </div>
     <div oca-carrusel
          class="carrusel">
-      @for (captura of proyecto.capturas; track captura) {
+      @for (captura of proyecto.capturas; track captura; let numCap = $index) {
       <img [src]="captura.img"
-           (click)="abreCaptura(captura, $event)"
+           (click)="abreCaptura(numProy, numCap)"
            class="captura">
       }
     </div>
@@ -62,4 +62,22 @@
          [innerHTML]="overlayData.txt | safe: 'html'">
     </div>
   </section>
+  <div class="controles">
+    <button oca-boton
+            class="control anterior"
+            contenido="icono"
+            tipo="acento"
+            icono="anterior"
+            (click)="overlayCambiaCaptura(-1)">
+      <span class="texto">Anterior</span>
+    </button>
+    <button oca-boton
+            class="control siguiente"
+            contenido="icono"
+            tipo="acento"
+            icono="siguiente"
+            (click)="overlayCambiaCaptura(1)">
+      <span class="texto">Siguiente</span>
+    </button>
+  </div>
 </div>

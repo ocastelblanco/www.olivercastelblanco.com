@@ -34,7 +34,7 @@
   .contenido {
     display: flex;
     gap: 16px;
-    padding: 25px;
+    padding: 25px 54px;
     &.horizontal,
     &.estandar {
       flex-direction: column;
@@ -60,5 +60,15 @@
       max-width: 35em;
       color: color.$blanco;
     }
+  }
+  .controles {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    height: calc(100% - 50px);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 }
