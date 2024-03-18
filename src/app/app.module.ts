@@ -4,26 +4,28 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { FormsModule } from '@angular/forms';
 import { environment } from '../environments/environment';
 // External modules
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-// Shared components
-import { BotonComponent } from './shared/componentes/boton/boton.component';
-import { IconoComponent } from './shared/componentes/icono/icono.component';
-import { LogoComponent } from './shared/componentes/logo/logo.component';
-import { FondoAnimadoComponent } from './shared/componentes/fondo-animado/fondo-animado.component';
-import { BarraComponent } from './shared/componentes/barra/barra.component';
-import { SelectorComponent } from './shared/componentes/selector/selector.component';
-import { CardComponent } from './shared/componentes/card/card.component';
-import { SafePipe } from './shared/pipes/safe.pipe';
-import { VinculoComponent } from './shared/componentes/vinculo/vinculo.component';
+// Shared components & pipes
+import { BotonComponent } from '@componentes/boton/boton.component';
+import { IconoComponent } from '@componentes/icono/icono.component';
+import { LogoComponent } from '@componentes/logo/logo.component';
+import { FondoAnimadoComponent } from '@componentes/fondo-animado/fondo-animado.component';
+import { BarraComponent } from '@componentes/barra/barra.component';
+import { SelectorComponent } from '@componentes/selector/selector.component';
+import { CardComponent } from '@componentes/card/card.component';
+import { VinculoComponent } from '@componentes/vinculo/vinculo.component';
+import { CarruselComponent } from '@componentes/carrusel/carrusel.component';
+import { OverlayComponent } from '@componentes/overlay/overlay.component';
+import { SafePipe } from '@pipes/safe.pipe';
 // Views components
 import { AppComponent } from './app.component';
-import { ContenedorComponent } from './sitioweb/vistas/contenedor/contenedor.component';
-import { InicioComponent } from './sitioweb/vistas/inicio/inicio.component';
-import { PortafolioComponent } from './sitioweb/vistas/portafolio/portafolio.component';
-import { CarruselComponent } from './shared/componentes/carrusel/carrusel.component';
-import { OverlayComponent } from './shared/componentes/overlay/overlay.component';
+import { ContenedorComponent } from '@vistas/contenedor/contenedor.component';
+import { InicioComponent } from '@vistas/inicio/inicio.component';
+import { PortafolioComponent } from '@vistas/portafolio/portafolio.component';
+import { ContactemeComponent } from '@vistas/contacteme/contacteme.component';
 
 @NgModule({
   declarations: [
@@ -42,12 +44,14 @@ import { OverlayComponent } from './shared/componentes/overlay/overlay.component
     PortafolioComponent,
     CarruselComponent,
     OverlayComponent,
+    ContactemeComponent,
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    FormsModule,
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: environment.production,
       // Register the ServiceWorker as soon as the application is stable

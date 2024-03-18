@@ -8,7 +8,7 @@ import { FuncionesService } from '@servicios/funciones.service';
 })
 export class BotonComponent implements OnInit {
   @Input() contenido: 'texto' | 'icono+texto' | 'icono' = 'texto';
-  @Input() tipo: 'primario' | 'acento' = 'primario';
+  @Input() tipo: 'primario' | 'acento' | undefined = 'primario';
   @Input() estado: 'activo' | 'over' | 'press' = 'activo';
   @Input() icono: string = 'home';
   constructor(private vista: ViewContainerRef, private renderer: Renderer2, private funciones: FuncionesService) { }
@@ -19,7 +19,7 @@ export class BotonComponent implements OnInit {
     const componente: HTMLElement = this.vista.element.nativeElement;
     const texto: HTMLElement = componente.querySelector('.texto') as HTMLElement;
     this.renderer.addClass(componente, this.contenido);
-    this.renderer.addClass(componente, this.tipo);
+    if (this.tipo) this.renderer.addClass(componente, this.tipo);
     this.renderer.addClass(componente, this.estado);
     this.renderer.listen(componente, 'mousedown', (ev: any) => this.cambiaEstado(componente, ev));
     this.renderer.listen(componente, 'mouseup', (ev: any) => this.cambiaEstado(componente, ev));

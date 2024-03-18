@@ -1,11 +1,15 @@
 import { Component, effect } from '@angular/core';
 import { DataService } from '@servicios/data.service';
 import { Captura, FuncionesService, ProyectoPortafolio } from '@servicios/funciones.service';
+import { cambioSecciones } from 'src/app/shared/librerias/animaciones';
 
 @Component({
   selector: 'oca-portafolio',
   templateUrl: './portafolio.component.html',
-  styleUrl: './portafolio.component.scss'
+  styleUrl: './portafolio.component.scss',
+  animations: [
+    cambioSecciones
+  ]
 })
 export class PortafolioComponent {
   proyectos: ProyectoPortafolio[] = [];

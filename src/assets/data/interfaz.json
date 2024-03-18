@@ -43,6 +43,7 @@
             "Contact&nbsp;me"
           ],
           "icono": "megafono",
+          "enlace": "/contacteme",
           "activeLink": true
         }
       ],
@@ -187,6 +188,80 @@
         "fecha": "",
         "cliente": "Le Tiende"
       }
-    ]
+    ],
+    "contacteme": {
+      "titulo": [
+        "Contácteme",
+        "Contact me"
+      ],
+      "campos": [
+        {
+          "nombre": "nombre",
+          "textos": [
+            "Nombre",
+            "Name"
+          ],
+          "tipo": "text",
+          "obligatorio": true,
+          "placeholder": [
+            "Nerón Navarrete",
+            "Jhon Doe"
+          ]
+        },
+        {
+          "nombre": "celular",
+          "textos": [
+            "Número celular",
+            "Cellphone number"
+          ],
+          "tipo": "telephone",
+          "obligatorio": false,
+          "placeholder": [
+            "+57 123456789",
+            "555-123456"
+          ]
+        },
+        {
+          "nombre": "email",
+          "textos": [
+            "Email",
+            "Email"
+          ],
+          "tipo": "email",
+          "obligatorio": true,
+          "placeholder": [
+            "Un email válido",
+            "A valid email"
+          ]
+        },
+        {
+          "nombre": "mensaje",
+          "textos": [
+            "Mensaje",
+            "Message"
+          ],
+          "tipo": "textarea",
+          "obligatorio": true,
+          "placeholder": [
+            "¿Qué me quieres decir?",
+            "What do you want to tell me?"
+          ]
+        }
+      ],
+      "accion": [
+        {
+          "nombre": "enviar",
+          "icono": "send",
+          "textos": [
+            "Enviar mensaje",
+            "Send message"
+          ],
+          "enlace": "https://api.letiende.co",
+          "contenido": "texto+icono",
+          "tipo": "primario",
+          "ajax": true
+        }
+      ]
+    }
   }
 }

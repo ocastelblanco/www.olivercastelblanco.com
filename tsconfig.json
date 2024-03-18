@@ -30,6 +30,9 @@
       "@servicios/*": [
         "./src/app/shared/servicios/*"
       ],
+      "@pipes/*": [
+        "./src/app/shared/pipes/*"
+      ],
       "@vistas/*": [
         "./src/app/sitioweb/vistas/*"
       ]

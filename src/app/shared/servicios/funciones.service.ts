@@ -12,6 +12,7 @@ export interface Vinculo {
   download?: boolean;
   contenido?: 'texto' | 'icono+texto' | 'icono';
   tipo?: 'primario' | 'acento';
+  ajax?: boolean;
 }
 export interface Idioma {
   sigla: string;
@@ -28,12 +29,10 @@ export interface Proyecto {
   fecha: string;
   cliente: string;
 }
-
 export interface Captura {
   img: string;
   txt: string;
 }
-
 export interface ProyectoPortafolio {
   nombre: string;
   titulo: string;
@@ -43,6 +42,13 @@ export interface ProyectoPortafolio {
   enlace?: Vinculo;
   fecha?: string;
   cliente: string;
+}
+export interface CampoForm {
+  nombre: string;
+  textos: string[];
+  tipo: string;
+  obligatorio: boolean;
+  placeholder?: string[];
 }
 
 @Injectable({

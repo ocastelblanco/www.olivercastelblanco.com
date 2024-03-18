@@ -2,6 +2,7 @@
      oca-fondo-animado>
   @for (proyecto of proyectos; track proyectos; let numProy = $index) {
   <div oca-card
+       @arribaAbajo
        class="proyecto">
     <div class="titulo"
          [innerHTML]="proyecto.titulo | safe:'html'">
