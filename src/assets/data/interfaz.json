@@ -256,7 +256,7 @@
             "Enviar mensaje",
             "Send message"
           ],
-          "enlace": "https://api.letiende.co",
+          "enlace": "https://api.ocastelblanco.com/mensaje",
           "contenido": "texto+icono",
           "tipo": "primario",
           "ajax": true

@@ -13,9 +13,10 @@ export class DataService {
   public init(): void {
     this.http.get(this.rutaInterfaz, { responseType: 'json' }).subscribe((_interfaz: any) => this.interfaz.next(_interfaz));
   }
-  public enviaAjax(api: string, datos: { [key: string]: string }): Promise<boolean> {
-    const llamado: string = api + '?' + this.generaGetVars(datos);
-    return new Promise((resolve, reject) => this.http.get(llamado).subscribe((resp: any) => resp ? resolve(true) : reject(false)));
+  // Se comunica con la API
+  public sendPOST(api: string, datos: { [key: string]: string }): Promise<boolean> {
+    const postData: FormData = this.generaPostData(datos);
+    return new Promise((resolve, reject) => this.http.post<string>(api, postData).subscribe((resp: any) => resp ? resolve(true) : reject(false)));
   }
   // Getters
   public getInterfaz(): BehaviorSubject<any> {
@@ -26,5 +27,10 @@ export class DataService {
     const salida: string[] = [];
     Object.keys(vars).forEach((key: string) => salida.push(encodeURIComponent(key) + '=' + encodeURIComponent(vars[key])));
     return salida.join('&');
+  }
+  private generaPostData(vars: { [key: string]: string }): FormData {
+    const postData: FormData = new FormData();
+    Object.keys(vars).forEach((key: string) => postData.append(key, vars[key]));
+    return postData;
   }
 }

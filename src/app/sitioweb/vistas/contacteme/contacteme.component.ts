@@ -26,6 +26,6 @@ export class ContactemeComponent {
     this.data.getInterfaz().subscribe((_interfaz: any) => this.interfaz = _interfaz.contenidos.contacteme);
   }
   enviaInfo(enlace: Vinculo) {
-    if (enlace.ajax) this.data.enviaAjax(enlace.enlace as string, this.datos);
+    if (enlace.ajax) this.data.sendPOST(enlace.enlace as string, this.datos);
   }
 }
