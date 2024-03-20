@@ -26,6 +26,8 @@ export class ContactemeComponent {
     this.data.getInterfaz().subscribe((_interfaz: any) => this.interfaz = _interfaz.contenidos.contacteme);
   }
   enviaInfo(enlace: Vinculo) {
+    this.datos['destinatario'] = 'ocastelblanco@gmail.com';
+    this.datos['asunto'] = 'Mensaje desde www.ocastelblanco.com';
     if (enlace.ajax) this.data.sendPOST(enlace.enlace as string, this.datos);
   }
 }
