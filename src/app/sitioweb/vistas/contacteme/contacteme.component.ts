@@ -28,6 +28,24 @@ export class ContactemeComponent {
   enviaInfo(enlace: Vinculo) {
     this.datos['destinatario'] = 'ocastelblanco@gmail.com';
     this.datos['asunto'] = 'Mensaje desde www.ocastelblanco.com';
+    this.datos['html'] = `
+      <h2>Has recibido un mensaje de alguien desde tu sitio web ocastelblanco.com</h2>
+      <h3>NOMBRE</h3>
+      <p>${this.datos['nombre']}</p>
+      <h3>MENSAJE</h3>
+      <p>${this.datos['mensaje'].replace(/[\r\n]/g, '<br><br>')}</p>
+      <h3>EMAIL</h3>
+      <p>${this.datos['email']}</p>
+      <h3>CELULAR</h3>
+      <p>${this.datos['celular']}</p>
+    `;
+    this.datos['texto'] = `
+      Has recibido un mensaje de alguien desde tu sitio web ocastelblanco.com\r\n
+      NOMBRE: ${this.datos['nombre']}\r\n
+      MENSAJE: ${this.datos['mensaje']}\r\n
+      EMAIL: ${this.datos['email']}\r\n
+      CELULAR: ${this.datos['celular']}
+    `;
     if (enlace.ajax) this.data.sendPOST(enlace.enlace as string, this.datos);
   }
 }

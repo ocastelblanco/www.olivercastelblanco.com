@@ -16,7 +16,7 @@ export class DataService {
   // Se comunica con la API
   public sendPOST(api: string, datos: { [key: string]: string }): Promise<boolean> {
     const postData: FormData = this.generaPostData(datos);
-    return new Promise((resolve, reject) => this.http.post<string>(api, postData).subscribe((resp: any) => resp ? resolve(true) : reject(false)));
+    return new Promise((resolve, reject) => this.http.post<any>(api, postData).subscribe((resp: any) => resp ? resolve(true) : reject(false)));
   }
   // Getters
   public getInterfaz(): BehaviorSubject<any> {
