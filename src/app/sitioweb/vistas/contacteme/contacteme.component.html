@@ -28,11 +28,11 @@
                     [name]="campo.nombre">
             </textarea>
           }
-          @if (campoInvalido(campo).invalido) {
+          @if (!validaCampo(campo).valido) {
           <div class="validaciones">
-            @for (validacion of campoInvalido(campo).iterator; track validacion) {
+            @for (validador of validaCampo(campo).validadores; track validador) {
             <div class="validacion"
-                 [innerHTML]="campoInvalido(campo).textos[validacion][idioma]">
+                 [innerHTML]="validador">
             </div>
             }
           </div>

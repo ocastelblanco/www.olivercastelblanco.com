@@ -9,9 +9,8 @@ interface Contacteme {
   accion: Vinculo[];
 }
 interface ValidaCampo {
-  invalido: boolean;
-  iterator: string[];
-  textos: { [key: string]: string[] };
+  valido: boolean;
+  validadores: { [key: string]: { textos: string[], valido: boolean } }[];
 }
 
 @Component({
@@ -64,29 +63,23 @@ export class ContactemeComponent {
     if (campo.obligatorio) texto += '&nbsp;<span class="obligatorio">*</span>';
     return texto;
   }
-  campoInvalido(campo: CampoForm): ValidaCampo {
+  validaCampo(campo: CampoForm): ValidaCampo {
+    const _validaCampo: ValidaCampo = { valido: false, validadores: [] };
     const dato: string = this.datos[campo.nombre];
-    let invalido: boolean = false;
-    const textos: { [key: string]: string[] } = {};
-    if (campo.validaciones?.obligatorio) {
-      textos['obligatorio'] = campo.validaciones.obligatorio;
-      if (dato && dato.length < 1) invalido = true;
-    }
-    if (campo.validaciones?.tipo) {
-      textos['tipo'] = campo.validaciones.tipo;
-      if (!this.verificaTipoDato(dato, campo.tipo)) invalido = true;
-    }
-    if (campo.validaciones?.extension) {
-      textos['cantidad'] = campo.validaciones.extension.textos;
-      if (dato && dato.length < campo.validaciones.extension.cantidad) invalido = true;
-    }
-    const salida: ValidaCampo = {
-      invalido: invalido,
-      iterator: Object.keys(campo.validaciones ?? {}),
-      textos: textos
-    };
-    // Debe hacerse una validación por cada uno de los validadores, no por todo el campo.
-    return salida;
+    const iterator: string[] = Object.keys(campo.validaciones ?? {});
+    iterator.forEach((val: string) => {
+      switch (val) {
+        case 'obligatorio':
+          _validaCampo.validadores.push({
+            'obligatorio': {
+              textos: campo.validaciones?.obligatorio as string[],
+              valido: true
+            }
+          });
+          break;
+      }
+    });
+    return _validaCampo;
   }
   verificaTipoDato(dato: string, tipo: string): boolean {
     let resp: boolean = false;
