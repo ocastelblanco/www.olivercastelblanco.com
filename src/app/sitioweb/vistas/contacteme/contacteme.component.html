@@ -11,7 +11,7 @@
         @for(campo of interfaz.campos;track campo) {
         <div class="campo">
           <label [for]="campo.nombre"
-                 [innerHTML]="campo.textos[idioma]">
+                 [innerHTML]="textoLabel(campo)">
           </label>
           @if (campo.tipo != 'textarea'){
           <input [type]="campo.tipo"
@@ -26,7 +26,16 @@
                     [(ngModel)]="datos[campo.nombre]"
                     [placeholder]="campo.placeholder ? campo.placeholder[idioma] : ''"
                     [name]="campo.nombre">
-              </textarea>
+            </textarea>
+          }
+          @if (campoInvalido(campo).invalido) {
+          <div class="validaciones">
+            @for (validacion of campoInvalido(campo).iterator; track validacion) {
+            <div class="validacion"
+                 [innerHTML]="campoInvalido(campo).textos[validacion][idioma]">
+            </div>
+            }
+          </div>
           }
         </div>
         }

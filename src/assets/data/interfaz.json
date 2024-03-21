@@ -206,7 +206,20 @@
           "placeholder": [
             "Nerón Navarrete",
             "Jhon Doe"
-          ]
+          ],
+          "validaciones": {
+            "obligatorio": [
+              "Este campo es obligatorio",
+              "Mandatory field"
+            ],
+            "extension": {
+              "cantidad": 3,
+              "textos": [
+                "Debe tener 3 letras, mínimo",
+                "At least 3 characters"
+              ]
+            }
+          }
         },
         {
           "nombre": "celular",
@@ -219,7 +232,13 @@
           "placeholder": [
             "+57 123456789",
             "555-123456"
-          ]
+          ],
+          "validaciones": {
+            "tipo": [
+              "Debe ser un número telefónico",
+              "It must be a telephone number"
+            ]
+          }
         },
         {
           "nombre": "email",
@@ -232,7 +251,17 @@
           "placeholder": [
             "Un email válido",
             "A valid email"
-          ]
+          ],
+          "validaciones": {
+            "obligatorio": [
+              "Este campo es obligatorio",
+              "Mandatory field"
+            ],
+            "tipo": [
+              "Debe ser una dirección de email válida",
+              "It must be a valid email"
+            ]
+          }
         },
         {
           "nombre": "mensaje",
@@ -245,7 +274,20 @@
           "placeholder": [
             "¿Qué me quieres decir?",
             "What do you want to tell me?"
-          ]
+          ],
+          "validaciones": {
+            "obligatorio": [
+              "Este campo es obligatorio",
+              "Mandatory field"
+            ],
+            "extension": {
+              "cantidad": 10,
+              "textos": [
+                "Debe tener 10 letras, mínimo",
+                "At least 10 characters"
+              ]
+            }
+          }
         }
       ],
       "accion": [

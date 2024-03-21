@@ -43,12 +43,21 @@ export interface ProyectoPortafolio {
   fecha?: string;
   cliente: string;
 }
+interface Validaciones {
+  obligatorio?: string[];
+  tipo?: string[];
+  extension?: {
+    cantidad: number;
+    textos: string[];
+  };
+}
 export interface CampoForm {
   nombre: string;
   textos: string[];
   tipo: string;
   obligatorio: boolean;
   placeholder?: string[];
+  validaciones?: Validaciones;
 }
 
 @Injectable({

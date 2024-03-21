@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,9 +14,9 @@ export class DataService {
     this.http.get(this.rutaInterfaz, { responseType: 'json' }).subscribe((_interfaz: any) => this.interfaz.next(_interfaz));
   }
   // Se comunica con la API
-  public sendPOST(api: string, datos: { [key: string]: string }): Promise<boolean> {
+  public sendPOST(api: string, datos: { [key: string]: string }): Observable<any> {
     const postData: FormData = this.generaPostData(datos);
-    return new Promise((resolve, reject) => this.http.post<any>(api, postData).subscribe((resp: any) => resp ? resolve(true) : reject(false)));
+    return this.http.post<any>(api, postData);
   }
   // Getters
   public getInterfaz(): BehaviorSubject<any> {

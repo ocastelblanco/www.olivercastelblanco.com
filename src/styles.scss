@@ -55,5 +55,10 @@ html {
     }
     @include typo.alcance("body");
     color: color.$gris-900;
+    label {
+      .obligatorio {
+        color: color.$acento;
+      }
+    }
   }
 }

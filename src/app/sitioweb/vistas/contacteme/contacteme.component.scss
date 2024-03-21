@@ -14,12 +14,12 @@
         @include color.sombra("inset");
         label {
           position: absolute;
-          font-size: 10px;
+          font-size: 14px;
           top: -8px;
           left: 16px;
           color: color.$primario;
           background-color: color.$blanco;
-          padding: 2px 6px;
+          padding: 2px 8px;
           border-radius: 8px;
         }
         input,
@@ -27,7 +27,7 @@
           height: 100%;
           width: 100%;
           font-size: 24px;
-          margin-top: 4px;
+          margin-top: 6px;
           &::placeholder {
             color: rgba(color.$blanco, 0.5);
           }
