@@ -1,0 +1,38 @@
+@use "../../../../styles/color" as color;
+
+.contacteme {
+  .contenido {
+    .campos {
+      .campo {
+        position: relative;
+        border: 1px solid color.$blanco;
+        border-radius: 16px;
+        min-height: 54px;
+        margin-top: 16px;
+        padding: 8px;
+        background-color: rgba(color.$primario, 0.25);
+        @include color.sombra("inset");
+        label {
+          position: absolute;
+          font-size: 10px;
+          top: -8px;
+          left: 16px;
+          color: color.$primario;
+          background-color: color.$blanco;
+          padding: 2px 6px;
+          border-radius: 8px;
+        }
+        input,
+        textarea {
+          height: 100%;
+          width: 100%;
+          font-size: 24px;
+          margin-top: 4px;
+          &::placeholder {
+            color: rgba(color.$blanco, 0.5);
+          }
+        }
+      }
+    }
+  }
+}

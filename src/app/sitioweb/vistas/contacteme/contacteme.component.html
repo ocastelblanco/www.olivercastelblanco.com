@@ -9,22 +9,26 @@
     <div class="contenido">
       <div class="campos">
         @for(campo of interfaz.campos;track campo) {
-        <label [for]="campo.nombre"
-               [innerHTML]="campo.textos[idioma]">
-        </label>
-        @if (campo.tipo != 'textarea'){
-        <input [type]="campo.tipo"
-               [id]="campo.nombre"
-               [(ngModel)]="datos[campo.nombre]"
-               [name]="campo.nombre">
-        } @else {
-        <textarea cols="30"
-                  rows="10"
-                  [id]="campo.nombre"
-                  [(ngModel)]="datos[campo.nombre]"
-                  [name]="campo.nombre">
-        </textarea>
-        }
+        <div class="campo">
+          <label [for]="campo.nombre"
+                 [innerHTML]="campo.textos[idioma]">
+          </label>
+          @if (campo.tipo != 'textarea'){
+          <input [type]="campo.tipo"
+                 [id]="campo.nombre"
+                 [(ngModel)]="datos[campo.nombre]"
+                 [placeholder]="campo.placeholder ? campo.placeholder[idioma] : ''"
+                 [name]="campo.nombre">
+          } @else {
+          <textarea cols="30"
+                    rows="4"
+                    [id]="campo.nombre"
+                    [(ngModel)]="datos[campo.nombre]"
+                    [placeholder]="campo.placeholder ? campo.placeholder[idioma] : ''"
+                    [name]="campo.nombre">
+              </textarea>
+          }
+        </div>
         }
       </div>
     </div>
@@ -43,5 +47,4 @@
     </div>
   </div>
   }
-  {{datos | json}}
 </div>
