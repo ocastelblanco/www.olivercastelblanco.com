@@ -1,7 +1,9 @@
 <div oca-fondo-animado
      class="contacteme">
   @if (interfaz.campos.length) {
+  @if (envioMensaje == 'formulario') {
   <div oca-card
+       class="formulario"
        @arribaAbajo>
     <div class="titulo"
          [innerHTML]="interfaz.titulo[idioma] | safe:'html'">
@@ -28,16 +30,16 @@
                     [name]="campo.nombre">
             </textarea>
           }
-          @if (!validaCampo(campo).valido) {
-          <div class="validaciones">
-            @for (validador of validaCampo(campo).validadores; track validador) {
-            <div class="validacion"
-                 [innerHTML]="validador">
-            </div>
-            }
-          </div>
-          }
         </div>
+        @if (validaCampo(campo).includes(false)) {
+        <ul class="validaciones">
+          @for (validador of campo.validadores; track validador) {
+          <li class="validacion"
+              [innerHTML]="textoValidador(validador)">
+          </li>
+          }
+        </ul>
+        }
         }
       </div>
     </div>
@@ -47,6 +49,7 @@
               [icono]="accion.icono"
               contenido="icono+texto"
               [tipo]="accion.tipo"
+              [class.inactivo]="!validaEnvio()"
               (click)="enviaInfo(accion)">
         <span class="texto"
               [innerHTML]="accion.textos[idioma]">
@@ -55,5 +58,16 @@
       }
     </div>
   </div>
+  } @else if (envioMensaje == 'enviado' || envioMensaje == 'error') {
+  <div oca-card
+       @arribaAbajo>
+    <div class="titulo"
+         [innerHTML]="interfaz.mensajes[envioMensaje].titulo[idioma] | safe: 'html'">
+    </div>
+    <div class="contenido"
+         [innerHTML]="interfaz.mensajes[envioMensaje].textos[idioma] | safe: 'html'">
+    </div>
+  </div>
+  }
   }
 </div>

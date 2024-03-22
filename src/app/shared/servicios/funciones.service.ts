@@ -43,21 +43,24 @@ export interface ProyectoPortafolio {
   fecha?: string;
   cliente: string;
 }
-interface Validaciones {
-  obligatorio?: string[];
-  tipo?: string[];
-  extension?: {
-    cantidad: number;
-    textos: string[];
-  };
+export interface Validador {
+  nombre: string;
+  textos: string[];
+  regex: RegExp;
 }
 export interface CampoForm {
   nombre: string;
   textos: string[];
   tipo: string;
-  obligatorio: boolean;
-  placeholder?: string[];
-  validaciones?: Validaciones;
+  placeholder: string[];
+  validadores: string[];
+}
+export interface Contacteme {
+  validadores: Validador[];
+  titulo: string[];
+  campos: CampoForm[];
+  accion: Vinculo[];
+  mensajes: { [key: string]: { titulo: string[], textos: string[] } };
 }
 
 @Injectable({

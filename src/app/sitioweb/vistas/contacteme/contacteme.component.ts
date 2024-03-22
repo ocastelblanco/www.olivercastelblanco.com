@@ -1,17 +1,7 @@
 import { Component, effect } from '@angular/core';
 import { DataService } from '@servicios/data.service';
-import { CampoForm, FuncionesService, Vinculo } from '@servicios/funciones.service';
+import { CampoForm, FuncionesService, Vinculo, Contacteme, Validador } from '@servicios/funciones.service';
 import { cambioSecciones } from 'src/app/shared/librerias/animaciones';
-
-interface Contacteme {
-  titulo: string[];
-  campos: CampoForm[];
-  accion: Vinculo[];
-}
-interface ValidaCampo {
-  valido: boolean;
-  validadores: { [key: string]: { textos: string[], valido: boolean } }[];
-}
 
 @Component({
   selector: 'oca-contacteme',
@@ -22,9 +12,10 @@ interface ValidaCampo {
   ]
 })
 export class ContactemeComponent {
-  interfaz: Contacteme = { titulo: [], campos: [], accion: [] };
+  interfaz: Contacteme = { validadores: [], titulo: [], campos: [], accion: [], mensajes: {} };
   idioma: number = 0;
   datos: { [key: string]: string } = {};
+  envioMensaje: 'formulario' | 'error' | 'enviado' = 'formulario';
   constructor(private func: FuncionesService, private data: DataService) {
     effect(() => this.idioma = this.func.idioma());
     this.data.getInterfaz().subscribe((_interfaz: any) => this.interfaz = _interfaz.contenidos.contacteme);
@@ -52,52 +43,40 @@ export class ContactemeComponent {
     `;
     if (enlace.ajax) this.data.sendPOST(enlace.enlace as string, this.datos).subscribe((resp: any) => {
       if (resp && resp.$metadata && resp.$metadata.httpStatusCode && resp.$metadata.httpStatusCode == 200) {
-        console.log('Envío correcto');
+        this.envioMensaje = 'enviado';
+        console.log(this.interfaz.mensajes[this.envioMensaje].titulo[this.idioma]);
       } else {
-        console.log('error');
+        this.envioMensaje = 'error';
+        console.log(this.interfaz.mensajes[this.envioMensaje].titulo[this.idioma]);
       }
     });
   }
   textoLabel(campo: CampoForm): string {
     let texto: string = campo.textos[this.idioma];
-    if (campo.obligatorio) texto += '&nbsp;<span class="obligatorio">*</span>';
+    if (campo.validadores.includes('obligatorio')) texto += '&nbsp;<span class="obligatorio">*</span>';
     return texto;
   }
-  validaCampo(campo: CampoForm): ValidaCampo {
-    const _validaCampo: ValidaCampo = { valido: false, validadores: [] };
-    const dato: string = this.datos[campo.nombre];
-    const iterator: string[] = Object.keys(campo.validaciones ?? {});
-    iterator.forEach((val: string) => {
-      switch (val) {
-        case 'obligatorio':
-          _validaCampo.validadores.push({
-            'obligatorio': {
-              textos: campo.validaciones?.obligatorio as string[],
-              valido: true
-            }
-          });
-          break;
-      }
-    });
-    return _validaCampo;
-  }
-  verificaTipoDato(dato: string, tipo: string): boolean {
-    let resp: boolean = false;
-    if (dato) {
-      const emailRegex: RegExp = /.*@.*\..*/g
-      const telRegex: RegExp = /\+?[0-9]{0,3}\s?[0-9]{7,10}/g
-      switch (tipo) {
-        case 'email':
-          if (dato.match(emailRegex)) resp = true;
-          break;
-        case 'telephone':
-          if (dato.match(telRegex)) resp = true;
-          break;
-        default:
-          resp = false;
-          break;
-      }
+  validaCampo(campo: CampoForm): boolean[] {
+    const salida: boolean[] = [];
+    if (this.datos[campo.nombre]) {
+      campo.validadores.forEach((validador: string) => {
+        const regex: RegExp = this.interfaz.validadores.find((val: Validador) => val.nombre == validador)?.regex as RegExp;
+        salida.push(this.datos[campo.nombre].match(regex) ? true : false);
+      });
     }
-    return resp;
+    return salida;
+  }
+  textoValidador(validador: string): string {
+    return this.interfaz.validadores.find((val: Validador) => val.nombre == validador)?.textos[this.idioma] as string;
+  }
+  validaEnvio(): boolean {
+    let valido: boolean = true;
+    this.interfaz.campos
+      .filter((campo: CampoForm) => campo.validadores.includes('obligatorio'))
+      .map((campo: CampoForm) => this.datos[campo.nombre])
+      .forEach((cont: string) => {
+        if (!cont || cont.length < 3) valido = false;
+      });
+    return valido;
   }
 }
