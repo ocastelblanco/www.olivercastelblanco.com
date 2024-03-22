@@ -4,6 +4,8 @@ $regular-size: 16px;
 $lg-size: 24px;
 $icon-xs-size: 20px;
 $icon-md-size: 28px;
+$icon-lg-size: 36px;
+$icon-3x-size: 64px;
 
 @mixin alcance($alcance) {
   @if $alcance == "body" {

@@ -55,9 +55,44 @@ html {
     }
     @include typo.alcance("body");
     color: color.$gris-900;
-    label {
-      .obligatorio {
-        color: color.$acento;
+    .contacteme {
+      .formulario {
+        .contenido {
+          .campos {
+            .campo {
+              label {
+                .obligatorio {
+                  color: color.$acento;
+                }
+              }
+            }
+          }
+        }
+      }
+      .mensaje-final {
+        .contenido {
+          .texto {
+            h3 {
+              text-align: center;
+              font-size: 1.17em;
+              font-weight: 800;
+              display: block;
+              margin-top: 1em;
+            }
+            a {
+              text-decoration: underline;
+              color: color.$acento;
+              padding: 4px 8px;
+              line-height: 28px;
+              border-radius: 12px;
+              &:hover {
+                color: color.$gris-900;
+                @include color.fondo-transparente("blanco");
+                @include color.sombra("inset");
+              }
+            }
+          }
+        }
       }
     }
   }

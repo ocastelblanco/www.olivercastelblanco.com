@@ -11,4 +11,5 @@ export class IconoComponent {
   @Input() icono: string = 'home';
   @Input() color: string = 'blanco';
   @Input() iconos: { [key: string]: IconDefinition } = {};
+  @Input() animacion: 'spin' | 'beat' | 'shake' | undefined = undefined;
 }

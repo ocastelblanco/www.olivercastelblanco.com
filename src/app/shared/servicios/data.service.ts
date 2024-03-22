@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subscriber } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +17,20 @@ export class DataService {
   public sendPOST(api: string, datos: { [key: string]: string }): Observable<any> {
     const postData: FormData = this.generaPostData(datos);
     return this.http.post<any>(api, postData);
+    /*
+    const data: any = {
+      $metadata: {
+        httpStatusCode: 400
+      }
+    }
+    const obs: Observable<any> = new Observable<any>((sus: Subscriber<any>) => {
+      setTimeout(() => {
+        sus.next(data);
+        sus.complete()
+      }, 1000);
+    });
+    return obs;
+    //*/
   }
   // Getters
   public getInterfaz(): BehaviorSubject<any> {

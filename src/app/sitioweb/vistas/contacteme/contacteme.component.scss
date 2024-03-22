@@ -32,6 +32,21 @@
             &::placeholder {
               color: rgba(color.$blanco, 0.5);
             }
+            &:disabled {
+              color: rgba(color.$gris-300, 0.5);
+            }
+            &:-internal-autofill-selected,
+            &:-webkit-autofill,
+            &:-webkit-autofill:hover,
+            &:-webkit-autofill:focus,
+            &:-webkit-autofill:active {
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: color.$blanco;
+              appearance: none !important;
+              background-image: none !important;
+              background-color: unset !important;
+              color: unset !important;
+            }
           }
         }
         .validaciones {
@@ -43,6 +58,12 @@
           }
         }
       }
+    }
+  }
+  .mensaje-final {
+    .contenido {
+      display: flex;
+      gap: 16px;
     }
   }
 }

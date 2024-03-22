@@ -2,6 +2,8 @@ import { Component, effect } from '@angular/core';
 import { DataService } from '@servicios/data.service';
 import { CampoForm, FuncionesService, Vinculo, Contacteme, Validador } from '@servicios/funciones.service';
 import { cambioSecciones } from 'src/app/shared/librerias/animaciones';
+import { iconos } from '@componentes/icono/icono.lista';
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'oca-contacteme',
@@ -15,12 +17,14 @@ export class ContactemeComponent {
   interfaz: Contacteme = { validadores: [], titulo: [], campos: [], accion: [], mensajes: {} };
   idioma: number = 0;
   datos: { [key: string]: string } = {};
-  envioMensaje: 'formulario' | 'error' | 'enviado' = 'formulario';
+  envioMensaje: 'previo' | 'enviando' | 'error' | 'enviado' = 'previo';
+  _iconos: { [key: string]: IconDefinition } = iconos;
   constructor(private func: FuncionesService, private data: DataService) {
     effect(() => this.idioma = this.func.idioma());
     this.data.getInterfaz().subscribe((_interfaz: any) => this.interfaz = _interfaz.contenidos.contacteme);
   }
   enviaInfo(enlace: Vinculo) {
+    this.envioMensaje = 'enviando';
     this.datos['destinatario'] = 'ocastelblanco@gmail.com';
     this.datos['asunto'] = 'Mensaje desde www.ocastelblanco.com';
     this.datos['html'] = `
@@ -44,10 +48,8 @@ export class ContactemeComponent {
     if (enlace.ajax) this.data.sendPOST(enlace.enlace as string, this.datos).subscribe((resp: any) => {
       if (resp && resp.$metadata && resp.$metadata.httpStatusCode && resp.$metadata.httpStatusCode == 200) {
         this.envioMensaje = 'enviado';
-        console.log(this.interfaz.mensajes[this.envioMensaje].titulo[this.idioma]);
       } else {
         this.envioMensaje = 'error';
-        console.log(this.interfaz.mensajes[this.envioMensaje].titulo[this.idioma]);
       }
     });
   }

@@ -21,4 +21,14 @@
     height: typo.$icon-md-size;
     font-size: typo.$icon-md-size - 5;
   }
+  &.lg {
+    width: typo.$icon-lg-size;
+    height: typo.$icon-lg-size;
+    font-size: typo.$icon-lg-size - 5;
+  }
+  &.s3x {
+    width: typo.$icon-3x-size;
+    height: typo.$icon-3x-size;
+    font-size: typo.$icon-3x-size - 5;
+  }
 }

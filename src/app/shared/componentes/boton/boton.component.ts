@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, Renderer2, ViewContainerRef } from '@angular/core';
+import { Component, ComponentRef, Input, OnChanges, OnInit, Renderer2, SimpleChanges, ViewContainerRef } from '@angular/core';
+import { IconoComponent } from '@componentes/icono/icono.component';
 import { FuncionesService } from '@servicios/funciones.service';
 
 @Component({
@@ -6,12 +7,16 @@ import { FuncionesService } from '@servicios/funciones.service';
   template: '<ng-content></ng-content>',
   host: { 'class': 'oca-boton' }
 })
-export class BotonComponent implements OnInit {
+export class BotonComponent implements OnInit, OnChanges {
   @Input() contenido: 'texto' | 'icono+texto' | 'icono' = 'texto';
   @Input() tipo: 'primario' | 'acento' | undefined = 'primario';
   @Input() estado: 'activo' | 'over' | 'press' = 'activo';
   @Input() icono: string = 'home';
+  iconoComp!: ComponentRef<IconoComponent>;
   constructor(private vista: ViewContainerRef, private renderer: Renderer2, private funciones: FuncionesService) { }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!changes['icono'].isFirstChange()) this.cambiaIcono();
+  }
   ngOnInit(): void {
     this.inicializa();
   }
@@ -28,11 +33,11 @@ export class BotonComponent implements OnInit {
     this.renderer.setAttribute(componente, 'icono', this.icono)
     switch (this.contenido) {
       case 'icono+texto':
-        this.funciones.creaIcono(componente, this.vista, this.renderer);
+        this.iconoComp = this.funciones.creaIcono(componente, this.vista, this.renderer);
         this.renderer.appendChild(componente, texto);
         break;
       case 'icono':
-        this.funciones.creaIcono(componente, this.vista, this.renderer);
+        this.iconoComp = this.funciones.creaIcono(componente, this.vista, this.renderer);
         this.renderer.removeChild(componente, texto);
         break;
     }
@@ -63,5 +68,10 @@ export class BotonComponent implements OnInit {
       default:
         this.renderer.addClass(componente, 'activo');
     }
+  }
+  cambiaIcono(): void {
+    if (this.icono == 'cargando') this.iconoComp.instance.animacion = 'spin';
+    else this.iconoComp.instance.animacion = undefined;
+    this.iconoComp.instance.icono = this.icono;
   }
 }

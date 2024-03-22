@@ -306,7 +306,8 @@
           "textos": [
             "<p>El mensaje se ha enviado correctamente.</p><h3>¡Gracias!</h3>",
             "<p>The message has been sent correctly.</p><h3>Thank you!</h3>"
-          ]
+          ],
+          "icono": "correcto"
         },
         "error": {
           "titulo": [
@@ -314,9 +315,10 @@
             "Sending error"
           ],
           "textos": [
-            "<p>Ha ocurrido un error al enviar el mensaje</p><p>Intente de nuevo, o envíelo directamente a ocastelblanco@gmail.com</p>",
-            "<p>Sending error</p><p>Try again or send it directly to ocastelblanco@gmail.com</p>"
-          ]
+            "<p>Ha ocurrido un error al enviar el mensaje.</p><p>Intente de nuevo, o envíelo directamente a <a href=\"mailto:ocastelblanco@gmail.com\">ocastelblanco@gmail.com</a></p>",
+            "<p>Sending error.</p><p>Try again or send it directly to <a href=\"mailto:ocastelblanco@gmail.com\">ocastelblanco@gmail.com</a></p>"
+          ],
+          "icono": "error"
         }
       }
     }

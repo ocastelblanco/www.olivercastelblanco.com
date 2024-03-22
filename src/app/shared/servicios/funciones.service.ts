@@ -60,7 +60,7 @@ export interface Contacteme {
   titulo: string[];
   campos: CampoForm[];
   accion: Vinculo[];
-  mensajes: { [key: string]: { titulo: string[], textos: string[] } };
+  mensajes: { [key: string]: { titulo: string[], textos: string[], icono: string } };
 }
 
 @Injectable({
@@ -69,7 +69,7 @@ export interface Contacteme {
 export class FuncionesService {
   public idioma: WritableSignal<number> = signal(0);
   constructor() { }
-  creaIcono(parent: HTMLElement, vista: ViewContainerRef, renderer: Renderer2, _icono: string | null = null): HTMLElement {
+  creaIcono(parent: HTMLElement, vista: ViewContainerRef, renderer: Renderer2, _icono: string | null = null): ComponentRef<IconoComponent> {
     const icono: string = _icono ?? parent.getAttribute('icono') as string;
     const iconoComponenteRef: ComponentRef<IconoComponent> = vista.createComponent(IconoComponent);
     iconoComponenteRef.instance.iconos = iconos;
@@ -79,7 +79,7 @@ export class FuncionesService {
     const iconoComponente: HTMLElement = iconoComponenteRef.location.nativeElement;
     renderer.addClass(iconoComponente, 'oca-icono');
     renderer.appendChild(parent, iconoComponente);
-    return iconoComponente;
+    return iconoComponenteRef;
   }
   // Easing functions
   easeInOutQuad(t: number, b: number, c: number, d: number): number {

@@ -1,7 +1,7 @@
 <div oca-fondo-animado
      class="contacteme">
   @if (interfaz.campos.length) {
-  @if (envioMensaje == 'formulario') {
+  @if (envioMensaje == 'previo' || envioMensaje == 'enviando') {
   <div oca-card
        class="formulario"
        @arribaAbajo>
@@ -20,6 +20,7 @@
                  [id]="campo.nombre"
                  [(ngModel)]="datos[campo.nombre]"
                  [placeholder]="campo.placeholder ? campo.placeholder[idioma] : ''"
+                 [disabled]="envioMensaje == 'enviando'"
                  [name]="campo.nombre">
           } @else {
           <textarea cols="30"
@@ -27,6 +28,7 @@
                     [id]="campo.nombre"
                     [(ngModel)]="datos[campo.nombre]"
                     [placeholder]="campo.placeholder ? campo.placeholder[idioma] : ''"
+                    [disabled]="envioMensaje == 'enviando'"
                     [name]="campo.nombre">
             </textarea>
           }
@@ -46,10 +48,10 @@
     <div class="accion">
       @for (accion of interfaz.accion; track accion) {
       <button oca-boton
-              [icono]="accion.icono"
+              [icono]="envioMensaje == 'enviando' ? 'cargando' : accion.icono"
               contenido="icono+texto"
               [tipo]="accion.tipo"
-              [class.inactivo]="!validaEnvio()"
+              [class.inactivo]="!validaEnvio() || envioMensaje == 'enviando'"
               (click)="enviaInfo(accion)">
         <span class="texto"
               [innerHTML]="accion.textos[idioma]">
@@ -60,12 +62,20 @@
   </div>
   } @else if (envioMensaje == 'enviado' || envioMensaje == 'error') {
   <div oca-card
+       class="mensaje-final"
        @arribaAbajo>
     <div class="titulo"
          [innerHTML]="interfaz.mensajes[envioMensaje].titulo[idioma] | safe: 'html'">
     </div>
-    <div class="contenido"
-         [innerHTML]="interfaz.mensajes[envioMensaje].textos[idioma] | safe: 'html'">
+    <div class="contenido">
+      <oca-icono [icono]="interfaz.mensajes[envioMensaje].icono"
+                 [iconos]="_iconos"
+                 tamano="3x"
+                 class="icono">
+      </oca-icono>
+      <div class="texto"
+           [innerHTML]="interfaz.mensajes[envioMensaje].textos[idioma] | safe: 'html'">
+      </div>
     </div>
   </div>
   }
