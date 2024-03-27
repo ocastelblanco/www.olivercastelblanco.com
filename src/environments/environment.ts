@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   google_recaptcha_site_key: '6Le-xKYpAAAAABW0persivHlg9X8tajS0HTKLk46',
+  google_recaptcha_site_secret: '6Le-xKYpAAAAAHxNBBdwTCY8TSfPbx8iSbK_moa8',
 };
 
 /*

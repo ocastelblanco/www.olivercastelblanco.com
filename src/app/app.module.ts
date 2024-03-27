@@ -63,7 +63,7 @@ import { ContactemeComponent } from '@vistas/contacteme/contacteme.component';
     RecaptchaV3Module,
   ],
   providers: [
-    { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.google_recaptcha_site_key }
+    { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.google_recaptcha_site_key },
   ],
   bootstrap: [AppComponent],
   exports: []

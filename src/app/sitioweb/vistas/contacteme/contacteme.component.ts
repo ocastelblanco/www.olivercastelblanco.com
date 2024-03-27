@@ -28,15 +28,19 @@ export class ContactemeComponent {
   submitEnviar(enlace: Vinculo): void {
     this.recaptchaV3Service.execute('enviarInfo').subscribe({
       next: (response: string) => {
-        // Este envío tiene que hacerse desde el servidor. Usar api.ocastelblanco.com
-        this.data.sendPOST('https://www.google.com/recaptcha/api/siteverify', {
-          secret: environment.google_recaptcha_site_key,
+        this.data.sendPOST('https://api.ocastelblanco.com/recaptcha', {
+          secret: environment.google_recaptcha_site_secret,
           response: response
-        }).subscribe((resp: any) => console.log('Resp GOOGLE: ', resp));
-        //this.enviaInfo(enlace);
+        }).subscribe((resp: any) => {
+          if (resp) {
+            if (resp.success && resp.score > 0.4) this.enviaInfo(enlace);
+            else this.envioMensaje = 'error';
+          }
+        });
       },
       error: (error: any) => {
         console.log('ERROR:\n\r', error);
+        this.envioMensaje = 'error';
       }
     });
   }
