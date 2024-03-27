@@ -52,7 +52,7 @@
               contenido="icono+texto"
               [tipo]="accion.tipo"
               [class.inactivo]="!validaEnvio() || envioMensaje == 'enviando'"
-              (click)="enviaInfo(accion)">
+              (click)="submitEnviar(accion)">
         <span class="texto"
               [innerHTML]="accion.textos[idioma]">
         </span>

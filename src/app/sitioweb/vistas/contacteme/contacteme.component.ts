@@ -4,6 +4,8 @@ import { CampoForm, FuncionesService, Vinculo, Contacteme, Validador } from '@se
 import { cambioSecciones } from 'src/app/shared/librerias/animaciones';
 import { iconos } from '@componentes/icono/icono.lista';
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { ReCaptchaV3Service } from 'ng-recaptcha';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'oca-contacteme',
@@ -19,11 +21,26 @@ export class ContactemeComponent {
   datos: { [key: string]: string } = {};
   envioMensaje: 'previo' | 'enviando' | 'error' | 'enviado' = 'previo';
   _iconos: { [key: string]: IconDefinition } = iconos;
-  constructor(private func: FuncionesService, private data: DataService) {
+  constructor(private func: FuncionesService, private data: DataService, private recaptchaV3Service: ReCaptchaV3Service) {
     effect(() => this.idioma = this.func.idioma());
     this.data.getInterfaz().subscribe((_interfaz: any) => this.interfaz = _interfaz.contenidos.contacteme);
   }
-  enviaInfo(enlace: Vinculo) {
+  submitEnviar(enlace: Vinculo): void {
+    this.recaptchaV3Service.execute('enviarInfo').subscribe({
+      next: (response: string) => {
+        // Este envío tiene que hacerse desde el servidor. Usar api.ocastelblanco.com
+        this.data.sendPOST('https://www.google.com/recaptcha/api/siteverify', {
+          secret: environment.google_recaptcha_site_key,
+          response: response
+        }).subscribe((resp: any) => console.log('Resp GOOGLE: ', resp));
+        //this.enviaInfo(enlace);
+      },
+      error: (error: any) => {
+        console.log('ERROR:\n\r', error);
+      }
+    });
+  }
+  enviaInfo(enlace: Vinculo): void {
     this.envioMensaje = 'enviando';
     this.datos['destinatario'] = 'ocastelblanco@gmail.com';
     this.datos['asunto'] = 'Mensaje desde www.ocastelblanco.com';

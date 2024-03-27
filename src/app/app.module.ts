@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { environment } from '../environments/environment';
 // External modules
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module } from "ng-recaptcha";
 // Shared components & pipes
 import { BotonComponent } from '@componentes/boton/boton.component';
 import { IconoComponent } from '@componentes/icono/icono.component';
@@ -59,8 +60,11 @@ import { ContactemeComponent } from '@vistas/contacteme/contacteme.component';
       registrationStrategy: 'registerWhenStable:30000'
     }),
     FontAwesomeModule,
+    RecaptchaV3Module,
   ],
-  providers: [],
+  providers: [
+    { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.google_recaptcha_site_key }
+  ],
   bootstrap: [AppComponent],
   exports: []
 })
