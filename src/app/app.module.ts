@@ -27,6 +27,7 @@ import { ContenedorComponent } from '@vistas/contenedor/contenedor.component';
 import { InicioComponent } from '@vistas/inicio/inicio.component';
 import { PortafolioComponent } from '@vistas/portafolio/portafolio.component';
 import { ContactemeComponent } from '@vistas/contacteme/contacteme.component';
+import { secrets } from 'src/assets/data/secrets/secrets';
 
 @NgModule({
   declarations: [
@@ -63,7 +64,7 @@ import { ContactemeComponent } from '@vistas/contacteme/contacteme.component';
     RecaptchaV3Module,
   ],
   providers: [
-    { provide: RECAPTCHA_V3_SITE_KEY, useValue: environment.google_recaptcha_site_key },
+    { provide: RECAPTCHA_V3_SITE_KEY, useValue: secrets.google_recaptcha_site_key },
   ],
   bootstrap: [AppComponent],
   exports: []

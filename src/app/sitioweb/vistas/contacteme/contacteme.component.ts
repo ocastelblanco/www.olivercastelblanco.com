@@ -6,6 +6,7 @@ import { iconos } from '@componentes/icono/icono.lista';
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { ReCaptchaV3Service } from 'ng-recaptcha';
 import { environment } from 'src/environments/environment';
+import { secrets } from 'src/assets/data/secrets/secrets';
 
 @Component({
   selector: 'oca-contacteme',
@@ -29,7 +30,7 @@ export class ContactemeComponent {
     this.recaptchaV3Service.execute('enviarInfo').subscribe({
       next: (response: string) => {
         this.data.sendPOST(environment.url_api + 'recaptcha', {
-          secret: environment.google_recaptcha_site_secret,
+          secret: secrets.google_recaptcha_site_secret,
           response: response
         }).subscribe((resp: any) => {
           if (resp) {
