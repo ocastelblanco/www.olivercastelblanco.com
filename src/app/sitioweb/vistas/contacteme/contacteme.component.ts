@@ -28,7 +28,7 @@ export class ContactemeComponent {
   submitEnviar(enlace: Vinculo): void {
     this.recaptchaV3Service.execute('enviarInfo').subscribe({
       next: (response: string) => {
-        this.data.sendPOST('https://api.ocastelblanco.com/recaptcha', {
+        this.data.sendPOST(environment.url_api + 'recaptcha', {
           secret: environment.google_recaptcha_site_secret,
           response: response
         }).subscribe((resp: any) => {
@@ -66,7 +66,7 @@ export class ContactemeComponent {
       EMAIL: ${this.datos['email']}\r\n
       CELULAR: ${this.datos['celular']}
     `;
-    if (enlace.ajax) this.data.sendPOST(enlace.enlace as string, this.datos).subscribe((resp: any) => {
+    if (enlace.ajax) this.data.sendPOST(environment.url_api + 'mensaje' as string, this.datos).subscribe((resp: any) => {
       if (resp && resp.$metadata && resp.$metadata.httpStatusCode && resp.$metadata.httpStatusCode == 200) {
         this.envioMensaje = 'enviado';
       } else {

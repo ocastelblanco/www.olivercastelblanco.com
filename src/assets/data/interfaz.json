@@ -291,7 +291,7 @@
             "Enviar mensaje",
             "Send message"
           ],
-          "enlace": "https://api.ocastelblanco.com/mensaje",
+          "enlace": "",
           "contenido": "texto+icono",
           "tipo": "primario",
           "ajax": true
