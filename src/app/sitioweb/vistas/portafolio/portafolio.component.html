@@ -8,48 +8,51 @@
          [innerHTML]="proyecto.titulo | safe:'html'">
     </div>
     <div class="contenido">
-      <img [src]="proyecto.portada"
-           class="portada">
-      <div class="textos">
-        <div class="descripcion"
-             [innerHTML]="proyecto.descripcion[idioma]">
-        </div>
-        <div class="clientes">
-          <span class="titulo"
-                [innerHTML]="interfaz['clientes'][idioma]">
-          </span>
-          <span class="cont"
-                [innerHTML]="proyecto.clientes.join(', ')">
-          </span>
-        </div>
-        <div class="tecnologias">
-          <span class="titulo"
-                [innerHTML]="interfaz['tecnologias'][idioma]">
-          </span>
-          <span class="cont"
-                [innerHTML]="proyecto.tecnologias.join(', ')">
-          </span>
-        </div>
-        @if (proyecto.resultado){
-        <div class="resultado">
-          <span class="titulo"
-                [innerHTML]="interfaz['resultado'][idioma]">
-          </span>
-          <span class="cont"
-                [innerHTML]="proyecto.resultado[idioma]">
-          </span>
-        </div>
-        }
-        @if (proyecto.keywords) {
-        <div class="tecnologias">
-          <span class="titulo"
-                [innerHTML]="interfaz['keywords'][idioma]">
-          </span>
-          <span class="cont"
-                [innerHTML]="proyecto.keywords[idioma].join(', ')">
-          </span>
-        </div>
-        }
+      <div class="portada">
+        <img [src]="proyecto.portada">
+      </div>
+      <div class="descripcion"
+           [innerHTML]="proyecto.descripcion[idioma]">
+      </div>
+      <div class="resultado">
+        <span class="titulo"
+              [innerHTML]="interfaz['resultado'][idioma]">
+        </span>
+        <span class="cont"
+              [innerHTML]="proyecto.resultado[idioma]">
+        </span>
+      </div>
+      <div class="clientes">
+        <span class="titulo"
+              [innerHTML]="interfaz['clientes'][idioma]">
+        </span>
+        <span class="cont"
+              [innerHTML]="proyecto.clientes.join(', ')">
+        </span>
+      </div>
+      <div class="fecha">
+        <span class="titulo"
+              [innerHTML]="interfaz['fecha'][idioma]">
+        </span>
+        <span class="cont"
+              [innerHTML]="aFecha(proyecto.fecha) | date: 'y, MMMM':'GMT-5:00':interfaz['idioma'][idioma]">
+        </span>
+      </div>
+      <div class="tecnologias">
+        <span class="titulo"
+              [innerHTML]="interfaz['tecnologias'][idioma]">
+        </span>
+        <span class="cont"
+              [innerHTML]="proyecto.tecnologias.join(', ')">
+        </span>
+      </div>
+      <div class="tecnologias">
+        <span class="titulo"
+              [innerHTML]="interfaz['keywords'][idioma]">
+        </span>
+        <span class="cont"
+              [innerHTML]="proyecto.keywords[idioma].join(', ')">
+        </span>
       </div>
     </div>
     <div oca-carrusel

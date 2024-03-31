@@ -11,32 +11,45 @@
     max-width: 778px;
     .contenido {
       display: flex;
-      align-items: flex-start;
+      flex-wrap: wrap;
       gap: 16px;
       max-width: none;
       .portada {
-        max-width: 40%;
+        max-width: calc(40% - 8px);
         max-height: 320px;
-        width: auto;
-        height: auto;
+        img {
+          width: auto;
+          height: auto;
+        }
       }
-      .textos {
-        width: 60%;
+      .descripcion,
+      .resultado,
+      .clientes,
+      .fecha,
+      .tecnologias,
+      .keywords {
+        max-width: calc(50% - 8px);
         display: flex;
         flex-direction: column;
-        .clientes,
-        .tecnologias,
-        .resultado,
-        .keywords {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-          .titulo {
-            font-size: 18px;
-          }
-          .cont {
-            margin-left: 2em;
-          }
+        align-items: flex-start;
+        .titulo {
+          font-size: 18px;
+        }
+        .cont {
+          margin-left: 1em;
+        }
+      }
+      .descripcion {
+        max-width: calc(60% - 8px);
+      }
+      .clientes,
+      .fecha {
+        max-width: 30%;
+      }
+      .tecnologias,
+      .keywords {
+        .cont {
+          font-size: 12px;
         }
       }
     }

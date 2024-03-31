@@ -41,10 +41,10 @@ export interface ProyectoPortafolio {
   descripcion: string[];
   clientes: string[];
   tecnologias: string[];
-  resultado?: string[];
-  keywords?: Array<string[]>;
+  resultado: string[];
+  keywords: Array<string[]>;
+  fecha: string;
   enlace?: Vinculo;
-  fecha?: string;
 }
 export interface Validador {
   nombre: string;

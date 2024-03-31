@@ -47,4 +47,7 @@ export class PortafolioComponent {
     this.numCapturaOverlay += dir;
     this.overlayData = this.proyectos[this.numProyectoOverlay].capturas[this.numCapturaOverlay];
   }
+  aFecha(cadena: string): Date {
+    return new Date(cadena);
+  }
 }

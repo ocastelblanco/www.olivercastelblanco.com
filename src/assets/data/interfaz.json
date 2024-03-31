@@ -131,6 +131,14 @@
         "keywords": [
           "Palabras clave",
           "Keywords"
+        ],
+        "fecha": [
+          "Fecha",
+          "Date"
+        ],
+        "idioma": [
+          "es-CO",
+          "en-US"
         ]
       },
       "proyectos": [
