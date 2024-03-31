@@ -20,8 +20,24 @@
         width: auto;
         height: auto;
       }
-      .descripcion {
+      .textos {
         width: 60%;
+        display: flex;
+        flex-direction: column;
+        .clientes,
+        .tecnologias,
+        .resultado,
+        .keywords {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          .titulo {
+            font-size: 18px;
+          }
+          .cont {
+            margin-left: 2em;
+          }
+        }
       }
     }
   }

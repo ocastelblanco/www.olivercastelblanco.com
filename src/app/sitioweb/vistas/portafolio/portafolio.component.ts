@@ -13,6 +13,7 @@ import { cambioSecciones } from 'src/app/shared/librerias/animaciones';
 })
 export class PortafolioComponent {
   proyectos: ProyectoPortafolio[] = [];
+  interfaz: { [key: string]: string[] } = {};
   idioma: number = 0;
   overlayVisible: boolean = false;
   overlayData: Captura = { img: '', txt: '' };
@@ -21,7 +22,10 @@ export class PortafolioComponent {
   numCapturaOverlay: number = 0;
   constructor(private func: FuncionesService, private data: DataService) {
     effect(() => this.idioma = this.func.idioma());
-    this.data.getInterfaz().subscribe((_interfaz: any) => this.proyectos = _interfaz.contenidos.portafolio);
+    this.data.getInterfaz().subscribe((_interfaz: any) => {
+      this.proyectos = _interfaz.contenidos.portafolio.proyectos;
+      this.interfaz = _interfaz.contenidos.portafolio.interfaz;
+    });
   }
   abreCaptura(numProy: number, numCap: number): void {
     this.numProyectoOverlay = numProy;

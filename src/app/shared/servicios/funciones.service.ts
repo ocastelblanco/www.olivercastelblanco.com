@@ -39,9 +39,12 @@ export interface ProyectoPortafolio {
   portada: string;
   capturas: Captura[];
   descripcion: string[];
+  clientes: string[];
+  tecnologias: string[];
+  resultado?: string[];
+  keywords?: Array<string[]>;
   enlace?: Vinculo;
   fecha?: string;
-  cliente: string;
 }
 export interface Validador {
   nombre: string;

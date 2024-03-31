@@ -14,7 +14,7 @@ export class OverlayComponent implements OnChanges, AfterViewInit {
   @Input() data!: Captura;
   @Output() cerrar: EventEmitter<boolean> = new EventEmitter<boolean>();
   private elemento: HTMLElement = this.el.nativeElement as HTMLElement;
-  private wrapper: HTMLElement = this.elemento.querySelector('.wrapper-overlay') as HTMLElement;
+  private dialog: HTMLElement = this.elemento.querySelector('.dialog-overlay') as HTMLElement;
   private backdrop: HTMLElement = this.elemento.querySelector('.backdrop') as HTMLElement;
   private padre: HTMLElement = this.elemento.parentElement as HTMLElement;
   private body: HTMLElement = document.querySelector('body') as HTMLElement;
@@ -43,9 +43,9 @@ export class OverlayComponent implements OnChanges, AfterViewInit {
   reubica(): void {
     this.render.removeChild(this.padre, this.elemento);
     this.render.appendChild(this.body, this.elemento);
-    this.wrapper = this.elemento.querySelector('.wrapper-overlay') as HTMLElement;
+    this.dialog = this.elemento.querySelector('.dialog-overlay') as HTMLElement;
     this.backdrop = this.elemento.querySelector('.backdrop') as HTMLElement;
-    this.animEntradaPlayer = this.animEntradaFactory.create(this.wrapper);
+    this.animEntradaPlayer = this.animEntradaFactory.create(this.dialog);
     this.removeDialog();
   }
   toggleVisible(visible: boolean): void {
@@ -61,12 +61,12 @@ export class OverlayComponent implements OnChanges, AfterViewInit {
     }
   }
   addDialog(): void {
-    this.render.appendChild(this.elemento, this.wrapper);
+    this.render.appendChild(this.elemento, this.dialog);
     this.render.appendChild(this.elemento, this.backdrop);
-    this.animSalidaPlayer = this.animSalidaFactory.create(this.wrapper);
+    this.animSalidaPlayer = this.animSalidaFactory.create(this.dialog);
   }
   removeDialog(): void {
-    this.render.removeChild(this.elemento, this.wrapper);
+    this.render.removeChild(this.elemento, this.dialog);
     this.render.removeChild(this.elemento, this.backdrop);
   }
 }

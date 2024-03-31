@@ -114,81 +114,420 @@
         }
       ]
     },
-    "portafolio": [
-      {
-        "nombre": "letiende",
-        "titulo": "Le Tiende",
-        "portada": "https://placehold.co/600x400?text=Portada",
-        "capturas": [
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/500x400?text=Captura%201"
-          },
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/400x400?text=Captura%202"
-          },
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/300x400?text=Captura%203"
-          },
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/600x600?text=Captura%204"
-          },
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/600x500?text=Captura%205"
-          },
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/600x300?text=Captura%206"
-          },
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/300x400?text=Captura%207"
-          },
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/300x300?text=Captura%208"
-          },
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/300x500?text=Captura%209"
-          },
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/300x600?text=Captura%2010"
-          },
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/500x500?text=Captura%2011"
-          },
-          {
-            "txt": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "img": "https://placehold.co/500x600?text=Captura%2012"
-          }
+    "portafolio": {
+      "interfaz": {
+        "clientes": [
+          "Clientes",
+          "Clients"
         ],
-        "descripcion": [
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Odio aenean sed adipiscing diam donec adipiscing tristique risus nec. Lacus sed viverra tellus in hac. Nulla facilisi morbi tempus iaculis urna id. Porta nibh venenatis cras sed felis eget velit. Tellus id interdum velit laoreet id donec ultrices tincidunt arcu. Nam at lectus urna duis. Vitae ultricies leo integer malesuada nunc vel risus. Odio aenean sed adipiscing diam. Euismod quis viverra nibh cras pulvinar mattis nunc sed. Non tellus orci ac auctor augue.",
-          "Id aliquet risus feugiat in ante metus dictum at tempor. Egestas sed tempus urna et pharetra pharetra. Sagittis vitae et leo duis ut diam quam nulla porttitor. In pellentesque massa placerat duis. Augue ut lectus arcu bibendum. Dignissim sodales ut eu sem integer vitae. Mauris ultrices eros in cursus turpis. Lorem ipsum dolor sit amet consectetur adipiscing. Lectus arcu bibendum at varius vel pharetra. Elementum pulvinar etiam non quam lacus suspendisse. Netus et malesuada fames ac turpis egestas integer. Tempus urna et pharetra pharetra massa. Quam nulla porttitor massa id neque aliquam. Sociis natoque penatibus et magnis dis. Odio pellentesque diam volutpat commodo sed. Duis at tellus at urna condimentum. A arcu cursus vitae congue mauris rhoncus aenean vel. Neque laoreet suspendisse interdum consectetur libero id faucibus nisl tincidunt."
+        "tecnologias": [
+          "Desarrollado con",
+          "Development"
         ],
-        "enlace": {
-          "nombre": "enlace-letiende",
-          "textos": [
-            "Ver proyecto",
-            "See this project"
+        "resultado": [
+          "Resultado",
+          "Result"
+        ],
+        "keywords": [
+          "Palabras clave",
+          "Keywords"
+        ]
+      },
+      "proyectos": [
+        {
+          "nombre": "ocastelblanco",
+          "titulo": "www.ocastelblanco.com",
+          "portada": "assets/imgs/portafolio/ocastelblanco/ocastelblanco00.png",
+          "capturas": [
+            {
+              "txt": "Portafolio",
+              "img": "assets/imgs/portafolio/ocastelblanco/ocastelblanco01.png"
+            },
+            {
+              "txt": "Formulario de contacto",
+              "img": "assets/imgs/portafolio/ocastelblanco/ocastelblanco02.png"
+            },
+            {
+              "txt": "Figma: botones",
+              "img": "assets/imgs/portafolio/ocastelblanco/ocastelblanco03.png"
+            },
+            {
+              "txt": "Figma: imágenes",
+              "img": "assets/imgs/portafolio/ocastelblanco/ocastelblanco04.png"
+            },
+            {
+              "txt": "Figma: cards",
+              "img": "assets/imgs/portafolio/ocastelblanco/ocastelblanco05.png"
+            },
+            {
+              "txt": "Figma: componentes y navegación",
+              "img": "assets/imgs/portafolio/ocastelblanco/ocastelblanco06.png"
+            }
           ],
-          "icono": "abreExterno",
-          "enlace": "https://www.letiende.co",
-          "blank": true,
-          "contenido": "icono+texto",
-          "tipo": "primario"
+          "descripcion": [
+            "<p>Este portafolio presenta una selección de mis proyectos más relevantes como desarrollador web y diseñador UX/UI. Los proyectos abarcan una variedad de áreas, incluyendo:</p><ul><li>Sitios web: Diseño y desarrollo de sitios web responsive y optimizados para SEO, con diferentes funcionalidades como gestión de contenido, integración con APIs y comercio electrónico.</li><li>Aplicaciones web: Desarrollo de aplicaciones web completas y escalables, utilizando las últimas tecnologías y frameworks.</li><li>Herramientas: Creación de herramientas personalizadas para automatizar tareas y mejorar la eficiencia.</li><li>Diseño UX/UI: Diseño de interfaces de usuario intuitivas y atractivas, teniendo en cuenta la experiencia del usuario.</li></ul>",
+            "<p>This portfolio showcases a selection of my most relevant projects as a web developer and UX/UI designer. The projects cover a variety of areas, including:</p><ul><li>Websites: Design and development of responsive and SEO-optimized websites, with different functionalities such as content management, API integration, and e-commerce.</li><li>Web applications: Development of complete and scalable web applications, using the latest technologies and frameworks.</li><li>Tools: Creation of custom tools to automate tasks and improve efficiency.</li><li>UX/UI design: Design of intuitive and attractive user interfaces, taking into account the user experience.</li></ul>"
+          ],
+          "resultado": [
+            "Un portafolio que demuestra mi capacidad para desarrollar soluciones web innovadoras y de alta calidad, que satisfacen las necesidades de mis clientes.",
+            "A portfolio that demonstrates my ability to develop innovative and high-quality web solutions that meet the needs of my clients."
+          ],
+          "keywords": [
+            [
+              "Portafolio",
+              "desarrollo web",
+              "diseño UX/UI",
+              "sitios web",
+              "aplicaciones web",
+              "herramientas",
+              "responsive",
+              "SEO",
+              "APIs"
+            ],
+            [
+              "Portfolio",
+              "web development",
+              "UX/UI design",
+              "websites",
+              "web applications",
+              "tools",
+              "responsive",
+              "SEO",
+              "APIs"
+            ]
+          ],
+          "enlace": {
+            "nombre": "enlace-ocastelblanco",
+            "textos": [
+              "Ver repositorio",
+              "See this repo"
+            ],
+            "icono": "abreExterno",
+            "enlace": "https://github.com/ocastelblanco/www.olivercastelblanco.com",
+            "blank": true,
+            "contenido": "icono+texto",
+            "tipo": "primario"
+          },
+          "fecha": "2024-04",
+          "clientes": [
+            "Oliver Castelblanco"
+          ],
+          "tecnologias": [
+            "Angular",
+            "TypeScript",
+            "SCSS",
+            "Google Apps Script",
+            "Google Firebase",
+            "Google reCAPTCHA API",
+            "Discogs API",
+            "AWS Lambda",
+            "AWS API Gateway",
+            "AWS S3"
+          ]
         },
-        "fecha": "",
-        "cliente": "Le Tiende"
-      }
-    ],
+        {
+          "nombre": "letiende",
+          "titulo": "Le Tiende",
+          "portada": "assets/imgs/portafolio/letiende/letiende00.png",
+          "capturas": [
+            {
+              "txt": "Calendario mensual de eventos",
+              "img": "assets/imgs/portafolio/letiende/letiende01.png"
+            },
+            {
+              "txt": "Menú digital",
+              "img": "assets/imgs/portafolio/letiende/letiende02.png"
+            },
+            {
+              "txt": "Catálogo y buscador de discos de vinilo",
+              "img": "assets/imgs/portafolio/letiende/letiende03.png"
+            },
+            {
+              "txt": "Catálogo y buscador de libros",
+              "img": "assets/imgs/portafolio/letiende/letiende04.png"
+            }
+          ],
+          "descripcion": [
+            "<p>Diseño y desarrollo web completo del sitio web multifuncional para Le Tiende, un espacio cultural que combina librería, café, bar y tienda de discos de vinilo en Bogotá. El proyecto incluyó:</p><ul><li>Diseño UX/UI responsive y optimizado para SEO.</li><li>Implementación de un menú digital actualizable en tiempo real.</li><li>Implementación de un calendario de eventos actualizable en tiempo real.</li><li>Gestión de contenido web y redes sociales.</ul>",
+            "<p>Complete web design and development of the multifunctional website for Le Tiende, a cultural space that combines a bookstore, cafe, bar and vinyl record store in Bogotá. The project included:</p><ul><li>Responsive UX/UI design optimized for SEO.</li><li>Implementation of a real-time updatable digital menu.</li><li>Implementation of a real-time updatable events calendar.</li><li>Web content and social media management.</li></ul>"
+          ],
+          "resultado": [
+            "Un sitio web atractivo, funcional y fácil de usar que refleja la esencia de Le Tiende y facilita la interacción con sus clientes, permitiéndoles consultar el menú actualizado y los próximos eventos en tiempo real.",
+            "An attractive, functional and user-friendly website that reflects the essence of Le Tiende and facilitates interaction with its customers, allowing them to consult the updated menu and upcoming events in real time."
+          ],
+          "keywords": [
+            [
+              "Diseño UX/UI",
+              "desarrollo web",
+              "responsive",
+              "SEO",
+              "menú digital",
+              "calendario de eventos",
+              "gestión de contenido",
+              "redes sociales"
+            ],
+            [
+              "UX/UI design",
+              "web development",
+              "responsive",
+              "SEO",
+              "digital menu",
+              "events calendar",
+              "content management",
+              "social media"
+            ]
+          ],
+          "enlace": {
+            "nombre": "enlace-letiende",
+            "textos": [
+              "Ver proyecto",
+              "See this project"
+            ],
+            "icono": "abreExterno",
+            "enlace": "https://www.letiende.co",
+            "blank": true,
+            "contenido": "icono+texto",
+            "tipo": "primario"
+          },
+          "fecha": "2024-03",
+          "clientes": [
+            "Le Tiende",
+            "b.a.r.23.co"
+          ],
+          "tecnologias": [
+            "Angular",
+            "TypeScript",
+            "SCSS",
+            "Google Apps Script",
+            "Google Firebase",
+            "Google Books API",
+            "Discogs API",
+            "AWS Lambda",
+            "AWS API Gateway",
+            "AWS S3"
+          ]
+        },
+        {
+          "nombre": "bar23",
+          "titulo": "b.a.r.23",
+          "portada": "assets/imgs/portafolio/bar23/bar23_00.png",
+          "capturas": [
+            {
+              "txt": "La Última Línea - Serie de comedia política",
+              "img": "assets/imgs/portafolio/bar23/bar23_01.png"
+            },
+            {
+              "txt": "Pódbar - Podcast sobre música",
+              "img": "assets/imgs/portafolio/bar23/bar23_02.png"
+            },
+            {
+              "txt": "Playlists y episodios de DJ en vivo",
+              "img": "assets/imgs/portafolio/bar23/bar23_03.png"
+            },
+            {
+              "txt": "Transmisión en vivo / Chat exclusivo con oyentes",
+              "img": "assets/imgs/portafolio/bar23/bar23_04.png"
+            }
+          ],
+          "descripcion": [
+            "<p>Diseño y desarrollo web completo del sitio web para b.a.r.23, un colectivo de creación de contenidos que abarca un podcast sobre música, una serie audiovisual cómica sobre política colombiana y la difusión de eventos DJs en vivo. El proyecto incluyó:</p><ul><li>Diseño UX/UI responsive y optimizado para SEO.</li><li>Implementación de un sistema de gestión de podcasts con integración a MixCloud.</li><li>Integración con YouTube para la visualización de la serie audiovisual cómica.</li><li>Integración con Twitch para la difusión de los eventos musicales.</li><li>Gestión de contenido web y redes sociales.</li></ul>",
+            "<p>Full web design and development of the website for b.a.r.23, a content creation collective that encompasses a music podcast, a comic audiovisual series on Colombian politics, and the broadcasting of live DJ events. The project included:</p><ul><li>Responsive UX/UI design optimized for SEO.</li><li>Implementation of a podcast management system with integration to MixCloud.</li><li>Integration with YouTube for viewing the comic audiovisual series.</li><li>Integration with Twitch for broadcasting live music events.</li><li>Web content and social media management.</li></ul>"
+          ],
+          "resultado": [
+            "Un sitio web atractivo, funcional y fácil de usar que centraliza la oferta de contenidos de b.a.r.23, facilitando el acceso a sus podcasts, serie audiovisual y eventos musicales, y permitiendo la interacción con su comunidad.",
+            "An attractive, functional, and user-friendly website that centralizes b.a.r.23's content offering, facilitating access to its podcasts, audiovisual series, and music events, and allowing interaction with its community."
+          ],
+          "keywords": [
+            [
+              "Diseño UX/UI",
+              "desarrollo web",
+              "responsive",
+              "SEO",
+              "podcast",
+              "streaming",
+              "serie audiovisual",
+              "eventos musicales",
+              "gestión de contenido",
+              "redes sociales"
+            ],
+            [
+              "UX/UI design",
+              "web development",
+              "responsive",
+              "SEO",
+              "podcast",
+              "streaming",
+              "audiovisual series",
+              "music events",
+              "content management",
+              "social media"
+            ]
+          ],
+          "enlace": {
+            "nombre": "enlace-bar23",
+            "textos": [
+              "Ver proyecto",
+              "See this project"
+            ],
+            "icono": "abreExterno",
+            "enlace": "https://www.bar23.co",
+            "blank": true,
+            "contenido": "icono+texto",
+            "tipo": "primario"
+          },
+          "fecha": "2021-04",
+          "clientes": [
+            "b.a.r.23.co"
+          ],
+          "tecnologias": [
+            "Angular",
+            "TypeScript",
+            "SCSS",
+            "Google Firebase",
+            "MixCloud API",
+            "YouTube API",
+            "Twitch API",
+            "AWS S3"
+          ]
+        },
+        {
+          "nombre": "activa",
+          "titulo": "Planeta Activa LOMLOE",
+          "portada": "assets/imgs/portafolio/activa/activa00.png",
+          "capturas": [
+            {
+              "txt": "Portada / Ciencias",
+              "img": "assets/imgs/portafolio/activa/activa01.png"
+            },
+            {
+              "txt": "Currículo / Matemáticas",
+              "img": "assets/imgs/portafolio/activa/activa02.png"
+            },
+            {
+              "txt": "Interpretar el mundo / Sociales",
+              "img": "assets/imgs/portafolio/activa/activa03.png"
+            },
+            {
+              "txt": "Secuencia de aprendizaje / Sociales",
+              "img": "assets/imgs/portafolio/activa/activa04.png"
+            },
+            {
+              "txt": "Repositorio de recursos / Lengua",
+              "img": "assets/imgs/portafolio/activa/activa05.png"
+            }
+          ],
+          "descripcion": [
+            "<p>Planeta Activa LOMLOE es una aplicación educativa que presenta al cliente, de forma didáctica, las diferentes etapas pedagógicas de la estructura de Aulaplaneta, una plataforma digital educativa del <strong>Grupo Editorial Planeta</strong>.</p><h3>Funcionalidades:</h3><ul><li>Presentación didáctica de las etapas pedagógicas.</li><li>Ejemplos de recursos educativos digitales.</li><li>Acceso a la plataforma Aulaplaneta.</li></ul>",
+            "<p>Planeta Activa LOMLOE is an educational app that presents the different pedagogical stages of the Aulaplaneta structure, an educational digital platform of the <strong>Grupo Editorial Planeta</strong>, to the client in a didactic way.</p><h3>Features:</h3><ul><li>Didactic presentation of the pedagogical stages.</li><li>Examples of digital educational resources.</li><li>Access to the Aulaplaneta platform.</li></ul>"
+          ],
+          "resultado": [
+            "Una aplicación educativa atractiva, fácil de usar e informativa que ayuda a los usuarios a comprender la estructura de Aulaplaneta y los recursos educativos digitales que ofrece.",
+            "An attractive, easy-to-use, and informative educational app that helps users understand the structure of Aulaplaneta and the digital educational resources it offers."
+          ],
+          "keywords": [
+            [
+              "Educación",
+              "LOMLOE",
+              "Aulaplaneta",
+              "Grupo Editorial Planeta",
+              "etapas pedagógicas",
+              "recursos educativos digitales",
+              "aplicación educativa"
+            ],
+            [
+              "Education",
+              "LOMLOE",
+              "Aulaplaneta",
+              "Grupo Editorial Planeta",
+              "pedagogical stages",
+              "digital educational resources",
+              "educational app"
+            ]
+          ],
+          "enlace": {},
+          "fecha": "2023-08",
+          "clientes": [
+            "Grupo Editorial Planeta"
+          ],
+          "tecnologias": [
+            "Angular",
+            "TypeScript",
+            "SCSS",
+            "JSPDF"
+          ]
+        },
+        {
+          "nombre": "herramientas",
+          "titulo": "Herramientas Aulaplaneta",
+          "portada": "assets/imgs/portafolio/herramientas/herramientas00.png",
+          "capturas": [
+            {
+              "txt": "Verificador de enlaces",
+              "img": "assets/imgs/portafolio/herramientas/herramientas01.png"
+            },
+            {
+              "txt": "Administrador de usuarios",
+              "img": "assets/imgs/portafolio/herramientas/herramientas02.png"
+            },
+            {
+              "txt": "Comparador de árboles curriculares - inicial",
+              "img": "assets/imgs/portafolio/herramientas/herramientas03.png"
+            },
+            {
+              "txt": "Comparador de árboles curriculares - final",
+              "img": "assets/imgs/portafolio/herramientas/herramientas04.png"
+            },
+            {
+              "txt": "Generador automático de temarios",
+              "img": "assets/imgs/portafolio/herramientas/herramientas05.png"
+            },
+            {
+              "txt": "Evaluador de estándares educativos",
+              "img": "assets/imgs/portafolio/herramientas/herramientas06.png"
+            }
+          ],
+          "descripcion": [
+            "<p>Herramienta desarrollada para los editores de Aulaplaneta que les permite:</p><ul><li>Verificar la validez de enlaces en la plataforma, comprobando si han sido modificados.</li><li>Comparar dos árboles curriculares de diferentes áreas para encontrar diferencias.</li> <li>Generar automáticamente temarios educativos a partir de diferentes parámetros.</li><li>Evaluar los estándares educativos de un área específica.</li></ul>",
+            "<p>Tool developed for Aulaplaneta editors that allows them to:</p><ul><li>Verify the validity of links on the platform, checking if they have been modified.</li><li>Compare two curricular trees from different areas to find differences.</li><li>Automatically generate educational syllabi from different parameters.</li><li>Evaluate the educational standards of a specific area.</li></ul>"
+          ],
+          "resultado": [
+            "Una herramienta versátil que facilita el trabajo de los editores de Aulaplaneta, permitiéndoles realizar tareas de forma rápida y eficiente.",
+            "A versatile tool that facilitates the work of Aulaplaneta editors, allowing them to perform tasks quickly and efficiently."
+          ],
+          "keywords": [
+            [
+              "Aulaplaneta",
+              "editores",
+              "herramienta",
+              "verificar enlaces",
+              "comparar árboles curriculares",
+              "generar temarios",
+              "evaluar estándares educativos"
+            ],
+            [
+              "Aulaplaneta",
+              "editors",
+              "tool",
+              "verify links",
+              "compare curricular trees",
+              "generate syllabi",
+              "evaluate educational standards"
+            ]
+          ],
+          "enlace": {},
+          "fecha": "2021-05",
+          "clientes": [
+            "Grupo Editorial Planeta"
+          ],
+          "tecnologias": [
+            "Angular",
+            "TypeScript",
+            "SCSS",
+            "Clarity"
+          ]
+        }
+      ]
+    },
     "contacteme": {
       "validadores": [
         {

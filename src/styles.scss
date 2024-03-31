@@ -50,11 +50,29 @@ $colores: (
 // Estilos generales directos al DOM
 html {
   body {
+    position: relative;
     @each $nombre, $valor in $colores {
       @include define-nombre-propiedad($nombre, $valor);
     }
     @include typo.alcance("body");
     color: color.$gris-900;
+    .portafolio {
+      #contenido {
+        flex-direction: row;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 16px;
+        ul {
+          padding: 1em;
+          li {
+            margin-left: 1em;
+            display: list-item;
+            list-style-type: disc;
+          }
+        }
+      }
+    }
     .contacteme {
       .formulario {
         .contenido {
