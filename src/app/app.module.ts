@@ -31,7 +31,7 @@ import { ContenedorComponent } from '@vistas/contenedor/contenedor.component';
 import { InicioComponent } from '@vistas/inicio/inicio.component';
 import { PortafolioComponent } from '@vistas/portafolio/portafolio.component';
 import { ContactemeComponent } from '@vistas/contacteme/contacteme.component';
-import { secrets } from 'src/assets/data/secrets/secrets';
+import { secrets } from '@secretos/secrets';
 
 registerLocaleData(localeEsCO, 'es-CO', localeEsCOExtra);
 

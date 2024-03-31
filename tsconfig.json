@@ -35,6 +35,9 @@
       ],
       "@vistas/*": [
         "./src/app/sitioweb/vistas/*"
+      ],
+      "@secretos/*": [
+        "./src/secrets/*"
       ]
     }
   },
