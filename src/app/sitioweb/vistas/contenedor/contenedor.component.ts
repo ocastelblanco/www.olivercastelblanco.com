@@ -1,6 +1,7 @@
 import { Component, OnInit, effect } from '@angular/core';
 import { DataService } from '@servicios/data.service';
 import { FuncionesService, Idioma, Vinculo } from '@servicios/funciones.service';
+import { Angulartics2GoogleGlobalSiteTag } from 'angulartics2';
 
 @Component({
   selector: 'oca-contenedor',
@@ -13,7 +14,12 @@ export class ContenedorComponent implements OnInit {
   idiomas: Idioma[] = [];
   interfaz!: { [key: string]: Vinculo[] };
   idiomaPlegado: boolean = true;
-  constructor(private funciones: FuncionesService, private data: DataService) {
+  constructor(
+    private funciones: FuncionesService,
+    private data: DataService,
+    private angulartics: Angulartics2GoogleGlobalSiteTag
+  ) {
+    angulartics.startTracking();
     effect(() => this.idioma = this.funciones.idioma());
     this.data.getInterfaz().subscribe((_interfaz: any) => {
       if (_interfaz) {

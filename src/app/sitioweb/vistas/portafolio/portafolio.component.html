@@ -69,6 +69,9 @@
          oca-boton
          [icono]="proyecto.enlace.icono"
          [contenido]="proyecto.enlace.contenido"
+         angulartics2On="click"
+         angularticsEvent="ClickProyecto"
+         [angularticsCategory]="proyecto.enlace.nombre"
          [tipo]="proyecto.enlace.tipo">
         <span class="texto"
               [innerHTML]="proyecto.enlace.textos[idioma]">

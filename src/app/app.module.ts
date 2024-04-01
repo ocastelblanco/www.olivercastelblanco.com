@@ -13,6 +13,8 @@ import localeEsCOExtra from '@angular/common/locales/extra/es-CO';
 // External modules
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module } from "ng-recaptcha";
+import { Angulartics2Module } from 'angulartics2';
+
 // Shared components & pipes
 import { BotonComponent } from '@componentes/boton/boton.component';
 import { IconoComponent } from '@componentes/icono/icono.component';
@@ -68,6 +70,7 @@ registerLocaleData(localeEsCO, 'es-CO', localeEsCOExtra);
     }),
     FontAwesomeModule,
     RecaptchaV3Module,
+    Angulartics2Module.forRoot(),
   ],
   providers: [
     { provide: RECAPTCHA_V3_SITE_KEY, useValue: secrets.google_recaptcha_site_key },

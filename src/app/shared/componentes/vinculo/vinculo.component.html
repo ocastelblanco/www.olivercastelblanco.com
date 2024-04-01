@@ -1,6 +1,9 @@
 @if (esExterna()) {
 <a [ngClass]="clase"
    [href]="datos.enlace"
+   angulartics2On="click"
+   angularticsEvent="AbreLinkExterno"
+   [angularticsCategory]="datos.nombre"
    [target]="datos.blank ? '_blank' : '_self'">
   <oca-icono class="oca-icono"
              color="gris-900"
@@ -15,6 +18,9 @@
 } @else {
 <a [ngClass]="clase"
    [routerLink]="datos.enlace"
+   angulartics2On="click"
+   angularticsEvent="AbreLinkInterno"
+   [angularticsCategory]="datos.nombre"
    [routerLinkActive]="datos.activeLink ? 'activo' : ''">
   <oca-icono class="oca-icono"
              color="gris-900"
