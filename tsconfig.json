@@ -38,6 +38,9 @@
       ],
       "@secretos/*": [
         "./src/secrets/*"
+      ],
+      "@librerias/*": [
+        "./src/app/shared/librerias/*"
       ]
     }
   },

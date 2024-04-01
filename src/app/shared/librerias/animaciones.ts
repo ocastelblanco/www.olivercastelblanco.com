@@ -1,4 +1,4 @@
-import { trigger, transition, style, animate } from "@angular/animations";
+import { trigger, transition, style, animate, state } from "@angular/animations";
 
 export const cambioSecciones =
   trigger('arribaAbajo', [
@@ -21,5 +21,14 @@ export const cambioSecciones =
         transform: 'translateY(-100%)',
         opacity: 0
       }))
+    ]),
+  ]);
+
+export const abreCierraCard =
+  trigger('abreCierraCard', [
+    state('cerrado', style({ height: '112px' })),
+    state('abierto', style({ height: '*' })),
+    transition('abierto <=> cerrado', [
+      animate('600ms ease-in-out')
     ]),
   ]);

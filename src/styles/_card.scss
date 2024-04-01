@@ -18,6 +18,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: hidden;
     .titulo {
       @include typo.alcance("card-title");
       text-align: center;
@@ -60,6 +61,13 @@
         flex-direction: row;
         justify-content: flex-start;
       }
+    }
+  }
+  &.minimo {
+    .card-wrapper {
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+      width: 100%;
     }
   }
 }

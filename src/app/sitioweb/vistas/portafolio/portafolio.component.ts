@@ -1,14 +1,17 @@
 import { Component, effect } from '@angular/core';
 import { DataService } from '@servicios/data.service';
 import { Captura, FuncionesService, ProyectoPortafolio } from '@servicios/funciones.service';
-import { cambioSecciones } from 'src/app/shared/librerias/animaciones';
+import { cambioSecciones, abreCierraCard } from '@librerias/animaciones';
+import { iconos } from '@componentes/icono/icono.lista';
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'oca-portafolio',
   templateUrl: './portafolio.component.html',
   styleUrl: './portafolio.component.scss',
   animations: [
-    cambioSecciones
+    cambioSecciones,
+    abreCierraCard
   ]
 })
 export class PortafolioComponent {
@@ -20,12 +23,25 @@ export class PortafolioComponent {
   propCapOver: string | null = null;
   numProyectoOverlay: number = 0;
   numCapturaOverlay: number = 0;
+  iconos: { [key: string]: IconDefinition } = iconos;
+  cardsCerradas: boolean[] = [];
+  todasCerradas: boolean = true;
   constructor(private func: FuncionesService, private data: DataService) {
     effect(() => this.idioma = this.func.idioma());
     this.data.getInterfaz().subscribe((_interfaz: any) => {
       this.proyectos = _interfaz.contenidos.portafolio.proyectos;
       this.interfaz = _interfaz.contenidos.portafolio.interfaz;
+      this.cierraCards();
     });
+  }
+  abreCierraCard(numCard: number, abre: boolean = true): void {
+    this.cierraCards();
+    this.cardsCerradas[numCard] = !abre;
+    this.todasCerradas = this.cardsCerradas.reduce((a: boolean, b: boolean) => a && b);
+  }
+  cierraCards(): void {
+    this.cardsCerradas = this.proyectos.map((p: ProyectoPortafolio) => { return true });
+    this.todasCerradas = this.cardsCerradas.reduce((a: boolean, b: boolean) => a && b);
   }
   abreCaptura(numProy: number, numCap: number): void {
     this.numProyectoOverlay = numProy;

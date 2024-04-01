@@ -20,6 +20,8 @@ import {
   faSpinner,
   faThumbsUp,
   faTriangleExclamation,
+  faUpRightAndDownLeftFromCenter,
+  faDownLeftAndUpRightToCenter,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faGithub,
@@ -82,6 +84,8 @@ export const nombreIconos: string[] = [
   'cargando',
   'correcto',
   'error',
+  'expande',
+  'contrae'
 ];
 export const listaIconos: IconDefinition[] = [
   faHome,
@@ -106,7 +110,9 @@ export const listaIconos: IconDefinition[] = [
   faArrowLeft,
   faSpinner,
   faThumbsUp,
-  faTriangleExclamation
+  faTriangleExclamation,
+  faUpRightAndDownLeftFromCenter,
+  faDownLeftAndUpRightToCenter
 ];
 export const iconos: { [key: string]: IconDefinition } = {};
 listaIconos.forEach((icono: IconDefinition, index: number) => iconos[nombreIconos[index]] = icono);

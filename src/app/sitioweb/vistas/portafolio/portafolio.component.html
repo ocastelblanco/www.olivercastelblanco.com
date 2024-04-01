@@ -1,15 +1,34 @@
 <div class="portafolio"
+     [class.todas-cerradas]="todasCerradas"
      oca-fondo-animado>
   @for (proyecto of proyectos; track proyectos; let numProy = $index) {
   <div oca-card
        @arribaAbajo
-       class="proyecto">
-    <div class="titulo"
-         [innerHTML]="proyecto.titulo | safe:'html'">
+       [@abreCierraCard]="cardsCerradas[numProy] ? 'cerrado' : 'abierto'"
+       [class.minimo]="cardsCerradas[numProy]"
+       class="proyecto ">
+    <div class="encabezado">
+      <div class="titulo"
+           [innerHTML]="proyecto.titulo | safe:'html'">
+      </div>
+      <div class="contraer">
+        <button oca-boton
+                (click)="abreCierraCard(numProy, cardsCerradas[numProy])"
+                [icono]="cardsCerradas[numProy] ? 'expande' : 'contrae'"
+                tipo="primario"
+                contenido="icono"
+                angulartics2On="click"
+                angularticsEvent="ExpandeProyecto"
+                [angularticsCategory]="proyecto.nombre + '->' + cardsCerradas[numProy] ? 'expande' : 'contrae'">
+          <span class="texto"></span>
+        </button>
+      </div>
     </div>
     <div class="contenido">
       <div class="portada">
-        <img [src]="proyecto.portada">
+        <div class="cont-portada">
+          <img [src]="proyecto.portada">
+        </div>
       </div>
       <div class="descripcion"
            [innerHTML]="proyecto.descripcion[idioma]">
