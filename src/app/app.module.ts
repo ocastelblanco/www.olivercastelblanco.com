@@ -1,5 +1,5 @@
 import { NgModule, LOCALE_ID } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
@@ -75,6 +75,7 @@ registerLocaleData(localeEsCO, 'es-CO', localeEsCOExtra);
   providers: [
     { provide: RECAPTCHA_V3_SITE_KEY, useValue: secrets.google_recaptcha_site_key },
     { provide: LOCALE_ID, useValue: 'es-CO' },
+    provideClientHydration(),
   ],
   bootstrap: [AppComponent],
   exports: []
