@@ -50,10 +50,12 @@ function run(): void {
   const port = process.env['PORT'] || 4000;
 
   // Start up the Node server
+  /* --------> No es necesario según https://medium.com/swlh/serverless-angular-universal-with-aws-lambda-99162975eed0
   const server = app();
   server.listen(port, () => {
     console.log(`Node Express server listening on http://localhost:${port}`);
   });
+  */
 }
 
 // Webpack will replace 'require' with '__webpack_require__'
