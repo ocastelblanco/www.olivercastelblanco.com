@@ -14,39 +14,7 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Generar el boilerplate Angular 22 (standalone, signals, zoneless, SSR)
-
-**Origen:** `PRD.md` §6 (Roadmap, prioridad Alta: "MVP... + Shell de navegación") y
-`tech-specs.md` §11 (primera fila del roadmap técnico).
-
-**Archivos:** `angular.json`, `package.json`, `src/main.ts`, `src/main.server.ts`,
-`src/app/app.config.ts`, `src/app/app.config.server.ts`, `src/app/app.routes.ts`,
-`src/app/app.ts` (generados por el schematic de Angular CLI; no se editan manualmente más
-allá de la configuración inicial).
-
-**Qué hacer:**
-1. Generar un nuevo workspace Angular 22 (última versión estable) con SSR habilitado,
-   componentes standalone y `provideZonelessChangeDetection()` configurado en
-   `app.config.ts` / `app.config.server.ts`.
-2. Confirmar que el proyecto compila (`npm run build`) y que `npm start` levanta el
-   servidor de desarrollo sin errores.
-3. Ajustar `tsconfig.json` para incluir los path aliases definidos en `tech-specs.md` §3
-   (`@core/*`, `@shared/*`, `@features/*`, `@env/*`) y crear las carpetas vacías
-   correspondientes (`src/app/core`, `src/app/shared`, `src/app/features`).
-4. Actualizar `MEMORY.md` §1 (versión), §4 (dependencias instaladas con versiones exactas)
-   y §6 (primer patrón de código: configuración zoneless) al finalizar.
-
-**Definition of done:**
-- [ ] `npm run build` finaliza sin errores
-- [ ] `npm start` (modo dev) levanta la app sin errores en consola
-- [ ] `app.config.ts`/`app.config.server.ts` usan `provideZonelessChangeDetection()` (sin Zone.js)
-- [ ] Existen las carpetas `src/app/core`, `src/app/shared`, `src/app/features` con los
-      alias correspondientes en `tsconfig.json`
-- [ ] `MEMORY.md` actualizado con versión exacta de Angular y dependencias instaladas
-
----
-
-## Tarea 2 — [FEATURE]: Implementar los design tokens del Design System en SCSS
+## Tarea 1 — [FEATURE]: Implementar los design tokens del Design System en SCSS
 
 **Origen:** `DESIGN.md` (paleta, tipografía, spacing) y `tech-specs.md` §4.4 (Sistema de
 estilos / temas).
@@ -78,12 +46,46 @@ estilos / temas).
 
 ---
 
+## Tarea 2 — [FEATURE]: Shell de navegación (sidebar + topbar)
+
+**Origen:** `PRD.md` §6 (Roadmap, prioridad Alta) y `tech-specs.md` §11 (tercera fila del
+roadmap técnico, dependencia: "Boilerplate listo").
+
+**Archivos:** `src/app/shared/shell/*` (componentes standalone para sidebar y topbar),
+`src/app/app.ts` / `src/app/app.html` (integración del shell en el layout raíz).
+
+**Qué hacer:**
+1. Crear componentes standalone `Sidebar` y `Topbar` en `src/app/shared/shell/` usando los
+   tokens de `src/styles/_tokens.scss` y `_typography.scss` (Tarea 1).
+2. Integrar ambos componentes en `src/app/app.html` envolviendo el `<router-outlet>`,
+   manteniendo zoneless/signals (sin `NgZone`).
+3. La sidebar debe listar los enlaces principales del sitio según `PRD.md` §5 (Home, Casos
+   de Estudio, The Lab, Contacto) usando `routerLink`.
+4. Verificar visualmente con `npm start` que el shell se renderiza correctamente con el
+   design system aplicado.
+
+**Definition of done:**
+- [ ] Existen `src/app/shared/shell/sidebar` y `src/app/shared/shell/topbar` como
+      componentes standalone
+- [ ] `app.html` integra sidebar + topbar alrededor del `router-outlet`
+- [ ] La navegación usa `routerLink` con las rutas principales del PRD
+- [ ] `npm start` muestra el shell con los estilos del design system aplicados
+
+---
+
 ## Historial de tareas completadas
 
-_(vacío — primera ejecución del motor JIT)_
+### 2026-06-11 — [FEATURE]: Generar el boilerplate Angular 22 (standalone, signals, zoneless, SSR)
+
+Generado con `npx -y @angular/cli@22 new` (Angular 22.0.0). `npm run build` y `npm start`
+funcionan sin errores. Path aliases (`@core/*`, `@shared/*`, `@features/*`, `@env/*`)
+configurados en `tsconfig.json` sin `baseUrl` (rutas relativas con `./`). Carpetas
+`src/app/core`, `src/app/shared`, `src/app/features` y `src/environments/*` creadas.
+`MEMORY.md` actualizado (§1, §2, §4, §6, §7, §9).
 
 ## Log del motor JIT
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
 | 2026-06-11 | No existe código de aplicación; máxima prioridad Alta es el boilerplate Angular 22 (base para todo lo demás), seguida por los design tokens (requeridos por toda UI futura) | Se seleccionan las Tareas 1 y 2 de este archivo. Tarea 2 depende de que exista el workspace generado en la Tarea 1. |
+| 2026-06-11 | Boilerplate Angular 22 completado y verificado (build + start OK). Siguiente prioridad Alta sin completar: design tokens SCSS (requeridos por toda UI), seguido por el shell de navegación (depende del boilerplate, ya listo) | Tarea 1 (boilerplate) movida al historial. Tarea 2 (design tokens) pasa a ser Tarea 1. Nueva Tarea 2: shell de navegación (sidebar + topbar) |
