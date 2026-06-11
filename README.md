@@ -13,8 +13,8 @@ El proyecto cumple dos objetivos:
    sitio como caso de estudio de desarrollo apoyado en LLM, con SEO orientado tanto a
    buscadores tradicionales como a modelos de lenguaje.
 
-> Estado actual: **Pre-MVP**. El boilerplate de Angular 22 (standalone + Signals + zoneless
-> + SSR) y los design tokens del sistema visual ya están implementados. Las features de
+> Estado actual: **Pre-MVP**. El boilerplate de Angular 22 (standalone + Signals + zoneless +
+> SSR) y los design tokens del sistema visual ya están implementados. Las features de
 > negocio (shell de navegación, Home, Proyectos, The Lab, Contacto) y la infraestructura
 > serverless (`serverless.yml`) están pendientes — ver [`TODO.md`](./TODO.md) y
 > [`MEMORY.md`](./MEMORY.md) para el estado detallado.
