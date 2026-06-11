@@ -24,9 +24,9 @@
 - [x] `CLAUDE.md`, `PRD.md`, `tech-specs.md` (con OWASP y git flow) creados
 
 - [x] Boilerplate Angular 22 (standalone, signals, zoneless, SSR)
+- [x] Design tokens en SCSS según `DESIGN.md`
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] Design tokens en SCSS según `DESIGN.md`
 - [ ] Shell de navegación (sidebar + topbar)
 - [ ] Home (Manifiesto + 3 Pilares)
 - [ ] Registro de Proyectos + Casos de Estudio
@@ -175,6 +175,22 @@ Sin `baseUrl` (deprecado en TS 6, TS5101). Los `paths` deben usar rutas con pref
 `src/environments/environment.ts` (dev) y `environment.prod.ts` exponen `production` y
 `apiUrl` (`https://dev.api.ocastelblanco.com` / `https://api.ocastelblanco.com`).
 
+### Design tokens (Technical Industrial Minimalism)
+
+`src/styles/_tokens.scss` define todos los colores de `DESIGN.md` como custom properties
+CSS bajo `:root` (`--color-surface`, `--color-primary-container` /Cyber Lime,
+`--color-secondary-container` /Electric Cyan, etc.) y el spacing scale (`--spacing-xs` 4px →
+`--spacing-xxl` 128px) más `--radius: 0px`.
+
+`src/styles/_typography.scss` importa JetBrains Mono + Inter desde Google Fonts y define
+mixins (`h1`, `h2`, `h3`, `body-lg`, `body-md`, `technical-label`, `data-point`) aplicados
+tanto a selectores de elemento (`h1`, `h2`, `h3`) como a clases utilitarias (`.body-lg`,
+`.technical-label`, etc.).
+
+`src/styles.scss` importa ambos parciales con `@use`, fija `border-radius: var(--radius)`
+en `*`, aplica `background-color`/`color` desde los tokens en `body` y agrega una textura
+de ruido sutil (SVG `feTurbulence`, opacidad 2.5%) vía `body::before`.
+
 ## 7. Gotchas conocidos
 
 | Situación | Solución |
@@ -217,6 +233,10 @@ Sin `baseUrl` (deprecado en TS 6, TS5101). Los `paths` deben usar rutas con pref
   `@angular/ssr`) usando `npx -y @angular/cli@22 new`. Se configuraron los path aliases
   (`@core/*`, `@shared/*`, `@features/*`, `@env/*`) y los entornos (`environment.ts`,
   `environment.prod.ts`). `npm run build` y `npm start` funcionan sin errores.
+- Se implementaron los design tokens del Design System en SCSS: `src/styles/_tokens.scss`
+  (colores y spacing como custom properties), `src/styles/_typography.scss` (mixins
+  JetBrains Mono / Inter) y `src/styles.scss` (border-radius 0 global, fondo oscuro con
+  textura de ruido). `npm run build` confirma la compilación correcta.
 
-**Próxima tarea sugerida:** implementar los design tokens del design system en SCSS
-(Tarea 1 recalculada en `TODO.md`).
+**Próxima tarea sugerida:** construir el shell de navegación (sidebar + topbar) usando los
+tokens recién creados (Tarea 1 recalculada en `TODO.md`).

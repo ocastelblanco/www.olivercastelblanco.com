@@ -14,39 +14,7 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Implementar los design tokens del Design System en SCSS
-
-**Origen:** `DESIGN.md` (paleta, tipografía, spacing) y `tech-specs.md` §4.4 (Sistema de
-estilos / temas).
-
-**Archivos:** `src/styles/_tokens.scss`, `src/styles/_typography.scss`, `src/styles.scss`
-(o el archivo de estilos globales generado por el boilerplate).
-
-**Qué hacer:**
-1. Crear `src/styles/_tokens.scss` con variables CSS/SCSS para todos los colores definidos
-   en `DESIGN.md` (surface, primary/Cyber Lime, secondary/Electric Cyan, error, outline,
-   etc.) y para el spacing scale (`xs` 4px → `xxl` 128px).
-2. Crear `src/styles/_typography.scss` con las clases/mixins para `h1`, `h2`, `h3`,
-   `body-lg`, `body-md`, `technical-label`, `data-point`, usando JetBrains Mono e Inter
-   según `DESIGN.md`, e importar ambas fuentes (Google Fonts o self-hosted).
-3. Importar `_tokens.scss` y `_typography.scss` desde `src/styles.scss`, definir
-   `border-radius: 0` como valor global por defecto y aplicar el fondo `surface`
-   (`#131313`) con textura de ruido sutil (2–3% opacidad) según `DESIGN.md`.
-4. Verificar visualmente (`npm start`) que la página por defecto del boilerplate refleja el
-   fondo oscuro, la tipografía y los colores base del design system.
-
-**Definition of done:**
-- [ ] `_tokens.scss` define todas las variables de color y spacing de `DESIGN.md`
-- [ ] `_typography.scss` define los estilos para `h1`, `h2`, `h3`, `body-lg`, `body-md`,
-      `technical-label`, `data-point`
-- [ ] `styles.scss` importa ambos archivos, fija `border-radius: 0` global y aplica el
-      fondo oscuro con textura de ruido
-- [ ] La app levantada con `npm start` muestra visualmente el tema oscuro con la
-      tipografía correcta
-
----
-
-## Tarea 2 — [FEATURE]: Shell de navegación (sidebar + topbar)
+## Tarea 1 — [FEATURE]: Shell de navegación (sidebar + topbar)
 
 **Origen:** `PRD.md` §6 (Roadmap, prioridad Alta) y `tech-specs.md` §11 (tercera fila del
 roadmap técnico, dependencia: "Boilerplate listo").
@@ -56,7 +24,7 @@ roadmap técnico, dependencia: "Boilerplate listo").
 
 **Qué hacer:**
 1. Crear componentes standalone `Sidebar` y `Topbar` en `src/app/shared/shell/` usando los
-   tokens de `src/styles/_tokens.scss` y `_typography.scss` (Tarea 1).
+   tokens de `src/styles/_tokens.scss` y `_typography.scss`.
 2. Integrar ambos componentes en `src/app/app.html` envolviendo el `<router-outlet>`,
    manteniendo zoneless/signals (sin `NgZone`).
 3. La sidebar debe listar los enlaces principales del sitio según `PRD.md` §5 (Home, Casos
@@ -73,6 +41,32 @@ roadmap técnico, dependencia: "Boilerplate listo").
 
 ---
 
+## Tarea 2 — [FEATURE]: CI con GitHub Actions (build + test)
+
+**Origen:** `tech-specs.md` §11 (roadmap técnico, dependencia: "Build/test funcionando
+localmente" — ya cumplida tras la Tarea 1 del historial).
+
+**Archivos:** `.github/workflows/ci.yml`.
+
+**Qué hacer:**
+1. Crear el workflow `.github/workflows/ci.yml` que se ejecute en `push` y `pull_request`
+   sobre `master` y `rediseno-2026`.
+2. El job debe usar Node 22 (LTS, según `engines` de Angular CLI 22), instalar dependencias
+   con `npm ci` y ejecutar `npm run build`.
+3. Incluir un paso `npm test -- --watch=false` (o el comando equivalente con Vitest) para
+   correr la suite de pruebas generada por el boilerplate.
+4. No incluir pasos de despliegue todavía (eso corresponde a la tarea futura de
+   `serverless.yml`).
+
+**Definition of done:**
+- [ ] Existe `.github/workflows/ci.yml` con triggers `push`/`pull_request` sobre `master` y
+      `rediseno-2026`
+- [ ] El workflow ejecuta `npm ci`, `npm run build` y la suite de pruebas
+- [ ] El workflow no incluye pasos de despliegue
+- [ ] `MEMORY.md` §8 referencia el nuevo workflow como documento/configuración vigente
+
+---
+
 ## Historial de tareas completadas
 
 ### 2026-06-11 — [FEATURE]: Generar el boilerplate Angular 22 (standalone, signals, zoneless, SSR)
@@ -83,9 +77,18 @@ configurados en `tsconfig.json` sin `baseUrl` (rutas relativas con `./`). Carpet
 `src/app/core`, `src/app/shared`, `src/app/features` y `src/environments/*` creadas.
 `MEMORY.md` actualizado (§1, §2, §4, §6, §7, §9).
 
+### 2026-06-11 — [FEATURE]: Implementar los design tokens del Design System en SCSS
+
+Creados `src/styles/_tokens.scss` (colores y spacing de `DESIGN.md` como custom
+properties), `src/styles/_typography.scss` (mixins JetBrains Mono / Inter) y actualizado
+`src/styles.scss` (border-radius 0 global, fondo oscuro con textura de ruido). `npm run
+build` confirma compilación correcta (CSS inicial pasó de 96 B a ~3.8 kB). `MEMORY.md`
+actualizado (§2, §6, §9).
+
 ## Log del motor JIT
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
 | 2026-06-11 | No existe código de aplicación; máxima prioridad Alta es el boilerplate Angular 22 (base para todo lo demás), seguida por los design tokens (requeridos por toda UI futura) | Se seleccionan las Tareas 1 y 2 de este archivo. Tarea 2 depende de que exista el workspace generado en la Tarea 1. |
 | 2026-06-11 | Boilerplate Angular 22 completado y verificado (build + start OK). Siguiente prioridad Alta sin completar: design tokens SCSS (requeridos por toda UI), seguido por el shell de navegación (depende del boilerplate, ya listo) | Tarea 1 (boilerplate) movida al historial. Tarea 2 (design tokens) pasa a ser Tarea 1. Nueva Tarea 2: shell de navegación (sidebar + topbar) |
+| 2026-06-11 | Design tokens completados y verificados (build OK). Siguiente prioridad Alta: shell de navegación (depende del boilerplate, ya listo, no de la otra tarea activa). Para la segunda tarea, se evita elegir algo que dependa del shell (aún no completado); CI con GitHub Actions ya tiene su dependencia ("build/test local") satisfecha y es de prioridad Media-Alta para mantener la calidad del repo | Tarea 1 (design tokens) movida al historial. Tarea 2 (shell de navegación) pasa a ser Tarea 1. Nueva Tarea 2: CI con GitHub Actions (build + test) |
