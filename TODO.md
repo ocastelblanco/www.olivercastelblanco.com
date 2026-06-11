@@ -11,6 +11,13 @@
 >    - Prioridad 3: features de prioridad **Media**.
 > 3. Actualiza `MEMORY.md` (estado, ADRs si aplica) antes de escribir la nueva tarea.
 > 4. Nunca dejar más de 2 tareas activas. No planificar un backlog grande.
+> 5. **Documentación de proceso (`docs/proceso/`)**: si la tarea recién completada cierra
+>    una **iteración mayor** del producto (cambio de versión "mayor" registrado en
+>    `MEMORY.md` §1 — ej. Pre-MVP → MVP, o un hito completo del roadmap de `PRD.md` §6),
+>    agrega como tarea de alta prioridad escribir la entrada correspondiente en
+>    `docs/proceso/` siguiendo la convención de [`docs/proceso/README.md`](./docs/proceso/README.md).
+>    Esta documentación es un insumo directo de "The Lab" y de la narrativa de
+>    orquestación IA del sitio (`PRD.md` §2).
 
 ---
 
