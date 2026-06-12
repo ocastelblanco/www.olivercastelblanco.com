@@ -21,33 +21,7 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: CI con GitHub Actions (build + test)
-
-**Origen:** `tech-specs.md` §11 (roadmap técnico, dependencia: "Build/test funcionando
-localmente" — ya cumplida tras las tareas del historial).
-
-**Archivos:** `.github/workflows/ci.yml`.
-
-**Qué hacer:**
-1. Crear el workflow `.github/workflows/ci.yml` que se ejecute en `push` y `pull_request`
-   sobre `master` y `rediseno-2026`.
-2. El job debe usar Node 22 (LTS, según `engines` de Angular CLI 22), instalar dependencias
-   con `npm ci` y ejecutar `npm run build`.
-3. Incluir un paso `npm test -- --watch=false` (o el comando equivalente con Vitest) para
-   correr la suite de pruebas generada por el boilerplate.
-4. No incluir pasos de despliegue todavía (eso corresponde a la tarea futura de
-   `serverless.yml`).
-
-**Definition of done:**
-- [ ] Existe `.github/workflows/ci.yml` con triggers `push`/`pull_request` sobre `master` y
-      `rediseno-2026`
-- [ ] El workflow ejecuta `npm ci`, `npm run build` y la suite de pruebas
-- [ ] El workflow no incluye pasos de despliegue
-- [ ] `MEMORY.md` §8 referencia el nuevo workflow como documento/configuración vigente
-
----
-
-## Tarea 2 — [FEATURE]: Home — "El Manifiesto del Fixer"
+## Tarea 1 — [FEATURE]: Home — "El Manifiesto del Fixer"
 
 **Origen:** `PRD.md` §5.1 y §6 (Roadmap, prioridad Alta: "MVP: Home + Registro de Proyectos +
 1 Caso de Estudio + Shell de navegación" — esta tarea cubre la pieza Home, que depende del
@@ -78,6 +52,37 @@ shell de navegación, ya completado).
 
 ---
 
+## Tarea 2 — [FEATURE]: Registro de Proyectos (Project Registry)
+
+**Origen:** `PRD.md` §5.2 y §6 (Roadmap, prioridad Alta: "MVP: Home + Registro de Proyectos +
+1 Caso de Estudio + Shell de navegación"; no depende de la Tarea 1).
+
+**Archivos:** `src/app/features/proyectos/*` (componente standalone `Proyectos`),
+`src/app/app.routes.ts` (registrar la ruta `proyectos` apuntando a `Proyectos`).
+
+**Qué hacer:**
+1. Generar el componente standalone `Proyectos` en `src/app/features/proyectos/` (`npx ng
+   generate component features/proyectos`).
+2. Implementar un grid de tarjetas "Metric-First" (PRD §5.2) con los dos casos de estudio
+   descritos en `docs/arquitectura/arquitectura_ocastelblanco.md` §2-3 (ConectaTech y
+   Le Tiende - Comandante): métrica destacada a la izquierda (ej. "OPEX: $0.50/mes",
+   "Reducción de staff: 80%"), título técnico y stack, usando los tokens de `DESIGN.md`.
+3. Registrar la ruta `proyectos` en `src/app/app.routes.ts` apuntando a `Proyectos`
+   (`loadComponent`, consistente con zoneless/standalone). Los enlaces de la sidebar a
+   `/proyectos` ya existen (ver shell de navegación).
+4. Verificar visualmente con `npm start` que la sección se renderiza dentro del shell
+   (sidebar + topbar) con el design system aplicado, en desktop y en móvil (≤720px).
+
+**Definition of done:**
+- [ ] Existe `src/app/features/proyectos` como componente standalone con grid de tarjetas
+      Metric-First para ConectaTech y Le Tiende - Comandante
+- [ ] `app.routes.ts` registra la ruta `proyectos` → `Proyectos`
+- [ ] El contenido coincide con `docs/arquitectura/arquitectura_ocastelblanco.md` §2-3
+- [ ] `npm start` muestra el registro dentro del shell de navegación, con estilos del design
+      system aplicados y visible en móvil
+
+---
+
 ## Historial de tareas completadas
 
 ### 2026-06-11 — [FEATURE]: Generar el boilerplate Angular 22 (standalone, signals, zoneless, SSR)
@@ -104,6 +109,22 @@ expandible a 220px en hover) enlaza a `/`, `/proyectos`, `/lab` y `/contacto` (P
 `RouterLink`/`RouterLinkActive`. `npm run build` y `npm test -- --watch=false` (4/4) sin
 errores; verificado visualmente con `npm start`. `MEMORY.md` actualizado (§2, §6, §9).
 
+### 2026-06-12 — [FEATURE]: Shell de navegación responsive (sidebar → barra inferior en móvil)
+
+En viewports `≤720px` la `Sidebar` se convierte en una barra de navegación inferior fija
+(56px de alto, iconos + etiquetas apiladas); `Topbar` y `.app-content` ajustan sus
+márgenes/padding. Documentado como requisito no funcional en `PRD.md` §8 y como ADR-005 en
+`MEMORY.md`. `npm run build` y `npm test -- --watch=false` (4/4) sin errores.
+
+### 2026-06-12 — [FEATURE]: CI con GitHub Actions (lint + build + test)
+
+Creado `.github/workflows/ci.yml`, ejecutado en `push`/`pull_request` sobre `master` y
+`rediseno-2026`: Node 22 + cache npm → `npm ci` → `npm run lint` → `npm run build` → `npm
+test -- --watch=false`. Se instaló `@angular-eslint/schematics` (genera `eslint.config.js`
+y agrega el builder `lint` a `angular.json`). Sin pasos de despliegue. `npm run lint`,
+`npm run build` y `npm test -- --watch=false` verificados localmente en verde. `MEMORY.md`
+actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
+
 ## Log del motor JIT
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
@@ -112,3 +133,4 @@ errores; verificado visualmente con `npm start`. `MEMORY.md` actualizado (§2, �
 | 2026-06-11 | Boilerplate Angular 22 completado y verificado (build + start OK). Siguiente prioridad Alta sin completar: design tokens SCSS (requeridos por toda UI), seguido por el shell de navegación (depende del boilerplate, ya listo) | Tarea 1 (boilerplate) movida al historial. Tarea 2 (design tokens) pasa a ser Tarea 1. Nueva Tarea 2: shell de navegación (sidebar + topbar) |
 | 2026-06-11 | Design tokens completados y verificados (build OK). Siguiente prioridad Alta: shell de navegación (depende del boilerplate, ya listo, no de la otra tarea activa). Para la segunda tarea, se evita elegir algo que dependa del shell (aún no completado); CI con GitHub Actions ya tiene su dependencia ("build/test local") satisfecha y es de prioridad Media-Alta para mantener la calidad del repo | Tarea 1 (design tokens) movida al historial. Tarea 2 (shell de navegación) pasa a ser Tarea 1. Nueva Tarea 2: CI con GitHub Actions (build + test) |
 | 2026-06-12 | Shell de navegación completado y verificado (build + test + visual OK). Siguiente prioridad: CI con GitHub Actions (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Home ("El Manifiesto del Fixer", prioridad Alta del roadmap), que ya puede construirse dentro del shell recién completado | Tarea 1 (shell de navegación) movida al historial. Tarea 2 (CI) pasa a ser Tarea 1. Nueva Tarea 2: Home — "El Manifiesto del Fixer" |
+| 2026-06-12 | CI con GitHub Actions completado y verificado (lint + build + test en verde). Siguiente prioridad Alta: Home ("El Manifiesto del Fixer", ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Registro de Proyectos (PRD §5.2, prioridad Alta del MVP), que no depende de Home y ya tiene contenido fuente en `docs/arquitectura/arquitectura_ocastelblanco.md` §2-3 | Tarea 1 (CI) movida al historial. Tarea 2 (Home) pasa a ser Tarea 1. Nueva Tarea 2: Registro de Proyectos (Project Registry) |
