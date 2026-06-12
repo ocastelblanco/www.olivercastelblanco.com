@@ -99,6 +99,18 @@ apple-touch-icon, android-chrome-192/512) y enlaces + `site.webmanifest` actuali
 `src/index.html`. `npm run build` verificado en verde dos veces. `MEMORY.md` actualizado
 (ADR-007) con el paso manual pendiente de Taskade.
 
+### 2026-06-12 — [FIX]: Identidad visual corporativa — Logo maestro (corrección con diseño del usuario)
+
+El usuario rechazó el concepto "Monograma OC" anterior y proporcionó su propio logo
+maestro (`brand/OC_logo.svg`, emblema circular "OC" con motivo de circuito impreso).
+Eliminados todos los archivos previos de `brand/` excepto `OC_logo.svg`. Optimizado con
+`svgo` (-31.8%) y exportado el kit completo (24 archivos) a `brand/kit/` invocando
+`exportBrandKit` de `@mcpware/logoloom` directamente desde `node` (el SVG de 92KB excede
+el límite de parámetros MCP). `brand/isotype.svg` = copia del logo maestro.
+`brand/loader.svg` nuevo (anillo + "OC" con pulso + arco cian rotatorio). Favicons en
+`public/` regenerados desde `brand/kit/icon-*.png`, legibles incluso a 32px. `npm run
+build` verificado en verde. `MEMORY.md` actualizado (ADR-007, nota de revisión).
+
 ### 2026-06-11 — [FEATURE]: Generar el boilerplate Angular 22 (standalone, signals, zoneless, SSR)
 
 Generado con `npx -y @angular/cli@22 new` (Angular 22.0.0). `npm run build` y `npm start`

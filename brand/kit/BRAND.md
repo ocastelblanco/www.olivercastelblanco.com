@@ -1,4 +1,4 @@
-# Oliver Castelblanco — Brand Guidelines
+# Oliver Castelblanco — The Fixer — Brand Guidelines
 
 ## Logo Files
 
@@ -39,24 +39,17 @@
 
 | Name | Hex | Usage |
 |------|-----|-------|
-| Primary | `#c3f400` | Gradient start, CTA, accents |
-| Secondary | `#00eefc` | Gradient end, hover states |
-| Text (light bg) | `#e5e2e1` | Body text on white/light |
+| Primary | `#d2f50e` | Gradient start, CTA, accents |
+| Secondary | `#01f1fd` | Gradient end, hover states |
+| Text (light bg) | `#ffffff` | Body text on white/light |
 | Text (dark bg) | `#131313` | Body text on dark |
 | Background (light) | `#ffffff` | Light mode |
 | Background (dark) | `#131313` | Dark mode |
 
 ## Typography
 
-- Headings / wordmark: JetBrains Mono — weight 700
-- Body: Inter — weight 600 (semi-bold)
-
-(Ver `DESIGN.md` en la raíz del repo para la escala tipográfica completa.)
-
-## Loader animado
-
-`brand/loader.svg` — versión animada del isotipo (punto Electric Cyan recorriendo el
-perímetro del anillo) para usar como *progress loader*.
+- Headings: system-ui, -apple-system, sans-serif — weight 800
+- Body: system-ui, -apple-system, sans-serif — weight 400
 
 ## Usage Rules
 

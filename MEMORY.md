@@ -157,6 +157,22 @@
   que el MCP `logoloom` quede disponible. Los activos de marca viven en `brand/` (nuevo
   directorio, fuera de `src/`). Los favicons actuales en `public/` se sustituirán por la
   versión simplificada del logo generada en esta fase.
+- **Revisión 2026-06-12 (corrección):** El primer concepto generado por LogoLoom
+  ("Monograma OC" geométrico simple) fue rechazado por el usuario. El usuario diseñó su
+  propio logo maestro — un emblema circular "OC" con motivo de circuito impreso (paths
+  lime `#d2f50e` / cian `#01f1fd`-`#02def0` / verdes `#38e8bb`-`#73ea4f`, 1024×1024,
+  guardado en `brand/OC_logo.svg`) y solicitó reconstruir el kit completo a partir de él.
+  Se eliminaron todos los archivos anteriores de `brand/` (isotipo, favicon-mark,
+  logo-full, loader, `kit/`) dejando solo `OC_logo.svg`. Se optimizó con `svgo`
+  (-31.8%, vía CLI porque el SVG de 92KB excede el límite de tokens para pasarlo como
+  parámetro MCP) y se exportó el kit completo invocando `exportBrandKit` directamente
+  desde `node` (import del módulo `@mcpware/logoloom`, evitando el límite de tamaño de
+  parámetro del protocolo MCP) a `brand/kit/` (24 archivos). `brand/isotype.svg` es una
+  copia del logo maestro (ya es un emblema circular autocontenido, válido como isotipo).
+  `brand/loader.svg` es nuevo: anillo lime/cian + texto "OC" con pulso de opacidad +
+  arco cian rotatorio (`animateTransform`) como progress loader. Favicons en `public/`
+  regenerados desde `brand/kit/icon-*.png` (verificado legible incluso a 32px). `npm run
+  build` en verde.
 - **Resultado (Fase 1):** Isotipo "Monograma OC" (anillo cuadrado blanco + bracket Cyber
   Lime + acento Electric Cyan sobre Deep Charcoal). Archivos: `brand/isotype.svg` /
   `isotype-light.svg`, `brand/logo-full.svg` (wordmark "OLIVER CASTELBLANCO" / "THE FIXER",
