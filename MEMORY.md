@@ -7,7 +7,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | Pre-MVP — Angular 22.0.0 (boilerplate, design tokens y shell de navegación listos) |
+| Versión | Pre-MVP — Angular 22.0.0 (boilerplate, design tokens, shell de navegación y CI listos) |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
 | URL API | `https://api.ocastelblanco.com` (futuro, no provisionado) |
@@ -26,6 +26,7 @@
 - [x] Boilerplate Angular 22 (standalone, signals, zoneless, SSR)
 - [x] Design tokens en SCSS según `DESIGN.md`
 - [x] Shell de navegación (sidebar + topbar)
+- [x] CI con GitHub Actions (lint + build + test)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
 - [ ] Home (Manifiesto + 3 Pilares)
@@ -117,6 +118,23 @@
   breakpoint `@media (max-width: 720px)` y dejar espacio para la barra inferior en móvil
   (56px) en lugar de la sidebar lateral (56px en desktop).
 
+### ADR-006 — CI con GitHub Actions: lint + build + test en cada push/PR
+
+- **Fecha:** 2026-06-12
+- **Estado:** Implementado
+- **Decisión:** Se agrega `.github/workflows/ci.yml`, que se ejecuta en `push` y
+  `pull_request` sobre `master` y `rediseno-2026`. El job usa Node 22 (con cache de npm),
+  ejecuta `npm ci`, y luego en secuencia `npm run lint` (ESLint vía
+  `@angular-eslint/schematics`, builder `@angular-eslint/builder:lint` agregado a
+  `angular.json`), `npm run build` y `npm test -- --watch=false`. No incluye pasos de
+  despliegue.
+- **Razón:** Mantener calidad de código (lint + tests + build verde) en cada cambio antes de
+  fusionar a `rediseno-2026`, sin depender de verificación manual local.
+- **Consecuencias:** Cualquier código nuevo debe pasar `npm run lint` sin errores (reglas
+  por defecto de `@angular-eslint/schematics`, ver `eslint.config.js`). Si el lint falla en
+  CI pero no localmente, correr `npm run lint` antes de hacer push. Los PRs que fallen
+  cualquiera de los tres pasos no deben fusionarse.
+
 ## 4. Dependencias instaladas
 
 | Paquete | Versión | Tipo |
@@ -141,6 +159,10 @@
 | `prettier` | ^3.8.1 | devDependency |
 | `typescript` | ~6.0.2 | devDependency |
 | `vitest` | ^4.0.8 | devDependency |
+| `angular-eslint` | 22.0.0 | devDependency |
+| `eslint` | ^10.3.0 | devDependency |
+| `@eslint/js` | ^10.0.1 | devDependency |
+| `typescript-eslint` | 8.60.1 | devDependency |
 
 ## 5. Configuraciones vigentes
 
@@ -219,6 +241,14 @@ estas rutas aún no tienen componentes asociados en `app.routes.ts` (se agregan 
 cada feature). El topbar es una franja fija superior que ocupa el espacio restante
 (`left: 56px`), con el nombre del sitio y el rol de Oliver Castelblanco.
 
+### CI con GitHub Actions
+
+`.github/workflows/ci.yml` corre en `push`/`pull_request` sobre `master` y
+`rediseno-2026`: Node 22 + cache npm → `npm ci` → `npm run lint` → `npm run build` →
+`npm test -- --watch=false`. El lint usa ESLint configurado por `@angular-eslint/schematics`
+(`eslint.config.js` en la raíz, builder `lint` agregado a `angular.json`). Cualquier
+componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer push.
+
 ## 7. Gotchas conocidos
 
 | Situación | Solución |
@@ -243,23 +273,23 @@ cada feature). El topbar es una franja fija superior que ocupa el espacio restan
 | `docs/arquitectura/arch_orch_project_prd.md` | Brief de marca/diseño "ARCH_ORCH" (Google Stitch) |
 | `docs/proceso/Stitch.md` | Bitácora del proceso de diseño con IA (prompts y resultados) |
 | `docs/proceso/*.zip` | Exports de pantallas generadas con Google Stitch |
+| `.github/workflows/ci.yml` | Workflow de CI: lint + build + test en push/PR a `master` y `rediseno-2026` |
+| `eslint.config.js` | Configuración de ESLint (`@angular-eslint/schematics`) |
 
 ## 9. Contexto de la sesión actual
 
 **Fecha:** 2026-06-12
 
 **Qué se hizo hoy:**
-- Se construyó el shell de navegación: componentes standalone `Sidebar` y `Topbar` en
-  `src/app/shared/shell/`, integrados en `src/app/app.html` envolviendo el
-  `<router-outlet>`. La sidebar usa iconos de 20px que se expanden en hover (220px) y
-  enlaza, vía `RouterLink`/`RouterLinkActive`, a `/`, `/proyectos`, `/lab` y `/contacto`
-  (PRD §5). El topbar muestra el nombre del sitio y el rol de Oliver Castelblanco.
-- Se actualizaron los specs (`app.spec.ts`, `sidebar.spec.ts`, `topbar.spec.ts`) agregando
-  `provideRouter([])` para resolver `RouterLink` en pruebas, y se reemplazó la verificación
-  del placeholder `<h1>` por una verificación de presencia de `app-sidebar`/`app-topbar`.
-- Verificado con `npm run build` (sin errores) y `npm test -- --watch=false` (4/4 OK), y
-  visualmente vía el servidor de desarrollo (`npm start`).
+- Se adaptó el shell de navegación para móviles: en `≤720px` la `Sidebar` se convierte en
+  una barra de navegación inferior fija (ver ADR-005). Documentado el requisito en `PRD.md`
+  §8. PR #2 fusionada a `rediseno-2026`, rama remota eliminada.
+- Se agregó CI con GitHub Actions (`.github/workflows/ci.yml`, ver ADR-006): lint + build +
+  test en cada `push`/`pull_request` a `master` y `rediseno-2026`. Se instaló
+  `@angular-eslint/schematics` (`npx ng add @angular-eslint/schematics`), que generó
+  `eslint.config.js` y agregó el builder `lint` a `angular.json`. `npm run lint`, `npm run
+  build` y `npm test -- --watch=false` verificados localmente, todos en verde.
 
-**Próxima tarea sugerida:** según el motor JIT (`TODO.md`), CI con GitHub Actions
-(`.github/workflows/ci.yml`) — y recalcular la siguiente tarea de prioridad Alta del
-roadmap (Home / Manifiesto).
+**Próxima tarea sugerida:** según el motor JIT (`TODO.md`), Home — "El Manifiesto del
+Fixer" (`src/app/features/home`, ruta `''`), y recalcular la siguiente tarea de prioridad
+Alta del roadmap (Registro de Proyectos / Casos de Estudio).
