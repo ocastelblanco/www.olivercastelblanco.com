@@ -23,6 +23,10 @@
 }
 
 @media (max-width: 720px) {
+  .topbar {
+    left: 0;
+  }
+
   .topbar__role {
     display: none;
   }

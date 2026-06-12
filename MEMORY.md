@@ -101,6 +101,22 @@
   `DESIGN.md`/`src/styles/_tokens.scss` (cuando exista). No introducir colores, tipografías
   o radios fuera de este sistema sin actualizar primero `DESIGN.md`.
 
+### ADR-005 — Shell de navegación responsive: sidebar → barra inferior en móvil
+
+- **Fecha:** 2026-06-12
+- **Estado:** Implementado
+- **Decisión:** El sitio no es *mobile first*, pero debe ser completamente visible y
+  funcional en móviles (`PRD.md` §8). En viewports ≤720px, la `Sidebar` (normalmente fija a
+  la izquierda) se convierte en una barra de navegación inferior fija de altura 56px, con
+  los mismos 4 enlaces mostrando icono + etiqueta apilados. El `Topbar` ajusta su `left` a
+  `0` (ya no reserva espacio para la sidebar lateral) y `.app-content` agrega
+  `padding-bottom` para no quedar oculto detrás de la barra inferior.
+- **Razón:** Petición explícita del usuario — el shell debe seguir siendo navegable en
+  pantallas pequeñas sin depender de gestos de hover (que no existen en touch).
+- **Consecuencias:** Cualquier nuevo elemento del shell o layout de página debe considerar el
+  breakpoint `@media (max-width: 720px)` y dejar espacio para la barra inferior en móvil
+  (56px) en lugar de la sidebar lateral (56px en desktop).
+
 ## 4. Dependencias instaladas
 
 | Paquete | Versión | Tipo |
