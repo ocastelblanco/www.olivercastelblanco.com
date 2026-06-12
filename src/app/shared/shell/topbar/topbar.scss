@@ -1,0 +1,29 @@
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 56px;
+  right: 0;
+  height: var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-lg);
+  background-color: var(--color-surface-container-low);
+  border-bottom: 1px solid var(--color-outline-variant);
+  z-index: 10;
+}
+
+.topbar__brand {
+  color: var(--color-primary-container);
+  text-decoration: none;
+}
+
+.topbar__role {
+  color: var(--color-on-surface-variant);
+}
+
+@media (max-width: 720px) {
+  .topbar__role {
+    display: none;
+  }
+}
