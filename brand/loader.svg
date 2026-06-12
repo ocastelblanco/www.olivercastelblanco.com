@@ -1,0 +1,9 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Loader animado OC — Oliver Castelblanco</title>
+  <rect x="28" y="28" width="144" height="144" fill="none" stroke="#ffffff" stroke-width="24"/>
+  <path d="M172 24 H120 V176 H172" fill="none" stroke="#c3f400" stroke-width="24"/>
+  <rect x="-12" y="-12" width="24" height="24" fill="#00eefc">
+    <animateMotion dur="2.4s" repeatCount="indefinite"
+      path="M28,28 H172 V172 H28 Z" />
+  </rect>
+</svg>

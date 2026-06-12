@@ -135,6 +135,41 @@
   CI pero no localmente, correr `npm run lint` antes de hacer push. Los PRs que fallen
   cualquiera de los tres pasos no deben fusionarse.
 
+### ADR-007 — Identidad visual corporativa: flujo LogoLoom (local/MCP) + Taskade (manual/externo)
+
+- **Fecha:** 2026-06-12
+- **Estado:** Fase 1 implementada; Fase 2 (Taskade) pendiente, manual
+- **Decisión:** El logo maestro, isotipo, favicons y loader animado se generan en dos fases:
+  1. **Fase 1 — LogoLoom** (`@mcpware/logoloom`, MCP server local registrado en `.mcp.json`):
+     genera conceptos SVG basados en los tokens de `DESIGN.md` (paleta Industrial Minimalism,
+     JetBrains Mono / Inter), optimiza el SVG resultante y exporta el kit base (variantes
+     claro/oscuro/monocromático, favicons en múltiples tamaños, isotipo independiente y una
+     versión animada como progress loader). Activos en `brand/`.
+  2. **Fase 2 — Taskade "AI Logo Variations Agent"** (servicio externo, fuera de este
+     repositorio y del motor JIT): a partir del logo maestro generado en la Fase 1, produce
+     variantes adicionales del kit de marca. Es un paso manual que el usuario ejecuta por
+     fuera de Claude Code; no se automatiza ni se referencia como tarea del `TODO.md`.
+- **Razón:** LogoLoom es local, gratuito y permite que Claude Code lea el contexto del
+  proyecto (design tokens, tipografías) directamente para diseñar el SVG. Taskade
+  complementa con variantes de marca sin esfuerzo adicional, pero al ser un SaaS externo sin
+  integración MCP conocida, se mantiene fuera del flujo automatizado.
+- **Consecuencias:** Requiere reiniciar la sesión de Claude Code tras crear `.mcp.json` para
+  que el MCP `logoloom` quede disponible. Los activos de marca viven en `brand/` (nuevo
+  directorio, fuera de `src/`). Los favicons actuales en `public/` se sustituirán por la
+  versión simplificada del logo generada en esta fase.
+- **Resultado (Fase 1):** Isotipo "Monograma OC" (anillo cuadrado blanco + bracket Cyber
+  Lime + acento Electric Cyan sobre Deep Charcoal). Archivos: `brand/isotype.svg` /
+  `isotype-light.svg`, `brand/logo-full.svg` (wordmark "OLIVER CASTELBLANCO" / "THE FIXER",
+  texto convertido a paths con `text_to_path` usando Inter — JetBrains Mono no disponible en
+  formato `.ttf/.otf` para `text_to_path`, pendiente si se requiere consistencia exacta con
+  `DESIGN.md`), `brand/favicon-mark.svg`, `brand/loader.svg` (progress loader animado) y
+  `brand/kit/` (25 archivos: PNG 16-1024px, ICO, WebP, OG/social images, `BRAND.md`).
+  Favicons aplicados en `public/` y referenciados en `src/index.html`
+  (`site.webmanifest` actualizado con nombre/colores del proyecto).
+- **Pendiente (Fase 2 — manual, fuera de Claude Code):** Usar Taskade "AI Logo Variations
+  Agent" con `brand/logo-full.svg` / `brand/isotype.svg` como entrada para generar
+  variantes adicionales del kit de marca.
+
 ## 4. Dependencias instaladas
 
 | Paquete | Versión | Tipo |
