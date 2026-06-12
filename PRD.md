@@ -130,6 +130,10 @@ El sitio anterior ya no refleja este posicionamiento. Se necesita un sitio nuevo
   capa gratuita de AWS en la mayoría de los meses.
 - **Disponibilidad**: sin requerimiento de SLA estricto (sitio personal), pero se espera alta
   disponibilidad por naturaleza serverless/CDN.
+- **Responsive / móvil**: el sitio no es *mobile first*, pero debe ser completamente visible
+  y funcional en dispositivos móviles. En particular, el shell de navegación (sidebar +
+  topbar) debe adaptarse: en viewports angostos (≤720px) la sidebar lateral se convierte en
+  una barra de navegación inferior fija, manteniendo accesibles los mismos enlaces.
 
 ## 9. Restricciones y decisiones de diseño
 

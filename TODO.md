@@ -21,37 +21,10 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Shell de navegación (sidebar + topbar)
-
-**Origen:** `PRD.md` §6 (Roadmap, prioridad Alta) y `tech-specs.md` §11 (tercera fila del
-roadmap técnico, dependencia: "Boilerplate listo").
-
-**Archivos:** `src/app/shared/shell/*` (componentes standalone para sidebar y topbar),
-`src/app/app.ts` / `src/app/app.html` (integración del shell en el layout raíz).
-
-**Qué hacer:**
-1. Crear componentes standalone `Sidebar` y `Topbar` en `src/app/shared/shell/` usando los
-   tokens de `src/styles/_tokens.scss` y `_typography.scss`.
-2. Integrar ambos componentes en `src/app/app.html` envolviendo el `<router-outlet>`,
-   manteniendo zoneless/signals (sin `NgZone`).
-3. La sidebar debe listar los enlaces principales del sitio según `PRD.md` §5 (Home, Casos
-   de Estudio, The Lab, Contacto) usando `routerLink`.
-4. Verificar visualmente con `npm start` que el shell se renderiza correctamente con el
-   design system aplicado.
-
-**Definition of done:**
-- [ ] Existen `src/app/shared/shell/sidebar` y `src/app/shared/shell/topbar` como
-      componentes standalone
-- [ ] `app.html` integra sidebar + topbar alrededor del `router-outlet`
-- [ ] La navegación usa `routerLink` con las rutas principales del PRD
-- [ ] `npm start` muestra el shell con los estilos del design system aplicados
-
----
-
-## Tarea 2 — [FEATURE]: CI con GitHub Actions (build + test)
+## Tarea 1 — [FEATURE]: CI con GitHub Actions (build + test)
 
 **Origen:** `tech-specs.md` §11 (roadmap técnico, dependencia: "Build/test funcionando
-localmente" — ya cumplida tras la Tarea 1 del historial).
+localmente" — ya cumplida tras las tareas del historial).
 
 **Archivos:** `.github/workflows/ci.yml`.
 
@@ -74,6 +47,37 @@ localmente" — ya cumplida tras la Tarea 1 del historial).
 
 ---
 
+## Tarea 2 — [FEATURE]: Home — "El Manifiesto del Fixer"
+
+**Origen:** `PRD.md` §5.1 y §6 (Roadmap, prioridad Alta: "MVP: Home + Registro de Proyectos +
+1 Caso de Estudio + Shell de navegación" — esta tarea cubre la pieza Home, que depende del
+shell de navegación, ya completado).
+
+**Archivos:** `src/app/features/home/*` (componente standalone `Home`),
+`src/app/app.routes.ts` (registrar la ruta `''` apuntando a `Home`).
+
+**Qué hacer:**
+1. Generar el componente standalone `Home` en `src/app/features/home/` (`npx ng generate
+   component features/home`).
+2. Implementar el contenido de `docs/arquitectura/arquitectura_ocastelblanco.md` §1: hero con
+   headline de autoridad ("The Fixer: Industrial Design Thinking meets AI Orchestration."),
+   sub-headline (25 años resolviendo arquitectura sistémica mediante Cloud Economics y
+   Desarrollo Aumentado por IA) y los tres pilares de valor (Efficiency, Architecture,
+   Design) como bloques/cards usando los tokens de `DESIGN.md`.
+3. Registrar la ruta `''` en `src/app/app.routes.ts` apuntando a `Home` (carga directa o
+   `loadComponent`, consistente con zoneless/standalone).
+4. Verificar visualmente con `npm start` que la Home se renderiza dentro del shell
+   (sidebar + topbar) con el design system aplicado.
+
+**Definition of done:**
+- [ ] Existe `src/app/features/home` como componente standalone con hero + 3 pilares
+- [ ] `app.routes.ts` registra la ruta `''` → `Home`
+- [ ] El contenido coincide con `docs/arquitectura/arquitectura_ocastelblanco.md` §1
+- [ ] `npm start` muestra la Home dentro del shell de navegación con los estilos del design
+      system aplicados
+
+---
+
 ## Historial de tareas completadas
 
 ### 2026-06-11 — [FEATURE]: Generar el boilerplate Angular 22 (standalone, signals, zoneless, SSR)
@@ -92,6 +96,14 @@ properties), `src/styles/_typography.scss` (mixins JetBrains Mono / Inter) y act
 build` confirma compilación correcta (CSS inicial pasó de 96 B a ~3.8 kB). `MEMORY.md`
 actualizado (§2, §6, §9).
 
+### 2026-06-12 — [FEATURE]: Shell de navegación (sidebar + topbar)
+
+Creados los componentes standalone `Sidebar` y `Topbar` en `src/app/shared/shell/`,
+integrados en `src/app/app.html` envolviendo el `<router-outlet>`. La sidebar (56px,
+expandible a 220px en hover) enlaza a `/`, `/proyectos`, `/lab` y `/contacto` (PRD §5) con
+`RouterLink`/`RouterLinkActive`. `npm run build` y `npm test -- --watch=false` (4/4) sin
+errores; verificado visualmente con `npm start`. `MEMORY.md` actualizado (§2, §6, §9).
+
 ## Log del motor JIT
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
@@ -99,3 +111,4 @@ actualizado (§2, §6, §9).
 | 2026-06-11 | No existe código de aplicación; máxima prioridad Alta es el boilerplate Angular 22 (base para todo lo demás), seguida por los design tokens (requeridos por toda UI futura) | Se seleccionan las Tareas 1 y 2 de este archivo. Tarea 2 depende de que exista el workspace generado en la Tarea 1. |
 | 2026-06-11 | Boilerplate Angular 22 completado y verificado (build + start OK). Siguiente prioridad Alta sin completar: design tokens SCSS (requeridos por toda UI), seguido por el shell de navegación (depende del boilerplate, ya listo) | Tarea 1 (boilerplate) movida al historial. Tarea 2 (design tokens) pasa a ser Tarea 1. Nueva Tarea 2: shell de navegación (sidebar + topbar) |
 | 2026-06-11 | Design tokens completados y verificados (build OK). Siguiente prioridad Alta: shell de navegación (depende del boilerplate, ya listo, no de la otra tarea activa). Para la segunda tarea, se evita elegir algo que dependa del shell (aún no completado); CI con GitHub Actions ya tiene su dependencia ("build/test local") satisfecha y es de prioridad Media-Alta para mantener la calidad del repo | Tarea 1 (design tokens) movida al historial. Tarea 2 (shell de navegación) pasa a ser Tarea 1. Nueva Tarea 2: CI con GitHub Actions (build + test) |
+| 2026-06-12 | Shell de navegación completado y verificado (build + test + visual OK). Siguiente prioridad: CI con GitHub Actions (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Home ("El Manifiesto del Fixer", prioridad Alta del roadmap), que ya puede construirse dentro del shell recién completado | Tarea 1 (shell de navegación) movida al historial. Tarea 2 (CI) pasa a ser Tarea 1. Nueva Tarea 2: Home — "El Manifiesto del Fixer" |

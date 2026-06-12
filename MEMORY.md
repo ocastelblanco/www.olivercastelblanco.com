@@ -7,13 +7,13 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | Pre-MVP — Angular 22.0.0 (boilerplate generado, sin features de negocio) |
+| Versión | Pre-MVP — Angular 22.0.0 (boilerplate, design tokens y shell de navegación listos) |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
 | URL API | `https://api.ocastelblanco.com` (futuro, no provisionado) |
 | Rama principal (protegida) | `master` — sitio anterior (Angular Universal + Serverless) |
 | Rama de desarrollo (protegida) | `rediseno-2026` — rediseño desde cero |
-| Última sesión | 2026-06-11 |
+| Última sesión | 2026-06-12 |
 
 ## 2. Funcionalidades
 
@@ -25,9 +25,9 @@
 
 - [x] Boilerplate Angular 22 (standalone, signals, zoneless, SSR)
 - [x] Design tokens en SCSS según `DESIGN.md`
+- [x] Shell de navegación (sidebar + topbar)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] Shell de navegación (sidebar + topbar)
 - [ ] Home (Manifiesto + 3 Pilares)
 - [ ] Registro de Proyectos + Casos de Estudio
 - [ ] Terminal de contacto + endpoint
@@ -100,6 +100,22 @@
 - **Consecuencias:** Cualquier componente nuevo debe usar los tokens definidos en
   `DESIGN.md`/`src/styles/_tokens.scss` (cuando exista). No introducir colores, tipografías
   o radios fuera de este sistema sin actualizar primero `DESIGN.md`.
+
+### ADR-005 — Shell de navegación responsive: sidebar → barra inferior en móvil
+
+- **Fecha:** 2026-06-12
+- **Estado:** Implementado
+- **Decisión:** El sitio no es *mobile first*, pero debe ser completamente visible y
+  funcional en móviles (`PRD.md` §8). En viewports ≤720px, la `Sidebar` (normalmente fija a
+  la izquierda) se convierte en una barra de navegación inferior fija de altura 56px, con
+  los mismos 4 enlaces mostrando icono + etiqueta apilados. El `Topbar` ajusta su `left` a
+  `0` (ya no reserva espacio para la sidebar lateral) y `.app-content` agrega
+  `padding-bottom` para no quedar oculto detrás de la barra inferior.
+- **Razón:** Petición explícita del usuario — el shell debe seguir siendo navegable en
+  pantallas pequeñas sin depender de gestos de hover (que no existen en touch).
+- **Consecuencias:** Cualquier nuevo elemento del shell o layout de página debe considerar el
+  breakpoint `@media (max-width: 720px)` y dejar espacio para la barra inferior en móvil
+  (56px) en lugar de la sidebar lateral (56px en desktop).
 
 ## 4. Dependencias instaladas
 
@@ -191,6 +207,18 @@ tanto a selectores de elemento (`h1`, `h2`, `h3`) como a clases utilitarias (`.b
 en `*`, aplica `background-color`/`color` desde los tokens en `body` y agrega una textura
 de ruido sutil (SVG `feTurbulence`, opacidad 2.5%) vía `body::before`.
 
+### Shell de navegación (sidebar + topbar)
+
+`src/app/shared/shell/sidebar/` y `src/app/shared/shell/topbar/` son componentes standalone
+(`@shared/shell/sidebar/sidebar`, `@shared/shell/topbar/topbar`) integrados en
+`src/app/app.html` envolviendo el `<router-outlet>`. La sidebar es una franja fija de 56px
+con iconos de 20px que se expande a 220px en `:hover` (transición CSS, sin estado en
+TypeScript) mostrando las etiquetas (`technical-label`). Los enlaces (`RouterLink` +
+`RouterLinkActive`) apuntan a `/`, `/proyectos`, `/lab` y `/contacto` según `PRD.md` §5 —
+estas rutas aún no tienen componentes asociados en `app.routes.ts` (se agregan al construir
+cada feature). El topbar es una franja fija superior que ocupa el espacio restante
+(`left: 56px`), con el nombre del sitio y el rol de Oliver Castelblanco.
+
 ## 7. Gotchas conocidos
 
 | Situación | Solución |
@@ -218,25 +246,20 @@ de ruido sutil (SVG `feTurbulence`, opacidad 2.5%) vía `body::before`.
 
 ## 9. Contexto de la sesión actual
 
-**Fecha:** 2026-06-11
+**Fecha:** 2026-06-12
 
 **Qué se hizo hoy:**
-- Se creó la rama huérfana `rediseno-2026` y se limpió por completo el working tree.
-- Se commiteó y pusheó la documentación inicial del rediseño (objetivos, arquitectura de
-  contenido, design system, bitácora de proceso).
-- Se ejecutó el bootstrap de documentación: `CLAUDE.md` (incluyendo OWASP y git flow),
-  `PRD.md`, `tech-specs.md` y este `MEMORY.md`.
-- Se registraron los ADR-001 a ADR-004 capturando las decisiones de Angular 22
-  (signals/zoneless), arquitectura serverless orientada a microservicios multi-proveedor, y
-  el design system.
-- Se generó el boilerplate Angular 22.0.0 (standalone, signals, zoneless, SSR con
-  `@angular/ssr`) usando `npx -y @angular/cli@22 new`. Se configuraron los path aliases
-  (`@core/*`, `@shared/*`, `@features/*`, `@env/*`) y los entornos (`environment.ts`,
-  `environment.prod.ts`). `npm run build` y `npm start` funcionan sin errores.
-- Se implementaron los design tokens del Design System en SCSS: `src/styles/_tokens.scss`
-  (colores y spacing como custom properties), `src/styles/_typography.scss` (mixins
-  JetBrains Mono / Inter) y `src/styles.scss` (border-radius 0 global, fondo oscuro con
-  textura de ruido). `npm run build` confirma la compilación correcta.
+- Se construyó el shell de navegación: componentes standalone `Sidebar` y `Topbar` en
+  `src/app/shared/shell/`, integrados en `src/app/app.html` envolviendo el
+  `<router-outlet>`. La sidebar usa iconos de 20px que se expanden en hover (220px) y
+  enlaza, vía `RouterLink`/`RouterLinkActive`, a `/`, `/proyectos`, `/lab` y `/contacto`
+  (PRD §5). El topbar muestra el nombre del sitio y el rol de Oliver Castelblanco.
+- Se actualizaron los specs (`app.spec.ts`, `sidebar.spec.ts`, `topbar.spec.ts`) agregando
+  `provideRouter([])` para resolver `RouterLink` en pruebas, y se reemplazó la verificación
+  del placeholder `<h1>` por una verificación de presencia de `app-sidebar`/`app-topbar`.
+- Verificado con `npm run build` (sin errores) y `npm test -- --watch=false` (4/4 OK), y
+  visualmente vía el servidor de desarrollo (`npm start`).
 
-**Próxima tarea sugerida:** construir el shell de navegación (sidebar + topbar) usando los
-tokens recién creados (Tarea 1 recalculada en `TODO.md`).
+**Próxima tarea sugerida:** según el motor JIT (`TODO.md`), CI con GitHub Actions
+(`.github/workflows/ci.yml`) — y recalcular la siguiente tarea de prioridad Alta del
+roadmap (Home / Manifiesto).

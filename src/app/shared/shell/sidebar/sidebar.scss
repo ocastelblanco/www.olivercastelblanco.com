@@ -1,0 +1,117 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 56px;
+  overflow: hidden;
+  background-color: var(--color-surface-container-low);
+  border-right: 1px solid var(--color-outline-variant);
+  transition: width 50ms linear;
+  z-index: 20;
+
+  &:hover {
+    width: 220px;
+  }
+}
+
+.sidebar__list {
+  list-style: none;
+  margin: 0;
+  padding: var(--spacing-xl) 0 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  color: var(--color-on-surface-variant);
+  text-decoration: none;
+  white-space: nowrap;
+  border-left: 2px solid transparent;
+  transition: color 50ms linear, border-color 50ms linear;
+
+  &:hover {
+    color: var(--color-on-surface);
+    border-left-color: var(--color-secondary-container);
+  }
+
+  &--active {
+    color: var(--color-primary-container);
+    border-left-color: var(--color-primary-container);
+  }
+}
+
+.sidebar__icon {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.sidebar__label {
+  opacity: 0;
+  transition: opacity 50ms linear;
+}
+
+.sidebar:hover .sidebar__label {
+  opacity: 1;
+}
+
+// Mobile: la sidebar se convierte en una barra de navegación inferior fija
+@media (max-width: 720px) {
+  .sidebar {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 56px;
+    border-right: none;
+    border-top: 1px solid var(--color-outline-variant);
+
+    &:hover {
+      width: 100%;
+    }
+  }
+
+  .sidebar__list {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: stretch;
+    height: 100%;
+    padding: 0;
+  }
+
+  .sidebar__item {
+    flex: 1;
+  }
+
+  .sidebar__link {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-xs);
+    height: 100%;
+    padding: var(--spacing-xs);
+    border-left: none;
+    border-top: 2px solid transparent;
+
+    &:hover {
+      border-left-color: transparent;
+      border-top-color: var(--color-secondary-container);
+    }
+
+    &--active {
+      border-left-color: transparent;
+      border-top-color: var(--color-primary-container);
+    }
+  }
+
+  .sidebar__label {
+    opacity: 1;
+    font-size: 10px;
+  }
+}
