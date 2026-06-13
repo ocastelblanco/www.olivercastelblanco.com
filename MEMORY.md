@@ -185,6 +185,23 @@
 - **Pendiente (Fase 2 — manual, fuera de Claude Code):** Usar Taskade "AI Logo Variations
   Agent" con `brand/logo-full.svg` / `brand/isotype.svg` como entrada para generar
   variantes adicionales del kit de marca.
+- **Revisión 2026-06-12 (segunda corrección — fondo animado):** El usuario tampoco aceptó
+  el resultado anterior (kit basado en `OC_logo.svg`, sin fondo). Proporcionó
+  `brand/OC_logo_fondo.svg` (master nuevo: el mismo emblema "OC" más un `<circle
+  inkscape:label="fondo">` de fondo y 4 `<linearGradient>` etiquetados `_Linear0`.._Linear3`
+  — negro→lime, cian→lime, cian→negro, negro→negro) y `brand/OC_logo_fondo.png` (referencia
+  1024×1024). `brand/OC_logo.svg` (sin fondo) fue eliminado por el usuario; el nuevo master
+  es `brand/OC_logo_fondo.svg`. Se optimizó con `svgo` (-28.3%, a 66.6 KB) y se regeneró el
+  kit completo (24 archivos en `brand/kit/`) con el mismo script `exportBrandKit` vía
+  `node` (bypass del límite de tamaño de parámetro MCP), apuntando al SVG optimizado.
+  `brand/isotype.svg` = copia del SVG optimizado con fondo. Favicons en `public/`
+  regenerados desde `brand/kit/icon-*.png` (legible a 16/32px). Se creó
+  `brand/loader.svg`: el `<circle>` de fondo se duplicó en 4 copias, cada una con `fill`
+  apuntando a uno de los 4 `<linearGradient>` originales (`bgGradient0..3`, vía
+  `xlink:href` a `_Linear0.._Linear3`), animando su `opacity` con `<animate
+  calcMode="linear">` (keyTimes/values) para un crossfade continuo Linear0→1→2→3→0, 0.5s
+  por transición (ciclo total 2s, `repeatCount="indefinite"`). El grupo "forma" (octágono +
+  "OC" + circuitos) queda fijo encima. `npm run build` en verde.
 
 ## 4. Dependencias instaladas
 

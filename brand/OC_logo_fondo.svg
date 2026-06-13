@@ -38,42 +38,10 @@
    cx="512.30499"
    cy="-512.14697"
    r="476.69501"
-   style="display:inline;fill:url(#bgGradient0)"
-   id="circleBg0"
-   inkscape:label="fondo0"
-   transform="rotate(90)">
-      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.25;0.75;1" dur="2s" repeatCount="indefinite" calcMode="linear" />
-    </circle>
-    <circle
-   cx="512.30499"
-   cy="-512.14697"
-   r="476.69501"
-   style="display:inline;fill:url(#bgGradient1)"
-   id="circleBg1"
-   inkscape:label="fondo1"
-   transform="rotate(90)">
-      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.25;0.5;1" dur="2s" repeatCount="indefinite" calcMode="linear" />
-    </circle>
-    <circle
-   cx="512.30499"
-   cy="-512.14697"
-   r="476.69501"
-   style="display:inline;fill:url(#bgGradient2)"
-   id="circleBg2"
-   inkscape:label="fondo2"
-   transform="rotate(90)">
-      <animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;0.25;0.5;0.75;1" dur="2s" repeatCount="indefinite" calcMode="linear" />
-    </circle>
-    <circle
-   cx="512.30499"
-   cy="-512.14697"
-   r="476.69501"
-   style="display:inline;fill:url(#bgGradient3)"
-   id="circleBg3"
-   inkscape:label="fondo3"
-   transform="rotate(90)">
-      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.5;0.75;1" dur="2s" repeatCount="indefinite" calcMode="linear" />
-    </circle>
+   style="display:inline;fill:url(#linearGradient195)"
+   id="circle1"
+   inkscape:label="fondo"
+   transform="rotate(90)" />
     <g id="g193"
    inkscape:label="forma"
    sodipodi:insensitive="true"><path
@@ -710,38 +678,8 @@
      id="stop191" /></linearGradient>
     <linearGradient
    inkscape:collect="always"
-   xlink:href="#linearGradient196"
-   id="bgGradient0"
-   x1="35.451965"
-   y1="512.30499"
-   x2="988.84198"
-   y2="512.30499"
-   gradientUnits="userSpaceOnUse"
-   gradientTransform="translate(0.15802002,-1024.452)" />
-   <linearGradient
-   inkscape:collect="always"
-   xlink:href="#x_Linear1"
-   id="bgGradient1"
-   x1="35.451965"
-   y1="512.30499"
-   x2="988.84198"
-   y2="512.30499"
-   gradientUnits="userSpaceOnUse"
-   gradientTransform="translate(0.15802002,-1024.452)" />
-   <linearGradient
-   inkscape:collect="always"
-   xlink:href="#x_Linear1-1"
-   id="bgGradient2"
-   x1="35.451965"
-   y1="512.30499"
-   x2="988.84198"
-   y2="512.30499"
-   gradientUnits="userSpaceOnUse"
-   gradientTransform="translate(0.15802002,-1024.452)" />
-   <linearGradient
-   inkscape:collect="always"
    xlink:href="#x_Linear1-2"
-   id="bgGradient3"
+   id="linearGradient195"
    x1="35.451965"
    y1="512.30499"
    x2="988.84198"

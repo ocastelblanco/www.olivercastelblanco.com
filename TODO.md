@@ -85,6 +85,20 @@ shell de navegación, ya completado).
 
 ## Historial de tareas completadas
 
+### 2026-06-12 — [FIX]: Identidad visual corporativa — Logo maestro (segunda corrección: fondo + loader animado por gradientes)
+
+El usuario tampoco aceptó el kit anterior (sin fondo) y proporcionó un nuevo master,
+`brand/OC_logo_fondo.svg` (emblema "OC" + `<circle>` de fondo + 4 `<linearGradient>`
+`_Linear0.._Linear3`), reemplazando a `brand/OC_logo.svg` (eliminado). Optimizado con
+`svgo` (-28.3%) y regenerado el kit completo (24 archivos en `brand/kit/`) vía el mismo
+script `exportBrandKit` por `node`. `brand/isotype.svg` = copia del SVG con fondo
+optimizado. Favicons en `public/` regenerados y verificados legibles a 16/32px. Nuevo
+`brand/loader.svg`: 4 copias del `<circle>` de fondo, cada una con un `<linearGradient>`
+distinto (`_Linear0.._Linear3`) y `<animate>` de `opacity` con `calcMode="linear"` para
+crossfade continuo entre los 4 gradientes (0.5s por transición, ciclo 2s,
+`repeatCount="indefinite"`); el grupo "forma" queda fijo encima. `npm run build`
+verificado en verde. `MEMORY.md` actualizado (ADR-007, nueva revisión).
+
 ### 2026-06-12 — [FEATURE]: Identidad visual corporativa — Logo maestro (Fase 1: LogoLoom)
 
 MCP `logoloom` configurado en `.mcp.json` y usado para procesar el logo. Diseñado el
