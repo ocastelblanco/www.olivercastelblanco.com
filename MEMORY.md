@@ -202,6 +202,15 @@
   calcMode="linear">` (keyTimes/values) para un crossfade continuo Linear0→1→2→3→0, 0.5s
   por transición (ciclo total 2s, `repeatCount="indefinite"`). El grupo "forma" (octágono +
   "OC" + circuitos) queda fijo encima. `npm run build` en verde.
+- **Revisión 2026-06-12 (tercera corrección — variantes monocromáticas):** El usuario
+  proporcionó `brand/OC_logo_alpha.svg` (mismo emblema "OC", sin círculo de fondo) para
+  regenerar `icon-mono-black.svg`, `icon-mono-white.svg`, `logo-full-mono-black.svg` y
+  `logo-full-mono-white.svg`. Las versiones previas (generadas por `exportBrandKit`)
+  conservaban los colores originales en vez de ser monocromáticas. Se regeneraron con un
+  script que reemplaza todos los valores `fill:#XXXXXX`/`stroke:#XXXXXX` por `#000000`
+  (black) o `#ffffff` (white) sobre `OC_logo_alpha.svg`, optimizado con `svgo` (-30.7%).
+  Las 4 variantes son idénticas entre `icon-*` y `logo-full-*` (mismo SVG completo, sin
+  distinción de "isotipo vs wordmark" en este master). `npm run build` en verde.
 
 ## 4. Dependencias instaladas
 

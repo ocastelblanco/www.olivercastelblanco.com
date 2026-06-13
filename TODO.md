@@ -85,6 +85,15 @@ shell de navegación, ya completado).
 
 ## Historial de tareas completadas
 
+### 2026-06-12 — [FIX]: Identidad visual corporativa — Variantes monocromáticas (icon/logo-full mono black/white)
+
+El usuario proporcionó `brand/OC_logo_alpha.svg` (emblema "OC" sin fondo) para regenerar
+`brand/kit/icon-mono-black.svg`, `icon-mono-white.svg`, `logo-full-mono-black.svg` y
+`logo-full-mono-white.svg`, que antes conservaban los colores originales. Regenerados
+reemplazando todos los `fill:#XXXXXX`/`stroke:#XXXXXX` por `#000000` o `#ffffff` y
+optimizando con `svgo` (-30.7%). `npm run build` verificado en verde. `MEMORY.md`
+actualizado (ADR-007, nueva revisión).
+
 ### 2026-06-12 — [FIX]: Identidad visual corporativa — Logo maestro (segunda corrección: fondo + loader animado por gradientes)
 
 El usuario tampoco aceptó el kit anterior (sin fondo) y proporcionó un nuevo master,
