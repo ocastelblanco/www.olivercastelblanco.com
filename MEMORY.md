@@ -135,6 +135,83 @@
   CI pero no localmente, correr `npm run lint` antes de hacer push. Los PRs que fallen
   cualquiera de los tres pasos no deben fusionarse.
 
+### ADR-007 — Identidad visual corporativa: flujo LogoLoom (local/MCP) + Taskade (manual/externo)
+
+- **Fecha:** 2026-06-12
+- **Estado:** Fase 1 implementada; Fase 2 (Taskade) pendiente, manual
+- **Decisión:** El logo maestro, isotipo, favicons y loader animado se generan en dos fases:
+  1. **Fase 1 — LogoLoom** (`@mcpware/logoloom`, MCP server local registrado en `.mcp.json`):
+     genera conceptos SVG basados en los tokens de `DESIGN.md` (paleta Industrial Minimalism,
+     JetBrains Mono / Inter), optimiza el SVG resultante y exporta el kit base (variantes
+     claro/oscuro/monocromático, favicons en múltiples tamaños, isotipo independiente y una
+     versión animada como progress loader). Activos en `brand/`.
+  2. **Fase 2 — Taskade "AI Logo Variations Agent"** (servicio externo, fuera de este
+     repositorio y del motor JIT): a partir del logo maestro generado en la Fase 1, produce
+     variantes adicionales del kit de marca. Es un paso manual que el usuario ejecuta por
+     fuera de Claude Code; no se automatiza ni se referencia como tarea del `TODO.md`.
+- **Razón:** LogoLoom es local, gratuito y permite que Claude Code lea el contexto del
+  proyecto (design tokens, tipografías) directamente para diseñar el SVG. Taskade
+  complementa con variantes de marca sin esfuerzo adicional, pero al ser un SaaS externo sin
+  integración MCP conocida, se mantiene fuera del flujo automatizado.
+- **Consecuencias:** Requiere reiniciar la sesión de Claude Code tras crear `.mcp.json` para
+  que el MCP `logoloom` quede disponible. Los activos de marca viven en `brand/` (nuevo
+  directorio, fuera de `src/`). Los favicons actuales en `public/` se sustituirán por la
+  versión simplificada del logo generada en esta fase.
+- **Revisión 2026-06-12 (corrección):** El primer concepto generado por LogoLoom
+  ("Monograma OC" geométrico simple) fue rechazado por el usuario. El usuario diseñó su
+  propio logo maestro — un emblema circular "OC" con motivo de circuito impreso (paths
+  lime `#d2f50e` / cian `#01f1fd`-`#02def0` / verdes `#38e8bb`-`#73ea4f`, 1024×1024,
+  guardado en `brand/OC_logo.svg`) y solicitó reconstruir el kit completo a partir de él.
+  Se eliminaron todos los archivos anteriores de `brand/` (isotipo, favicon-mark,
+  logo-full, loader, `kit/`) dejando solo `OC_logo.svg`. Se optimizó con `svgo`
+  (-31.8%, vía CLI porque el SVG de 92KB excede el límite de tokens para pasarlo como
+  parámetro MCP) y se exportó el kit completo invocando `exportBrandKit` directamente
+  desde `node` (import del módulo `@mcpware/logoloom`, evitando el límite de tamaño de
+  parámetro del protocolo MCP) a `brand/kit/` (24 archivos). `brand/isotype.svg` es una
+  copia del logo maestro (ya es un emblema circular autocontenido, válido como isotipo).
+  `brand/loader.svg` es nuevo: anillo lime/cian + texto "OC" con pulso de opacidad +
+  arco cian rotatorio (`animateTransform`) como progress loader. Favicons en `public/`
+  regenerados desde `brand/kit/icon-*.png` (verificado legible incluso a 32px). `npm run
+  build` en verde.
+- **Resultado (Fase 1):** Isotipo "Monograma OC" (anillo cuadrado blanco + bracket Cyber
+  Lime + acento Electric Cyan sobre Deep Charcoal). Archivos: `brand/isotype.svg` /
+  `isotype-light.svg`, `brand/logo-full.svg` (wordmark "OLIVER CASTELBLANCO" / "THE FIXER",
+  texto convertido a paths con `text_to_path` usando Inter — JetBrains Mono no disponible en
+  formato `.ttf/.otf` para `text_to_path`, pendiente si se requiere consistencia exacta con
+  `DESIGN.md`), `brand/favicon-mark.svg`, `brand/loader.svg` (progress loader animado) y
+  `brand/kit/` (25 archivos: PNG 16-1024px, ICO, WebP, OG/social images, `BRAND.md`).
+  Favicons aplicados en `public/` y referenciados en `src/index.html`
+  (`site.webmanifest` actualizado con nombre/colores del proyecto).
+- **Pendiente (Fase 2 — manual, fuera de Claude Code):** Usar Taskade "AI Logo Variations
+  Agent" con `brand/logo-full.svg` / `brand/isotype.svg` como entrada para generar
+  variantes adicionales del kit de marca.
+- **Revisión 2026-06-12 (segunda corrección — fondo animado):** El usuario tampoco aceptó
+  el resultado anterior (kit basado en `OC_logo.svg`, sin fondo). Proporcionó
+  `brand/OC_logo_fondo.svg` (master nuevo: el mismo emblema "OC" más un `<circle
+  inkscape:label="fondo">` de fondo y 4 `<linearGradient>` etiquetados `_Linear0`.._Linear3`
+  — negro→lime, cian→lime, cian→negro, negro→negro) y `brand/OC_logo_fondo.png` (referencia
+  1024×1024). `brand/OC_logo.svg` (sin fondo) fue eliminado por el usuario; el nuevo master
+  es `brand/OC_logo_fondo.svg`. Se optimizó con `svgo` (-28.3%, a 66.6 KB) y se regeneró el
+  kit completo (24 archivos en `brand/kit/`) con el mismo script `exportBrandKit` vía
+  `node` (bypass del límite de tamaño de parámetro MCP), apuntando al SVG optimizado.
+  `brand/isotype.svg` = copia del SVG optimizado con fondo. Favicons en `public/`
+  regenerados desde `brand/kit/icon-*.png` (legible a 16/32px). Se creó
+  `brand/loader.svg`: el `<circle>` de fondo se duplicó en 4 copias, cada una con `fill`
+  apuntando a uno de los 4 `<linearGradient>` originales (`bgGradient0..3`, vía
+  `xlink:href` a `_Linear0.._Linear3`), animando su `opacity` con `<animate
+  calcMode="linear">` (keyTimes/values) para un crossfade continuo Linear0→1→2→3→0, 0.5s
+  por transición (ciclo total 2s, `repeatCount="indefinite"`). El grupo "forma" (octágono +
+  "OC" + circuitos) queda fijo encima. `npm run build` en verde.
+- **Revisión 2026-06-12 (tercera corrección — variantes monocromáticas):** El usuario
+  proporcionó `brand/OC_logo_alpha.svg` (mismo emblema "OC", sin círculo de fondo) para
+  regenerar `icon-mono-black.svg`, `icon-mono-white.svg`, `logo-full-mono-black.svg` y
+  `logo-full-mono-white.svg`. Las versiones previas (generadas por `exportBrandKit`)
+  conservaban los colores originales en vez de ser monocromáticas. Se regeneraron con un
+  script que reemplaza todos los valores `fill:#XXXXXX`/`stroke:#XXXXXX` por `#000000`
+  (black) o `#ffffff` (white) sobre `OC_logo_alpha.svg`, optimizado con `svgo` (-30.7%).
+  Las 4 variantes son idénticas entre `icon-*` y `logo-full-*` (mismo SVG completo, sin
+  distinción de "isotipo vs wordmark" en este master). `npm run build` en verde.
+
 ## 4. Dependencias instaladas
 
 | Paquete | Versión | Tipo |

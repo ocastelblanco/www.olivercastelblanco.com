@@ -85,6 +85,55 @@ shell de navegación, ya completado).
 
 ## Historial de tareas completadas
 
+### 2026-06-12 — [FIX]: Identidad visual corporativa — Variantes monocromáticas (icon/logo-full mono black/white)
+
+El usuario proporcionó `brand/OC_logo_alpha.svg` (emblema "OC" sin fondo) para regenerar
+`brand/kit/icon-mono-black.svg`, `icon-mono-white.svg`, `logo-full-mono-black.svg` y
+`logo-full-mono-white.svg`, que antes conservaban los colores originales. Regenerados
+reemplazando todos los `fill:#XXXXXX`/`stroke:#XXXXXX` por `#000000` o `#ffffff` y
+optimizando con `svgo` (-30.7%). `npm run build` verificado en verde. `MEMORY.md`
+actualizado (ADR-007, nueva revisión).
+
+### 2026-06-12 — [FIX]: Identidad visual corporativa — Logo maestro (segunda corrección: fondo + loader animado por gradientes)
+
+El usuario tampoco aceptó el kit anterior (sin fondo) y proporcionó un nuevo master,
+`brand/OC_logo_fondo.svg` (emblema "OC" + `<circle>` de fondo + 4 `<linearGradient>`
+`_Linear0.._Linear3`), reemplazando a `brand/OC_logo.svg` (eliminado). Optimizado con
+`svgo` (-28.3%) y regenerado el kit completo (24 archivos en `brand/kit/`) vía el mismo
+script `exportBrandKit` por `node`. `brand/isotype.svg` = copia del SVG con fondo
+optimizado. Favicons en `public/` regenerados y verificados legibles a 16/32px. Nuevo
+`brand/loader.svg`: 4 copias del `<circle>` de fondo, cada una con un `<linearGradient>`
+distinto (`_Linear0.._Linear3`) y `<animate>` de `opacity` con `calcMode="linear"` para
+crossfade continuo entre los 4 gradientes (0.5s por transición, ciclo 2s,
+`repeatCount="indefinite"`); el grupo "forma" queda fijo encima. `npm run build`
+verificado en verde. `MEMORY.md` actualizado (ADR-007, nueva revisión).
+
+### 2026-06-12 — [FEATURE]: Identidad visual corporativa — Logo maestro (Fase 1: LogoLoom)
+
+MCP `logoloom` configurado en `.mcp.json` y usado para procesar el logo. Diseñado el
+monograma "OC" (anillo cuadrado blanco + bracket Cyber Lime + acento Electric Cyan) sobre
+Deep Charcoal, validado con el usuario entre 3 conceptos. Generados: `brand/isotype.svg`
+(+ `isotype-light.svg`), `brand/logo-full.svg` (wordmark "OLIVER CASTELBLANCO" / "THE FIXER"
+convertido a paths con `text_to_path`), `brand/favicon-mark.svg` y `brand/loader.svg`
+(progress loader animado con `animateMotion`). Exportado kit completo de 25 archivos a
+`brand/kit/` con `export_brand_kit` (PNG 16-1024px, ICO, WebP, OG images, `BRAND.md`).
+Favicons aplicados en `public/` (favicon.ico, favicon-16x16, favicon-32x32,
+apple-touch-icon, android-chrome-192/512) y enlaces + `site.webmanifest` actualizados en
+`src/index.html`. `npm run build` verificado en verde dos veces. `MEMORY.md` actualizado
+(ADR-007) con el paso manual pendiente de Taskade.
+
+### 2026-06-12 — [FIX]: Identidad visual corporativa — Logo maestro (corrección con diseño del usuario)
+
+El usuario rechazó el concepto "Monograma OC" anterior y proporcionó su propio logo
+maestro (`brand/OC_logo.svg`, emblema circular "OC" con motivo de circuito impreso).
+Eliminados todos los archivos previos de `brand/` excepto `OC_logo.svg`. Optimizado con
+`svgo` (-31.8%) y exportado el kit completo (24 archivos) a `brand/kit/` invocando
+`exportBrandKit` de `@mcpware/logoloom` directamente desde `node` (el SVG de 92KB excede
+el límite de parámetros MCP). `brand/isotype.svg` = copia del logo maestro.
+`brand/loader.svg` nuevo (anillo + "OC" con pulso + arco cian rotatorio). Favicons en
+`public/` regenerados desde `brand/kit/icon-*.png`, legibles incluso a 32px. `npm run
+build` verificado en verde. `MEMORY.md` actualizado (ADR-007, nota de revisión).
+
 ### 2026-06-11 — [FEATURE]: Generar el boilerplate Angular 22 (standalone, signals, zoneless, SSR)
 
 Generado con `npx -y @angular/cli@22 new` (Angular 22.0.0). `npm run build` y `npm start`
@@ -134,3 +183,5 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 | 2026-06-11 | Design tokens completados y verificados (build OK). Siguiente prioridad Alta: shell de navegación (depende del boilerplate, ya listo, no de la otra tarea activa). Para la segunda tarea, se evita elegir algo que dependa del shell (aún no completado); CI con GitHub Actions ya tiene su dependencia ("build/test local") satisfecha y es de prioridad Media-Alta para mantener la calidad del repo | Tarea 1 (design tokens) movida al historial. Tarea 2 (shell de navegación) pasa a ser Tarea 1. Nueva Tarea 2: CI con GitHub Actions (build + test) |
 | 2026-06-12 | Shell de navegación completado y verificado (build + test + visual OK). Siguiente prioridad: CI con GitHub Actions (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Home ("El Manifiesto del Fixer", prioridad Alta del roadmap), que ya puede construirse dentro del shell recién completado | Tarea 1 (shell de navegación) movida al historial. Tarea 2 (CI) pasa a ser Tarea 1. Nueva Tarea 2: Home — "El Manifiesto del Fixer" |
 | 2026-06-12 | CI con GitHub Actions completado y verificado (lint + build + test en verde). Siguiente prioridad Alta: Home ("El Manifiesto del Fixer", ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Registro de Proyectos (PRD §5.2, prioridad Alta del MVP), que no depende de Home y ya tiene contenido fuente en `docs/arquitectura/arquitectura_ocastelblanco.md` §2-3 | Tarea 1 (CI) movida al historial. Tarea 2 (Home) pasa a ser Tarea 1. Nueva Tarea 2: Registro de Proyectos (Project Registry) |
+| 2026-06-12 | El usuario solicita anteponer una nueva iniciativa fuera del roadmap normal: identidad visual corporativa (logo maestro, isotipo, favicons, loader animado) vía LogoLoom (Fase 1, local/MCP) + Taskade (Fase 2, manual/externo, fuera de este motor JIT). Es insumo directo para favicons y branding de toda la UI, por lo que se antepone a las tareas en curso. Para mantener exactamente 2 tareas activas, "Registro de Proyectos" se retira temporalmente de la lista activa (no se pierde: sigue siendo prioridad Alta del roadmap, documentada en `PRD.md` §5.2, y se reincorporará como Tarea 2 en cuanto se libere un slot) | Nueva Tarea 1: Identidad visual corporativa — Logo maestro (LogoLoom). Tarea 1 anterior (Home) pasa a ser Tarea 2. "Registro de Proyectos" queda fuera de la lista activa, pendiente de reincorporación |
+| 2026-06-12 | Identidad visual (Fase 1 LogoLoom) completada y verificada (`npm run build` en verde, favicons aplicados). Siguiente prioridad Alta: Home ("El Manifiesto del Fixer") ya estaba seleccionada como Tarea 2 sin dependencias pendientes, pasa a Tarea 1. "Registro de Proyectos" (retirado temporalmente en la entrada anterior) no tiene dependencias bloqueantes y recupera su lugar como Tarea 2 | Tarea 1 (Logo maestro) movida al historial. Tarea 2 (Home) pasa a ser Tarea 1. Nueva Tarea 2: Registro de Proyectos (Project Registry) |
