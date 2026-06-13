@@ -85,6 +85,14 @@ shell de navegación, ya completado).
 
 ## Historial de tareas completadas
 
+### 2026-06-13 — [FIX]: Identidad visual corporativa — Fix de paths sin relleno y regeneración de bitmaps
+
+El usuario corrigió por su cuenta los SVG de `brand/` (dos paths de las letras "OC" sin
+`fill`). A partir de `brand/OC_logo_fondo.svg` corregido (optimizado con `svgo`, -28.1%)
+se regeneraron solo los binarios del kit (`brand/kit/*.png`, `favicon.ico`,
+`icon-512.webp`) sin tocar SVG/MD/HTML, y se actualizaron los favicons en `public/`.
+`npm run build` verificado en verde. `MEMORY.md` actualizado (ADR-007, nueva revisión).
+
 ### 2026-06-12 — [FIX]: Identidad visual corporativa — Variantes monocromáticas (icon/logo-full mono black/white)
 
 El usuario proporcionó `brand/OC_logo_alpha.svg` (emblema "OC" sin fondo) para regenerar

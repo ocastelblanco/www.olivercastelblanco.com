@@ -211,6 +211,16 @@
   (black) o `#ffffff` (white) sobre `OC_logo_alpha.svg`, optimizado con `svgo` (-30.7%).
   Las 4 variantes son idénticas entre `icon-*` y `logo-full-*` (mismo SVG completo, sin
   distinción de "isotipo vs wordmark" en este master). `npm run build` en verde.
+- **Revisión 2026-06-13 (cuarta corrección — fix de paths sin relleno + regeneración de
+  bitmaps):** El usuario detectó que dos paths del SVG original quedaban sin `fill`
+  (visible en las letras "OC") y corrigió todos los SVG de `brand/` (`OC_logo_fondo.svg`,
+  `OC_logo_alpha.svg`, `isotype.svg`, `loader.svg`, `brand/kit/*mono*.svg`,
+  `logo-full-light.svg`) por su cuenta, fuera de Claude Code. A partir del
+  `OC_logo_fondo.svg` corregido (optimizado con `svgo`, -28.1%), se regeneraron **solo los
+  binarios** del kit (`brand/kit/*.png`, `favicon.ico`, `icon-512.webp`) vía
+  `exportBrandKit` por `node` a un directorio temporal, copiando de vuelta únicamente los
+  archivos de imagen (sin tocar SVG/MD/HTML del kit). Favicons en `public/` regenerados
+  desde los nuevos PNG/ICO. `npm run build` en verde.
 
 ## 4. Dependencias instaladas
 
