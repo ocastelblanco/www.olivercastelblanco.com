@@ -222,6 +222,31 @@
   archivos de imagen (sin tocar SVG/MD/HTML del kit). Favicons en `public/` regenerados
   desde los nuevos PNG/ICO. `npm run build` en verde.
 
+### ADR-008 — Internacionalización (i18n): TranslationService propio basado en Signals
+
+- **Fecha:** 2026-06-13
+- **Estado:** Implementado (es-CO / en-US)
+- **Decisión:** Implementar i18n con un `TranslationService` propio (`providedIn: 'root'`)
+  basado en Angular Signals, sin `@angular/localize` (requiere builds separados por locale,
+  incompatible con cambio inmediato) ni librerías externas (`ngx-translate`, `transloco`).
+- **Razón:** El requisito de cambio inmediato de idioma sin recarga descarta `@angular/localize`.
+  Para solo 2 idiomas, una librería externa agrega más peso que valor. El patrón Signals es
+  nativo a Angular 22 zoneless: las plantillas rastrean automáticamente las lecturas de
+  signals, por lo que `trans.t('key')` en un template se re-evalúa solo cuando
+  `currentLocale` cambia, sin pipes especiales ni RxJS.
+- **Consecuencias:**
+  - Detección de idioma inicial: `localStorage('locale')` → `navigator.language` → `'en-US'`
+    (SSR-seguro vía `isPlatformBrowser`).
+  - Persistencia: `localStorage` key `'locale'`. Al cambiar, también se actualiza
+    `document.documentElement.lang`.
+  - Nuevos archivos: `src/app/core/i18n/` (tipos, diccionarios, servicio) y
+    `src/app/shared/shell/lang-switcher/` (componente selector).
+  - Componentes que consumen traducciones inyectan `TranslationService` y exponen
+    `protected readonly trans = inject(TranslationService)` para uso en plantilla.
+  - Para añadir un nuevo idioma: agregar un diccionario en `translations/`, extender
+    `Locale` y añadir la opción en `LangSwitcher.options`.
+  - Para añadir nuevas claves: extender `Translations` interface y los dos diccionarios.
+
 ## 4. Dependencias instaladas
 
 | Paquete | Versión | Tipo |

@@ -1,4 +1,7 @@
 <header class="topbar">
   <a class="topbar__brand technical-label" routerLink="/">ocastelblanco.com</a>
-  <span class="topbar__role technical-label">Solutions Architect &amp; AI Orchestrator</span>
+  <div class="topbar__end">
+    <span class="topbar__role technical-label">{{ trans.t('topbar.role') }}</span>
+    <app-lang-switcher />
+  </div>
 </header>

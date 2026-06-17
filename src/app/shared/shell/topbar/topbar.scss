@@ -18,6 +18,12 @@
   text-decoration: none;
 }
 
+.topbar__end {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
 .topbar__role {
   color: var(--color-on-surface-variant);
 }
