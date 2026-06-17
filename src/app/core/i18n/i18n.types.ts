@@ -13,4 +13,14 @@ export interface Translations {
   lang: {
     toggle_label: string;
   };
+  home: {
+    headline: string;
+    subheadline: string;
+    efficiency_title: string;
+    efficiency_body: string;
+    architecture_title: string;
+    architecture_body: string;
+    design_title: string;
+    design_body: string;
+  };
 }

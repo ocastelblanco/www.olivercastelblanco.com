@@ -1,0 +1,31 @@
+<section class="home">
+  <header class="home__hero">
+    <h1 class="home__headline">
+      <span class="home__headline-brand">The Fixer:</span>
+      <!-- [innerHTML] es seguro aquí: el contenido proviene de nuestros propios diccionarios
+           TypeScript (no de input de usuario) y Angular sanitiza automáticamente. -->
+      <span [innerHTML]="trans.t('home.headline')"></span>
+    </h1>
+    <p class="home__subheadline" [innerHTML]="trans.t('home.subheadline')"></p>
+  </header>
+
+  <div class="home__pillars">
+    <article class="home__pillar">
+      <span class="home__pillar-index technical-label">01 //</span>
+      <h2 class="home__pillar-title" [innerHTML]="trans.t('home.efficiency_title')"></h2>
+      <p class="home__pillar-body" [innerHTML]="trans.t('home.efficiency_body')"></p>
+    </article>
+
+    <article class="home__pillar">
+      <span class="home__pillar-index technical-label">02 //</span>
+      <h2 class="home__pillar-title" [innerHTML]="trans.t('home.architecture_title')"></h2>
+      <p class="home__pillar-body" [innerHTML]="trans.t('home.architecture_body')"></p>
+    </article>
+
+    <article class="home__pillar">
+      <span class="home__pillar-index technical-label">03 //</span>
+      <h2 class="home__pillar-title" [innerHTML]="trans.t('home.design_title')"></h2>
+      <p class="home__pillar-body" [innerHTML]="trans.t('home.design_body')"></p>
+    </article>
+  </div>
+</section>
