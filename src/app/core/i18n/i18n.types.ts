@@ -24,11 +24,21 @@ export interface Translations {
     design_body: string;
   };
   proyectos: {
+    back: string;
+    view_case: string;
+    challenge_label: string;
+    approach_label: string;
+    impact_label: string;
+    stack_label: string;
     ct_tag: string;
     ct_metric: string;
     ct_metric_label: string;
     ct_title: string;
     ct_narrative: string;
+    ct_challenge: string;
+    ct_approach: string;
+    ct_impact_1: string;
+    ct_impact_2: string;
     ct_stack: string;
     lt_tag: string;
     lt_metric: string;

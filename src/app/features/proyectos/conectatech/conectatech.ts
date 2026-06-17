@@ -3,11 +3,11 @@ import { RouterLink } from '@angular/router';
 import { TranslationService } from '@core/i18n/translation.service';
 
 @Component({
-  selector: 'app-proyectos',
+  selector: 'app-conectatech',
   imports: [RouterLink],
-  templateUrl: './proyectos.html',
-  styleUrl: './proyectos.scss',
+  templateUrl: './conectatech.html',
+  styleUrl: './conectatech.scss',
 })
-export class Proyectos {
+export class Conectatech {
   protected readonly trans = inject(TranslationService);
 }

@@ -29,10 +29,10 @@
 - [x] Identidad visual corporativa (logo, kit de assets, favicons)
 - [x] Internacionalización ES/EN con cambio inmediato (`TranslationService` + `LangSwitcher`)
 - [x] Home — "El Manifiesto del Fixer" (hero + 3 pilares de valor)
+- [x] Registro de Proyectos (grid Metric-First: ConectaTech + Le Tiende)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] Registro de Proyectos (grid Metric-First: ConectaTech + Le Tiende)
-- [ ] Páginas de detalle de casos de estudio
+- [ ] Páginas de detalle de casos de estudio (ConectaTech, Le Tiende)
 - [ ] The Lab (bitácora técnica)
 - [ ] Terminal de contacto + endpoint
 - [ ] `serverless.yml` y primer despliegue
@@ -401,5 +401,6 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 - Ruta `''` registrada con `loadComponent` (lazy) en `app.routes.ts`.
 - README y bitácora (`docs/proceso/2026-06-shell-identidad-visual-i18n.md`) actualizados.
 
-**Próxima tarea:** Registro de Proyectos — grid Metric-First con ConectaTech y Le Tiende
-(`src/app/features/proyectos/`, ruta `proyectos`).
+**Próxima tarea:** Páginas de detalle de casos de estudio — ConectaTech
+(`src/app/features/proyectos/conectatech/`, ruta `proyectos/conectatech`) y
+Le Tiende — Comandante (`src/app/features/proyectos/le-tiende/`, ruta `proyectos/le-tiende`).
