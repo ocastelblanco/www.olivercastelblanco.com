@@ -13,6 +13,20 @@ export const enTranslations: Translations = {
   lang: {
     toggle_label: 'Switch language',
   },
+  proyectos: {
+    ct_tag: 'The Orchestrator',
+    ct_metric: '-80%',
+    ct_metric_label: 'staff requirements',
+    ct_title: 'ConectaTech',
+    ct_narrative: 'How AI enabled a single architect to build a national ecosystem.',
+    ct_stack: 'Angular 21 · Moodle 5.1 · AWS · IA-Augmented Code',
+    lt_tag: 'The Efficiency Expert',
+    lt_metric: '$0.50 /mo',
+    lt_metric_label: 'monthly OPEX',
+    lt_title: 'Le Tiende — Comandante',
+    lt_narrative: 'The art of extreme cost optimization (Cloud Economics).',
+    lt_stack: 'Serverless · AWS Lambda · SSR · APIs',
+  },
   home: {
     headline: 'Industrial Design Thinking meets AI Orchestration.',
     subheadline:
