@@ -18,7 +18,7 @@
           >
             <path [attr.d]="link.icon" />
           </svg>
-          <span class="sidebar__label technical-label">{{ link.label }}</span>
+          <span class="sidebar__label technical-label">{{ trans.t(link.labelKey) }}</span>
         </a>
       </li>
     }

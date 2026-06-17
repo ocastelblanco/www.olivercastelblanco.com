@@ -13,10 +13,11 @@ El proyecto cumple dos objetivos:
    sitio como caso de estudio de desarrollo apoyado en LLM, con SEO orientado tanto a
    buscadores tradicionales como a modelos de lenguaje.
 
-> Estado actual: **Pre-MVP**. El boilerplate de Angular 22 (standalone + Signals + zoneless +
-> SSR) y los design tokens del sistema visual ya están implementados. Las features de
-> negocio (shell de navegación, Home, Proyectos, The Lab, Contacto) y la infraestructura
-> serverless (`serverless.yml`) están pendientes — ver [`TODO.md`](./TODO.md) y
+> Estado actual: **MVP en construcción**. El boilerplate de Angular 22, los design tokens,
+> el shell de navegación (sidebar + topbar con selector de idioma), la identidad visual
+> corporativa y el soporte multilengua (es-CO / en-US) ya están implementados. Las features
+> de negocio (Home, Proyectos, The Lab, Contacto) y la infraestructura serverless
+> (`serverless.yml`) están en curso — ver [`TODO.md`](./TODO.md) y
 > [`MEMORY.md`](./MEMORY.md) para el estado detallado.
 
 ## Tabla de contenidos
@@ -45,6 +46,14 @@ El proyecto cumple dos objetivos:
 - **Design system propio** ("Technical Industrial Minimalism"): tema oscuro, acentos Cyber
   Lime / Electric Cyan, tipografía JetBrains Mono + Inter, radios `0px`, grid de 12
   columnas / baseline de 4px (ver [`DESIGN.md`](./DESIGN.md)).
+- **Shell de navegación** (sidebar + topbar) implementado y operativo: `Sidebar` con iconos
+  SVG, `RouterLinkActive` y el sistema de rutas `/`, `/proyectos`, `/lab`, `/contacto`.
+- **Identidad visual corporativa**: logotipo OC en SVG + kit de assets (PNG, WebP, ICO, SVG
+  mono) generado y versionado en `public/brand/`.
+- **Soporte multilengua es-CO / en-US** con cambio inmediato sin recarga: `TranslationService`
+  basado en Signals (sin `@angular/localize` ni librerías externas), detección del idioma
+  del navegador, persistencia en `localStorage` y selector `LangSwitcher` en el topbar.
+- **CI con GitHub Actions**: pipeline automático de build + tests en cada push / PR.
 - **Arquitectura objetivo serverless multi-proveedor**: AWS Lambda + API Gateway + S3 +
   CloudFront para hosting/SSR, con espacio para integrar Firebase y Cloudinary como
   microservicios independientes bajo `api.ocastelblanco.com`.
@@ -68,11 +77,11 @@ El proyecto cumple dos objetivos:
 | Hosting estático (objetivo) | AWS S3 + CloudFront | — | `cdn.ocastelblanco.com` |
 | API Gateway (objetivo) | AWS API Gateway | — | `api.ocastelblanco.com` |
 | Servicios complementarios (objetivo) | Google Firebase, Cloudinary | — | Auth/Functions, gestión de imágenes |
-| CI/CD (objetivo) | GitHub Actions | — | Build, test, lint, despliegue |
+| CI/CD | GitHub Actions | — | Build, test, lint en cada push/PR (`.github/workflows/`) |
 
 > Las filas marcadas como "(objetivo)" describen la arquitectura planeada en
 > [`tech-specs.md`](./tech-specs.md) §1–§2, aún no implementada en este repositorio
-> (no existe `serverless.yml` ni workflows de CI todavía).
+> (no existe `serverless.yml` todavía).
 
 ## Requisitos previos
 
@@ -149,7 +158,9 @@ www.olivercastelblanco.com/
 ├── src/
 │   ├── app/
 │   │   ├── core/                  # Servicios singleton, guards, interceptors, config global (@core/*)
+│   │   │   └── i18n/              # TranslationService (Signals), tipos Locale/Translations, diccionarios
 │   │   ├── shared/                 # UI kit reutilizable: componentes, pipes, directivas (@shared/*)
+│   │   │   └── shell/             # Shell de navegación: Topbar, Sidebar, LangSwitcher
 │   │   ├── features/               # Secciones del sitio: home, proyectos, lab, contacto (@features/*)
 │   │   ├── app.config.ts           # Providers de la app (router, hidratación, zoneless)
 │   │   ├── app.config.server.ts    # Providers adicionales para SSR (provideServerRendering)
@@ -218,12 +229,16 @@ usan rutas relativas con prefijo `./`:
 > API Gateway + S3 + CloudFront vía Serverless Framework), pero **`serverless.yml` aún no
 > existe** en este repositorio — es la pieza pendiente del roadmap técnico.
 
-### Componente raíz
+### Componente raíz y shell de navegación
 
-`src/app/app.ts` es un componente standalone mínimo que expone un `signal` (`title`) y
-renderiza `<router-outlet>` vía `app.html`. Las rutas (`src/app/app.routes.ts`) están vacías
-por ahora; el shell de navegación (sidebar + topbar) y las features (`home`, `proyectos`,
-`lab`, `contacto`) son la siguiente pieza del roadmap (ver `TODO.md`).
+`src/app/app.ts` renderiza el shell completo vía `app.html`: un layout con `Sidebar`
+(navegación lateral con iconos SVG y `RouterLinkActive`) y `Topbar` (nombre, rol y selector
+de idioma `LangSwitcher`). Las rutas activas son `/`, `/proyectos`, `/lab` y `/contacto`
+(cargadas de forma lazy); el contenido de cada ruta está en curso (ver `TODO.md`).
+
+El shell está completamente internacionalizado: todos los labels del `Sidebar` y el rol del
+`Topbar` se leen desde `TranslationService` (Signal-based), cambiando instantáneamente al
+pulsar el selector de idioma sin recargar la página.
 
 ## Variables de entorno
 

@@ -1,0 +1,27 @@
+<div class="lang-switcher">
+  <button
+    class="lang-switcher__toggle technical-label"
+    (click)="toggle($event)"
+    (keydown)="onKeydown($event)"
+    [attr.aria-expanded]="isOpen()"
+    [attr.aria-haspopup]="'listbox'"
+    [attr.aria-label]="trans.t('lang.toggle_label')"
+  >
+    {{ currentCode() }}
+  </button>
+  @if (isOpen()) {
+    <ul class="lang-switcher__dropdown" role="listbox">
+      @for (option of options; track option.locale) {
+        <li role="option" [attr.aria-selected]="option.locale === trans.currentLocale()">
+          <button
+            class="lang-switcher__option technical-label"
+            [class.lang-switcher__option--active]="option.locale === trans.currentLocale()"
+            (click)="select(option.locale)"
+          >
+            {{ option.code }}
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</div>
