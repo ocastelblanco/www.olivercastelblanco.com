@@ -14,4 +14,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/proyectos/conectatech/conectatech').then(m => m.Conectatech),
   },
+  {
+    path: 'proyectos/le-tiende',
+    loadComponent: () =>
+      import('./features/proyectos/le-tiende/le-tiende').then(m => m.LeTiende),
+  },
 ];

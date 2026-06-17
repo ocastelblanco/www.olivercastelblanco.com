@@ -21,37 +21,7 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Página de detalle — Caso de Estudio ConectaTech
-
-**Origen:** `PRD.md` §5.2 y §6 (Roadmap, prioridad Alta: "1 Caso de Estudio" como parte
-del MVP. Registro de Proyectos ya completado).
-
-**Archivos:** `src/app/features/proyectos/conectatech/*` (componente standalone `Conectatech`),
-`src/app/app.routes.ts` (ruta `proyectos/conectatech`).
-
-**Qué hacer:**
-1. Crear el componente standalone `Conectatech` en
-   `src/app/features/proyectos/conectatech/`.
-2. Implementar la página de detalle del caso de estudio usando el contenido de
-   `docs/arquitectura/arquitectura_ocastelblanco.md` §2: narrativa "The Orchestrator",
-   problema, solución, métrica de impacto ("MVP en 4 semanas; -80% requerimientos de staff")
-   y stack (Angular 21, Moodle 5.1, AWS, IA-Augmented Code).
-3. Registrar la ruta `proyectos/conectatech` en `src/app/app.routes.ts` con `loadComponent`.
-4. Desde la card de ConectaTech en el Registro de Proyectos (Tarea 1), agregar un enlace a
-   esta ruta.
-5. Verificar visualmente con `npm start` dentro del shell, en desktop y móvil.
-
-**Definition of done:**
-- [ ] Existe `src/app/features/proyectos/conectatech` como componente standalone con la
-      narrativa, métricas y stack del caso
-- [ ] `app.routes.ts` registra la ruta `proyectos/conectatech` → `Conectatech`
-- [ ] La card de ConectaTech en el Registro enlaza a la página de detalle
-- [ ] El contenido coincide con `docs/arquitectura/arquitectura_ocastelblanco.md` §2
-- [ ] `npm start` muestra el detalle dentro del shell con el design system aplicado
-
----
-
-## Tarea 2 — [FEATURE]: Página de detalle — Caso de Estudio Le Tiende — Comandante
+## Tarea 1 — [FEATURE]: Página de detalle — Caso de Estudio Le Tiende — Comandante
 
 **Origen:** `PRD.md` §5.2 y §6 (Roadmap, prioridad Alta: cierra el ciclo de los dos casos
 de estudio del Registro de Proyectos; no depende de la Tarea 1).
@@ -80,7 +50,44 @@ de estudio del Registro de Proyectos; no depende de la Tarea 1).
 
 ---
 
+## Tarea 2 — [FEATURE]: Terminal de contacto
+
+**Origen:** `PRD.md` §5 y §6 (Roadmap, prioridad Alta del MVP: formulario de contacto para
+el CTA principal del portafolio).
+
+**Archivos:** `src/app/features/contacto/*` (componente standalone `Contacto`),
+`src/app/app.routes.ts` (ruta `contacto`).
+
+**Qué hacer:**
+1. Crear el componente standalone `Contacto` en `src/app/features/contacto/`.
+2. Implementar un formulario con campos Nombre, Email, Mensaje y botón Enviar, con la
+   estética "terminal / CLI" del design system (fondo `--color-surface-container-low`,
+   inputs de borde único inferior, tipografía `technical-label`).
+3. Validación client-side con Angular Reactive Forms (campos requeridos, formato email).
+4. Registrar la ruta `contacto` en `src/app/app.routes.ts` con `loadComponent`.
+5. El endpoint backend (`POST api.ocastelblanco.com/contact`) se implementará en una tarea
+   posterior; en esta tarea el formulario solo valida y muestra confirmación mock.
+6. Verificar visualmente con `npm start` dentro del shell, en desktop y móvil.
+
+**Definition of done:**
+- [ ] Existe `src/app/features/contacto` como componente standalone con el formulario
+- [ ] Validación client-side funciona (campos requeridos + formato email)
+- [ ] La ruta `contacto` está registrada con `loadComponent`
+- [ ] El enlace de navegación en el sidebar lleva al formulario
+- [ ] `npm start` muestra el formulario dentro del shell con el design system aplicado
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-06-17 — [FEATURE]: Página de detalle — Caso de Estudio ConectaTech
+
+Componente standalone `src/app/features/proyectos/conectatech/` con hero Metric-First
+(`-80%` en Cyber Lime), secciones Desafío / Enfoque / Impacto y footer de stack (Electric
+Cyan). Ruta lazy `proyectos/conectatech` registrada en `app.routes.ts`. Enlace "Ver caso →"
+añadido a la card ConectaTech en el Registro de Proyectos. Claves i18n compartidas para
+páginas de detalle (`back`, `view_case`, etiquetas de sección) en ambos diccionarios. `npm
+run build` y `npm run lint` en verde. PR #10 fusionada.
 
 ### 2026-06-17 — [FEATURE]: Registro de Proyectos (Project Registry)
 
@@ -229,3 +236,4 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 | 2026-06-12 | El usuario rechazó dos veces el resultado de la identidad visual y la corrigió iterativamente con sus propios masters (`OC_logo.svg` → `OC_logo_fondo.svg` + loader animado por gradientes → variantes mono desde `OC_logo_alpha.svg`), ya documentado como historial de tareas [FIX] adicionales fuera del motor JIT. PR #4 fue aprobada, fusionada a `rediseno-2026` y la rama `feature/identidad-visual-logo` eliminada en remoto y local. Esta iniciativa queda completamente cerrada. Las Tareas 1 (Home) y 2 (Registro de Proyectos) no dependían de ella y no requieren cambios | Sin cambios en las tareas activas: Tarea 1 sigue siendo Home — "El Manifiesto del Fixer", Tarea 2 sigue siendo Registro de Proyectos (Project Registry) |
 | 2026-06-17 | Home completada y verificada (build + lint + visual OK, PR #8 fusionada). Siguiente prioridad Alta: Registro de Proyectos (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza la página de detalle del primer caso de estudio (ConectaTech), que completa el requisito del MVP "1 Caso de Estudio" y no depende de la Tarea 1 | Tarea 1 (Home) movida al historial. Tarea 2 (Registro de Proyectos) pasa a ser Tarea 1. Nueva Tarea 2: Página de detalle — Caso de Estudio ConectaTech |
 | 2026-06-17 | Registro de Proyectos completado y verificado (build + lint + visual OK, PR #9 fusionada). Siguiente prioridad Alta: ConectaTech detail page (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Le Tiende detail page — cierra el ciclo de los dos casos de estudio del Registro y no depende de Tarea 1 | Tarea 1 (Registro de Proyectos) movida al historial. Tarea 2 (ConectaTech) pasa a ser Tarea 1. Nueva Tarea 2: Página de detalle — Le Tiende — Comandante |
+| 2026-06-17 | ConectaTech detail page completada y verificada (build + lint OK, PR #10 fusionada). Siguiente prioridad Alta: Le Tiende detail page (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Terminal de contacto — CTA principal del portafolio, prioridad Alta del MVP, sin dependencias bloqueantes | Tarea 1 (ConectaTech) movida al historial. Tarea 2 (Le Tiende) pasa a ser Tarea 1. Nueva Tarea 2: Terminal de contacto |

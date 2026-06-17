@@ -30,9 +30,10 @@
 - [x] Internacionalización ES/EN con cambio inmediato (`TranslationService` + `LangSwitcher`)
 - [x] Home — "El Manifiesto del Fixer" (hero + 3 pilares de valor)
 - [x] Registro de Proyectos (grid Metric-First: ConectaTech + Le Tiende)
+- [x] Página de detalle — ConectaTech (caso de estudio)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] Páginas de detalle de casos de estudio (ConectaTech, Le Tiende)
+- [ ] Página de detalle — Le Tiende — Comandante
 - [ ] The Lab (bitácora técnica)
 - [ ] Terminal de contacto + endpoint
 - [ ] `serverless.yml` y primer despliegue
@@ -401,6 +402,6 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 - Ruta `''` registrada con `loadComponent` (lazy) en `app.routes.ts`.
 - README y bitácora (`docs/proceso/2026-06-shell-identidad-visual-i18n.md`) actualizados.
 
-**Próxima tarea:** Páginas de detalle de casos de estudio — ConectaTech
-(`src/app/features/proyectos/conectatech/`, ruta `proyectos/conectatech`) y
-Le Tiende — Comandante (`src/app/features/proyectos/le-tiende/`, ruta `proyectos/le-tiende`).
+**Próxima tarea:** Página de detalle Le Tiende — Comandante
+(`src/app/features/proyectos/le-tiende/`, ruta `proyectos/le-tiende`). ConectaTech detail
+ya completado y fusionado (PR #10).

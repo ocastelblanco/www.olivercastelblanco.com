@@ -45,6 +45,10 @@ export interface Translations {
     lt_metric_label: string;
     lt_title: string;
     lt_narrative: string;
+    lt_challenge: string;
+    lt_approach: string;
+    lt_impact_1: string;
+    lt_impact_2: string;
     lt_stack: string;
   };
 }
