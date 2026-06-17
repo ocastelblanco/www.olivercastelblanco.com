@@ -7,13 +7,13 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | Pre-MVP — Angular 22.0.0 (boilerplate, design tokens, shell de navegación y CI listos) |
+| Versión | MVP en construcción — shell, identidad visual, i18n y Home implementados |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
 | URL API | `https://api.ocastelblanco.com` (futuro, no provisionado) |
 | Rama principal (protegida) | `master` — sitio anterior (Angular Universal + Serverless) |
 | Rama de desarrollo (protegida) | `rediseno-2026` — rediseño desde cero |
-| Última sesión | 2026-06-12 |
+| Última sesión | 2026-06-17 |
 
 ## 2. Funcionalidades
 
@@ -22,20 +22,20 @@
 - [x] Documentación inicial (objetivos, arquitectura de contenido, design system, bitácora
       de proceso con Stitch) commiteada y pusheada
 - [x] `CLAUDE.md`, `PRD.md`, `tech-specs.md` (con OWASP y git flow) creados
-
 - [x] Boilerplate Angular 22 (standalone, signals, zoneless, SSR)
 - [x] Design tokens en SCSS según `DESIGN.md`
-- [x] Shell de navegación (sidebar + topbar)
+- [x] Shell de navegación (sidebar + topbar, responsive ≤720px)
 - [x] CI con GitHub Actions (lint + build + test)
+- [x] Identidad visual corporativa (logo, kit de assets, favicons)
+- [x] Internacionalización ES/EN con cambio inmediato (`TranslationService` + `LangSwitcher`)
+- [x] Home — "El Manifiesto del Fixer" (hero + 3 pilares de valor)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] Home (Manifiesto + 3 Pilares)
-- [ ] Registro de Proyectos + Casos de Estudio
+- [ ] Registro de Proyectos (grid Metric-First: ConectaTech + Le Tiende)
+- [ ] Páginas de detalle de casos de estudio
+- [ ] The Lab (bitácora técnica)
 - [ ] Terminal de contacto + endpoint
 - [ ] `serverless.yml` y primer despliegue
-- [ ] CI con GitHub Actions
-- [ ] The Lab (bitácora técnica)
-- [ ] Internacionalización ES/EN
 
 ## 3. Registro de Decisiones de Arquitectura (ADRs)
 
@@ -390,18 +390,16 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 
 ## 9. Contexto de la sesión actual
 
-**Fecha:** 2026-06-12
+**Fecha:** 2026-06-17
 
 **Qué se hizo hoy:**
-- Se adaptó el shell de navegación para móviles: en `≤720px` la `Sidebar` se convierte en
-  una barra de navegación inferior fija (ver ADR-005). Documentado el requisito en `PRD.md`
-  §8. PR #2 fusionada a `rediseno-2026`, rama remota eliminada.
-- Se agregó CI con GitHub Actions (`.github/workflows/ci.yml`, ver ADR-006): lint + build +
-  test en cada `push`/`pull_request` a `master` y `rediseno-2026`. Se instaló
-  `@angular-eslint/schematics` (`npx ng add @angular-eslint/schematics`), que generó
-  `eslint.config.js` y agregó el builder `lint` a `angular.json`. `npm run lint`, `npm run
-  build` y `npm test -- --watch=false` verificados localmente, todos en verde.
+- Fusionadas y cerradas las PRs de i18n (PR #7) y Home (PR #8).
+- Home implementada: componente `src/app/features/home/` con hero ("The Fixer:" + headline
+  traducido) y 3 pilares (Efficiency / Architecture / Design). Soporte de markup básico
+  (`<em>`, `<strong>`) en strings de traducción vía `[innerHTML]` con sanitización automática
+  de Angular (sin `bypassSecurityTrustHtml`, contenido de nuestros propios diccionarios TS).
+- Ruta `''` registrada con `loadComponent` (lazy) en `app.routes.ts`.
+- README y bitácora (`docs/proceso/2026-06-shell-identidad-visual-i18n.md`) actualizados.
 
-**Próxima tarea sugerida:** según el motor JIT (`TODO.md`), Home — "El Manifiesto del
-Fixer" (`src/app/features/home`, ruta `''`), y recalcular la siguiente tarea de prioridad
-Alta del roadmap (Registro de Proyectos / Casos de Estudio).
+**Próxima tarea:** Registro de Proyectos — grid Metric-First con ConectaTech y Le Tiende
+(`src/app/features/proyectos/`, ruta `proyectos`).

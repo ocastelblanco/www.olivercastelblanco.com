@@ -1,0 +1,35 @@
+<section class="proyectos">
+  <header class="proyectos__header">
+    <h1 class="proyectos__title" [innerHTML]="trans.t('nav.projects')"></h1>
+  </header>
+
+  <div class="proyectos__grid">
+    <!-- ConectaTech -->
+    <article class="proyectos__card">
+      <div class="proyectos__card-metric">
+        <span class="proyectos__metric-value">{{ trans.t('proyectos.ct_metric') }}</span>
+        <span class="proyectos__metric-label technical-label">{{ trans.t('proyectos.ct_metric_label') }}</span>
+      </div>
+      <div class="proyectos__card-content">
+        <span class="proyectos__card-tag technical-label">{{ trans.t('proyectos.ct_tag') }}</span>
+        <h2 class="proyectos__card-title">{{ trans.t('proyectos.ct_title') }}</h2>
+        <p class="proyectos__card-narrative" [innerHTML]="trans.t('proyectos.ct_narrative')"></p>
+        <p class="proyectos__card-stack technical-label">{{ trans.t('proyectos.ct_stack') }}</p>
+      </div>
+    </article>
+
+    <!-- Le Tiende — Comandante -->
+    <article class="proyectos__card">
+      <div class="proyectos__card-metric">
+        <span class="proyectos__metric-value">{{ trans.t('proyectos.lt_metric') }}</span>
+        <span class="proyectos__metric-label technical-label">{{ trans.t('proyectos.lt_metric_label') }}</span>
+      </div>
+      <div class="proyectos__card-content">
+        <span class="proyectos__card-tag technical-label">{{ trans.t('proyectos.lt_tag') }}</span>
+        <h2 class="proyectos__card-title">{{ trans.t('proyectos.lt_title') }}</h2>
+        <p class="proyectos__card-narrative" [innerHTML]="trans.t('proyectos.lt_narrative')"></p>
+        <p class="proyectos__card-stack technical-label">{{ trans.t('proyectos.lt_stack') }}</p>
+      </div>
+    </article>
+  </div>
+</section>

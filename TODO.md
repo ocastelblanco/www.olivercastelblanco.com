@@ -21,41 +21,10 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Home — "El Manifiesto del Fixer"
-
-**Origen:** `PRD.md` §5.1 y §6 (Roadmap, prioridad Alta: "MVP: Home + Registro de Proyectos +
-1 Caso de Estudio + Shell de navegación" — esta tarea cubre la pieza Home, que depende del
-shell de navegación, ya completado).
-
-**Archivos:** `src/app/features/home/*` (componente standalone `Home`),
-`src/app/app.routes.ts` (registrar la ruta `''` apuntando a `Home`).
-
-**Qué hacer:**
-1. Generar el componente standalone `Home` en `src/app/features/home/` (`npx ng generate
-   component features/home`).
-2. Implementar el contenido de `docs/arquitectura/arquitectura_ocastelblanco.md` §1: hero con
-   headline de autoridad ("The Fixer: Industrial Design Thinking meets AI Orchestration."),
-   sub-headline (25 años resolviendo arquitectura sistémica mediante Cloud Economics y
-   Desarrollo Aumentado por IA) y los tres pilares de valor (Efficiency, Architecture,
-   Design) como bloques/cards usando los tokens de `DESIGN.md`.
-3. Registrar la ruta `''` en `src/app/app.routes.ts` apuntando a `Home` (carga directa o
-   `loadComponent`, consistente con zoneless/standalone).
-4. Verificar visualmente con `npm start` que la Home se renderiza dentro del shell
-   (sidebar + topbar) con el design system aplicado.
-
-**Definition of done:**
-- [ ] Existe `src/app/features/home` como componente standalone con hero + 3 pilares
-- [ ] `app.routes.ts` registra la ruta `''` → `Home`
-- [ ] El contenido coincide con `docs/arquitectura/arquitectura_ocastelblanco.md` §1
-- [ ] `npm start` muestra la Home dentro del shell de navegación con los estilos del design
-      system aplicados
-
----
-
-## Tarea 2 — [FEATURE]: Registro de Proyectos (Project Registry)
+## Tarea 1 — [FEATURE]: Registro de Proyectos (Project Registry)
 
 **Origen:** `PRD.md` §5.2 y §6 (Roadmap, prioridad Alta: "MVP: Home + Registro de Proyectos +
-1 Caso de Estudio + Shell de navegación"; no depende de la Tarea 1).
+1 Caso de Estudio + Shell de navegación"). Home y shell ya completados.
 
 **Archivos:** `src/app/features/proyectos/*` (componente standalone `Proyectos`),
 `src/app/app.routes.ts` (registrar la ruta `proyectos` apuntando a `Proyectos`).
@@ -83,7 +52,49 @@ shell de navegación, ya completado).
 
 ---
 
+## Tarea 2 — [FEATURE]: Página de detalle — Caso de Estudio ConectaTech
+
+**Origen:** `PRD.md` §5.2 y §6 (Roadmap, prioridad Alta: "1 Caso de Estudio" como parte
+del MVP; no depende de la Tarea 1 — puede construirse en paralelo).
+
+**Archivos:** `src/app/features/proyectos/conectatech/*` (componente standalone `Conectatech`),
+`src/app/app.routes.ts` (ruta `proyectos/conectatech`).
+
+**Qué hacer:**
+1. Crear el componente standalone `Conectatech` en
+   `src/app/features/proyectos/conectatech/`.
+2. Implementar la página de detalle del caso de estudio usando el contenido de
+   `docs/arquitectura/arquitectura_ocastelblanco.md` §2: narrativa "The Orchestrator",
+   problema, solución, métrica de impacto ("MVP en 4 semanas; -80% requerimientos de staff")
+   y stack (Angular 21, Moodle 5.1, AWS, IA-Augmented Code).
+3. Registrar la ruta `proyectos/conectatech` en `src/app/app.routes.ts` con `loadComponent`.
+4. Desde la card de ConectaTech en el Registro de Proyectos (Tarea 1), agregar un enlace a
+   esta ruta.
+5. Verificar visualmente con `npm start` dentro del shell, en desktop y móvil.
+
+**Definition of done:**
+- [ ] Existe `src/app/features/proyectos/conectatech` como componente standalone con la
+      narrativa, métricas y stack del caso
+- [ ] `app.routes.ts` registra la ruta `proyectos/conectatech` → `Conectatech`
+- [ ] La card de ConectaTech en el Registro enlaza a la página de detalle
+- [ ] El contenido coincide con `docs/arquitectura/arquitectura_ocastelblanco.md` §2
+- [ ] `npm start` muestra el detalle dentro del shell con el design system aplicado
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-06-17 — [FEATURE]: Home — "El Manifiesto del Fixer"
+
+Componente standalone `src/app/features/home/` con hero (headline en dos partes: marca
+"The Fixer:" en Cyber Lime hardcodeada + resto traducido) y tres pilares de valor
+(Efficiency / Architecture / Design) como cards con tokens del design system. Ruta `''`
+registrada con `loadComponent` (lazy) en `app.routes.ts`. Soporte de etiquetas básicas de
+formato (`<em>`, `<strong>`) en strings de traducción vía `[innerHTML]` con sanitización
+automática de Angular (sin `bypassSecurityTrustHtml` — contenido proviene de nuestros
+propios diccionarios TypeScript, no de input de usuario). Diccionarios `es-CO` y `en-US`
+ampliados con namespace `home` (8 claves tipadas). `npm run build`, `npm run lint` y
+verificación visual en verde. PR #8 fusionada.
 
 ### 2026-06-13 — [FEATURE]: Internacionalización (i18n) — es-CO / en-US con cambio inmediato
 
@@ -208,3 +219,4 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 | 2026-06-12 | Identidad visual (Fase 1 LogoLoom) completada y verificada (`npm run build` en verde, favicons aplicados). Siguiente prioridad Alta: Home ("El Manifiesto del Fixer") ya estaba seleccionada como Tarea 2 sin dependencias pendientes, pasa a Tarea 1. "Registro de Proyectos" (retirado temporalmente en la entrada anterior) no tiene dependencias bloqueantes y recupera su lugar como Tarea 2 | Tarea 1 (Logo maestro) movida al historial. Tarea 2 (Home) pasa a ser Tarea 1. Nueva Tarea 2: Registro de Proyectos (Project Registry) |
 | 2026-06-13 | El usuario solicita añadir i18n (es-CO / en-US) con cambio inmediato antes de continuar con el roadmap normal. Se descarta `@angular/localize` (builds separados, sin cambio en caliente) y librerías externas (peso innecesario para 2 idiomas). Se implementa `TranslationService` propio con Signals, `LangSwitcher` en topbar y traducciones en `Topbar` + `Sidebar`. Las tareas activas (Home y Registro de Proyectos) no se ven afectadas | Tarea completada fuera del motor JIT. Tareas 1 y 2 (Home y Registro de Proyectos) permanecen sin cambios como próximas prioridades |
 | 2026-06-12 | El usuario rechazó dos veces el resultado de la identidad visual y la corrigió iterativamente con sus propios masters (`OC_logo.svg` → `OC_logo_fondo.svg` + loader animado por gradientes → variantes mono desde `OC_logo_alpha.svg`), ya documentado como historial de tareas [FIX] adicionales fuera del motor JIT. PR #4 fue aprobada, fusionada a `rediseno-2026` y la rama `feature/identidad-visual-logo` eliminada en remoto y local. Esta iniciativa queda completamente cerrada. Las Tareas 1 (Home) y 2 (Registro de Proyectos) no dependían de ella y no requieren cambios | Sin cambios en las tareas activas: Tarea 1 sigue siendo Home — "El Manifiesto del Fixer", Tarea 2 sigue siendo Registro de Proyectos (Project Registry) |
+| 2026-06-17 | Home completada y verificada (build + lint + visual OK, PR #8 fusionada). Siguiente prioridad Alta: Registro de Proyectos (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza la página de detalle del primer caso de estudio (ConectaTech), que completa el requisito del MVP "1 Caso de Estudio" y no depende de la Tarea 1 | Tarea 1 (Home) movida al historial. Tarea 2 (Registro de Proyectos) pasa a ser Tarea 1. Nueva Tarea 2: Página de detalle — Caso de Estudio ConectaTech |
