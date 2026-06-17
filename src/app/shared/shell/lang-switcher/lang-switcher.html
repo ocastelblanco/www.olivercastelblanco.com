@@ -1,7 +1,8 @@
-<div class="lang-switcher" (keydown)="onKeydown($event)">
+<div class="lang-switcher">
   <button
     class="lang-switcher__toggle technical-label"
     (click)="toggle($event)"
+    (keydown)="onKeydown($event)"
     [attr.aria-expanded]="isOpen()"
     [attr.aria-haspopup]="'listbox'"
     [attr.aria-label]="trans.t('lang.toggle_label')"
