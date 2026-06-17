@@ -9,4 +9,9 @@ export const routes: Routes = [
     path: 'proyectos',
     loadComponent: () => import('./features/proyectos/proyectos').then(m => m.Proyectos),
   },
+  {
+    path: 'proyectos/conectatech',
+    loadComponent: () =>
+      import('./features/proyectos/conectatech/conectatech').then(m => m.Conectatech),
+  },
 ];
