@@ -1,0 +1,75 @@
+<section class="contacto">
+  <header class="contacto__header">
+    <h1 class="contacto__title technical-label">{{ trans.t('contacto.title') }}</h1>
+    <p class="contacto__subtitle">{{ trans.t('contacto.subtitle') }}</p>
+  </header>
+
+  @if (sent()) {
+    <div class="contacto__success">
+      <span class="contacto__success-title technical-label">{{ trans.t('contacto.success_title') }}</span>
+      <p class="contacto__success-body">{{ trans.t('contacto.success_body') }}</p>
+    </div>
+  } @else {
+    <form class="contacto__form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="contacto__field">
+        <label class="contacto__label technical-label" for="ct-name">
+          {{ trans.t('contacto.name_label') }}
+        </label>
+        <input
+          id="ct-name"
+          class="contacto__input"
+          type="text"
+          formControlName="name"
+          [placeholder]="trans.t('contacto.name_placeholder')"
+          autocomplete="name"
+        />
+        @if (name.invalid && name.touched) {
+          <span class="contacto__error technical-label">
+            {{ name.errors?.['required'] ? trans.t('contacto.error_required') : trans.t('contacto.error_min') }}
+          </span>
+        }
+      </div>
+
+      <div class="contacto__field">
+        <label class="contacto__label technical-label" for="ct-email">
+          {{ trans.t('contacto.email_label') }}
+        </label>
+        <input
+          id="ct-email"
+          class="contacto__input"
+          type="email"
+          formControlName="email"
+          [placeholder]="trans.t('contacto.email_placeholder')"
+          autocomplete="email"
+        />
+        @if (email.invalid && email.touched) {
+          <span class="contacto__error technical-label">
+            {{ email.errors?.['required'] ? trans.t('contacto.error_required') : trans.t('contacto.error_email') }}
+          </span>
+        }
+      </div>
+
+      <div class="contacto__field">
+        <label class="contacto__label technical-label" for="ct-message">
+          {{ trans.t('contacto.message_label') }}
+        </label>
+        <textarea
+          id="ct-message"
+          class="contacto__input contacto__input--textarea"
+          formControlName="message"
+          [placeholder]="trans.t('contacto.message_placeholder')"
+          rows="5"
+        ></textarea>
+        @if (message.invalid && message.touched) {
+          <span class="contacto__error technical-label">
+            {{ message.errors?.['required'] ? trans.t('contacto.error_required') : trans.t('contacto.error_min') }}
+          </span>
+        }
+      </div>
+
+      <button class="contacto__submit technical-label" type="submit">
+        {{ trans.t('contacto.send_button') }}
+      </button>
+    </form>
+  }
+</section>

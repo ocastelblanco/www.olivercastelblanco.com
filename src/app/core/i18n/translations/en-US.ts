@@ -13,6 +13,22 @@ export const enTranslations: Translations = {
   lang: {
     toggle_label: 'Switch language',
   },
+  contacto: {
+    title: '> deploy_your_solution.sh',
+    subtitle: 'Tell me the problem. We build the solution.',
+    name_label: '// name',
+    name_placeholder: 'Your full name',
+    email_label: '// email',
+    email_placeholder: 'you@email.com',
+    message_label: '// message',
+    message_placeholder: 'Describe the challenge or project...',
+    send_button: 'DEPLOY →',
+    success_title: '// transmission received',
+    success_body: 'Message delivered. I\'ll reply within 48h.',
+    error_required: 'Required',
+    error_email: 'Invalid email',
+    error_min: 'Too short',
+  },
   proyectos: {
     back: '← Case Studies',
     view_case: 'View case →',
