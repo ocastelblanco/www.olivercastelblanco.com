@@ -36,6 +36,12 @@ export const esTranslations: Translations = {
     lt_metric_label: 'OPEX mensual',
     lt_title: 'Le Tiende — Comandante',
     lt_narrative: 'El arte de la optimización de costos extremos (Cloud Economics).',
+    lt_challenge:
+      'Costos de mantenimiento elevados para el footprint digital de un establecimiento cultural.',
+    lt_approach:
+      'Arquitectura desacoplada con Angular 21 SSR sobre AWS Lambda y consumo inteligente de APIs externas (Discogs / Google).',
+    lt_impact_1: 'OPEX de $0.50 USD/mes',
+    lt_impact_2: 'Estabilidad total con costo operativo casi nulo',
     lt_stack: 'Serverless · AWS Lambda · SSR · APIs',
   },
   home: {
