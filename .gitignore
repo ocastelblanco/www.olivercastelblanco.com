@@ -49,3 +49,7 @@ src/secrets/secrets*.ts
 # Claude / OMC local state
 .claude/
 .omc/
+
+# Serverless Framework
+.serverless/
+.esbuild/

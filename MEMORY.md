@@ -7,13 +7,14 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — shell, identidad visual, i18n y Home implementados |
+| Versión | MVP en construcción — shell, i18n, Home, Proyectos, Contacto + CI/CD Lambda implementados |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
+| URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
 | URL API | `https://api.ocastelblanco.com` (futuro, no provisionado) |
 | Rama principal (protegida) | `master` — sitio anterior (Angular Universal + Serverless) |
 | Rama de desarrollo (protegida) | `rediseno-2026` — rediseño desde cero |
-| Última sesión | 2026-06-17 |
+| Última sesión | 2026-06-18 |
 
 ## 2. Funcionalidades
 
@@ -32,13 +33,13 @@
 - [x] Registro de Proyectos (grid Metric-First: ConectaTech + Le Tiende)
 - [x] Página de detalle — ConectaTech (caso de estudio)
 - [x] Página de detalle — Le Tiende — Comandante (caso de estudio)
+- [x] Terminal de contacto (formulario Reactive Forms + validación client-side + estado mock)
+- [x] Despliegue CI/CD a AWS Lambda (`serverless.yml` + `lambda-handler.mjs` + workflow deploy)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] Terminal de contacto (formulario + validación client-side)
-- [ ] The Lab (bitácora técnica)
-- [ ] The Lab (bitácora técnica)
-- [ ] Terminal de contacto + endpoint
-- [ ] `serverless.yml` y primer despliegue
+- [ ] The Lab (bitácora técnica — listado estático)
+- [ ] Endpoint backend Terminal de contacto (`POST api.ocastelblanco.com/contact`)
+- [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos (fase 2)
 
 ## 3. Registro de Decisiones de Arquitectura (ADRs)
 
@@ -250,6 +251,32 @@
     `Locale` y añadir la opción en `LangSwitcher.options`.
   - Para añadir nuevas claves: extender `Translations` interface y los dos diccionarios.
 
+### ADR-009 — CI/CD con despliegue a AWS Lambda (stage `preview`)
+
+- **Fecha:** 2026-06-18
+- **Estado:** Implementado
+- **Decisión:** El workflow `.github/workflows/deploy.yml` despliega la app a AWS Lambda en
+  stage `preview` en cada `push` a feature branches (`feature/**`, `fix/**`, `refactor/**`,
+  `docs/**`, `hotfix/**`) y a `rediseno-2026`. Un solo Lambda URL de stage `preview` (último
+  push gana) — no hay un Lambda por rama. El handler es `lambda-handler.mjs` (raíz), que
+  importa el `app` de Express compilado (`dist/ocastelblanco/server/server.mjs`) y lo envuelve
+  con `@vendia/serverless-express`. `serverless-esbuild` bundlea el handler + `@vendia` en
+  un único archivo ESM (`.mjs`); el `dist/` de Angular se incluye por separado via
+  `package.patterns`. Runtime: `nodejs24.x`, región: `us-east-1`, `memorySize: 512`,
+  `timeout: 15s`. Se usa Lambda **Function URL** (no API Gateway) para evitar el prefijo de
+  stage en la URL, lo que permite que el routing Angular funcione correctamente.
+- **Razón:** El usuario necesita validar avances remotamente sin estar frente al Mac. El
+  despliegue ocurre en cada push para que cualquier feature branch sea previsualizable antes
+  de aprobar la PR. Lambda Function URL simplifica el setup al eliminar API Gateway.
+- **Consecuencias:**
+  - Se requieren secrets `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` en GitHub (configurar
+    manualmente en repo Settings → Secrets → Actions antes del primer deploy).
+  - `src/server.ts` exporta tanto `reqHandler` (para Angular CLI) como `app` (para Lambda).
+  - `.gitignore` incluye `.serverless/` y `.esbuild/` (artefactos de build del framework).
+  - La URL del Lambda URL se imprime en el GitHub Actions Step Summary tras cada deploy.
+  - Fase 2 (producción): `serverless.yml` production stage + CloudFront + S3 para assets
+    estáticos — pendiente de implementar cuando el MVP esté completo.
+
 ## 4. Dependencias instaladas
 
 | Paquete | Versión | Tipo |
@@ -265,6 +292,7 @@
 | `express` | ^5.1.0 | dependency |
 | `rxjs` | ~7.8.0 | dependency |
 | `tslib` | ^2.3.0 | dependency |
+| `@vendia/serverless-express` | latest | dependency |
 | `@angular/build` | ^22.0.1 | devDependency |
 | `@angular/cli` | ^22.0.1 | devDependency |
 | `@angular/compiler-cli` | ^22.0.0 | devDependency |
@@ -278,15 +306,20 @@
 | `eslint` | ^10.3.0 | devDependency |
 | `@eslint/js` | ^10.0.1 | devDependency |
 | `typescript-eslint` | 8.60.1 | devDependency |
+| `serverless` | latest | devDependency |
+| `serverless-esbuild` | latest | devDependency |
 
 ## 5. Configuraciones vigentes
 
 | Configuración | Valor | Estado |
 |---|---|---|
 | Dominio principal | `ocastelblanco.com` | Activo (apunta al sitio anterior) |
+| Lambda stage `preview` | URL generada en primer deploy (ver GitHub Actions Step Summary) | Pendiente de primer push al workflow |
 | Subdominio CDN | `cdn.ocastelblanco.com` | No provisionado en esta iteración |
 | Subdominio API | `api.ocastelblanco.com` | No provisionado |
-| Buckets S3, ARNs, stacks de Serverless | — | Por definir al crear `serverless.yml` |
+| Serverless service name | `ocastelblanco-com` | Definido en `serverless.yml` |
+| Región AWS | `us-east-1` | Definido en `serverless.yml` y workflow |
+| GitHub Secrets requeridos | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Pendiente configuración manual por el usuario |
 
 ## 6. Patrones de código establecidos
 
@@ -393,16 +426,25 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 
 ## 9. Contexto de la sesión actual
 
-**Fecha:** 2026-06-17
+**Fecha:** 2026-06-18
 
 **Qué se hizo hoy:**
-- Fusionadas y cerradas las PRs de i18n (PR #7) y Home (PR #8).
-- Home implementada: componente `src/app/features/home/` con hero ("The Fixer:" + headline
-  traducido) y 3 pilares (Efficiency / Architecture / Design). Soporte de markup básico
-  (`<em>`, `<strong>`) en strings de traducción vía `[innerHTML]` con sanitización automática
-  de Angular (sin `bypassSecurityTrustHtml`, contenido de nuestros propios diccionarios TS).
-- Ruta `''` registrada con `loadComponent` (lazy) en `app.routes.ts`.
-- README y bitácora (`docs/proceso/2026-06-shell-identidad-visual-i18n.md`) actualizados.
+- Terminal de contacto completada y fusionada (PR #12): componente `src/app/features/contacto/`
+  con Angular Reactive Forms, validación client-side (requeridos, email, minLength), estética
+  terminal/CLI (inputs borde inferior, JetBrains Mono), estado de éxito mock con `signal`.
+- Despliegue CI/CD a AWS Lambda implementado (`feature/deploy-lambda`, PR en revisión):
+  - `serverless.yml`: Serverless Framework v4, `nodejs24.x`, `us-east-1`, Lambda Function URL,
+    `serverless-esbuild` (ESM bundle), `memorySize: 512`, `timeout: 15s`.
+  - `lambda-handler.mjs`: 3 líneas — importa `app` de Express compilado, wrappea con
+    `@vendia/serverless-express`.
+  - `src/server.ts`: añadido `export { app }` para que el handler de Lambda lo importe.
+  - `.github/workflows/deploy.yml`: despliega a stage `preview` en cada push a feature
+    branches y a `rediseno-2026`. URL del Lambda se imprime en Step Summary.
+  - `.gitignore`: añadidos `.serverless/` y `.esbuild/`.
 
-**Próxima tarea:** Terminal de contacto (`src/app/features/contacto/`, ruta `contacto`).
-Ambas páginas de detalle de casos de estudio completadas y fusionadas (PR #10, PR #11).
+**GitHub Secrets pendientes (acción manual del usuario):**
+Antes del primer deploy, configurar en el repo GitHub → Settings → Secrets → Actions:
+- `AWS_ACCESS_KEY_ID` — Access Key ID del usuario IAM con acceso programático
+- `AWS_SECRET_ACCESS_KEY` — Secret Access Key correspondiente
+
+**Próxima tarea:** The Lab — Micro-blogging técnico (`src/app/features/lab/`, ruta `lab`).

@@ -21,35 +21,7 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Terminal de contacto
-
-**Origen:** `PRD.md` §5 y §6 (Roadmap, prioridad Alta del MVP: formulario de contacto para
-el CTA principal del portafolio).
-
-**Archivos:** `src/app/features/contacto/*` (componente standalone `Contacto`),
-`src/app/app.routes.ts` (ruta `contacto`).
-
-**Qué hacer:**
-1. Crear el componente standalone `Contacto` en `src/app/features/contacto/`.
-2. Implementar un formulario con campos Nombre, Email, Mensaje y botón Enviar, con la
-   estética "terminal / CLI" del design system (fondo `--color-surface-container-low`,
-   inputs de borde único inferior, tipografía `technical-label`).
-3. Validación client-side con Angular Reactive Forms (campos requeridos, formato email).
-4. Registrar la ruta `contacto` en `src/app/app.routes.ts` con `loadComponent`.
-5. El endpoint backend (`POST api.ocastelblanco.com/contact`) se implementará en una tarea
-   posterior; en esta tarea el formulario solo valida y muestra confirmación mock.
-6. Verificar visualmente con `npm start` dentro del shell, en desktop y móvil.
-
-**Definition of done:**
-- [ ] Existe `src/app/features/contacto` como componente standalone con el formulario
-- [ ] Validación client-side funciona (campos requeridos + formato email)
-- [ ] La ruta `contacto` está registrada con `loadComponent`
-- [ ] El enlace de navegación en el sidebar lleva al formulario
-- [ ] `npm start` muestra el formulario dentro del shell con el design system aplicado
-
----
-
-## Tarea 2 — [FEATURE]: The Lab — Micro-blogging técnico (listado)
+## Tarea 1 — [FEATURE]: The Lab — Micro-blogging técnico (listado)
 
 **Origen:** `PRD.md` §5 y §6 (Roadmap, prioridad Media-Alta: sección de autoridad técnica
 y SEO mediante entradas cortas de arquitectura, Cloud Economics y prompt engineering).
@@ -73,7 +45,59 @@ y SEO mediante entradas cortas de arquitectura, Cloud Economics y prompt enginee
 
 ---
 
+## Tarea 2 — [FEATURE]: Endpoint backend Terminal de contacto
+
+**Origen:** `PRD.md` §5 y OWASP A07 (`CLAUDE.md` §6 — el endpoint `/contact` no debe
+desplegarse sin rate limiting/anti-spam). Cierra el ciclo del CTA principal del portafolio.
+
+**Archivos:** `serverless.yml` (nueva función Lambda `contact`), nueva función en
+`src/lambda/contact-handler.mjs` (o equivalente), `src/app/features/contacto/contacto.ts`
+(activar el `HttpClient` call real en `submit()`).
+
+**Qué hacer:**
+1. Agregar una función Lambda `contact` en `serverless.yml` que exponga
+   `POST api.ocastelblanco.com/contact` con CORS restringido a `https://ocastelblanco.com`.
+2. El handler valida el payload server-side (nombre, email, mensaje no vacíos), aplica
+   rate limiting básico (API Gateway usage plan o middleware Lambda) y reenvía el mensaje
+   por email/webhook (implementación mínima: log a CloudWatch; email real en iteración
+   posterior).
+3. Actualizar el componente `Contacto` para hacer el POST real en `submit()` en lugar de
+   mostrar la confirmación mock directamente.
+4. `npm run build` y verificar visualmente con `npm start`.
+
+**Definition of done:**
+- [ ] `POST api.ocastelblanco.com/contact` responde 200 con payload válido
+- [ ] Responde 400 con payload inválido (campos vacíos / email malformado)
+- [ ] CORS restringido a `https://ocastelblanco.com` (no `*`)
+- [ ] Rate limiting activo (API Gateway o middleware)
+- [ ] Componente `Contacto` usa el endpoint real (no mock)
+- [ ] `npm run build` en verde
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-06-18 — [FEATURE]: Despliegue CI/CD a AWS Lambda (stage `preview`)
+
+`serverless.yml` (Serverless Framework v4, `nodejs24.x`, `us-east-1`, Lambda Function URL,
+`memorySize: 512`, `timeout: 15s`). `lambda-handler.mjs` (raíz): importa `app` de Express
+compilado desde `dist/ocastelblanco/server/server.mjs` y lo wrappea con
+`@vendia/serverless-express`. `src/server.ts`: añadido `export { app }` para el handler.
+`.github/workflows/deploy.yml`: deploy a stage `preview` en cada push a feature branches y
+`rediseno-2026`; URL del Lambda impresa en Step Summary. `.gitignore`: añadidos
+`.serverless/` y `.esbuild/`. `npm run build` en verde localmente. Requiere secrets
+`AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` en GitHub Actions (pendiente configuración
+manual del usuario). PR #13 en revisión.
+
+### 2026-06-18 — [FEATURE]: Terminal de contacto
+
+Componente standalone `src/app/features/contacto/` con Angular Reactive Forms, validación
+client-side (campos requeridos, `Validators.email`, `Validators.minLength`), estética
+terminal/CLI (inputs con `border-bottom` único, fondo transparente, JetBrains Mono, botón
+de submit en `--color-primary-container`). Estado de éxito mock con `signal<boolean>` +
+bloque `@if (sent())`. Ruta `contacto` registrada con `loadComponent` en `app.routes.ts`.
+Claves i18n `contacto.*` (15 claves: labels, placeholders, errores, success state) en ambos
+diccionarios. `npm run build` y `npm run lint` en verde. PR #12 fusionada.
 
 ### 2026-06-18 — [FEATURE]: Página de detalle — Le Tiende — Comandante
 
@@ -243,3 +267,4 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 | 2026-06-17 | Registro de Proyectos completado y verificado (build + lint + visual OK, PR #9 fusionada). Siguiente prioridad Alta: ConectaTech detail page (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Le Tiende detail page — cierra el ciclo de los dos casos de estudio del Registro y no depende de Tarea 1 | Tarea 1 (Registro de Proyectos) movida al historial. Tarea 2 (ConectaTech) pasa a ser Tarea 1. Nueva Tarea 2: Página de detalle — Le Tiende — Comandante |
 | 2026-06-17 | ConectaTech detail page completada y verificada (build + lint OK, PR #10 fusionada). Siguiente prioridad Alta: Le Tiende detail page (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Terminal de contacto — CTA principal del portafolio, prioridad Alta del MVP, sin dependencias bloqueantes | Tarea 1 (ConectaTech) movida al historial. Tarea 2 (Le Tiende) pasa a ser Tarea 1. Nueva Tarea 2: Terminal de contacto |
 | 2026-06-18 | Le Tiende detail page completada y verificada (build + lint OK, PR #11 fusionada). Siguiente prioridad Alta: Terminal de contacto (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza The Lab — sección de autoridad técnica y SEO, prioridad Media-Alta del roadmap, sin dependencias bloqueantes | Tarea 1 (Le Tiende) movida al historial. Tarea 2 (Terminal de contacto) pasa a ser Tarea 1. Nueva Tarea 2: The Lab — Micro-blogging técnico |
+| 2026-06-18 | El usuario solicitó anteponer el despliegue a AWS Lambda (CI/CD con preview URL por push) para poder validar avances remotamente antes de aprobar PRs. Terminal de contacto completada y movida al historial (PR #12 fusionada). Deploy Lambda implementado y en PR. Para mantener 2 tareas activas: The Lab pasa a Tarea 1 (era Tarea 2, sin cambios). Nueva Tarea 2: endpoint backend de la Terminal de contacto (OWASP A07: no desplegar sin rate limiting) | Tarea 1 (Terminal de contacto) movida al historial. Deploy Lambda (antepuesta) movida al historial. Tarea 2 (The Lab) pasa a ser Tarea 1. Nueva Tarea 2: Endpoint backend Terminal de contacto |

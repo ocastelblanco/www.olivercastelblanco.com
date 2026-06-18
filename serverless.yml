@@ -1,0 +1,37 @@
+service: ocastelblanco-com
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: nodejs24.x
+  region: us-east-1
+  memorySize: 512
+  timeout: 15
+  environment:
+    NODE_ENV: production
+
+functions:
+  app:
+    handler: lambda-handler.handler
+    url:
+      cors: true
+
+plugins:
+  - serverless-esbuild
+
+custom:
+  esbuild:
+    bundle: true
+    minify: false
+    target: node24
+    platform: node
+    format: esm
+    outputFileExtension: .mjs
+    external:
+      - './dist/ocastelblanco/server/server.mjs'
+
+package:
+  individually: false
+  patterns:
+    - '!**'
+    - 'dist/ocastelblanco/**'
