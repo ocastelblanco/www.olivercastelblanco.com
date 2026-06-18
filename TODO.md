@@ -21,36 +21,7 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Página de detalle — Caso de Estudio Le Tiende — Comandante
-
-**Origen:** `PRD.md` §5.2 y §6 (Roadmap, prioridad Alta: cierra el ciclo de los dos casos
-de estudio del Registro de Proyectos; no depende de la Tarea 1).
-
-**Archivos:** `src/app/features/proyectos/le-tiende/*` (componente standalone `LeTiende`),
-`src/app/app.routes.ts` (ruta `proyectos/le-tiende`).
-
-**Qué hacer:**
-1. Crear el componente standalone `LeTiende` en
-   `src/app/features/proyectos/le-tiende/`.
-2. Implementar la página de detalle usando el contenido de
-   `docs/arquitectura/arquitectura_ocastelblanco.md` §3: narrativa "The Efficiency Expert",
-   problema, solución, métrica de impacto ("OPEX: $0.50 USD/mes")
-   y stack (Serverless, AWS Lambda, SSR, integración de APIs Discogs/Google).
-3. Registrar la ruta `proyectos/le-tiende` en `src/app/app.routes.ts` con `loadComponent`.
-4. Desde la card de Le Tiende en el Registro de Proyectos, agregar un enlace a esta ruta.
-5. Verificar visualmente con `npm start` dentro del shell, en desktop y móvil.
-
-**Definition of done:**
-- [ ] Existe `src/app/features/proyectos/le-tiende` como componente standalone con la
-      narrativa, métricas y stack del caso
-- [ ] `app.routes.ts` registra la ruta `proyectos/le-tiende` → `LeTiende`
-- [ ] La card de Le Tiende en el Registro enlaza a la página de detalle
-- [ ] El contenido coincide con `docs/arquitectura/arquitectura_ocastelblanco.md` §3
-- [ ] `npm start` muestra el detalle dentro del shell con el design system aplicado
-
----
-
-## Tarea 2 — [FEATURE]: Terminal de contacto
+## Tarea 1 — [FEATURE]: Terminal de contacto
 
 **Origen:** `PRD.md` §5 y §6 (Roadmap, prioridad Alta del MVP: formulario de contacto para
 el CTA principal del portafolio).
@@ -78,7 +49,41 @@ el CTA principal del portafolio).
 
 ---
 
+## Tarea 2 — [FEATURE]: The Lab — Micro-blogging técnico (listado)
+
+**Origen:** `PRD.md` §5 y §6 (Roadmap, prioridad Media-Alta: sección de autoridad técnica
+y SEO mediante entradas cortas de arquitectura, Cloud Economics y prompt engineering).
+
+**Archivos:** `src/app/features/lab/*` (componente standalone `Lab`),
+`src/app/app.routes.ts` (ruta `lab`).
+
+**Qué hacer:**
+1. Crear el componente standalone `Lab` en `src/app/features/lab/`.
+2. Implementar un listado estático de 3 entradas iniciales (temas de
+   `docs/arquitectura/arquitectura_ocastelblanco.md` §5) con diseño de tarjeta minimalista.
+3. Registrar la ruta `lab` en `src/app/app.routes.ts` con `loadComponent`.
+4. Verificar visualmente con `npm start` dentro del shell, en desktop y móvil.
+
+**Definition of done:**
+- [ ] Existe `src/app/features/lab` como componente standalone con el listado
+- [ ] Muestra al menos 3 entradas estáticas con título y snippet
+- [ ] La ruta `lab` está registrada con `loadComponent`
+- [ ] El enlace de navegación en el sidebar lleva a la sección
+- [ ] `npm start` muestra el listado dentro del shell con el design system aplicado
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-06-18 — [FEATURE]: Página de detalle — Le Tiende — Comandante
+
+Componente standalone `src/app/features/proyectos/le-tiende/` con hero Metric-First
+(`$0.50/mes` en Electric Cyan), secciones Desafío / Enfoque / Impacto y footer de stack.
+Acento de borde izquierdo en Electric Cyan (diferenciado de ConectaTech en Cyber Lime).
+Ruta lazy `proyectos/le-tiende` registrada en `app.routes.ts`. Enlace "Ver caso →" añadido
+a la card Le Tiende en el Registro de Proyectos. Claves i18n `lt_challenge`, `lt_approach`,
+`lt_impact_1/2` en tipos y diccionarios. `npm run build` y `npm run lint` en verde.
+PR #11 fusionada.
 
 ### 2026-06-17 — [FEATURE]: Página de detalle — Caso de Estudio ConectaTech
 
@@ -237,3 +242,4 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 | 2026-06-17 | Home completada y verificada (build + lint + visual OK, PR #8 fusionada). Siguiente prioridad Alta: Registro de Proyectos (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza la página de detalle del primer caso de estudio (ConectaTech), que completa el requisito del MVP "1 Caso de Estudio" y no depende de la Tarea 1 | Tarea 1 (Home) movida al historial. Tarea 2 (Registro de Proyectos) pasa a ser Tarea 1. Nueva Tarea 2: Página de detalle — Caso de Estudio ConectaTech |
 | 2026-06-17 | Registro de Proyectos completado y verificado (build + lint + visual OK, PR #9 fusionada). Siguiente prioridad Alta: ConectaTech detail page (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Le Tiende detail page — cierra el ciclo de los dos casos de estudio del Registro y no depende de Tarea 1 | Tarea 1 (Registro de Proyectos) movida al historial. Tarea 2 (ConectaTech) pasa a ser Tarea 1. Nueva Tarea 2: Página de detalle — Le Tiende — Comandante |
 | 2026-06-17 | ConectaTech detail page completada y verificada (build + lint OK, PR #10 fusionada). Siguiente prioridad Alta: Le Tiende detail page (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Terminal de contacto — CTA principal del portafolio, prioridad Alta del MVP, sin dependencias bloqueantes | Tarea 1 (ConectaTech) movida al historial. Tarea 2 (Le Tiende) pasa a ser Tarea 1. Nueva Tarea 2: Terminal de contacto |
+| 2026-06-18 | Le Tiende detail page completada y verificada (build + lint OK, PR #11 fusionada). Siguiente prioridad Alta: Terminal de contacto (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza The Lab — sección de autoridad técnica y SEO, prioridad Media-Alta del roadmap, sin dependencias bloqueantes | Tarea 1 (Le Tiende) movida al historial. Tarea 2 (Terminal de contacto) pasa a ser Tarea 1. Nueva Tarea 2: The Lab — Micro-blogging técnico |

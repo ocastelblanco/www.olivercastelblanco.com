@@ -23,6 +23,22 @@ export interface Translations {
     design_title: string;
     design_body: string;
   };
+  contacto: {
+    title: string;
+    subtitle: string;
+    name_label: string;
+    name_placeholder: string;
+    email_label: string;
+    email_placeholder: string;
+    message_label: string;
+    message_placeholder: string;
+    send_button: string;
+    success_title: string;
+    success_body: string;
+    error_required: string;
+    error_email: string;
+    error_min: string;
+  };
   proyectos: {
     back: string;
     view_case: string;

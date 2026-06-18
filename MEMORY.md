@@ -31,9 +31,11 @@
 - [x] Home — "El Manifiesto del Fixer" (hero + 3 pilares de valor)
 - [x] Registro de Proyectos (grid Metric-First: ConectaTech + Le Tiende)
 - [x] Página de detalle — ConectaTech (caso de estudio)
+- [x] Página de detalle — Le Tiende — Comandante (caso de estudio)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] Página de detalle — Le Tiende — Comandante
+- [ ] Terminal de contacto (formulario + validación client-side)
+- [ ] The Lab (bitácora técnica)
 - [ ] The Lab (bitácora técnica)
 - [ ] Terminal de contacto + endpoint
 - [ ] `serverless.yml` y primer despliegue
@@ -402,6 +404,5 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 - Ruta `''` registrada con `loadComponent` (lazy) en `app.routes.ts`.
 - README y bitácora (`docs/proceso/2026-06-shell-identidad-visual-i18n.md`) actualizados.
 
-**Próxima tarea:** Página de detalle Le Tiende — Comandante
-(`src/app/features/proyectos/le-tiende/`, ruta `proyectos/le-tiende`). ConectaTech detail
-ya completado y fusionado (PR #10).
+**Próxima tarea:** Terminal de contacto (`src/app/features/contacto/`, ruta `contacto`).
+Ambas páginas de detalle de casos de estudio completadas y fusionadas (PR #10, PR #11).
