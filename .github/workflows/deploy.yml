@@ -35,9 +35,15 @@ jobs:
       - name: Deploy
         id: deploy
         run: |
-          OUTPUT=$(npx serverless deploy --stage preview --verbose 2>&1)
-          echo "$OUTPUT"
-          URL=$(echo "$OUTPUT" | grep -oP 'https://[a-z0-9]+\.lambda-url\.[a-z0-9-]+\.on\.aws[^\s]*' | head -1)
+          set +e
+          npx serverless deploy --stage preview --verbose 2>&1 | tee /tmp/sls-output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          set -e
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "::error::Serverless deploy failed with exit code $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+          URL=$(grep -oP 'https://[a-z0-9]+\.lambda-url\.[a-z0-9-]+\.on\.aws[^\s]*' /tmp/sls-output.txt | head -1)
           if [ -n "$URL" ]; then
             echo "url=$URL" >> "$GITHUB_OUTPUT"
             echo "## 🚀 Preview URL" >> "$GITHUB_STEP_SUMMARY"
