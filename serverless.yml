@@ -10,16 +10,7 @@ provider:
   environment:
     NODE_ENV: production
 
-functions:
-  app:
-    handler: lambda-handler.handler
-    url:
-      cors: true
-
-plugins:
-  - serverless-esbuild
-
-custom:
+build:
   esbuild:
     bundle: true
     minify: false
@@ -29,6 +20,12 @@ custom:
     outputFileExtension: .mjs
     external:
       - './dist/ocastelblanco/server/server.mjs'
+
+functions:
+  app:
+    handler: lambda-handler.handler
+    url:
+      cors: true
 
 package:
   individually: false
