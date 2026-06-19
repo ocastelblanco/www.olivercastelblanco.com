@@ -16,8 +16,7 @@ build:
     minify: false
     target: node24
     platform: node
-    format: esm
-    outputFileExtension: .mjs
+    format: cjs
     external:
       - './dist/ocastelblanco/server/server.mjs'
 
