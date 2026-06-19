@@ -269,11 +269,20 @@
   despliegue ocurre en cada push para que cualquier feature branch sea previsualizable antes
   de aprobar la PR. Lambda Function URL simplifica el setup al eliminar API Gateway.
 - **Consecuencias:**
-  - Se requieren secrets `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` en GitHub (configurar
-    manualmente en repo Settings → Secrets → Actions antes del primer deploy).
+  - GitHub secrets configurados: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`,
+    `SERVERLESS_LICENSE_KEY` (Serverless Framework v4 requiere licencia para CI no
+    interactivo — licencia gratuita disponible en serverless.com).
   - `src/server.ts` exporta tanto `reqHandler` (para Angular CLI) como `app` (para Lambda).
   - `.gitignore` incluye `.serverless/` y `.esbuild/` (artefactos de build del framework).
   - La URL del Lambda URL se imprime en el GitHub Actions Step Summary tras cada deploy.
+  - `NG_ALLOWED_HOSTS: '*.lambda-url.us-east-1.on.aws'` en el environment de Lambda —
+    `AngularNodeAppEngine` valida el header `host` por seguridad y rechazaría el dominio de
+    la Lambda Function URL sin esta variable (leída por `getAllowedHostsFromEnv()` en
+    `@angular/ssr/node`).
+  - `lambda-handler.js` usa `import()` dinámico para cargar `server.mjs` (ESM) desde un
+    bundle CJS — Node.js soporta dynamic `import()` en contexto CommonJS.
+  - Serverless Framework v4 incluye esbuild nativo; el plugin `serverless-esbuild` fue
+    eliminado (conflicto con v4). Config bajo `build.esbuild` en `serverless.yml`.
   - Fase 2 (producción): `serverless.yml` production stage + CloudFront + S3 para assets
     estáticos — pendiente de implementar cuando el MVP esté completo.
 
@@ -314,12 +323,12 @@
 | Configuración | Valor | Estado |
 |---|---|---|
 | Dominio principal | `ocastelblanco.com` | Activo (apunta al sitio anterior) |
-| Lambda stage `preview` | URL generada en primer deploy (ver GitHub Actions Step Summary) | Pendiente de primer push al workflow |
+| Lambda stage `preview` | URL generada en primer deploy (ver GitHub Actions Step Summary) | Activo — despliega en cada push a feature branches y `rediseno-2026` |
 | Subdominio CDN | `cdn.ocastelblanco.com` | No provisionado en esta iteración |
 | Subdominio API | `api.ocastelblanco.com` | No provisionado |
 | Serverless service name | `ocastelblanco-com` | Definido en `serverless.yml` |
 | Región AWS | `us-east-1` | Definido en `serverless.yml` y workflow |
-| GitHub Secrets requeridos | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | Pendiente configuración manual por el usuario |
+| GitHub Secrets | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `SERVERLESS_LICENSE_KEY` | Configurados |
 
 ## 6. Patrones de código establecidos
 
@@ -429,22 +438,14 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 **Fecha:** 2026-06-18
 
 **Qué se hizo hoy:**
-- Terminal de contacto completada y fusionada (PR #12): componente `src/app/features/contacto/`
-  con Angular Reactive Forms, validación client-side (requeridos, email, minLength), estética
-  terminal/CLI (inputs borde inferior, JetBrains Mono), estado de éxito mock con `signal`.
-- Despliegue CI/CD a AWS Lambda implementado (`feature/deploy-lambda`, PR en revisión):
-  - `serverless.yml`: Serverless Framework v4, `nodejs24.x`, `us-east-1`, Lambda Function URL,
-    `serverless-esbuild` (ESM bundle), `memorySize: 512`, `timeout: 15s`.
-  - `lambda-handler.mjs`: 3 líneas — importa `app` de Express compilado, wrappea con
-    `@vendia/serverless-express`.
-  - `src/server.ts`: añadido `export { app }` para que el handler de Lambda lo importe.
-  - `.github/workflows/deploy.yml`: despliega a stage `preview` en cada push a feature
-    branches y a `rediseno-2026`. URL del Lambda se imprime en Step Summary.
-  - `.gitignore`: añadidos `.serverless/` y `.esbuild/`.
-
-**GitHub Secrets pendientes (acción manual del usuario):**
-Antes del primer deploy, configurar en el repo GitHub → Settings → Secrets → Actions:
-- `AWS_ACCESS_KEY_ID` — Access Key ID del usuario IAM con acceso programático
-- `AWS_SECRET_ACCESS_KEY` — Secret Access Key correspondiente
+- Terminal de contacto completada y fusionada (PR #12).
+- Despliegue CI/CD a AWS Lambda completado y fusionado (PR #13):
+  - Serverless Framework v4 + esbuild nativo (`build.esbuild` en `serverless.yml`).
+  - `lambda-handler.js`: bundle CJS con `await import()` dinámico para `server.mjs` ESM.
+  - `NG_ALLOWED_HOSTS: '*.lambda-url.us-east-1.on.aws'` — `AngularNodeAppEngine` valida
+    el header `host`; esta env var lo permite sin cambios en `server.ts`.
+  - 3 GitHub Secrets configurados: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`,
+    `SERVERLESS_LICENSE_KEY`.
+  - Deploy verificado y funcionando en la Lambda Function URL de stage `preview`.
 
 **Próxima tarea:** The Lab — Micro-blogging técnico (`src/app/features/lab/`, ruta `lab`).

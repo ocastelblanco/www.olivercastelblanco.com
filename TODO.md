@@ -86,8 +86,10 @@ compilado desde `dist/ocastelblanco/server/server.mjs` y lo wrappea con
 `.github/workflows/deploy.yml`: deploy a stage `preview` en cada push a feature branches y
 `rediseno-2026`; URL del Lambda impresa en Step Summary. `.gitignore`: añadidos
 `.serverless/` y `.esbuild/`. `npm run build` en verde localmente. Requiere secrets
-`AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY` en GitHub Actions (pendiente configuración
-manual del usuario). PR #13 en revisión.
+`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` y `SERVERLESS_LICENSE_KEY` en GitHub Actions
+(configurados). `NG_ALLOWED_HOSTS: '*.lambda-url.us-east-1.on.aws'` añadido para que
+`AngularNodeAppEngine` acepte el dominio de la Lambda Function URL (seguridad de host). PR
+#13 fusionada.
 
 ### 2026-06-18 — [FEATURE]: Terminal de contacto
 
