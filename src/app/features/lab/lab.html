@@ -1,0 +1,20 @@
+<section class="lab">
+  <header class="lab__header">
+    <p class="lab__eyebrow technical-label">{{ trans.t('lab.eyebrow') }}</p>
+    <h1 class="lab__title">{{ trans.t('lab.title') }}</h1>
+    <p class="lab__subtitle body-md">{{ trans.t('lab.subtitle') }}</p>
+  </header>
+
+  <ul class="lab__list" role="list">
+    @for (n of entries; track n) {
+      <li class="lab__card">
+        <div class="lab__card-meta">
+          <span class="lab__card-tag technical-label">{{ trans.t('lab.tag_' + n) }}</span>
+          <span class="lab__card-date technical-label">{{ trans.t('lab.date_' + n) }}</span>
+        </div>
+        <h2 class="lab__card-title" [innerHTML]="trans.t('lab.title_' + n)"></h2>
+        <p class="lab__card-snippet body-md">{{ trans.t('lab.snippet_' + n) }}</p>
+      </li>
+    }
+  </ul>
+</section>

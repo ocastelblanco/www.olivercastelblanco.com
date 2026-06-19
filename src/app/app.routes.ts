@@ -20,6 +20,10 @@ export const routes: Routes = [
       import('./features/proyectos/le-tiende/le-tiende').then(m => m.LeTiende),
   },
   {
+    path: 'lab',
+    loadComponent: () => import('./features/lab/lab').then(m => m.Lab),
+  },
+  {
     path: 'contacto',
     loadComponent: () => import('./features/contacto/contacto').then(m => m.Contacto),
   },

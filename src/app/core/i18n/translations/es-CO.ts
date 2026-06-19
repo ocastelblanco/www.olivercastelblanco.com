@@ -29,6 +29,26 @@ export const esTranslations: Translations = {
     error_email: 'Email inválido',
     error_min: 'Muy corto',
   },
+  lab: {
+    title: 'The Lab',
+    eyebrow: '// pensamiento_arquitectónico',
+    subtitle: 'Arquitectura en voz alta. Snippets y reflexiones de diseño de sistemas.',
+    tag_1: 'Angular',
+    date_1: 'Jun 2026',
+    title_1: 'Angular 22: la herramienta secreta del <em>Industrial Design</em>',
+    snippet_1:
+      'Por qué el framework más subestimado del ecosistema JS es la elección correcta cuando la precisión técnica no es negociable. Signals, zoneless y SSR como ventajas estructurales.',
+    tag_2: 'Prompt Engineering',
+    date_2: 'Jun 2026',
+    title_2: 'De escribir código a orquestar sistemas',
+    snippet_2:
+      'El arquitecto moderno no escribe cada línea — diseña el sistema de instrucciones que lo hace. Por qué el Prompt Engineering es la nueva competencia central de la arquitectura de software.',
+    tag_3: 'Cloud Economics',
+    date_3: 'Jun 2026',
+    title_3: 'OPEX al mínimo teórico: estrategias de <em>Cloud Economics</em>',
+    snippet_3:
+      'Cómo diseñar infraestructura serverless que opera por debajo del umbral de costo perceptible. La diferencia entre un arquitecto de costos y uno de sistemas.',
+  },
   proyectos: {
     back: '← Casos de estudio',
     view_case: 'Ver caso →',

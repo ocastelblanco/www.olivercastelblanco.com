@@ -29,6 +29,26 @@ export const enTranslations: Translations = {
     error_email: 'Invalid email',
     error_min: 'Too short',
   },
+  lab: {
+    title: 'The Lab',
+    eyebrow: '// architectural_thinking',
+    subtitle: 'Architecture out loud. Snippets and systems design reflections.',
+    tag_1: 'Angular',
+    date_1: 'Jun 2026',
+    title_1: 'Angular 22: the secret weapon for <em>Industrial Design</em>',
+    snippet_1:
+      'Why the most underrated framework in the JS ecosystem is the right choice when technical precision is non-negotiable. Signals, zoneless, and SSR as structural advantages.',
+    tag_2: 'Prompt Engineering',
+    date_2: 'Jun 2026',
+    title_2: 'From writing code to orchestrating systems',
+    snippet_2:
+      "The modern architect doesn't write every line — they design the instruction system that does. Why Prompt Engineering is the new core competency in software architecture.",
+    tag_3: 'Cloud Economics',
+    date_3: 'Jun 2026',
+    title_3: 'OPEX to the theoretical minimum: <em>Cloud Economics</em> strategies',
+    snippet_3:
+      'How to design serverless infrastructure that operates below the perceptible cost threshold. The difference between a cost architect and a systems architect.',
+  },
   proyectos: {
     back: '← Case Studies',
     view_case: 'View case →',
