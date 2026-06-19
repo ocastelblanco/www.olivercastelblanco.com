@@ -1,0 +1,59 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'fix/**'
+      - 'refactor/**'
+      - 'docs/**'
+      - 'hotfix/**'
+      - 'rediseno-2026'
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy
+        id: deploy
+        run: |
+          set +e
+          npx serverless deploy --stage preview --verbose 2>&1 | tee /tmp/sls-output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          set -e
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "::error::Serverless deploy failed with exit code $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+          URL=$(grep -oP 'https://[a-z0-9]+\.lambda-url\.[a-z0-9-]+\.on\.aws[^\s]*' /tmp/sls-output.txt | head -1)
+          if [ -n "$URL" ]; then
+            echo "url=$URL" >> "$GITHUB_OUTPUT"
+            echo "## 🚀 Preview URL" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "**[$URL]($URL)**" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "Branch: \`${{ github.ref_name }}\`" >> "$GITHUB_STEP_SUMMARY"
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          SERVERLESS_LICENSE_KEY: ${{ secrets.SERVERLESS_LICENSE_KEY }}
