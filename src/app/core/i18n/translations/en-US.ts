@@ -23,11 +23,13 @@ export const enTranslations: Translations = {
     message_label: '// message',
     message_placeholder: 'Describe the challenge or project...',
     send_button: 'DEPLOY →',
+    sending: 'sending...',
     success_title: '// transmission received',
     success_body: 'Message delivered. I\'ll reply within 48h.',
     error_required: 'Required',
     error_email: 'Invalid email',
     error_min: 'Too short',
+    error_send: 'Send failed. Please try again.',
   },
   lab: {
     title: 'The Lab',

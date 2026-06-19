@@ -10,6 +10,19 @@ provider:
   environment:
     NODE_ENV: production
     NG_ALLOWED_HOSTS: '*.lambda-url.us-east-1.on.aws'
+  httpApi:
+    cors:
+      allowedOrigins:
+        - 'https://ocastelblanco.com'
+      allowedHeaders:
+        - 'Content-Type'
+      allowedMethods:
+        - POST
+        - OPTIONS
+      maxAge: 86400
+    throttle:
+      burstLimit: 10
+      rateLimit: 5
 
 build:
   esbuild:
@@ -26,6 +39,12 @@ functions:
     handler: lambda-handler.handler
     url:
       cors: true
+  contact:
+    handler: src/lambda/contact-handler.handler
+    events:
+      - httpApi:
+          path: /contact
+          method: POST
 
 package:
   individually: false

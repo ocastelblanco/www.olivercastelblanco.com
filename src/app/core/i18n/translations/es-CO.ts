@@ -23,11 +23,13 @@ export const esTranslations: Translations = {
     message_label: '// mensaje',
     message_placeholder: 'Describe el reto o proyecto...',
     send_button: 'DEPLOY →',
+    sending: 'enviando...',
     success_title: '// transmisión recibida',
     success_body: 'Mensaje entregado. Te respondo en menos de 48h.',
     error_required: 'Campo requerido',
     error_email: 'Email inválido',
     error_min: 'Muy corto',
+    error_send: 'Error al enviar. Intenta de nuevo.',
   },
   lab: {
     title: 'The Lab',

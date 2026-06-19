@@ -33,11 +33,13 @@ export interface Translations {
     message_label: string;
     message_placeholder: string;
     send_button: string;
+    sending: string;
     success_title: string;
     success_body: string;
     error_required: string;
     error_email: string;
     error_min: string;
+    error_send: string;
   };
   lab: {
     title: string;

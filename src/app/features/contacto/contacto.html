@@ -67,9 +67,13 @@
         }
       </div>
 
-      <button class="contacto__submit technical-label" type="submit">
-        {{ trans.t('contacto.send_button') }}
+      <button class="contacto__submit technical-label" type="submit" [disabled]="loading()">
+        {{ loading() ? trans.t('contacto.sending') : trans.t('contacto.send_button') }}
       </button>
+
+      @if (sendError()) {
+        <p class="contacto__send-error technical-label">{{ trans.t('contacto.error_send') }}</p>
+      }
     </form>
   }
 </section>
