@@ -36,10 +36,11 @@
 - [x] Terminal de contacto (formulario Reactive Forms + validación client-side + estado mock)
 - [x] Despliegue CI/CD a AWS Lambda (`serverless.yml` + `lambda-handler.js` + workflow deploy)
 - [x] The Lab — Micro-blogging técnico (listado estático con 3 entradas, namespace i18n `lab`)
+- [x] Endpoint backend Terminal de contacto (Lambda `contact`, httpApi, rate limiting, CORS, `ContactService`, PR #15)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] Endpoint backend Terminal de contacto (`POST api.ocastelblanco.com/contact`)
 - [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos (fase 2)
+- [ ] SEO técnico básico (JSON-LD + meta tags + sitemap)
 
 ## 3. Registro de Decisiones de Arquitectura (ADRs)
 
@@ -438,11 +439,13 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 **Fecha:** 2026-06-19
 
 **Qué se hizo hoy:**
-- The Lab completado y fusionado (PR #14):
-  - Componente standalone `Lab` en `src/app/features/lab/` con 3 entradas estáticas.
-  - Diseño de tarjetas: borde izquierdo Electric Cyan, tag en cyan, snippet en variante.
-  - i18n completo es-CO / en-US — 15 claves en namespace `lab` (`i18n.types.ts` + diccionarios).
-  - Ruta `lab` registrada con `loadComponent` (lazy) en `app.routes.ts`.
+- Endpoint backend Terminal de contacto completado (PR #15 abierta):
+  - `src/lambda/contact-handler.mjs`: Lambda handler con validación server-side, honeypot anti-spam, log a CloudWatch. CORS restringido a `https://ocastelblanco.com`.
+  - `serverless.yml`: función `contact` con `httpApi` event, rate limiting (`rateLimit: 5 / burstLimit: 10`), CORS restringido.
+  - `src/app/app.config.ts`: `provideHttpClient(withFetch())` agregado.
+  - `src/app/core/services/contact.service.ts`: `ContactService` nuevo con `send()`.
+  - `Contacto` component: `submit()` usa HTTP real, signals `loading`/`sendError`, botón deshabilitado durante carga, bloque de error i18n.
+  - 2 claves i18n nuevas (`sending`, `error_send`) en tipos y ambos diccionarios.
   - Build en verde, 6 rutas pre-renderizadas.
 
-**Próxima tarea:** Endpoint backend Terminal de contacto (`POST api.ocastelblanco.com/contact`).
+**Próxima tarea:** Deploy de producción (`serverless.yml` production stage + CloudFront + S3).
