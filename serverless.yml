@@ -1,5 +1,6 @@
 service: ocastelblanco-com
 frameworkVersion: '3'
+configValidationMode: warn
 
 provider:
   name: aws
