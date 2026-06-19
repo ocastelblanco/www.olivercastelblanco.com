@@ -7,14 +7,14 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — shell, i18n, Home, Proyectos, Contacto + CI/CD Lambda implementados |
+| Versión | MVP en construcción — shell, i18n, Home, Proyectos, Contacto, The Lab + CI/CD Lambda implementados |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
 | URL API | `https://api.ocastelblanco.com` (futuro, no provisionado) |
 | Rama principal (protegida) | `master` — sitio anterior (Angular Universal + Serverless) |
 | Rama de desarrollo (protegida) | `rediseno-2026` — rediseño desde cero |
-| Última sesión | 2026-06-18 |
+| Última sesión | 2026-06-19 |
 
 ## 2. Funcionalidades
 
@@ -34,10 +34,10 @@
 - [x] Página de detalle — ConectaTech (caso de estudio)
 - [x] Página de detalle — Le Tiende — Comandante (caso de estudio)
 - [x] Terminal de contacto (formulario Reactive Forms + validación client-side + estado mock)
-- [x] Despliegue CI/CD a AWS Lambda (`serverless.yml` + `lambda-handler.mjs` + workflow deploy)
+- [x] Despliegue CI/CD a AWS Lambda (`serverless.yml` + `lambda-handler.js` + workflow deploy)
+- [x] The Lab — Micro-blogging técnico (listado estático con 3 entradas, namespace i18n `lab`)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] The Lab (bitácora técnica — listado estático)
 - [ ] Endpoint backend Terminal de contacto (`POST api.ocastelblanco.com/contact`)
 - [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos (fase 2)
 
@@ -316,7 +316,7 @@
 | `@eslint/js` | ^10.0.1 | devDependency |
 | `typescript-eslint` | 8.60.1 | devDependency |
 | `serverless` | latest | devDependency |
-| `serverless-esbuild` | latest | devDependency |
+| ~~`serverless-esbuild`~~ | ~~latest~~ | eliminado — Serverless Framework v4 incluye esbuild nativo |
 
 ## 5. Configuraciones vigentes
 
@@ -435,17 +435,14 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 
 ## 9. Contexto de la sesión actual
 
-**Fecha:** 2026-06-18
+**Fecha:** 2026-06-19
 
 **Qué se hizo hoy:**
-- Terminal de contacto completada y fusionada (PR #12).
-- Despliegue CI/CD a AWS Lambda completado y fusionado (PR #13):
-  - Serverless Framework v4 + esbuild nativo (`build.esbuild` en `serverless.yml`).
-  - `lambda-handler.js`: bundle CJS con `await import()` dinámico para `server.mjs` ESM.
-  - `NG_ALLOWED_HOSTS: '*.lambda-url.us-east-1.on.aws'` — `AngularNodeAppEngine` valida
-    el header `host`; esta env var lo permite sin cambios en `server.ts`.
-  - 3 GitHub Secrets configurados: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`,
-    `SERVERLESS_LICENSE_KEY`.
-  - Deploy verificado y funcionando en la Lambda Function URL de stage `preview`.
+- The Lab completado y fusionado (PR #14):
+  - Componente standalone `Lab` en `src/app/features/lab/` con 3 entradas estáticas.
+  - Diseño de tarjetas: borde izquierdo Electric Cyan, tag en cyan, snippet en variante.
+  - i18n completo es-CO / en-US — 15 claves en namespace `lab` (`i18n.types.ts` + diccionarios).
+  - Ruta `lab` registrada con `loadComponent` (lazy) en `app.routes.ts`.
+  - Build en verde, 6 rutas pre-renderizadas.
 
-**Próxima tarea:** The Lab — Micro-blogging técnico (`src/app/features/lab/`, ruta `lab`).
+**Próxima tarea:** Endpoint backend Terminal de contacto (`POST api.ocastelblanco.com/contact`).

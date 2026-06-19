@@ -10,6 +10,8 @@ en arquitectura, diseño de producto y gestión de equipos (humanos o de agentes
 | Documento | Qué cubre |
 |---|---|
 | [`2026-06-fundacion-arquitectura-y-orquestacion-ia.md`](./2026-06-fundacion-arquitectura-y-orquestacion-ia.md) | Iteración fundacional del rediseño 2026: decisiones de arquitectura (ADRs), el sistema de documentación como "playbook" para agentes IA, seguridad desde el diseño, y la ejecución del boilerplate Angular 22 + design tokens. |
+| [`2026-06-shell-identidad-visual-i18n.md`](./2026-06-shell-identidad-visual-i18n.md) | Shell de navegación (sidebar + topbar), identidad visual corporativa (logo y kit de assets), soporte multilengua ES/EN con cambio inmediato (`TranslationService` + `LangSwitcher`), y pipeline de CI con GitHub Actions. |
+| [`2026-06-the-lab-y-deploy-ci-cd-lambda.md`](./2026-06-the-lab-y-deploy-ci-cd-lambda.md) | Despliegue CI/CD a AWS Lambda con stage `preview` automático por push (5 ciclos de diagnóstico: SF v4 license, esbuild nativo, CJS/ESM interop, `NG_ALLOWED_HOSTS`). The Lab: micro-blogging técnico con 3 entradas estáticas y diseño de tarjeta en Electric Cyan. |
 | [`Stitch.md`](./Stitch.md) | Bitácora del proceso de diseño visual con Google Stitch (prompts e iteraciones que dieron origen al design system "Technical Industrial Minimalism", ver `DESIGN.md`). |
 | `*.zip` | Exports de pantallas generadas durante el proceso de diseño con Stitch, referenciados desde `Stitch.md`. |
 

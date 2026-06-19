@@ -21,31 +21,7 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: The Lab — Micro-blogging técnico (listado)
-
-**Origen:** `PRD.md` §5 y §6 (Roadmap, prioridad Media-Alta: sección de autoridad técnica
-y SEO mediante entradas cortas de arquitectura, Cloud Economics y prompt engineering).
-
-**Archivos:** `src/app/features/lab/*` (componente standalone `Lab`),
-`src/app/app.routes.ts` (ruta `lab`).
-
-**Qué hacer:**
-1. Crear el componente standalone `Lab` en `src/app/features/lab/`.
-2. Implementar un listado estático de 3 entradas iniciales (temas de
-   `docs/arquitectura/arquitectura_ocastelblanco.md` §5) con diseño de tarjeta minimalista.
-3. Registrar la ruta `lab` en `src/app/app.routes.ts` con `loadComponent`.
-4. Verificar visualmente con `npm start` dentro del shell, en desktop y móvil.
-
-**Definition of done:**
-- [ ] Existe `src/app/features/lab` como componente standalone con el listado
-- [ ] Muestra al menos 3 entradas estáticas con título y snippet
-- [ ] La ruta `lab` está registrada con `loadComponent`
-- [ ] El enlace de navegación en el sidebar lleva a la sección
-- [ ] `npm start` muestra el listado dentro del shell con el design system aplicado
-
----
-
-## Tarea 2 — [FEATURE]: Endpoint backend Terminal de contacto
+## Tarea 1 — [FEATURE]: Endpoint backend Terminal de contacto
 
 **Origen:** `PRD.md` §5 y OWASP A07 (`CLAUDE.md` §6 — el endpoint `/contact` no debe
 desplegarse sin rate limiting/anti-spam). Cierra el ciclo del CTA principal del portafolio.
@@ -75,7 +51,46 @@ desplegarse sin rate limiting/anti-spam). Cierra el ciclo del CTA principal del 
 
 ---
 
+## Tarea 2 — [INFRA]: Deploy de producción — Lambda + CloudFront + S3
+
+**Origen:** `MEMORY.md` §2 Pendientes y ADR-009 (fase 2). Hace el sitio rediseñado
+accesible en `https://ocastelblanco.com` y completa el ciclo MVP.
+
+**Archivos:** `serverless.yml` (stage `production`, configuración de dominio),
+`.github/workflows/deploy.yml` (job de producción bajo condición `rediseno-2026`),
+posible `cloudfront.yml` o recursos en `serverless.yml` para CloudFront + S3.
+
+**Qué hacer:**
+1. Agregar stage `production` en `serverless.yml`: mismo Lambda + URL pero con
+   `domainName: ocastelblanco.com` (o vía CloudFront). `NG_ALLOWED_HOSTS` para el
+   dominio de producción.
+2. Provisionar distribución CloudFront con `ocastelblanco.com` como CNAME apuntando
+   al Lambda, con certificado ACM en `us-east-1`.
+3. Bucket S3 `cdn.ocastelblanco.com` para assets estáticos (`dist/ocastelblanco/browser/`)
+   con CloudFront delante.
+4. Actualizar `angular.json` / build config para que los assets apunten al CDN en producción.
+5. Workflow: job `deploy-prod` que se dispara solo en push a `rediseno-2026`.
+
+**Definition of done:**
+- [ ] `https://ocastelblanco.com` sirve el rediseño 2026 (Angular SSR via Lambda)
+- [ ] Assets estáticos servidos desde `https://cdn.ocastelblanco.com` (CloudFront + S3)
+- [ ] `NG_ALLOWED_HOSTS` incluye `ocastelblanco.com`
+- [ ] `npm run build` en verde con config de producción
+- [ ] CI/CD deploy a `production` activo en GitHub Actions
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-06-19 — [FEATURE]: The Lab — Micro-blogging técnico (listado estático)
+
+Componente standalone `src/app/features/lab/` con listado de 3 entradas estáticas
+(Angular 22, Prompt Engineering, Cloud Economics — temas de `docs/arquitectura §5`).
+Tarjetas con borde izquierdo Electric Cyan, tag en cyan, snippet en variante, fecha
+alineada a la derecha. i18n completo en 15 claves bajo namespace `lab` en `i18n.types.ts`
+y ambos diccionarios (es-CO / en-US). Títulos con `<em>` renderizados vía `[innerHTML]`
+(contenido de diccionarios propios — seguro). Ruta `lab` registrada con `loadComponent`
+en `app.routes.ts`. Build en verde, 6 rutas pre-renderizadas. PR #14 fusionada.
 
 ### 2026-06-18 — [FEATURE]: Despliegue CI/CD a AWS Lambda (stage `preview`)
 
