@@ -39,6 +39,23 @@ export interface Translations {
     error_email: string;
     error_min: string;
   };
+  lab: {
+    title: string;
+    eyebrow: string;
+    subtitle: string;
+    tag_1: string;
+    date_1: string;
+    title_1: string;
+    snippet_1: string;
+    tag_2: string;
+    date_2: string;
+    title_2: string;
+    snippet_2: string;
+    tag_3: string;
+    date_3: string;
+    title_3: string;
+    snippet_3: string;
+  };
   proyectos: {
     back: string;
     view_case: string;
