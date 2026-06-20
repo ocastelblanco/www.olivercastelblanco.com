@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://dev.api.ocastelblanco.com',
+  apiUrl: 'https://api.ocastelblanco.com',
 };

@@ -21,37 +21,7 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Endpoint backend Terminal de contacto
-
-**Origen:** `PRD.md` §5 y OWASP A07 (`CLAUDE.md` §6 — el endpoint `/contact` no debe
-desplegarse sin rate limiting/anti-spam). Cierra el ciclo del CTA principal del portafolio.
-
-**Archivos:** `serverless.yml` (nueva función Lambda `contact`), nueva función en
-`src/lambda/contact-handler.mjs` (o equivalente), `src/app/features/contacto/contacto.ts`
-(activar el `HttpClient` call real en `submit()`).
-
-**Qué hacer:**
-1. Agregar una función Lambda `contact` en `serverless.yml` que exponga
-   `POST api.ocastelblanco.com/contact` con CORS restringido a `https://ocastelblanco.com`.
-2. El handler valida el payload server-side (nombre, email, mensaje no vacíos), aplica
-   rate limiting básico (API Gateway usage plan o middleware Lambda) y reenvía el mensaje
-   por email/webhook (implementación mínima: log a CloudWatch; email real en iteración
-   posterior).
-3. Actualizar el componente `Contacto` para hacer el POST real en `submit()` en lugar de
-   mostrar la confirmación mock directamente.
-4. `npm run build` y verificar visualmente con `npm start`.
-
-**Definition of done:**
-- [ ] `POST api.ocastelblanco.com/contact` responde 200 con payload válido
-- [ ] Responde 400 con payload inválido (campos vacíos / email malformado)
-- [ ] CORS restringido a `https://ocastelblanco.com` (no `*`)
-- [ ] Rate limiting activo (API Gateway o middleware)
-- [ ] Componente `Contacto` usa el endpoint real (no mock)
-- [ ] `npm run build` en verde
-
----
-
-## Tarea 2 — [INFRA]: Deploy de producción — Lambda + CloudFront + S3
+## Tarea 1 — [INFRA]: Deploy de producción — Lambda + CloudFront + S3
 
 **Origen:** `MEMORY.md` §2 Pendientes y ADR-009 (fase 2). Hace el sitio rediseñado
 accesible en `https://ocastelblanco.com` y completa el ciclo MVP.
@@ -80,7 +50,51 @@ posible `cloudfront.yml` o recursos en `serverless.yml` para CloudFront + S3.
 
 ---
 
+---
+
+## Tarea 2 — [FEATURE]: SEO técnico básico (JSON-LD + meta tags + sitemap)
+
+**Origen:** `PRD.md` §4 — Objetivo "SEO técnico y para IA" (datos estructurados JSON-LD,
+SSR funcionando, sitemap, contenido citable). Independiente de la Tarea 1 y no bloqueada
+por el deploy de producción.
+
+**Archivos:** `src/index.html` (meta tags `og:*`, `twitter:*`, description), nuevo
+`src/app/core/seo/seo.service.ts` (actualiza `<title>` y meta tags por ruta), nuevos
+JSON-LD scripts en `app.html` o en cada componente de página (Person, WebSite), y
+`src/sitemap.xml` o generación dinámica vía SSR.
+
+**Qué hacer:**
+1. `SeoService` que inyecta `Meta` y `Title` de `@angular/platform-browser` y expone
+   `update(title, description, image?)`. Invocado en cada componente de página (Home,
+   Proyectos, Lab, Contacto).
+2. JSON-LD `Person` en `app.html` (nombre, rol, URL, redes) y `WebSite` para el sitio.
+3. Meta tags Open Graph y Twitter Card en `index.html` con valores base; cada ruta los
+   sobreescribe via `SeoService`.
+4. `sitemap.xml` estático en `public/` con las 6 rutas pre-renderizadas.
+5. `npm run build` en verde y verificar que el HTML del bundle SSR incluya los meta tags.
+
+**Definition of done:**
+- [ ] `<title>` y `<meta name="description">` únicos por ruta
+- [ ] JSON-LD `Person` y `WebSite` presentes en `<head>`
+- [ ] Open Graph y Twitter Card correctamente configurados
+- [ ] `public/sitemap.xml` con las 6 rutas
+- [ ] `npm run build` en verde
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-06-19 — [FEATURE]: Endpoint backend Terminal de contacto
+
+Lambda handler `src/lambda/contact-handler.mjs` con validación server-side (nombre ≥2
+chars, email RFC válido, mensaje ≥10 chars), honeypot anti-spam (campo `website` oculto),
+log a CloudWatch. CORS restringido a `https://ocastelblanco.com`. `serverless.yml`:
+función Lambda `contact` con `httpApi` event (`POST /contact`), rate limiting vía API
+Gateway HTTP API (`rateLimit: 5 rps / burstLimit: 10`). Angular: `provideHttpClient(withFetch())`
+en `app.config.ts`, `ContactService` nuevo, `submit()` en `Contacto` usa HTTP real con
+signals `loading` y `sendError`; botón deshabilitado mientras carga; bloque de error i18n
+(`contacto.sending` / `contacto.error_send` en tipos y ambos diccionarios). `npm run build`
+en verde, 6 rutas pre-renderizadas. PR #15 abierta.
 
 ### 2026-06-19 — [FEATURE]: The Lab — Micro-blogging técnico (listado estático)
 
@@ -284,4 +298,5 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 | 2026-06-17 | Registro de Proyectos completado y verificado (build + lint + visual OK, PR #9 fusionada). Siguiente prioridad Alta: ConectaTech detail page (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Le Tiende detail page — cierra el ciclo de los dos casos de estudio del Registro y no depende de Tarea 1 | Tarea 1 (Registro de Proyectos) movida al historial. Tarea 2 (ConectaTech) pasa a ser Tarea 1. Nueva Tarea 2: Página de detalle — Le Tiende — Comandante |
 | 2026-06-17 | ConectaTech detail page completada y verificada (build + lint OK, PR #10 fusionada). Siguiente prioridad Alta: Le Tiende detail page (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Terminal de contacto — CTA principal del portafolio, prioridad Alta del MVP, sin dependencias bloqueantes | Tarea 1 (ConectaTech) movida al historial. Tarea 2 (Le Tiende) pasa a ser Tarea 1. Nueva Tarea 2: Terminal de contacto |
 | 2026-06-18 | Le Tiende detail page completada y verificada (build + lint OK, PR #11 fusionada). Siguiente prioridad Alta: Terminal de contacto (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza The Lab — sección de autoridad técnica y SEO, prioridad Media-Alta del roadmap, sin dependencias bloqueantes | Tarea 1 (Le Tiende) movida al historial. Tarea 2 (Terminal de contacto) pasa a ser Tarea 1. Nueva Tarea 2: The Lab — Micro-blogging técnico |
+| 2026-06-19 | Endpoint backend Terminal de contacto completado y verificado (build en verde, PR #15 abierta). Siguiente prioridad: Deploy de producción (ya seleccionada como Tarea 2, sin dependencias bloqueantes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza SEO técnico (JSON-LD + meta tags + sitemap) — objetivo de PRD §4 "SEO técnico y para IA", independiente del deploy y sin dependencias bloqueantes | Tarea 1 (endpoint backend) movida al historial. Tarea 2 (Deploy producción) pasa a ser Tarea 1. Nueva Tarea 2: SEO técnico básico |
 | 2026-06-18 | El usuario solicitó anteponer el despliegue a AWS Lambda (CI/CD con preview URL por push) para poder validar avances remotamente antes de aprobar PRs. Terminal de contacto completada y movida al historial (PR #12 fusionada). Deploy Lambda implementado y en PR. Para mantener 2 tareas activas: The Lab pasa a Tarea 1 (era Tarea 2, sin cambios). Nueva Tarea 2: endpoint backend de la Terminal de contacto (OWASP A07: no desplegar sin rate limiting) | Tarea 1 (Terminal de contacto) movida al historial. Deploy Lambda (antepuesta) movida al historial. Tarea 2 (The Lab) pasa a ser Tarea 1. Nueva Tarea 2: Endpoint backend Terminal de contacto |

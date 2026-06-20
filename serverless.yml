@@ -1,6 +1,17 @@
 service: ocastelblanco-com
 frameworkVersion: '4'
 
+plugins:
+  - serverless-domain-manager
+
+custom:
+  customDomain:
+    domainName: api.ocastelblanco.com
+    apiType: http
+    endpointType: regional
+    stage: ${sls:stage}
+    createRoute53Record: true
+
 provider:
   name: aws
   runtime: nodejs24.x
@@ -26,6 +37,15 @@ functions:
     handler: lambda-handler.handler
     url:
       cors: true
+  contact:
+    handler: src/lambda/contact-handler.handler
+    events:
+      - httpApi:
+          path: /contact
+          method: POST
+      - httpApi:
+          path: /contact
+          method: OPTIONS
 
 package:
   individually: false
