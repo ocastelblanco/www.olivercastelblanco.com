@@ -31,9 +31,6 @@ provider:
         - POST
         - OPTIONS
       maxAge: 86400
-    throttle:
-      burstLimit: 10
-      rateLimit: 5
 
 build:
   esbuild:
