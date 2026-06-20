@@ -15,7 +15,7 @@ export const esTranslations: Translations = {
   },
   contacto: {
     title: '> deploy_your_solution.sh',
-    subtitle: 'Cuéntame el problema. Construimos la solución.',
+    subtitle: 'Cuéntame el problema. Construyamos la solución.',
     name_label: '// nombre',
     name_placeholder: 'Tu nombre completo',
     email_label: '// email',
