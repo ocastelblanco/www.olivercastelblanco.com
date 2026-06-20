@@ -21,16 +21,6 @@ provider:
   environment:
     NODE_ENV: production
     NG_ALLOWED_HOSTS: '*.lambda-url.us-east-1.on.aws'
-  httpApi:
-    cors:
-      allowedOrigins:
-        - 'https://ocastelblanco.com'
-      allowedHeaders:
-        - 'Content-Type'
-      allowedMethods:
-        - POST
-        - OPTIONS
-      maxAge: 86400
 
 build:
   esbuild:
@@ -53,6 +43,9 @@ functions:
       - httpApi:
           path: /contact
           method: POST
+      - httpApi:
+          path: /contact
+          method: OPTIONS
 
 package:
   individually: false
