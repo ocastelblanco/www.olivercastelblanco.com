@@ -88,13 +88,14 @@ JSON-LD scripts en `app.html` o en cada componente de página (Person, WebSite),
 
 Lambda handler `src/lambda/contact-handler.mjs` con validación server-side (nombre ≥2
 chars, email RFC válido, mensaje ≥10 chars), honeypot anti-spam (campo `website` oculto),
-log a CloudWatch. CORS restringido a `https://ocastelblanco.com`. `serverless.yml`:
-función Lambda `contact` con `httpApi` event (`POST /contact`), rate limiting vía API
-Gateway HTTP API (`rateLimit: 5 rps / burstLimit: 10`). Angular: `provideHttpClient(withFetch())`
-en `app.config.ts`, `ContactService` nuevo, `submit()` en `Contacto` usa HTTP real con
-signals `loading` y `sendError`; botón deshabilitado mientras carga; bloque de error i18n
-(`contacto.sending` / `contacto.error_send` en tipos y ambos diccionarios). `npm run build`
-en verde, 6 rutas pre-renderizadas. PR #15 abierta.
+log a CloudWatch. CORS dinámico en handler: permite `https://ocastelblanco.com` (producción)
+y `*.lambda-url.us-east-1.on.aws` (preview). `serverless.yml`: función Lambda `contact`
+con `httpApi` events (`POST` y `OPTIONS /contact`), `serverless-domain-manager` v10 con
+`api.ocastelblanco.com` como dominio personalizado regional (Route 53 + ACM `*.ocastelblanco.com`).
+Angular: `provideHttpClient(withFetch())` en `app.config.ts`, `ContactService`, `submit()`
+usa HTTP real con signals `loading`/`sendError`. i18n: claves `sending` y `error_send`.
+`environment.ts` apunta a `https://api.ocastelblanco.com`. `npm run build` en verde.
+PR #15 fusionada. **Pendiente para producción:** eliminar `LAMBDA_URL_RE` del handler.
 
 ### 2026-06-19 — [FEATURE]: The Lab — Micro-blogging técnico (listado estático)
 

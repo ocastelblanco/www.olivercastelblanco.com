@@ -11,7 +11,7 @@
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
-| URL API | `https://api.ocastelblanco.com` (futuro, no provisionado) |
+| URL API | `https://api.ocastelblanco.com` — activo, apunta al HTTP API Gateway del stage `preview` |
 | Rama principal (protegida) | `master` — sitio anterior (Angular Universal + Serverless) |
 | Rama de desarrollo (protegida) | `rediseno-2026` — rediseño desde cero |
 | Última sesión | 2026-06-19 |
@@ -36,7 +36,7 @@
 - [x] Terminal de contacto (formulario Reactive Forms + validación client-side + estado mock)
 - [x] Despliegue CI/CD a AWS Lambda (`serverless.yml` + `lambda-handler.js` + workflow deploy)
 - [x] The Lab — Micro-blogging técnico (listado estático con 3 entradas, namespace i18n `lab`)
-- [x] Endpoint backend Terminal de contacto (Lambda `contact`, httpApi, rate limiting, CORS, `ContactService`, PR #15)
+- [x] Endpoint backend Terminal de contacto (Lambda `contact`, `httpApi` POST+OPTIONS, CORS dinámico, `api.ocastelblanco.com` custom domain, `ContactService`, PR #15 fusionada)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
 - [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos (fase 2)
@@ -412,6 +412,8 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 | Situación | Solución |
 |---|---|
 | `git rm -rf .` en una rama huérfana no borra archivos que estaban en `.gitignore` (ya removido) | Limpiar manualmente `node_modules`, `dist`, `.angular`, `.DS_Store`, `src/secrets/*` después del `git rm` |
+| **CORS producción pendiente** — `contact-handler.mjs` permite `*.lambda-url.us-east-1.on.aws` para el stage preview | Al hacer el deploy de producción, eliminar `LAMBDA_URL_RE` de `src/lambda/contact-handler.mjs` (línea 3 y el `\|\|` en `corsHeaders`). En prod el único origen válido es `https://ocastelblanco.com`. |
+| Dominio `api.ocastelblanco.com` era EDGE en API Gateway (incompatible con HTTP API v2) | Se eliminó y recreó como REGIONAL con `npx sls create_domain`. CNAME en Route 53 actualizado manualmente a `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com`. |
 | `.gitignore` del sitio anterior se eliminó junto con todo lo demás | Se recreó un `.gitignore` nuevo en el primer commit de `rediseno-2026`, incluyendo `src/secrets/secrets*.ts`, `.claude/` y `.omc/` |
 | TypeScript 6 (`~6.0.2`) ya no soporta `baseUrl` en `tsconfig.json` (TS5101) | Omitir `baseUrl`; los `paths` deben usar rutas relativas con prefijo `./` (TS5090), p. ej. `["./src/app/core/*"]` |
 | `ng` global apunta a Angular CLI 20.x aunque exista Angular 22 | Usar `npx -y @angular/cli@22 new ...` explícitamente para forzar la versión 22 del schematic |
@@ -436,16 +438,17 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 
 ## 9. Contexto de la sesión actual
 
-**Fecha:** 2026-06-19
+**Fecha:** 2026-06-20
 
 **Qué se hizo hoy:**
-- Endpoint backend Terminal de contacto completado (PR #15 abierta):
-  - `src/lambda/contact-handler.mjs`: Lambda handler con validación server-side, honeypot anti-spam, log a CloudWatch. CORS restringido a `https://ocastelblanco.com`.
-  - `serverless.yml`: función `contact` con `httpApi` event, rate limiting (`rateLimit: 5 / burstLimit: 10`), CORS restringido.
-  - `src/app/app.config.ts`: `provideHttpClient(withFetch())` agregado.
-  - `src/app/core/services/contact.service.ts`: `ContactService` nuevo con `send()`.
-  - `Contacto` component: `submit()` usa HTTP real, signals `loading`/`sendError`, botón deshabilitado durante carga, bloque de error i18n.
-  - 2 claves i18n nuevas (`sending`, `error_send`) en tipos y ambos diccionarios.
-  - Build en verde, 6 rutas pre-renderizadas.
+- Endpoint backend Terminal de contacto completado y fusionado (PR #15):
+  - CORS dinámico en handler (`https://ocastelblanco.com` prod + `*.lambda-url.us-east-1.on.aws` preview).
+  - `serverless.yml`: `serverless-domain-manager` v10, dominio `api.ocastelblanco.com` regional.
+  - Dominio EDGE existente en API GW eliminado y recreado como REGIONAL (`npx sls create_domain`).
+  - CNAME Route 53 `api.ocastelblanco.com` → `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com`.
+  - `environment.ts` (dev y prod) apuntan a `https://api.ocastelblanco.com`.
+  - Endpoint verificado: 200 payload válido, 400 payload inválido, CORS correcto desde preview URL.
 
 **Próxima tarea:** Deploy de producción (`serverless.yml` production stage + CloudFront + S3).
+
+**Pendiente al entrar a producción:** eliminar `LAMBDA_URL_RE` de `src/lambda/contact-handler.mjs` (ver §7 Gotchas).
