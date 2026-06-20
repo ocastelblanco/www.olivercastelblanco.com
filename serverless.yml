@@ -1,6 +1,17 @@
 service: ocastelblanco-com
 frameworkVersion: '4'
 
+plugins:
+  - serverless-domain-manager
+
+custom:
+  customDomain:
+    domainName: api.ocastelblanco.com
+    apiType: http
+    endpointType: regional
+    stage: ${sls:stage}
+    createRoute53Record: true
+
 provider:
   name: aws
   runtime: nodejs24.x
