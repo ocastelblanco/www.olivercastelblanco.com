@@ -39,8 +39,8 @@
 - [x] Endpoint backend Terminal de contacto (Lambda `contact`, `httpApi` POST+OPTIONS, CORS dinámico, `api.ocastelblanco.com` custom domain, `ContactService`, PR #15 fusionada)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
+- [ ] SEO técnico básico (JSON-LD + meta tags + sitemap) ← **siguiente**
 - [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos (fase 2)
-- [ ] SEO técnico básico (JSON-LD + meta tags + sitemap)
 
 ## 3. Registro de Decisiones de Arquitectura (ADRs)
 

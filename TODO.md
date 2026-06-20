@@ -21,7 +21,37 @@
 
 ---
 
-## Tarea 1 — [INFRA]: Deploy de producción — Lambda + CloudFront + S3
+## Tarea 1 — [FEATURE]: SEO técnico básico (JSON-LD + meta tags + sitemap)
+
+**Origen:** `PRD.md` §4 — Objetivo "SEO técnico y para IA" (datos estructurados JSON-LD,
+SSR funcionando, sitemap, contenido citable). Anticipada por el usuario: no depende del
+deploy de producción y se puede completar en el stage actual.
+
+**Archivos:** `src/index.html` (meta tags `og:*`, `twitter:*`, description base), nuevo
+`src/app/core/seo/seo.service.ts` (actualiza `<title>` y meta tags por ruta), JSON-LD
+scripts en `src/app/app.html` (Person + WebSite), y `public/sitemap.xml`.
+
+**Qué hacer:**
+1. `SeoService` (`providedIn: 'root'`) que inyecta `Meta` y `Title` de
+   `@angular/platform-browser` y expone `update(title, description)`. SSR-safe (funciona
+   en servidor y cliente). Invocado en `ngOnInit` de cada componente de página.
+2. JSON-LD `Person` (nombre, rol, URL, sameAs redes) y `WebSite` (name, url) como
+   `<script type="application/ld+json">` en `src/app/app.html`.
+3. Meta tags Open Graph y Twitter Card base en `src/index.html`; `SeoService` los
+   sobreescribe por ruta con título y description únicos.
+4. `public/sitemap.xml` estático con las 6 rutas pre-renderizadas y `<lastmod>` de hoy.
+5. `npm run build` en verde y verificar con `grep` que el HTML SSR incluya los meta tags.
+
+**Definition of done:**
+- [ ] `<title>` y `<meta name="description">` únicos por ruta (verificado en HTML SSR)
+- [ ] JSON-LD `Person` y `WebSite` presentes en `<head>` del HTML pre-renderizado
+- [ ] Open Graph y Twitter Card correctamente configurados
+- [ ] `public/sitemap.xml` con las 6 rutas
+- [ ] `npm run build` en verde
+
+---
+
+## Tarea 2 — [INFRA]: Deploy de producción — Lambda + CloudFront + S3
 
 **Origen:** `MEMORY.md` §2 Pendientes y ADR-009 (fase 2). Hace el sitio rediseñado
 accesible en `https://ocastelblanco.com` y completa el ciclo MVP.
@@ -40,45 +70,15 @@ posible `cloudfront.yml` o recursos en `serverless.yml` para CloudFront + S3.
    con CloudFront delante.
 4. Actualizar `angular.json` / build config para que los assets apunten al CDN en producción.
 5. Workflow: job `deploy-prod` que se dispara solo en push a `rediseno-2026`.
+6. **Al entrar a producción:** eliminar `LAMBDA_URL_RE` de `src/lambda/contact-handler.mjs`.
 
 **Definition of done:**
 - [ ] `https://ocastelblanco.com` sirve el rediseño 2026 (Angular SSR via Lambda)
 - [ ] Assets estáticos servidos desde `https://cdn.ocastelblanco.com` (CloudFront + S3)
 - [ ] `NG_ALLOWED_HOSTS` incluye `ocastelblanco.com`
+- [ ] CORS del contact handler restringido solo a `https://ocastelblanco.com`
 - [ ] `npm run build` en verde con config de producción
 - [ ] CI/CD deploy a `production` activo en GitHub Actions
-
----
-
----
-
-## Tarea 2 — [FEATURE]: SEO técnico básico (JSON-LD + meta tags + sitemap)
-
-**Origen:** `PRD.md` §4 — Objetivo "SEO técnico y para IA" (datos estructurados JSON-LD,
-SSR funcionando, sitemap, contenido citable). Independiente de la Tarea 1 y no bloqueada
-por el deploy de producción.
-
-**Archivos:** `src/index.html` (meta tags `og:*`, `twitter:*`, description), nuevo
-`src/app/core/seo/seo.service.ts` (actualiza `<title>` y meta tags por ruta), nuevos
-JSON-LD scripts en `app.html` o en cada componente de página (Person, WebSite), y
-`src/sitemap.xml` o generación dinámica vía SSR.
-
-**Qué hacer:**
-1. `SeoService` que inyecta `Meta` y `Title` de `@angular/platform-browser` y expone
-   `update(title, description, image?)`. Invocado en cada componente de página (Home,
-   Proyectos, Lab, Contacto).
-2. JSON-LD `Person` en `app.html` (nombre, rol, URL, redes) y `WebSite` para el sitio.
-3. Meta tags Open Graph y Twitter Card en `index.html` con valores base; cada ruta los
-   sobreescribe via `SeoService`.
-4. `sitemap.xml` estático en `public/` con las 6 rutas pre-renderizadas.
-5. `npm run build` en verde y verificar que el HTML del bundle SSR incluya los meta tags.
-
-**Definition of done:**
-- [ ] `<title>` y `<meta name="description">` únicos por ruta
-- [ ] JSON-LD `Person` y `WebSite` presentes en `<head>`
-- [ ] Open Graph y Twitter Card correctamente configurados
-- [ ] `public/sitemap.xml` con las 6 rutas
-- [ ] `npm run build` en verde
 
 ---
 
@@ -299,5 +299,6 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 | 2026-06-17 | Registro de Proyectos completado y verificado (build + lint + visual OK, PR #9 fusionada). Siguiente prioridad Alta: ConectaTech detail page (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Le Tiende detail page — cierra el ciclo de los dos casos de estudio del Registro y no depende de Tarea 1 | Tarea 1 (Registro de Proyectos) movida al historial. Tarea 2 (ConectaTech) pasa a ser Tarea 1. Nueva Tarea 2: Página de detalle — Le Tiende — Comandante |
 | 2026-06-17 | ConectaTech detail page completada y verificada (build + lint OK, PR #10 fusionada). Siguiente prioridad Alta: Le Tiende detail page (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Terminal de contacto — CTA principal del portafolio, prioridad Alta del MVP, sin dependencias bloqueantes | Tarea 1 (ConectaTech) movida al historial. Tarea 2 (Le Tiende) pasa a ser Tarea 1. Nueva Tarea 2: Terminal de contacto |
 | 2026-06-18 | Le Tiende detail page completada y verificada (build + lint OK, PR #11 fusionada). Siguiente prioridad Alta: Terminal de contacto (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza The Lab — sección de autoridad técnica y SEO, prioridad Media-Alta del roadmap, sin dependencias bloqueantes | Tarea 1 (Le Tiende) movida al historial. Tarea 2 (Terminal de contacto) pasa a ser Tarea 1. Nueva Tarea 2: The Lab — Micro-blogging técnico |
+| 2026-06-20 | El usuario solicita anticipar SEO técnico básico (Tarea 2) sobre el deploy de producción (Tarea 1). SEO no depende del deploy y puede completarse en el stage actual. Deploy de producción pasa a Tarea 2 sin cambios en su descripción; se añade el recordatorio de eliminar LAMBDA_URL_RE del contact handler al hacer el deploy. | Tarea 1 (Deploy producción) pasa a Tarea 2. Tarea 2 (SEO técnico) pasa a Tarea 1 |
 | 2026-06-19 | Endpoint backend Terminal de contacto completado y verificado (build en verde, PR #15 abierta). Siguiente prioridad: Deploy de producción (ya seleccionada como Tarea 2, sin dependencias bloqueantes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza SEO técnico (JSON-LD + meta tags + sitemap) — objetivo de PRD §4 "SEO técnico y para IA", independiente del deploy y sin dependencias bloqueantes | Tarea 1 (endpoint backend) movida al historial. Tarea 2 (Deploy producción) pasa a ser Tarea 1. Nueva Tarea 2: SEO técnico básico |
 | 2026-06-18 | El usuario solicitó anteponer el despliegue a AWS Lambda (CI/CD con preview URL por push) para poder validar avances remotamente antes de aprobar PRs. Terminal de contacto completada y movida al historial (PR #12 fusionada). Deploy Lambda implementado y en PR. Para mantener 2 tareas activas: The Lab pasa a Tarea 1 (era Tarea 2, sin cambios). Nueva Tarea 2: endpoint backend de la Terminal de contacto (OWASP A07: no desplegar sin rate limiting) | Tarea 1 (Terminal de contacto) movida al historial. Deploy Lambda (antepuesta) movida al historial. Tarea 2 (The Lab) pasa a ser Tarea 1. Nueva Tarea 2: Endpoint backend Terminal de contacto |
