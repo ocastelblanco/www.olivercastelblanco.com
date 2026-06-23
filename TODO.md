@@ -21,37 +21,7 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: SEO técnico básico (JSON-LD + meta tags + sitemap)
-
-**Origen:** `PRD.md` §4 — Objetivo "SEO técnico y para IA" (datos estructurados JSON-LD,
-SSR funcionando, sitemap, contenido citable). Anticipada por el usuario: no depende del
-deploy de producción y se puede completar en el stage actual.
-
-**Archivos:** `src/index.html` (meta tags `og:*`, `twitter:*`, description base), nuevo
-`src/app/core/seo/seo.service.ts` (actualiza `<title>` y meta tags por ruta), JSON-LD
-scripts en `src/app/app.html` (Person + WebSite), y `public/sitemap.xml`.
-
-**Qué hacer:**
-1. `SeoService` (`providedIn: 'root'`) que inyecta `Meta` y `Title` de
-   `@angular/platform-browser` y expone `update(title, description)`. SSR-safe (funciona
-   en servidor y cliente). Invocado en `ngOnInit` de cada componente de página.
-2. JSON-LD `Person` (nombre, rol, URL, sameAs redes) y `WebSite` (name, url) como
-   `<script type="application/ld+json">` en `src/app/app.html`.
-3. Meta tags Open Graph y Twitter Card base en `src/index.html`; `SeoService` los
-   sobreescribe por ruta con título y description únicos.
-4. `public/sitemap.xml` estático con las 6 rutas pre-renderizadas y `<lastmod>` de hoy.
-5. `npm run build` en verde y verificar con `grep` que el HTML SSR incluya los meta tags.
-
-**Definition of done:**
-- [ ] `<title>` y `<meta name="description">` únicos por ruta (verificado en HTML SSR)
-- [ ] JSON-LD `Person` y `WebSite` presentes en `<head>` del HTML pre-renderizado
-- [ ] Open Graph y Twitter Card correctamente configurados
-- [ ] `public/sitemap.xml` con las 6 rutas
-- [ ] `npm run build` en verde
-
----
-
-## Tarea 2 — [INFRA]: Deploy de producción — Lambda + CloudFront + S3
+## Tarea 1 — [INFRA]: Deploy de producción — Lambda + CloudFront + S3
 
 **Origen:** `MEMORY.md` §2 Pendientes y ADR-009 (fase 2). Hace el sitio rediseñado
 accesible en `https://ocastelblanco.com` y completa el ciclo MVP.
@@ -82,7 +52,47 @@ posible `cloudfront.yml` o recursos en `serverless.yml` para CloudFront + S3.
 
 ---
 
+## Tarea 2 — [DOCS]: Bitácora de proceso — Entrada MVP en `docs/proceso/`
+
+**Origen:** `TODO.md` §1 regla 5 — al cerrar una iteración mayor (MVP completo tras deploy de
+producción), se documenta el proceso en `docs/proceso/` siguiendo `docs/proceso/README.md`.
+Esta entrada es insumo directo de "The Lab" y la narrativa de orquestación IA del sitio.
+
+**Archivos:** `docs/proceso/` — nueva entrada en formato definido en
+[`docs/proceso/README.md`](./docs/proceso/README.md) cubriendo la construcción del MVP
+(boilerplate Angular 22 → SEO técnico, pasando por identidad visual, i18n, CI/CD, deploy).
+
+**Qué hacer:**
+1. Leer `docs/proceso/README.md` para la convención de nombrado y estructura.
+2. Crear la entrada del MVP (puede ser un solo archivo o varios según convención),
+   cubriendo: stack decision, rol de IA en cada fase, métricas (tiempo, tokens, PRs).
+3. La entrada debe ser citable y servir como contenido para The Lab.
+
+**Dependencia:** completar Tarea 1 (Deploy de producción) antes de escribir esta entrada,
+ya que el deploy cierra el ciclo MVP.
+
+**Definition of done:**
+- [ ] Entrada en `docs/proceso/` siguiendo la convención de `docs/proceso/README.md`
+- [ ] Cubre la narrativa completa del MVP: decisiones de diseño, rol de IA, métricas
+- [ ] Contenido citable directamente en The Lab
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-06-22 — [FEATURE]: SEO técnico básico (JSON-LD + meta tags + sitemap)
+
+`SeoService` (`providedIn: 'root'`) en `src/app/core/seo/seo.service.ts`: inyecta `Meta` y
+`Title` de `@angular/platform-browser`, expone `update(title, description)` que actualiza
+`<title>`, `og:title`, `og:description`, `twitter:title` y `twitter:description` por ruta.
+JSON-LD `Person` (nombre, jobTitle, url, sameAs GitHub/LinkedIn) y `WebSite` (name, url)
+inyectados en `<head>` vía `inject(DOCUMENT)` en el constructor de `AppComponent` — SSR-safe,
+aparecen en el HTML pre-renderizado. Meta tags base Open Graph y Twitter Card añadidos a
+`src/index.html` (description, og:type/url/site_name/image, twitter:card/image). `SeoService`
+invocado en `ngOnInit` de los 6 componentes de página (Home, Proyectos, ConectaTech, LeTiende,
+Lab, Contacto) con título y description únicos por ruta. `public/sitemap.xml` estático con
+las 6 rutas pre-renderizadas y `<lastmod>2026-06-22`. `npm run build` en verde (6 rutas
+pre-renderizadas); meta tags y JSON-LD verificados con `grep` en el HTML SSR.
 
 ### 2026-06-19 — [FEATURE]: Endpoint backend Terminal de contacto
 
@@ -300,5 +310,6 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 | 2026-06-17 | ConectaTech detail page completada y verificada (build + lint OK, PR #10 fusionada). Siguiente prioridad Alta: Le Tiende detail page (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza Terminal de contacto — CTA principal del portafolio, prioridad Alta del MVP, sin dependencias bloqueantes | Tarea 1 (ConectaTech) movida al historial. Tarea 2 (Le Tiende) pasa a ser Tarea 1. Nueva Tarea 2: Terminal de contacto |
 | 2026-06-18 | Le Tiende detail page completada y verificada (build + lint OK, PR #11 fusionada). Siguiente prioridad Alta: Terminal de contacto (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza The Lab — sección de autoridad técnica y SEO, prioridad Media-Alta del roadmap, sin dependencias bloqueantes | Tarea 1 (Le Tiende) movida al historial. Tarea 2 (Terminal de contacto) pasa a ser Tarea 1. Nueva Tarea 2: The Lab — Micro-blogging técnico |
 | 2026-06-20 | El usuario solicita anticipar SEO técnico básico (Tarea 2) sobre el deploy de producción (Tarea 1). SEO no depende del deploy y puede completarse en el stage actual. Deploy de producción pasa a Tarea 2 sin cambios en su descripción; se añade el recordatorio de eliminar LAMBDA_URL_RE del contact handler al hacer el deploy. | Tarea 1 (Deploy producción) pasa a Tarea 2. Tarea 2 (SEO técnico) pasa a Tarea 1 |
+| 2026-06-22 | SEO técnico básico completado y verificado (build verde, meta tags y JSON-LD confirmados en HTML SSR, sitemap.xml generado). Siguiente prioridad: Deploy de producción (era Tarea 2, sin dependencias bloqueantes) pasa a Tarea 1. Para la nueva Tarea 2 se activa la entrada de bitácora de proceso en `docs/proceso/` — el deploy cierra el ciclo MVP y esa entrada es insumo directo de The Lab | Tarea 1 (SEO técnico) movida al historial. Tarea 2 (Deploy producción) pasa a ser Tarea 1. Nueva Tarea 2: Bitácora de proceso — Entrada MVP |
 | 2026-06-19 | Endpoint backend Terminal de contacto completado y verificado (build en verde, PR #15 abierta). Siguiente prioridad: Deploy de producción (ya seleccionada como Tarea 2, sin dependencias bloqueantes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza SEO técnico (JSON-LD + meta tags + sitemap) — objetivo de PRD §4 "SEO técnico y para IA", independiente del deploy y sin dependencias bloqueantes | Tarea 1 (endpoint backend) movida al historial. Tarea 2 (Deploy producción) pasa a ser Tarea 1. Nueva Tarea 2: SEO técnico básico |
 | 2026-06-18 | El usuario solicitó anteponer el despliegue a AWS Lambda (CI/CD con preview URL por push) para poder validar avances remotamente antes de aprobar PRs. Terminal de contacto completada y movida al historial (PR #12 fusionada). Deploy Lambda implementado y en PR. Para mantener 2 tareas activas: The Lab pasa a Tarea 1 (era Tarea 2, sin cambios). Nueva Tarea 2: endpoint backend de la Terminal de contacto (OWASP A07: no desplegar sin rate limiting) | Tarea 1 (Terminal de contacto) movida al historial. Deploy Lambda (antepuesta) movida al historial. Tarea 2 (The Lab) pasa a ser Tarea 1. Nueva Tarea 2: Endpoint backend Terminal de contacto |
