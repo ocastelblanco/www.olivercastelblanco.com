@@ -7,14 +7,14 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — shell, i18n, Home, Proyectos, Contacto, The Lab + CI/CD Lambda implementados |
+| Versión | MVP en construcción — shell, i18n, Home, Proyectos, Contacto, The Lab + CI/CD Lambda + SEO técnico implementados |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
 | URL API | `https://api.ocastelblanco.com` — activo, apunta al HTTP API Gateway del stage `preview` |
 | Rama principal (protegida) | `master` — sitio anterior (Angular Universal + Serverless) |
 | Rama de desarrollo (protegida) | `rediseno-2026` — rediseño desde cero |
-| Última sesión | 2026-06-19 |
+| Última sesión | 2026-06-22 |
 
 ## 2. Funcionalidades
 
@@ -37,10 +37,11 @@
 - [x] Despliegue CI/CD a AWS Lambda (`serverless.yml` + `lambda-handler.js` + workflow deploy)
 - [x] The Lab — Micro-blogging técnico (listado estático con 3 entradas, namespace i18n `lab`)
 - [x] Endpoint backend Terminal de contacto (Lambda `contact`, `httpApi` POST+OPTIONS, CORS dinámico, `api.ocastelblanco.com` custom domain, `ContactService`, PR #15 fusionada)
+- [x] SEO técnico básico (`SeoService`, JSON-LD Person+WebSite vía DOCUMENT, meta tags OG+Twitter Card, `public/sitemap.xml` con 6 rutas, PR #16 fusionada)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] SEO técnico básico (JSON-LD + meta tags + sitemap) ← **siguiente**
-- [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos (fase 2)
+- [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos ← **siguiente**
+- [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (depende del deploy de producción)
 
 ## 3. Registro de Decisiones de Arquitectura (ADRs)
 
@@ -287,6 +288,38 @@
   - Fase 2 (producción): `serverless.yml` production stage + CloudFront + S3 para assets
     estáticos — pendiente de implementar cuando el MVP esté completo.
 
+### ADR-010 — SEO técnico: SeoService + JSON-LD vía DOCUMENT + sitemap estático
+
+- **Fecha:** 2026-06-22
+- **Estado:** Implementado
+- **Decisión:** El SEO se implementa en tres capas:
+  1. **`SeoService`** (`src/app/core/seo/seo.service.ts`, `providedIn: 'root'`): inyecta
+     `Meta` y `Title` de `@angular/platform-browser` y expone `update(title, description)`.
+     Cada componente de página lo llama en `ngOnInit` con título y description únicos.
+  2. **JSON-LD estático** (`Person` + `WebSite`): inyectado en `<head>` via
+     `inject(DOCUMENT)` en el constructor de `AppComponent`. Los scripts `<script
+     type="application/ld+json">` se añaden programáticamente para que el SSR los incluya
+     en el HTML pre-renderizado (las templates de Angular strippean `<script>` tags).
+  3. **Meta tags base** en `src/index.html`: `og:type`, `og:url`, `og:site_name`,
+     `og:image`, `twitter:card`, `twitter:image` — estáticos, no cambian por ruta.
+     `SeoService` sobreescribe `og:title`, `og:description`, `twitter:title`,
+     `twitter:description`, `<title>` y `<meta name="description">` en cada navegación.
+  4. **`public/sitemap.xml`** estático con las 6 rutas pre-renderizadas y prioridades.
+- **Razón:** `Meta.updateTag` de Angular es SSR-safe y afecta el DOM de servidor; la
+  estrategia `DOCUMENT` para JSON-LD es necesaria porque Angular sanitiza y elimina
+  `<script>` tags en templates. El sitemap estático es suficiente para el MVP (las 6 rutas
+  son fijas y pre-renderizadas).
+- **Consecuencias:**
+  - Al agregar una nueva ruta, inyectar `SeoService` en el componente y llamar
+    `seo.update(title, description)` en `ngOnInit`.
+  - Actualizar `public/sitemap.xml` con la nueva URL y `<lastmod>`.
+  - Los JSON-LD `Person`/`WebSite` son globales y no cambian por ruta — están en
+    `AppComponent`. Si se necesita JSON-LD por ruta (ej. `Article` en The Lab), usar el
+    mismo patrón DOCUMENT pero desde el componente de página correspondiente.
+  - `sameAs` del JSON-LD Person referencia GitHub (`https://github.com/ocastelblanco`) y
+    LinkedIn (`https://linkedin.com/in/ocastelblanco`) — verificar que ambas URLs sean
+    correctas antes del deploy de producción.
+
 ## 4. Dependencias instaladas
 
 | Paquete | Versión | Tipo |
@@ -417,6 +450,8 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 | `.gitignore` del sitio anterior se eliminó junto con todo lo demás | Se recreó un `.gitignore` nuevo en el primer commit de `rediseno-2026`, incluyendo `src/secrets/secrets*.ts`, `.claude/` y `.omc/` |
 | TypeScript 6 (`~6.0.2`) ya no soporta `baseUrl` en `tsconfig.json` (TS5101) | Omitir `baseUrl`; los `paths` deben usar rutas relativas con prefijo `./` (TS5090), p. ej. `["./src/app/core/*"]` |
 | `ng` global apunta a Angular CLI 20.x aunque exista Angular 22 | Usar `npx -y @angular/cli@22 new ...` explícitamente para forzar la versión 22 del schematic |
+| Node.js activo en la shell del sistema es v16 (incompatible con Angular CLI 22) | Usar `export PATH="/opt/homebrew/Cellar/node@24/24.15.0/bin:$PATH"` antes de `npm run build`. Node 24.15.0 instalado via Homebrew es el que cumple el requisito mínimo (`≥24.15.0`). Node 22.22.2 también instalado pero falla (Angular CLI requiere `≥22.22.3`). |
+| JSON-LD en templates Angular | Angular sanitiza y elimina `<script>` tags en templates de componentes. Usar `inject(DOCUMENT)` en el constructor del componente para añadir scripts programáticamente — el SSR los incluirá en el HTML pre-renderizado. |
 
 ## 8. Documentos de referencia
 
@@ -438,17 +473,20 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 
 ## 9. Contexto de la sesión actual
 
-**Fecha:** 2026-06-20
+**Fecha:** 2026-06-22
 
 **Qué se hizo hoy:**
-- Endpoint backend Terminal de contacto completado y fusionado (PR #15):
-  - CORS dinámico en handler (`https://ocastelblanco.com` prod + `*.lambda-url.us-east-1.on.aws` preview).
-  - `serverless.yml`: `serverless-domain-manager` v10, dominio `api.ocastelblanco.com` regional.
-  - Dominio EDGE existente en API GW eliminado y recreado como REGIONAL (`npx sls create_domain`).
-  - CNAME Route 53 `api.ocastelblanco.com` → `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com`.
-  - `environment.ts` (dev y prod) apuntan a `https://api.ocastelblanco.com`.
-  - Endpoint verificado: 200 payload válido, 400 payload inválido, CORS correcto desde preview URL.
+- SEO técnico básico completado y fusionado (PR #16):
+  - `SeoService` (`src/app/core/seo/seo.service.ts`) — `update(title, description)` SSR-safe.
+  - JSON-LD `Person` + `WebSite` inyectados en `<head>` vía `inject(DOCUMENT)` en `AppComponent`.
+  - Meta tags OG + Twitter Card base en `src/index.html`; sobreescritos por ruta via `SeoService`.
+  - 6 componentes de página actualizados con `ngOnInit` + `seo.update(...)` únicos.
+  - `public/sitemap.xml` estático con las 6 rutas y `<lastmod>2026-06-22`.
+  - Build verde — 6 rutas pre-renderizadas; meta tags y JSON-LD verificados con `grep` en HTML SSR.
+- Limpieza local: rama `feature/seo-tecnico-basico` eliminada; `rediseno-2026` actualizado.
 
-**Próxima tarea:** Deploy de producción (`serverless.yml` production stage + CloudFront + S3).
+**Próxima tarea (Tarea 1):** Deploy de producción — `serverless.yml` production stage + distribución CloudFront + bucket S3 `cdn.ocastelblanco.com` + workflow CI/CD `deploy-prod`.
 
 **Pendiente al entrar a producción:** eliminar `LAMBDA_URL_RE` de `src/lambda/contact-handler.mjs` (ver §7 Gotchas).
+
+**Verificar antes del deploy:** URLs `sameAs` del JSON-LD Person en `src/app/app.ts` — GitHub `https://github.com/ocastelblanco` y LinkedIn `https://linkedin.com/in/ocastelblanco`.
