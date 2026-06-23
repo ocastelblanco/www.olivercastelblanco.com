@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TranslationService } from '@core/i18n/translation.service';
 import { ContactService } from '@core/services/contact.service';
+import { SeoService } from '@core/seo/seo.service';
 
 @Component({
   selector: 'app-contacto',
@@ -9,10 +10,11 @@ import { ContactService } from '@core/services/contact.service';
   templateUrl: './contacto.html',
   styleUrl: './contacto.scss',
 })
-export class Contacto {
+export class Contacto implements OnInit {
   protected readonly trans = inject(TranslationService);
   private readonly fb = inject(FormBuilder);
   private readonly contactSvc = inject(ContactService);
+  private readonly seo = inject(SeoService);
 
   protected readonly sent = signal(false);
   protected readonly loading = signal(false);
@@ -23,6 +25,13 @@ export class Contacto {
     email: ['', [Validators.required, Validators.email]],
     message: ['', [Validators.required, Validators.minLength(10)]],
   });
+
+  ngOnInit(): void {
+    this.seo.update(
+      'Contacto — Oliver Castelblanco',
+      'Inicia un proyecto con Oliver Castelblanco — Solutions Architect & AI Orchestrator disponible para colaboraciones de arquitectura e IA.',
+    );
+  }
 
   protected get name() {
     return this.form.controls.name;
