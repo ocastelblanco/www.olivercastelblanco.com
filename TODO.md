@@ -21,7 +21,65 @@
 
 ---
 
-## Tarea 1 — [INFRA]: Deploy de producción — Lambda + CloudFront + S3
+## Tarea 1 — [FEATURE]: Arquitectura de contenido — separar contenido de UI (Casos de estudio + The Lab)
+
+**Origen:** solicitud del usuario (2026-07-11) + ADR-011. "Casos de estudio" y "The Lab" son
+secciones acumulativas (tipo blog); su contenido hoy vive hardcodeado en los diccionarios
+i18n (`src/app/core/i18n/translations/*.ts`) y en `lab.ts` (`entries = ['1','2','3']`).
+Debe separarse el contenido de la interfaz con estrategia híbrida según frecuencia de
+publicación (ver ADR-011 en `MEMORY.md`).
+
+**Archivos:** `src/assets/content/casos/*.json` (nuevos), `src/app/core/content/`
+(`ContentService` + tipos + mini-parser markdown seguro, nuevos),
+`src/app/features/lab/*`, `src/app/features/proyectos/**` (refactor),
+`src/app/core/i18n/translations/*.ts` (limpieza), `src/lambda/lab-handler.mjs` (nuevo),
+`serverless.yml` (función `lab` + bucket S3 de contenido), Apps Script (externo, en Google
+Sheets — documentar en `docs/proceso/` o `docs/arquitectura/`).
+
+**Qué hacer:**
+
+*Fase A — Casos de estudio (contenido en el repo):*
+1. Definir interfaz TypeScript `CasoDeEstudio` (slug, métricas, desafío/enfoque/impacto,
+   stack, fechas) con campos bilingües (`es`/`en` por campo de texto).
+2. Extraer el contenido de ConectaTech y Le Tiende de los diccionarios i18n a
+   `src/assets/content/casos/conectatech.json` y `le-tiende.json`, validados contra la
+   interfaz.
+3. `ContentService` (signals) que cargue los casos (import estático o `HttpClient` a
+   assets, SSR-safe) y los exponga tipados; refactorizar `proyectos/**` para consumirlo.
+4. Limpiar del namespace i18n las claves de contenido migradas (las etiquetas de UI —
+   `challenge_label`, etc. — permanecen en i18n).
+
+*Fase B — The Lab (Google Sheets → API → S3):*
+5. Definir contrato JSON `lab.json`: array de entradas `{ id, fecha, tags, texto: {es, en} }`.
+   El texto usa un **subset de Markdown** (`**negrita**`, `*itálica*`, `~~tachado~~`,
+   `[texto](url)`) escrito como texto plano en las celdas del Sheet.
+6. Mini-parser Markdown→HTML en el frontend (solo ese subset, sin librería pesada),
+   con sanitización: escapar HTML del texto fuente ANTES de aplicar el subset, y
+   `rel="noopener noreferrer" target="_blank"` en links. Nada de `bypassSecurityTrust*`
+   (CLAUDE.md §6 A03).
+7. Lambda `POST /lab` en `serverless.yml` (`api.ocastelblanco.com`): valida token secreto
+   (header, comparación en la Lambda — CLAUDE.md §6 A01), valida el esquema del payload,
+   sanitiza server-side y escribe `lab.json` al bucket S3 de contenido (bucket creado en
+   esta tarea; el alias CloudFront `cdn.ocastelblanco.com` llega con la Tarea 2).
+8. Google Sheet "The Lab" (columnas: `fecha | tags | texto_es | texto_en`) + Apps Script
+   con menú personalizado "Publicar" que convierte las filas a JSON y hace `POST /lab`
+   con el token guardado en `PropertiesService` (nunca en el código del script).
+9. `Lab` component consume `lab.json` vía `ContentService` (URL por environment:
+   S3 directo en dev, `cdn.ocastelblanco.com` en producción).
+
+**Definition of done:**
+- [ ] Cero contenido de Casos de estudio / The Lab en archivos `.ts` de UI o diccionarios i18n
+- [ ] Casos de estudio renderizan desde `src/assets/content/casos/*.json` tipados
+- [ ] The Lab renderiza desde `lab.json` (S3) con negritas, itálicas, tachado e hipervínculos
+- [ ] Subset Markdown sanitizado — sin `bypassSecurityTrust*`, links con `noopener`
+- [ ] `POST /lab` rechaza requests sin token válido (verificado)
+- [ ] Apps Script publica el Sheet completo a S3 con un clic de menú
+- [ ] Cambio de idioma (es-CO/en-US) sigue funcionando en ambas secciones
+- [ ] `npm run build` y `npm run lint` en verde; rutas pre-renderizadas OK
+
+---
+
+## Tarea 2 — [INFRA]: Deploy de producción — Lambda + CloudFront + S3
 
 **Origen:** `MEMORY.md` §2 Pendientes y ADR-009 (fase 2). Hace el sitio rediseñado
 accesible en `https://ocastelblanco.com` y completa el ciclo MVP.
@@ -49,32 +107,6 @@ posible `cloudfront.yml` o recursos en `serverless.yml` para CloudFront + S3.
 - [ ] CORS del contact handler restringido solo a `https://ocastelblanco.com`
 - [ ] `npm run build` en verde con config de producción
 - [ ] CI/CD deploy a `production` activo en GitHub Actions
-
----
-
-## Tarea 2 — [DOCS]: Bitácora de proceso — Entrada MVP en `docs/proceso/`
-
-**Origen:** `TODO.md` §1 regla 5 — al cerrar una iteración mayor (MVP completo tras deploy de
-producción), se documenta el proceso en `docs/proceso/` siguiendo `docs/proceso/README.md`.
-Esta entrada es insumo directo de "The Lab" y la narrativa de orquestación IA del sitio.
-
-**Archivos:** `docs/proceso/` — nueva entrada en formato definido en
-[`docs/proceso/README.md`](./docs/proceso/README.md) cubriendo la construcción del MVP
-(boilerplate Angular 22 → SEO técnico, pasando por identidad visual, i18n, CI/CD, deploy).
-
-**Qué hacer:**
-1. Leer `docs/proceso/README.md` para la convención de nombrado y estructura.
-2. Crear la entrada del MVP (puede ser un solo archivo o varios según convención),
-   cubriendo: stack decision, rol de IA en cada fase, métricas (tiempo, tokens, PRs).
-3. La entrada debe ser citable y servir como contenido para The Lab.
-
-**Dependencia:** completar Tarea 1 (Deploy de producción) antes de escribir esta entrada,
-ya que el deploy cierra el ciclo MVP.
-
-**Definition of done:**
-- [ ] Entrada en `docs/proceso/` siguiendo la convención de `docs/proceso/README.md`
-- [ ] Cubre la narrativa completa del MVP: decisiones de diseño, rol de IA, métricas
-- [ ] Contenido citable directamente en The Lab
 
 ---
 
@@ -296,6 +328,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-07-11 | El usuario solicita anteponer al deploy de producción una nueva iniciativa: separar contenido de UI en "Casos de estudio" y "The Lab" (secciones acumulativas tipo blog, hoy hardcodeadas en diccionarios i18n). Se decide estrategia híbrida (ADR-011): casos de estudio como JSON tipado en el repo (2 publicaciones/año no justifican pipeline externo) y The Lab vía Google Sheets → Apps Script → `POST /lab` con token → `lab.json` en S3, con subset Markdown (negrita/itálica/tachado/links) escrito como texto plano en las celdas. Para mantener 2 tareas activas, "Bitácora de proceso — Entrada MVP" se retira temporalmente (dependía del deploy de todas formas; se reincorporará al liberarse un slot) | Nueva Tarea 1: Arquitectura de contenido (Casos de estudio + The Lab). Tarea 1 anterior (Deploy producción) pasa a Tarea 2. "Bitácora de proceso" fuera de la lista activa, pendiente de reincorporación |
 | 2026-06-11 | No existe código de aplicación; máxima prioridad Alta es el boilerplate Angular 22 (base para todo lo demás), seguida por los design tokens (requeridos por toda UI futura) | Se seleccionan las Tareas 1 y 2 de este archivo. Tarea 2 depende de que exista el workspace generado en la Tarea 1. |
 | 2026-06-11 | Boilerplate Angular 22 completado y verificado (build + start OK). Siguiente prioridad Alta sin completar: design tokens SCSS (requeridos por toda UI), seguido por el shell de navegación (depende del boilerplate, ya listo) | Tarea 1 (boilerplate) movida al historial. Tarea 2 (design tokens) pasa a ser Tarea 1. Nueva Tarea 2: shell de navegación (sidebar + topbar) |
 | 2026-06-11 | Design tokens completados y verificados (build OK). Siguiente prioridad Alta: shell de navegación (depende del boilerplate, ya listo, no de la otra tarea activa). Para la segunda tarea, se evita elegir algo que dependa del shell (aún no completado); CI con GitHub Actions ya tiene su dependencia ("build/test local") satisfecha y es de prioridad Media-Alta para mantener la calidad del repo | Tarea 1 (design tokens) movida al historial. Tarea 2 (shell de navegación) pasa a ser Tarea 1. Nueva Tarea 2: CI con GitHub Actions (build + test) |
