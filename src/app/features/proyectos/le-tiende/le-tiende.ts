@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslationService } from '@core/i18n/translation.service';
 import { SeoService } from '@core/seo/seo.service';
+import { ContentService } from '@core/content/content.service';
 
 @Component({
   selector: 'app-le-tiende',
@@ -11,7 +12,10 @@ import { SeoService } from '@core/seo/seo.service';
 })
 export class LeTiende implements OnInit {
   protected readonly trans = inject(TranslationService);
+  protected readonly content = inject(ContentService);
   private readonly seo = inject(SeoService);
+
+  protected readonly caso = this.content.getCaso('le-tiende')!;
 
   ngOnInit(): void {
     this.seo.update(

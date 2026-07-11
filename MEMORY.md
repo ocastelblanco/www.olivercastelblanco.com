@@ -40,8 +40,9 @@
 - [x] SEO técnico básico (`SeoService`, JSON-LD Person+WebSite vía DOCUMENT, meta tags OG+Twitter Card, `public/sitemap.xml` con 6 rutas, PR #16 fusionada)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos ← **siguiente**
-- [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (depende del deploy de producción)
+- [ ] Arquitectura de contenido — separar contenido de UI: Casos de estudio (JSON en repo) + The Lab (Sheets→API→S3, ADR-011) ← **siguiente**
+- [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos
+- [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (retirada temporal del motor JIT; depende del deploy de producción)
 
 ## 3. Registro de Decisiones de Arquitectura (ADRs)
 
@@ -320,6 +321,43 @@
     LinkedIn (`https://linkedin.com/in/ocastelblanco`) — verificar que ambas URLs sean
     correctas antes del deploy de producción.
 
+### ADR-011 — Arquitectura de contenido híbrida: repo (Casos de estudio) + Google Sheets→S3 (The Lab)
+
+- **Fecha:** 2026-07-11
+- **Estado:** Decidido (pendiente de implementación — Tarea 1 del motor JIT)
+- **Decisión:** "Casos de estudio" y "The Lab" son secciones acumulativas (tipo blog) y su
+  contenido se separa de la interfaz con estrategias distintas según frecuencia de publicación:
+  1. **Casos de estudio** (~2/año, estructura rígida): archivos JSON tipados en
+     `src/assets/content/casos/`, validados contra interfaz TypeScript `CasoDeEstudio`
+     con campos bilingües (`es`/`en`). Publicación vía PR normal — entra al build y al SSR
+     sin fetch en runtime.
+  2. **The Lab** (microblog frecuente): Google Sheet (columnas `fecha | tags | texto_es |
+     texto_en`) → Apps Script con menú personalizado "Publicar" → `POST /lab` en
+     `api.ocastelblanco.com` con token secreto (guardado en `PropertiesService`, validado
+     en la Lambda — OWASP A01) → Lambda valida/sanitiza y escribe `lab.json` en el bucket
+     S3 de contenido (`cdn.ocastelblanco.com` cuando exista CloudFront).
+  3. **Formato de texto**: subset de Markdown escrito como texto plano en las celdas
+     (`**negrita**`, `*itálica*`, `~~tachado~~`, `[texto](url)`). El frontend lo renderiza
+     con un mini-parser propio: escapa el HTML del texto fuente ANTES de aplicar el subset,
+     links con `rel="noopener noreferrer"`. Sin `bypassSecurityTrust*` (OWASP A03).
+  4. El frontend consume ambas fuentes a través de una misma abstracción: `ContentService`
+     (`src/app/core/content/`) basado en signals.
+- **Razón:** solución 100% gratuita con experiencia de escritura fluida (Google, con app
+  móvil). Se descartó Google Docs como fuente: parsear el árbol de un Doc a JSON
+  estructurado es frágil (depende de estilos consistentes); una fila de Sheet es estructura
+  pura. Se descartó un pipeline externo para los casos de estudio: 2 publicaciones/año no
+  justifican la infraestructura, y el repo da tipado, versionado y build-time rendering.
+  Markdown plano en celdas evita depender del formato enriquecido de Sheets (limitado en
+  móvil) y de `RichTextValue` en Apps Script.
+- **Consecuencias:**
+  - Nuevo contenido de The Lab NO requiere deploy: editar Sheet → menú Publicar.
+  - Nuevo caso de estudio SÍ requiere PR (aceptable a 2/año).
+  - Tras actualizar `lab.json` hay que invalidar CloudFront (o TTL corto en ese path).
+  - El SSR debe hacer fetch server-side de `lab.json` para que el contenido salga en el
+    HTML inicial (SEO).
+  - El token de publicación es un secreto: vive en `PropertiesService` (Apps Script) y en
+    variables de entorno de la Lambda — nunca en el código fuente.
+
 ## 4. Dependencias instaladas
 
 | Paquete | Versión | Tipo |
@@ -485,7 +523,7 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
   - Build verde — 6 rutas pre-renderizadas; meta tags y JSON-LD verificados con `grep` en HTML SSR.
 - Limpieza local: rama `feature/seo-tecnico-basico` eliminada; `rediseno-2026` actualizado.
 
-**Próxima tarea (Tarea 1):** Deploy de producción — `serverless.yml` production stage + distribución CloudFront + bucket S3 `cdn.ocastelblanco.com` + workflow CI/CD `deploy-prod`.
+**Próxima tarea (Tarea 1):** Arquitectura de contenido — separar contenido de UI en Casos de estudio (JSON tipado en repo) y The Lab (Google Sheets → Apps Script → `POST /lab` → `lab.json` en S3), con subset Markdown para formato. Ver ADR-011 y `TODO.md` Tarea 1. El deploy de producción pasa a Tarea 2.
 
 **Pendiente al entrar a producción:** eliminar `LAMBDA_URL_RE` de `src/lambda/contact-handler.mjs` (ver §7 Gotchas).
 

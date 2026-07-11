@@ -38,8 +38,9 @@
 
     &-meta {
       display: flex;
-      justify-content: space-between;
+      flex-wrap: wrap;
       align-items: center;
+      gap: var(--spacing-xs);
       margin-bottom: var(--spacing-sm);
     }
 
@@ -52,21 +53,28 @@
     &-date {
       color: var(--color-on-surface-variant);
       letter-spacing: 0.05em;
+      margin-left: auto;
     }
 
-    &-title {
-      margin: 0 0 var(--spacing-sm);
+    &-body {
+      color: var(--color-on-surface-variant);
+      margin: 0;
+      line-height: 1.65;
+      white-space: pre-line;
+
+      strong {
+        color: var(--color-on-surface);
+      }
 
       em {
         font-style: italic;
         color: var(--color-secondary-container);
       }
-    }
 
-    &-snippet {
-      color: var(--color-on-surface-variant);
-      margin: 0;
-      line-height: 1.65;
+      a {
+        color: var(--color-secondary-container);
+        text-decoration: underline;
+      }
     }
   }
 }

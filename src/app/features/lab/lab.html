@@ -6,14 +6,15 @@
   </header>
 
   <ul class="lab__list" role="list">
-    @for (n of entries; track n) {
+    @for (entry of content.labEntries(); track entry.id) {
       <li class="lab__card">
         <div class="lab__card-meta">
-          <span class="lab__card-tag technical-label">{{ trans.t('lab.tag_' + n) }}</span>
-          <span class="lab__card-date technical-label">{{ trans.t('lab.date_' + n) }}</span>
+          @for (tag of entry.tags; track tag) {
+            <span class="lab__card-tag technical-label">{{ tag }}</span>
+          }
+          <span class="lab__card-date technical-label">{{ entry.fecha }}</span>
         </div>
-        <h2 class="lab__card-title" [innerHTML]="trans.t('lab.title_' + n)"></h2>
-        <p class="lab__card-snippet body-md">{{ trans.t('lab.snippet_' + n) }}</p>
+        <div class="lab__card-body body-md" [innerHTML]="renderTexto(entry)"></div>
       </li>
     }
   </ul>
