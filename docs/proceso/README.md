@@ -15,6 +15,18 @@ en arquitectura, diseño de producto y gestión de equipos (humanos o de agentes
 | [`Stitch.md`](./Stitch.md) | Bitácora del proceso de diseño visual con Google Stitch (prompts e iteraciones que dieron origen al design system "Technical Industrial Minimalism", ver `DESIGN.md`). |
 | `*.zip` | Exports de pantallas generadas durante el proceso de diseño con Stitch, referenciados desde `Stitch.md`. |
 
+### Guías operativas (how-to, no narrativas)
+
+A diferencia de la bitácora narrativa de arriba, estos documentos son instructivos
+prácticos para tareas operativas recurrentes — no siguen la convención de "iteración
+mayor" de abajo, pero viven en esta carpeta por estar directamente atados al proceso de
+publicación de contenido del sitio (ver ADR-011 en `MEMORY.md`).
+
+| Documento | Qué cubre |
+|---|---|
+| [`apps-script-lab.md`](./apps-script-lab.md) | Cómo publicar una entrada de "The Lab" desde Google Sheets vía Apps Script (`POST /lab`, token secreto, subset de Markdown soportado). |
+| [`publicar-casos-de-estudio.md`](./publicar-casos-de-estudio.md) | Cómo agregar un nuevo "Caso de Estudio" al repo (JSON tipado + registro en `ContentService` + ruta/componente de detalle + PR). |
+
 ## Convención para nuevas entradas
 
 Cada vez que el proyecto completa una **iteración mayor** (un cambio de versión "mayor" del

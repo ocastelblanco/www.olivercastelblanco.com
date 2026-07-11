@@ -27,6 +27,7 @@ El proyecto cumple dos objetivos:
 - [Requisitos previos](#requisitos-previos)
 - [Primeros pasos (desarrollo local)](#primeros-pasos-desarrollo-local)
 - [Arquitectura](#arquitectura)
+- [Arquitectura de contenido: publicar sin fricción](#arquitectura-de-contenido-publicar-sin-fricción)
 - [Variables de entorno](#variables-de-entorno)
 - [Scripts disponibles](#scripts-disponibles)
 - [Estilos y design system](#estilos-y-design-system)
@@ -59,6 +60,11 @@ El proyecto cumple dos objetivos:
   microservicios independientes bajo `api.ocastelblanco.com`.
 - **Path aliases** (`@core/*`, `@shared/*`, `@features/*`, `@env/*`) para una organización
   de código clara por capas (núcleo, UI compartida, features, entornos).
+- **Arquitectura de contenido con dos velocidades de publicación**: "Casos de Estudio"
+  (baja frecuencia, JSON tipado versionado en git) y "The Lab" (microblog frecuente,
+  publicado desde Google Sheets sin tocar código) — dos problemas distintos, dos
+  soluciones deliberadas, cero costo de infraestructura adicional. Ver
+  [Arquitectura de contenido](#arquitectura-de-contenido-publicar-sin-fricción).
 - **Testing con Vitest** (`@angular/build:unit-test`).
 
 ## Stack tecnológico
@@ -239,6 +245,45 @@ de idioma `LangSwitcher`). Las rutas activas son `/`, `/proyectos`, `/lab` y `/c
 El shell está completamente internacionalizado: todos los labels del `Sidebar` y el rol del
 `Topbar` se leen desde `TranslationService` (Signal-based), cambiando instantáneamente al
 pulsar el selector de idioma sin recargar la página.
+
+## Arquitectura de contenido: publicar sin fricción
+
+Este sitio no trata todo el contenido igual, y esa es una decisión de diseño deliberada,
+no un accidente. "Casos de Estudio" y "The Lab" son las dos secciones acumulativas del
+sitio (crecen con el tiempo, como un blog), pero tienen perfiles de publicación
+opuestos — y forzarlas por el mismo pipeline habría sido sobre-ingeniería en un lado y
+fricción excesiva en el otro. La arquitectura resultante (documentada en detalle como
+ADR-011 en [`MEMORY.md`](./MEMORY.md)) resuelve ambas con la solución mínima correcta
+para cada una:
+
+| | Casos de Estudio | The Lab |
+|---|---|---|
+| **Cadencia** | ~2 publicaciones al año | Microblog frecuente, estilo X/Twitter |
+| **Estructura** | Rígida y bien definida (desafío / enfoque / impacto / stack) | Libre, dos párrafos máximo |
+| **Dónde vive** | JSON tipado en el repo (`src/assets/content/casos/`) | Google Sheets (cero fricción de escritura) |
+| **Cómo se publica** | Pull Request normal | Menú personalizado en el Sheet → un clic |
+| **Costo de infraestructura** | Cero (ya vive en el build) | Cero (Google Sheets + Apps Script + Lambda ya desplegada) |
+
+**Casos de Estudio** se modela con una interfaz TypeScript estricta (`CasoDeEstudio`,
+bilingüe `es`/`en`) y un `ContentService` basado en Signals que lo expone tipado a toda la
+UI — el contenido entra al build y al HTML pre-renderizado sin ningún fetch en runtime.
+Agregar un caso nuevo es un flujo de PR estándar, documentado paso a paso en
+[`docs/proceso/publicar-casos-de-estudio.md`](./docs/proceso/publicar-casos-de-estudio.md).
+
+**The Lab** resuelve un problema distinto: contenido frecuente que no debería requerir
+tocar código ni esperar un deploy. La hoja de Google Sheets actúa como CMS mínimo; un menú
+personalizado de Apps Script convierte las filas a JSON y las publica contra un endpoint
+propio (`POST /lab` en `api.ocastelblanco.com`), protegido con un token secreto validado
+server-side. El texto soporta un subset intencionalmente pequeño de Markdown (negrita,
+itálica, tachado, enlaces) — suficiente expresividad para un microblog técnico, sin la
+superficie de ataque de un editor enriquecido: el HTML fuente se escapa **antes** de
+aplicar cualquier marcado, así que no hay vector de inyección posible ni siquiera desde el
+propio Sheet. Flujo completo, incluyendo el script de Apps Script listo para copiar, en
+[`docs/proceso/apps-script-lab.md`](./docs/proceso/apps-script-lab.md).
+
+Ambas fuentes conviven detrás de la misma abstracción (`ContentService`), así que el resto
+de la aplicación no necesita saber de dónde viene cada dato — solo que está tipado y
+disponible como Signal.
 
 ## Variables de entorno
 
@@ -444,6 +489,8 @@ directamente sobre ellas. El flujo obligatorio (humanos y agentes IA) es:
 | [`docs/objetivos-alcances.md`](./docs/objetivos-alcances.md) | Objetivos y alcances originales del rediseño |
 | [`docs/arquitectura/`](./docs/arquitectura/) | Especificaciones de contenido y narrativa del sitio |
 | [`docs/proceso/`](./docs/proceso/) | Bitácora del proceso de diseño con IA (Google Stitch, prompts, resultados) |
+| [`docs/proceso/publicar-casos-de-estudio.md`](./docs/proceso/publicar-casos-de-estudio.md) | Guía operativa: cómo agregar un nuevo Caso de Estudio (JSON tipado + PR) |
+| [`docs/proceso/apps-script-lab.md`](./docs/proceso/apps-script-lab.md) | Guía operativa: cómo publicar The Lab desde Google Sheets vía Apps Script |
 
 ---
 
