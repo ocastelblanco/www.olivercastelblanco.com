@@ -38,11 +38,13 @@
 - [x] The Lab — Micro-blogging técnico (listado estático con 3 entradas, namespace i18n `lab`)
 - [x] Endpoint backend Terminal de contacto (Lambda `contact`, `httpApi` POST+OPTIONS, CORS dinámico, `api.ocastelblanco.com` custom domain, `ContactService`, PR #15 fusionada)
 - [x] SEO técnico básico (`SeoService`, JSON-LD Person+WebSite vía DOCUMENT, meta tags OG+Twitter Card, `public/sitemap.xml` con 6 rutas, PR #16 fusionada)
+- [x] Arquitectura de contenido — Casos de estudio (JSON tipado) + The Lab (Sheets→API→S3, ADR-011), `ContentService`, subset Markdown seguro, endpoint `POST /lab` (stub validado), Apps Script documentado (PR #17 fusionada)
 
 ### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] Arquitectura de contenido — separar contenido de UI: Casos de estudio (JSON en repo) + The Lab (Sheets→API→S3, ADR-011) ← **siguiente**
-- [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos
-- [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (retirada temporal del motor JIT; depende del deploy de producción)
+- [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos ← **siguiente**
+- [ ] Escribir `lab.json` a S3 desde `lab-handler.mjs` con `@aws-sdk/client-s3` (bloqueado por la existencia del bucket de contenido; se resuelve como parte del deploy de producción)
+- [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (depende del deploy de producción)
+- [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO)
 
 ## 3. Registro de Decisiones de Arquitectura (ADRs)
 
@@ -324,7 +326,9 @@
 ### ADR-011 — Arquitectura de contenido híbrida: repo (Casos de estudio) + Google Sheets→S3 (The Lab)
 
 - **Fecha:** 2026-07-11
-- **Estado:** Decidido (pendiente de implementación — Tarea 1 del motor JIT)
+- **Estado:** Implementado (parcial) — PR #17 fusionada a `rediseno-2026`. Falta la
+  escritura real a S3 desde `lab-handler.mjs` (bloqueada por la existencia del bucket de
+  contenido, ver Tarea 1 vigente del motor JIT) y el fetch SSR de Lab (ver Consecuencias).
 - **Decisión:** "Casos de estudio" y "The Lab" son secciones acumulativas (tipo blog) y su
   contenido se separa de la interfaz con estrategias distintas según frecuencia de publicación:
   1. **Casos de estudio** (~2/año, estructura rígida): archivos JSON tipados en
@@ -350,13 +354,24 @@
   Markdown plano en celdas evita depender del formato enriquecido de Sheets (limitado en
   móvil) y de `RichTextValue` en Apps Script.
 - **Consecuencias:**
-  - Nuevo contenido de The Lab NO requiere deploy: editar Sheet → menú Publicar.
-  - Nuevo caso de estudio SÍ requiere PR (aceptable a 2/año).
-  - Tras actualizar `lab.json` hay que invalidar CloudFront (o TTL corto en ese path).
-  - El SSR debe hacer fetch server-side de `lab.json` para que el contenido salga en el
-    HTML inicial (SEO).
+  - Nuevo contenido de The Lab NO requiere deploy de código: editar Sheet → menú Publicar.
+    **Estado real tras la implementación:** el endpoint `POST /lab` ya valida token y
+    esquema (ver `lab-handler.mjs`), pero todavía no persiste a S3 — hoy es un stub que
+    responde `200 { ok, received }`. Publicar desde el Sheet no actualiza aún el sitio.
+  - Nuevo caso de estudio SÍ requiere PR: crear el JSON en `src/assets/content/casos/`,
+    registrarlo en `CASOS` (`content.service.ts`), y crear su propio componente/ruta de
+    detalle (`app.routes.ts`) — ver guía completa en
+    [`docs/proceso/publicar-casos-de-estudio.md`](./docs/proceso/publicar-casos-de-estudio.md).
+  - Tras actualizar `lab.json` hay que invalidar CloudFront (o TTL corto en ese path) —
+    aplica una vez exista la escritura real a S3.
+  - **Gap conocido:** `ContentService.loadLabEntries()` solo hace fetch en el navegador
+    (`isPlatformBrowser`) — el SSR/prerender NO incluye las entradas de Lab en el HTML
+    inicial. Esto difiere de la intención original de esta ADR (SEO vía SSR). Evaluar si
+    se resuelve moviendo la carga a un resolver/guard SSR-safe, o si se acepta como
+    limitación conocida dado que Lab es contenido de bajo tráfico de búsqueda.
   - El token de publicación es un secreto: vive en `PropertiesService` (Apps Script) y en
-    variables de entorno de la Lambda — nunca en el código fuente.
+    el secret `LAB_PUBLISH_TOKEN` de GitHub Actions (pasado al deploy de `serverless.yml`)
+    — nunca en el código fuente.
 
 ## 4. Dependencias instaladas
 
@@ -511,19 +526,38 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 
 ## 9. Contexto de la sesión actual
 
-**Fecha:** 2026-06-22
+**Fecha:** 2026-07-11
 
 **Qué se hizo hoy:**
-- SEO técnico básico completado y fusionado (PR #16):
-  - `SeoService` (`src/app/core/seo/seo.service.ts`) — `update(title, description)` SSR-safe.
-  - JSON-LD `Person` + `WebSite` inyectados en `<head>` vía `inject(DOCUMENT)` en `AppComponent`.
-  - Meta tags OG + Twitter Card base en `src/index.html`; sobreescritos por ruta via `SeoService`.
-  - 6 componentes de página actualizados con `ngOnInit` + `seo.update(...)` únicos.
-  - `public/sitemap.xml` estático con las 6 rutas y `<lastmod>2026-06-22`.
-  - Build verde — 6 rutas pre-renderizadas; meta tags y JSON-LD verificados con `grep` en HTML SSR.
-- Limpieza local: rama `feature/seo-tecnico-basico` eliminada; `rediseno-2026` actualizado.
+- Arquitectura de contenido completada y fusionada (PR #17, ver ADR-011):
+  - `ContentService` (`src/app/core/content/`, signals) como fuente única de contenido
+    para Casos de estudio y The Lab.
+  - Casos de estudio: contenido migrado de los diccionarios i18n a
+    `src/assets/content/casos/*.json`, tipado con `CasoDeEstudio` bilingüe. Registro de
+    Proyectos y páginas de detalle ahora iteran sobre `content.getCasos()`/`getCaso(slug)`.
+  - The Lab: `LabEntry` + `renderMarkdownLite()` (subset seguro: negrita/itálica/tachado/
+    enlaces, HTML fuente escapado antes del marcado, sin `bypassSecurityTrustHtml`).
+    Fixture `public/content/lab.dev.json` en dev; `environment.labContentUrl` apunta a
+    `cdn.ocastelblanco.com/lab.json` en producción.
+  - Backend: `POST /lab` (`src/lambda/lab-handler.mjs`) valida token (`x-lab-token` vs
+    `LAB_PUBLISH_TOKEN`) y esquema del payload — stub, aún no escribe a S3.
+    `LAB_PUBLISH_TOKEN` agregado al `env:` del deploy en `.github/workflows/deploy.yml`
+    (secret ya configurado en GitHub Actions por el usuario).
+  - Documentado el flujo operativo completo: publicar The Lab vía Google Sheets + Apps
+    Script en [`docs/proceso/apps-script-lab.md`](./docs/proceso/apps-script-lab.md), y
+    publicar un nuevo Caso de Estudio (JSON + registro en `ContentService` + ruta/
+    componente de detalle) en
+    [`docs/proceso/publicar-casos-de-estudio.md`](./docs/proceso/publicar-casos-de-estudio.md).
+  - `npm run build` y `npm run lint` en verde.
+  - Diccionarios i18n limpiados: solo quedan etiquetas de UI (namespaces `proyectos` y
+    `lab` ya no tienen contenido de negocio).
+- Limpieza local: rama `feature/arquitectura-contenido` eliminada (local y remoto);
+  `rediseno-2026` actualizado.
 
-**Próxima tarea (Tarea 1):** Arquitectura de contenido — separar contenido de UI en Casos de estudio (JSON tipado en repo) y The Lab (Google Sheets → Apps Script → `POST /lab` → `lab.json` en S3), con subset Markdown para formato. Ver ADR-011 y `TODO.md` Tarea 1. El deploy de producción pasa a Tarea 2.
+**Próxima tarea (Tarea 1):** Deploy de producción — `serverless.yml` stage `production` +
+distribución CloudFront + bucket S3 `cdn.ocastelblanco.com`. Este mismo bucket es el que
+`lab-handler.mjs` necesita para dejar de ser un stub (ver Tarea 1 de `TODO.md`, paso nuevo
+de escritura a S3). Bitácora de proceso — Entrada MVP pasa a Tarea 2 (depende del deploy).
 
 **Pendiente al entrar a producción:** eliminar `LAMBDA_URL_RE` de `src/lambda/contact-handler.mjs` (ver §7 Gotchas).
 
