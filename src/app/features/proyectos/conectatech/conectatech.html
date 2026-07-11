@@ -5,38 +5,39 @@
 
   <header class="case__header">
     <div class="case__hero-metric">
-      <span class="case__metric-value">{{ trans.t('proyectos.ct_metric') }}</span>
-      <span class="case__metric-label technical-label">{{ trans.t('proyectos.ct_metric_label') }}</span>
+      <span class="case__metric-value">{{ content.resolve(caso.metric) }}</span>
+      <span class="case__metric-label technical-label">{{ content.resolve(caso.metricLabel) }}</span>
     </div>
     <div class="case__hero-title">
-      <span class="case__tag technical-label">{{ trans.t('proyectos.ct_tag') }}</span>
-      <h1 class="case__title">{{ trans.t('proyectos.ct_title') }}</h1>
-      <p class="case__narrative" [innerHTML]="trans.t('proyectos.ct_narrative')"></p>
+      <span class="case__tag technical-label">{{ content.resolve(caso.tag) }}</span>
+      <h1 class="case__title">{{ caso.title }}</h1>
+      <p class="case__narrative">{{ content.resolve(caso.narrative) }}</p>
     </div>
   </header>
 
   <div class="case__sections">
     <article class="case__section">
       <h2 class="case__section-label technical-label">{{ trans.t('proyectos.challenge_label') }}</h2>
-      <p class="case__section-body" [innerHTML]="trans.t('proyectos.ct_challenge')"></p>
+      <p class="case__section-body">{{ content.resolve(caso.challenge) }}</p>
     </article>
 
     <article class="case__section">
       <h2 class="case__section-label technical-label">{{ trans.t('proyectos.approach_label') }}</h2>
-      <p class="case__section-body" [innerHTML]="trans.t('proyectos.ct_approach')"></p>
+      <p class="case__section-body">{{ content.resolve(caso.approach) }}</p>
     </article>
 
     <article class="case__section case__section--impact">
       <h2 class="case__section-label technical-label">{{ trans.t('proyectos.impact_label') }}</h2>
       <ul class="case__impact-list">
-        <li class="case__impact-item" [innerHTML]="trans.t('proyectos.ct_impact_1')"></li>
-        <li class="case__impact-item" [innerHTML]="trans.t('proyectos.ct_impact_2')"></li>
+        @for (item of content.resolveList(caso.impact); track item) {
+          <li class="case__impact-item">{{ item }}</li>
+        }
       </ul>
     </article>
   </div>
 
   <footer class="case__footer">
     <span class="case__stack-label technical-label">{{ trans.t('proyectos.stack_label') }}</span>
-    <span class="case__stack technical-label">{{ trans.t('proyectos.ct_stack') }}</span>
+    <span class="case__stack technical-label">{{ content.resolve(caso.stack) }}</span>
   </footer>
 </section>

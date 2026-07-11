@@ -21,6 +21,7 @@ provider:
   environment:
     NODE_ENV: production
     NG_ALLOWED_HOSTS: '*.lambda-url.us-east-1.on.aws'
+    LAB_PUBLISH_TOKEN: ${env:LAB_PUBLISH_TOKEN, ''}
 
 build:
   esbuild:
@@ -45,6 +46,15 @@ functions:
           method: POST
       - httpApi:
           path: /contact
+          method: OPTIONS
+  lab:
+    handler: src/lambda/lab-handler.handler
+    events:
+      - httpApi:
+          path: /lab
+          method: POST
+      - httpApi:
+          path: /lab
           method: OPTIONS
 
 package:

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "1",
+    "fecha": "2026-06-15",
+    "tags": ["Angular"],
+    "texto": {
+      "es": "Angular 22: la herramienta secreta del **Industrial Design**\n\nPor qué el framework más subestimado del ecosistema JS es la elección correcta cuando la precisión técnica no es negociable. *Signals*, *zoneless* y *SSR* como ventajas estructurales. Más contexto en [el repo](https://github.com/ocastelblanco).",
+      "en": "Angular 22: the secret weapon for **Industrial Design**\n\nWhy the most underrated framework in the JS ecosystem is the right choice when technical precision is non-negotiable. *Signals*, *zoneless*, and *SSR* as structural advantages. More context in [the repo](https://github.com/ocastelblanco)."
+    }
+  },
+  {
+    "id": "2",
+    "fecha": "2026-06-20",
+    "tags": ["Prompt Engineering"],
+    "texto": {
+      "es": "De escribir código a **orquestar sistemas**\n\nEl arquitecto moderno no escribe cada línea — diseña el sistema de instrucciones que lo hace. Por qué el ~~Prompt Engineering~~ *Prompt Orchestration* es la nueva competencia central de la arquitectura de software.",
+      "en": "From writing code to **orchestrating systems**\n\nThe modern architect doesn't write every line — they design the instruction system that does. Why ~~Prompt Engineering~~ *Prompt Orchestration* is the new core competency in software architecture."
+    }
+  },
+  {
+    "id": "3",
+    "fecha": "2026-06-28",
+    "tags": ["Cloud Economics"],
+    "texto": {
+      "es": "OPEX al mínimo teórico: estrategias de **Cloud Economics**\n\nCómo diseñar infraestructura serverless que opera por debajo del umbral de costo perceptible. La diferencia entre un arquitecto de costos y uno de sistemas.",
+      "en": "OPEX to the theoretical minimum: **Cloud Economics** strategies\n\nHow to design serverless infrastructure that operates below the perceptible cost threshold. The difference between a cost architect and a systems architect."
+    }
+  }
+]

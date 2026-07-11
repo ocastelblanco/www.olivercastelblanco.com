@@ -1,0 +1,36 @@
+{
+  "slug": "conectatech",
+  "tag": {
+    "es": "El Orquestador",
+    "en": "The Orchestrator"
+  },
+  "metric": {
+    "es": "-80%",
+    "en": "-80%"
+  },
+  "metricLabel": {
+    "es": "requerimientos de staff",
+    "en": "staff requirements"
+  },
+  "title": "ConectaTech",
+  "narrative": {
+    "es": "Cómo la IA permitió a un solo arquitecto construir un ecosistema nacional.",
+    "en": "How AI enabled a single architect to build a national ecosystem."
+  },
+  "challenge": {
+    "es": "Se necesitaba un sistema de administración curricular y gestión de pines escalable sobre Moodle sin un equipo de 20 desarrolladores.",
+    "en": "A scalable curriculum management and pin administration system for Moodle was needed — without a team of 20 developers."
+  },
+  "approach": {
+    "es": "Orquestación de IA para generar módulos en Angular 21 y servicios backend en AWS S3 / EC2.",
+    "en": "AI orchestration to generate Angular 21 modules and backend services on AWS S3 / EC2."
+  },
+  "impact": {
+    "es": ["MVP entregado en 4 semanas", "-80% requerimientos de staff técnico tradicional"],
+    "en": ["MVP delivered in 4 weeks", "-80% traditional technical staff requirements"]
+  },
+  "stack": {
+    "es": "Angular 21 · Moodle 5.1 · AWS · Código Aumentado por IA",
+    "en": "Angular 21 · Moodle 5.1 · AWS · IA-Augmented Code"
+  }
+}

@@ -45,18 +45,6 @@ export interface Translations {
     title: string;
     eyebrow: string;
     subtitle: string;
-    tag_1: string;
-    date_1: string;
-    title_1: string;
-    snippet_1: string;
-    tag_2: string;
-    date_2: string;
-    title_2: string;
-    snippet_2: string;
-    tag_3: string;
-    date_3: string;
-    title_3: string;
-    snippet_3: string;
   };
   proyectos: {
     back: string;
@@ -65,25 +53,5 @@ export interface Translations {
     approach_label: string;
     impact_label: string;
     stack_label: string;
-    ct_tag: string;
-    ct_metric: string;
-    ct_metric_label: string;
-    ct_title: string;
-    ct_narrative: string;
-    ct_challenge: string;
-    ct_approach: string;
-    ct_impact_1: string;
-    ct_impact_2: string;
-    ct_stack: string;
-    lt_tag: string;
-    lt_metric: string;
-    lt_metric_label: string;
-    lt_title: string;
-    lt_narrative: string;
-    lt_challenge: string;
-    lt_approach: string;
-    lt_impact_1: string;
-    lt_impact_2: string;
-    lt_stack: string;
   };
 }
