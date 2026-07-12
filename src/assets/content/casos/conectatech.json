@@ -13,6 +13,12 @@
     "en": "staff requirements"
   },
   "title": "ConectaTech",
+  "repoUrl": "https://github.com/ocastelblanco/conectatech.co",
+  "accent": "primary",
+  "seoDescription": {
+    "es": "Cómo ConectaTech redujo en un 80% sus requerimientos de personal con una plataforma de automatización diseñada por Oliver Castelblanco.",
+    "en": "How ConectaTech cut staff requirements by 80% with an automation platform architected by Oliver Castelblanco."
+  },
   "narrative": {
     "es": "Cómo la IA permitió a un solo arquitecto construir un ecosistema nacional.",
     "en": "How AI enabled a single architect to build a national ecosystem."
@@ -22,7 +28,7 @@
     "en": "Moodle is a robust e-learning standard but introduces severe operational rigidity and administrative overhead. Educational content delivery for K-12 segments traditionally required days of manual provisioning, database configuration, and course structuring. Furthermore, handling dual business models—direct institutional B2B deployments and an indirect, high-volume reseller SaaS model via license keys (pins)—created massive friction in access management. Scalability was heavily constrained by technical debt and the need for dedicated sysadmins, driving up the Total Cost of Ownership (TCO)."
   },
   "approach": {
-    "es": "ODiseñé una capa de middleware desacoplada que actúa como una plataforma de abstracción inteligente, aislando la creación de contenido de la rigidez del núcleo de Moodle. Los autores compilan las mallas curriculares utilizando Markdown estándar, contenido que nuestra tubería automatizada de ingesta e interfaz en Angular 21 convierte en entornos educativos estructurados en cuestión de minutos, eliminando los procesos manuales.\n\nPara acelerar el Time-to-Market y minimizar el CAPEX de desarrollo, orquesté flujos de ingeniería asistida por IA (AI-Augmented Engineering), asumiendo la arquitectura y el despliegue del sistema completo de forma autónoma. Implementé un motor de matriculación nativo integrado directamente a la persistencia de Moodle, el cual unifica la gestión institucional directa y un modelo auto-gestionado de distribución de pines para terceros, transformando un monolito en un ecosistema SaaS altamente escalable. ",
+    "es": "Diseñé una capa de middleware desacoplada que actúa como una plataforma de abstracción inteligente, aislando la creación de contenido de la rigidez del núcleo de Moodle. Los autores compilan las mallas curriculares utilizando Markdown estándar, contenido que nuestra tubería automatizada de ingesta e interfaz en Angular 21 convierte en entornos educativos estructurados en cuestión de minutos, eliminando los procesos manuales.\n\nPara acelerar el Time-to-Market y minimizar el CAPEX de desarrollo, orquesté flujos de ingeniería asistida por IA (AI-Augmented Engineering), asumiendo la arquitectura y el despliegue del sistema completo de forma autónoma. Implementé un motor de matriculación nativo integrado directamente a la persistencia de Moodle, el cual unifica la gestión institucional directa y un modelo auto-gestionado de distribución de pines para terceros, transformando un monolito en un ecosistema SaaS altamente escalable. ",
     "en": "I architected a decoupled middleware layer that functions as an intelligent abstraction platform, separating content creation from Moodle’s rigid core. Authors compile curricula using standard Markdown (via Google Docs workflows), which our Angular 21 frontend and automated ingestion pipeline seamlessly convert into fully structured Moodle environments in minutes, not days.\n\nTo accelerate the engineering phase and minimize R&D CAPEX, I orchestrated AI-driven development workflows (AI-Augmented Engineering) to single-handedly build the system architecture. I designed a native enrollment engine that interacts directly with the core database, supporting both direct B2B institutional setups and a self-service, tenant-managed pin distribution model—effectively turning a monolithic legacy system into a multi-tenant SaaS."
   },
   "impact": {

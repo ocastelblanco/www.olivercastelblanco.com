@@ -10,14 +10,9 @@ export const routes: Routes = [
     loadComponent: () => import('./features/proyectos/proyectos').then(m => m.Proyectos),
   },
   {
-    path: 'proyectos/conectatech',
+    path: 'proyectos/:slug',
     loadComponent: () =>
-      import('./features/proyectos/conectatech/conectatech').then(m => m.Conectatech),
-  },
-  {
-    path: 'proyectos/le-tiende',
-    loadComponent: () =>
-      import('./features/proyectos/le-tiende/le-tiende').then(m => m.LeTiende),
+      import('./features/proyectos/caso-detalle/caso-detalle').then(m => m.CasoDetalle),
   },
   {
     path: 'lab',

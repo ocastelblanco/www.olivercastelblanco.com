@@ -358,9 +358,10 @@
     **Estado real tras la implementación:** el endpoint `POST /lab` ya valida token y
     esquema (ver `lab-handler.mjs`), pero todavía no persiste a S3 — hoy es un stub que
     responde `200 { ok, received }`. Publicar desde el Sheet no actualiza aún el sitio.
-  - Nuevo caso de estudio SÍ requiere PR: crear el JSON en `src/assets/content/casos/`,
-    registrarlo en `CASOS` (`content.service.ts`), y crear su propio componente/ruta de
-    detalle (`app.routes.ts`) — ver guía completa en
+  - Nuevo caso de estudio SÍ requiere PR: crear el JSON en `src/assets/content/casos/` y
+    registrarlo en `CASOS` (`casos.data.ts`) — la ruta `proyectos/:slug` (componente
+    dinámico `caso-detalle`), el prerender SSR y el listado se derivan de ese registro.
+    Ver guía completa en
     [`docs/proceso/publicar-casos-de-estudio.md`](./docs/proceso/publicar-casos-de-estudio.md).
   - Tras actualizar `lab.json` hay que invalidar CloudFront (o TTL corto en ese path) —
     aplica una vez exista la escritura real a S3.

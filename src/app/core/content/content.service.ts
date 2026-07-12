@@ -4,13 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '@env/environment';
 import { TranslationService } from '../i18n/translation.service';
 import { Bilingue, CasoDeEstudio } from './casos.types';
+import { CASOS } from './casos.data';
 import { LabEntry } from './lab.types';
 import { renderMarkdownLite } from './markdown-lite';
-
-import conectatechJson from '../../../assets/content/casos/conectatech.json';
-import leTiendeJson from '../../../assets/content/casos/le-tiende.json';
-
-const CASOS: CasoDeEstudio[] = [conectatechJson, leTiendeJson];
 
 @Injectable({ providedIn: 'root' })
 export class ContentService {

@@ -42,3 +42,15 @@ export function renderMarkdownLite(source: string): string {
 
   return html;
 }
+
+/**
+ * Elimina el marcado del subset (deja solo el texto plano). Útil para contextos donde el
+ * HTML no aplica, como meta descriptions.
+ */
+export function stripMarkdownLite(source: string): string {
+  return source
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/~~([^~]+)~~/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1');
+}
