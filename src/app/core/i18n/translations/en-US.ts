@@ -43,6 +43,7 @@ export const enTranslations: Translations = {
     approach_label: 'Approach',
     impact_label: 'Impact',
     stack_label: 'Stack',
+    repo_link: 'View repository →',
   },
   home: {
     headline: 'Industrial Design Thinking meets AI Orchestration.',

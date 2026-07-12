@@ -28,10 +28,26 @@ export interface CasoDeEstudio {
   approach: Bilingue;
   impact: { es: string[]; en: string[] }; // lista de puntos de impacto
   stack: Bilingue;
+  repoUrl?: string;       // opcional — normalmente la URL del repositorio en GitHub
 }
 ```
 
 Ver `src/assets/content/casos/conectatech.json` y `le-tiende.json` como referencia completa.
+
+### Formato de texto (Markdown)
+
+Los campos bilingües de texto (`narrative`, `challenge`, `approach`, `impact`, `stack`)
+soportan el mismo subset seguro de Markdown que "The Lab" — `**negrita**`, `*itálica*`,
+`~~tachado~~` y `[texto](url)` — interpretado por `renderMarkdownLite()` vía
+`ContentService.resolveMarkdown()` / `resolveMarkdownList()`. Los campos `tag`, `metric`,
+`metricLabel` y `title` se renderizan como texto plano (son etiquetas cortas, no prosa).
+
+### Enlace al repositorio (`repoUrl`)
+
+Campo opcional. Si está presente, la página de detalle muestra un enlace ("Ver
+repositorio →" / "View repository →") en el footer, junto al stack. Se enlaza con
+`[href]` (Angular sanitiza automáticamente los esquemas peligrosos como `javascript:` en
+bindings de `href`), con `target="_blank" rel="noopener noreferrer"`.
 
 ## 2. Pasos para agregar un caso nuevo
 

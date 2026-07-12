@@ -43,6 +43,7 @@ export const esTranslations: Translations = {
     approach_label: 'Enfoque',
     impact_label: 'Impacto',
     stack_label: 'Stack',
+    repo_link: 'Ver repositorio →',
   },
   home: {
     headline: '<em>Industrial Design Thinking</em> con Orquestación de IA.',

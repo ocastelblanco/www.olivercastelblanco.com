@@ -142,6 +142,17 @@
   color: var(--color-secondary-container);
 }
 
+.case__repo-link {
+  color: var(--color-primary-container);
+  text-decoration: none;
+  align-self: flex-start;
+  transition: color 0.15s ease;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 @media (max-width: 720px) {
   .case {
     padding: var(--spacing-lg) var(--spacing-md);

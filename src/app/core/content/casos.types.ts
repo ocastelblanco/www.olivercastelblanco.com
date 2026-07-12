@@ -17,4 +17,6 @@ export interface CasoDeEstudio {
     en: string[];
   };
   stack: Bilingue;
+  /** Enlace externo opcional — normalmente la URL del repositorio en GitHub. */
+  repoUrl?: string;
 }
