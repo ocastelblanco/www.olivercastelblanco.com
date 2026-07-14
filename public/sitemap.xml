@@ -20,13 +20,19 @@
   </url>
   <url>
     <loc>https://ocastelblanco.com/proyectos/comandante</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-06-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ocastelblanco.com/proyectos/ocastelblanco</loc>
+    <lastmod>2026-06-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ocastelblanco.com/lab</loc>
-    <lastmod>2026-06-22</lastmod>
+    <lastmod>2026-07-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
