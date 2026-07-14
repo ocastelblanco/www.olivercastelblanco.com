@@ -43,6 +43,7 @@ export const esTranslations: Translations = {
     approach_label: 'Enfoque',
     impact_label: 'Impacto',
     stack_label: 'Stack',
+    repo_label: 'Repo',
     repo_link: 'Ver repositorio →',
   },
   home: {
