@@ -56,25 +56,15 @@
       margin-left: auto;
     }
 
+    // El marcado interno (strong/em/del/a) vive en el stylesheet global
+    // (src/styles.scss): ese contenido se inserta vía [innerHTML] y Angular no le aplica
+    // el atributo de encapsulación, así que un selector anidado aquí no lo alcanzaría.
     &-body {
       color: var(--color-on-surface-variant);
       margin: 0;
       line-height: 1.65;
+      font-weight: 400;
       white-space: pre-line;
-
-      strong {
-        color: var(--color-on-surface);
-      }
-
-      em {
-        font-style: italic;
-        color: var(--color-secondary-container);
-      }
-
-      a {
-        color: var(--color-secondary-container);
-        text-decoration: underline;
-      }
     }
   }
 }

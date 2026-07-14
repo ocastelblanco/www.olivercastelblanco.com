@@ -19,6 +19,30 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+// Marcado del subset de Markdown-lite (The Lab): este contenido se inserta vía
+// [innerHTML] (renderMarkdownLite), por lo que Angular NO le aplica el atributo de
+// encapsulación de sus componentes — un selector anidado en el SCSS del componente nunca
+// lo alcanzaría. Debe vivir aquí, en el stylesheet global.
+.lab__card-body {
+  strong {
+    color: var(--color-on-surface);
+  }
+
+  em {
+    font-style: italic;
+    color: var(--color-secondary-container);
+  }
+
+  del {
+    text-decoration: line-through;
+  }
+
+  a {
+    color: var(--color-secondary-container);
+    text-decoration: underline;
+  }
+}
+
 // Textura de ruido sutil sobre el fondo (opacidad 2-3%)
 body::before {
   content: '';
