@@ -35,16 +35,20 @@
           }
         </ul>
       </article>
+
+      @if (caso.repoUrl) {
+        <article class="case__section case__section--repo">
+          <h2 class="case__section-label technical-label">{{ trans.t('proyectos.repo_label') }}</h2>
+          <a class="case__repo-link technical-label" [href]="caso.repoUrl" target="_blank" rel="noopener noreferrer">
+            {{ trans.t('proyectos.repo_link') }}
+          </a>
+        </article>
+      }
     </div>
 
     <footer class="case__footer">
       <span class="case__stack-label technical-label">{{ trans.t('proyectos.stack_label') }}</span>
       <span class="case__stack technical-label" [innerHTML]="content.resolveMarkdown(caso.stack)"></span>
-      @if (caso.repoUrl) {
-        <a class="case__repo-link technical-label" [href]="caso.repoUrl" target="_blank" rel="noopener noreferrer">
-          {{ trans.t('proyectos.repo_link') }}
-        </a>
-      }
     </footer>
   </section>
 }

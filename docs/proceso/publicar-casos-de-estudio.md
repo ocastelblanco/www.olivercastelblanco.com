@@ -46,10 +46,13 @@ soportan el mismo subset seguro de Markdown que "The Lab" — `**negrita**`, `*i
 
 ### Enlace al repositorio (`repoUrl`)
 
-Campo opcional. Si está presente, la página de detalle muestra un enlace ("Ver
-repositorio →" / "View repository →") en el footer, junto al stack. Se enlaza con
-`[href]` (Angular sanitiza automáticamente los esquemas peligrosos como `javascript:` en
-bindings de `href`), con `target="_blank" rel="noopener noreferrer"`.
+Campo opcional. Si está presente, la página de detalle agrega una ficha "REPO" propia,
+después de IMPACTO y antes de STACK, con un enlace ("Ver repositorio →" / "View
+repository →"). El borde izquierdo de esa ficha y el color del enlace usan
+`--case-accent` (la misma variable del `<header>`), para que no se confunda visualmente
+con el color fijo de STACK. Se enlaza con `[href]` (Angular sanitiza automáticamente los
+esquemas peligrosos como `javascript:` en bindings de `href`), con
+`target="_blank" rel="noopener noreferrer"`.
 
 ## 2. Pasos para agregar un caso nuevo
 

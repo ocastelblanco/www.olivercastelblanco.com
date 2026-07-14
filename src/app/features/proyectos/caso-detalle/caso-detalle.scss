@@ -129,6 +129,10 @@
   color: var(--color-on-surface-variant);
 }
 
+.case__section--repo {
+  border-left: 3px solid var(--case-accent);
+}
+
 .case__footer {
   display: flex;
   flex-direction: column;
