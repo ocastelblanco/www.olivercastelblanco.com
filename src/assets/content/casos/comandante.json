@@ -16,8 +16,8 @@
   "repoUrl": "https://github.com/ocastelblanco/comandante-letiende",
   "accent": "secondary",
   "seoDescription": {
-    "es": "**Le Tiende — Comandante**: motor de gestión operativa serverless con **OPEX** de $0.50/mes, diseñado y construido por Oliver Castelblanco.",
-    "en": "**Le Tiende — Comandante**: a serverless operations engine running at $0.50/mo **OPEX**, architected and built by Oliver Castelblanco."
+    "es": "Le Tiende — Comandante: motor de gestión operativa serverless con OPEX de $0.50/mes, diseñado y construido por Oliver Castelblanco.",
+    "en": "Le Tiende — Comandante: a serverless operations engine running at $0.50/mo OPEX, architected and built by Oliver Castelblanco."
   },
   "narrative": {
     "es": "El arte de la optimización de costos extremos (*Cloud Economics*).",

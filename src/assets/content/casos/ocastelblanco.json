@@ -9,15 +9,15 @@
     "en": "$0.00 /mo"
   },
   "metricLabel": {
-    "es": "**OPEX** base de infraestructura",
-    "en": "infrastructure baseline **OPEX**"
+    "es": "OPEX base de infraestructura",
+    "en": "infrastructure baseline OPEX"
   },
   "title": "www.ocastelblanco.com",
   "repoUrl": "https://github.com/ocastelblanco/www.olivercastelblanco.com",
   "accent": "secondary",
   "seoDescription": {
-    "es": "**www.ocastelblanco.com**: escaparate arquitectónico serverless desarrollado con flujos aumentados por IA, diseñado y construido por Oliver Castelblanco.",
-    "en": "**www.ocastelblanco.com**: a serverless architectural showcase engineered with AI-augmented workflows, architected and built by Oliver Castelblanco."
+    "es": "www.ocastelblanco.com: escaparate arquitectónico serverless desarrollado con flujos aumentados por IA, diseñado y construido por Oliver Castelblanco.",
+    "en": "www.ocastelblanco.com: a serverless architectural showcase engineered with AI-augmented workflows, architected and built by Oliver Castelblanco."
   },
   "narrative": {
     "es": "Eliminando el desperdicios de recursos ociosos a través de arquitectura *serverless* (*Cloud Economics*).",
