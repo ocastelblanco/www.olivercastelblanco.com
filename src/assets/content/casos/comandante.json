@@ -1,0 +1,50 @@
+{
+  "slug": "comandante",
+  "tag": {
+    "es": "El Experto en Eficiencia",
+    "en": "The Efficiency Expert"
+  },
+  "metric": {
+    "es": "$0.50 /mes",
+    "en": "$0.50 /mo"
+  },
+  "metricLabel": {
+    "es": "OPEX mensual",
+    "en": "monthly OPEX"
+  },
+  "title": "Le Tiende — Comandante",
+  "repoUrl": "https://github.com/ocastelblanco/comandante-letiende",
+  "accent": "secondary",
+  "seoDescription": {
+    "es": "Le Tiende — Comandante: motor de gestión operativa serverless con OPEX de $0.50/mes, diseñado y construido por Oliver Castelblanco.",
+    "en": "Le Tiende — Comandante: a serverless operations engine running at $0.50/mo OPEX, architected and built by Oliver Castelblanco."
+  },
+  "narrative": {
+    "es": "El arte de la optimización de costos extremos (*Cloud Economics*).",
+    "en": "The art of extreme cost optimization (Cloud Economics)."
+  },
+  "challenge": {
+    "es": "Los establecimientos comerciales en los sectores de hospitalidad y cultura se encuentran estructuralmente gravados por plataformas POS y CMS tradicionales que imponen licencias de software costosas e infraestructuras sobredimensionadas. Durante las etapas tempranas de operación (o para tareas específicas, como en este caso), estos costos fijos ahogan el flujo de caja y postergan el punto de equilibrio. El objetivo de negocio para **Le Tiende** era desplegar un motor dinámico de gestión operativa. El cuello de botella arquitectónico radicaba en alcanzar un Time-to-Market mínimo absoluto, fijando el costo de infraestructura en $0 USD durante los periodos base de tráfico para mitigar el riesgo financiero.",
+    "en": "Hospitality and cultural venues are structurally burdened by legacy POS and CMS platforms that enforce rigid, high-cost software licensing and overprovisioned infrastructure. During early-stage operations (or for specific tasks, as in this case), these fixed costs severely strain cash flow and delay profitability. The business objective for **Le Tiende** was to deploy a hyper-dynamic operational management engine. The architectural bottleneck was achieving an absolute minimum Time-to-Market while permanently flattening infrastructure costs to $0 USD during baseline traffic, mitigating the financial risks of traditional software deployments."
+  },
+  "approach": {
+    "es": "Diseñé e implementé **Comandante**, una aplicación web desacoplada y orientada a eventos, concebida bajo principios de agilidad *Cloud-Native*. Rompiendo con los esquemas de *backend* monolíticos, adopté un enfoque de *Backend-as-a-Service* (BaaS) *serverless* sobre **Google Firebase** para la persistencia de datos en tiempo real, entrega estática perimetral (*Edge Hosting*) mediante Angular 21 y autenticación de confianza cero. Con el fin de comprimir el ciclo de vida de desarrollo y optimizar el **CAPEX** de ingeniería, orquesté un framework de desarrollo aumentado por IA. Desacoplé el *pipeline* de ejecución utilizando contextos de IA gestionados de forma móvil (**Claude Code**), logrando ejecutar el 40% de las revisiones de código, validaciones de arquitectura y control de calidad (QA) de forma remota y sin dependencias de entornos locales de desarrollo. ",
+    "en": "I architected **Comandante**, a decoupled event-driven web application designed for cloud-native agility. By shifting away from standard monolithic backends, I leveraged a Serverless Backend-as-a-Service (BaaS) framework utilizing **Google Firebase** for real-time data persistence, edge-hosted static delivery via Angular 21, and zero-trust authentication.  To compress the development lifecycle and optimize engineering **CAPEX**, I orchestrated an automated AI-augmented development framework. I decoupled the execution pipeline by utilizing mobile-orchestrated AI contexts (**Claude Code**), executing 40% of code reviews, architectural validations, and quality assurance (QA) remotely from mobile environments. This eliminated local machine dependencies and established a high-velocity delivery model."
+  },
+  "impact": {
+    "es": [
+      "**Time-to-Market Hipercomprimido:** Reduje el ciclo tradicional de desarrollo de software (SDLC) de 4 semanas a solo 4 días, lanzando un MVP completamente resiliente en tiempo récord.",
+      "**Optimización Financiera Cloud:** Fijé el OPEX base de infraestructura en $0 USD/mes, transfiriendo el riesgo financiero a un modelo de precios bajo demanda basado estrictamente en el consumo real.",
+      "**Productividad y Velocidad de Ingeniería:** Alcancé una velocidad de entrega equivalente a una célula de desarrollo de 3 ingenieros, operada y desplegada de forma autónoma por un único Arquitecto de Soluciones."
+    ],
+    "en": [
+      "**Hyper-Compressed Time-to-Market:** Slashed the traditional 4-week software development lifecycle (SDLC) down to 4 days, launching a fully resilient MVP in record time.",
+      "**Cloud Financial Optimization:** Secured a $0 USD/month infrastructure OPEX baseline, shifts infrastructure financial risk completely to an on-demand, utility-based pricing model.",
+      "**Engineering Velocity & Staff Productivity:** Delivered code velocity equivalent to a 3-engineer development pod, engineered and deployed single-handedly by a lone Solutions Architect. "
+    ]
+  },
+  "stack": {
+    "es": "Firebase Hosting · Cloud Firestore · Firebase Authentication",
+    "en": "Firebase Hosting · Cloud Firestore · Firebase Authentication"
+  }
+}

@@ -1,10 +1,17 @@
 .case {
+  // Acento por caso: 'primary' (Cyber Lime) por defecto; ver .case--secondary abajo.
+  --case-accent: var(--color-primary-container);
+
   display: flex;
   flex-direction: column;
   min-height: 100%;
   padding: var(--spacing-xl) var(--spacing-lg);
   gap: var(--spacing-xl);
   max-width: 860px;
+}
+
+.case--secondary {
+  --case-accent: var(--color-secondary-container);
 }
 
 .case__nav {
@@ -18,7 +25,7 @@
   transition: color 0.15s ease;
 
   &:hover {
-    color: var(--color-secondary-container);
+    color: var(--case-accent);
   }
 }
 
@@ -29,7 +36,7 @@
   padding: var(--spacing-lg);
   background: var(--color-surface-container-low);
   border: 1px solid var(--color-outline-variant);
-  border-left: 3px solid var(--color-secondary-container);
+  border-left: 3px solid var(--case-accent);
 }
 
 .case__hero-metric {
@@ -45,7 +52,7 @@
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 700;
   line-height: 1;
-  color: var(--color-secondary-container);
+  color: var(--case-accent);
 }
 
 .case__metric-label {
@@ -93,7 +100,7 @@
 }
 
 .case__section-label {
-  color: var(--color-secondary-container);
+  color: var(--case-accent);
   margin: 0;
   font-size: 0.75rem;
   letter-spacing: 0.08em;
@@ -105,6 +112,7 @@
   line-height: 1.65;
   color: var(--color-on-surface-variant);
   margin: 0;
+  white-space: pre-line;
 }
 
 .case__impact-list {
@@ -140,6 +148,17 @@
 
 .case__stack {
   color: var(--color-secondary-container);
+}
+
+.case__repo-link {
+  color: var(--case-accent);
+  text-decoration: none;
+  align-self: flex-start;
+  transition: color 0.15s ease;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 @media (max-width: 720px) {

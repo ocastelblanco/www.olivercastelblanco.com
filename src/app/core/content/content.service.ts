@@ -4,12 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '@env/environment';
 import { TranslationService } from '../i18n/translation.service';
 import { Bilingue, CasoDeEstudio } from './casos.types';
+import { CASOS } from './casos.data';
 import { LabEntry } from './lab.types';
-
-import conectatechJson from '../../../assets/content/casos/conectatech.json';
-import leTiendeJson from '../../../assets/content/casos/le-tiende.json';
-
-const CASOS: CasoDeEstudio[] = [conectatechJson, leTiendeJson];
+import { renderMarkdownLite } from './markdown-lite';
 
 @Injectable({ providedIn: 'root' })
 export class ContentService {
@@ -45,6 +42,20 @@ export class ContentService {
   /** Igual que `resolve`, pero para campos bilingües con forma de lista (ej. impact). */
   resolveList(bilingue: { es: string[]; en: string[] }): string[] {
     return this.trans.currentLocale() === 'es-CO' ? bilingue.es : bilingue.en;
+  }
+
+  /**
+   * Igual que `resolve`, pero interpreta el subset de Markdown soportado
+   * (`**negrita**`, `*itálica*`, `~~tachado~~`, `[texto](url)`) y devuelve HTML seguro
+   * para usar con `[innerHTML]`.
+   */
+  resolveMarkdown(bilingue: Bilingue): string {
+    return renderMarkdownLite(this.resolve(bilingue));
+  }
+
+  /** Igual que `resolveMarkdown`, pero para campos bilingües con forma de lista. */
+  resolveMarkdownList(bilingue: { es: string[]; en: string[] }): string[] {
+    return this.resolveList(bilingue).map((item) => renderMarkdownLite(item));
   }
 
   private loadLabEntries(): void {

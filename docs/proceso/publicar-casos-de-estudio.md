@@ -28,40 +28,46 @@ export interface CasoDeEstudio {
   approach: Bilingue;
   impact: { es: string[]; en: string[] }; // lista de puntos de impacto
   stack: Bilingue;
+  repoUrl?: string;       // opcional — normalmente la URL del repositorio en GitHub
+  accent?: string;        // opcional — 'primary' (Cyber Lime, default) o 'secondary' (Electric Cyan)
+  seoDescription?: Bilingue; // opcional — meta description; si falta se usa narrative sin marcado
 }
 ```
 
 Ver `src/assets/content/casos/conectatech.json` y `le-tiende.json` como referencia completa.
 
+### Formato de texto (Markdown)
+
+Los campos bilingües de texto (`narrative`, `challenge`, `approach`, `impact`, `stack`)
+soportan el mismo subset seguro de Markdown que "The Lab" — `**negrita**`, `*itálica*`,
+`~~tachado~~` y `[texto](url)` — interpretado por `renderMarkdownLite()` vía
+`ContentService.resolveMarkdown()` / `resolveMarkdownList()`. Los campos `tag`, `metric`,
+`metricLabel` y `title` se renderizan como texto plano (son etiquetas cortas, no prosa).
+
+### Enlace al repositorio (`repoUrl`)
+
+Campo opcional. Si está presente, la página de detalle muestra un enlace ("Ver
+repositorio →" / "View repository →") en el footer, junto al stack. Se enlaza con
+`[href]` (Angular sanitiza automáticamente los esquemas peligrosos como `javascript:` en
+bindings de `href`), con `target="_blank" rel="noopener noreferrer"`.
+
 ## 2. Pasos para agregar un caso nuevo
+
+Todos los casos comparten un único componente dinámico de detalle
+(`src/app/features/proyectos/caso-detalle/`) servido en la ruta `proyectos/:slug` — no se
+duplican componentes ni se registran rutas por caso. Los pasos son solo dos:
 
 1. **Crear el JSON**: `src/assets/content/casos/{slug}.json`, siguiendo la interfaz de
    arriba. Completar ambos idiomas (`es`/`en`) en cada campo bilingüe.
-2. **Registrarlo en `ContentService`** (`src/app/core/content/content.service.ts`):
-   agregar el `import` del nuevo JSON y añadirlo al array `CASOS`. El Registro de
-   Proyectos (`/proyectos`) lo listará automáticamente — no requiere tocar su componente.
-3. **Crear la página de detalle**: hoy cada caso tiene su propio componente standalone
-   (ej. `src/app/features/proyectos/conectatech/`) porque cada uno define su propio
-   `SeoService.update(title, description)` con copy único para SEO. Para el nuevo caso:
-   - Duplicar la carpeta de un caso existente (`.ts`, `.html`, `.scss`) como plantilla,
-     renombrando el selector, el nombre de clase y las strings de SEO.
-   - En el `.ts`, reemplazar `this.content.getCaso('<slug-existente>')` por
-     `this.content.getCaso('<slug-nuevo>')!`.
-   - El `.html` no necesita cambios si sigue la misma estructura (hero métrica,
-     desafío/enfoque/impacto, stack) — ya consume `caso` y `content.resolve(...)`
-     genéricamente.
-4. **Registrar la ruta** en `src/app/app.routes.ts`:
-   ```ts
-   {
-     path: 'proyectos/{slug}',
-     loadComponent: () => import('./features/proyectos/{slug}/{slug}').then(m => m.{Componente}),
-   },
-   ```
-5. **Actualizar el enlace `view_case`** — ya es automático: el listado en `proyectos.html`
-   arma el link como `'/proyectos/' + caso.slug`, así que no hay que tocarlo si el `slug`
-   coincide con la ruta registrada.
-6. **Verificar**: `npm run build` y `npm run lint` en verde; confirmar visualmente que el
-   nuevo caso aparece en `/proyectos` y que su página de detalle renderiza correctamente en
+2. **Registrarlo en `CASOS`** (`src/app/core/content/casos.data.ts`): agregar el `import`
+   del nuevo JSON y añadirlo al array. De ese registro se derivan automáticamente:
+   - el listado en `/proyectos` (con su enlace "Ver caso →"),
+   - la página de detalle en `/proyectos/{slug}` (SEO incluido, desde `seoDescription`
+     o `narrative`),
+   - y el prerender SSR de esa ruta (`getPrerenderParams` en `app.routes.server.ts`).
+3. **Actualizar `public/sitemap.xml`** con la URL del nuevo caso (`<loc>` + `<lastmod>`).
+4. **Verificar**: `npm run build` y `npm run lint` en verde; confirmar que la nueva ruta
+   aparece entre las prerenderizadas del build y que el detalle renderiza correctamente en
    ambos idiomas.
 
 ## 3. Flujo de publicación (Git Flow del repo)
@@ -71,7 +77,7 @@ Sigue el mismo flujo que cualquier feature (ver `CLAUDE.md` §"Git Flow para Age
 ```bash
 git checkout rediseno-2026 && git pull origin rediseno-2026
 git checkout -b feature/caso-{slug}
-# ... crear JSON, registrar en ContentService, crear página, registrar ruta ...
+# ... crear JSON y registrarlo en casos.data.ts ...
 npm run build && npm run lint
 git add <archivos específicos>
 git commit -m "feat(proyectos): agregar caso de estudio {Nombre}"

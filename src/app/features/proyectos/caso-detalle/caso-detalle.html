@@ -1,0 +1,50 @@
+@if (caso(); as caso) {
+  <section class="case" [class.case--secondary]="caso.accent === 'secondary'">
+    <nav class="case__nav">
+      <a class="case__back technical-label" routerLink="/proyectos">{{ trans.t('proyectos.back') }}</a>
+    </nav>
+
+    <header class="case__header">
+      <div class="case__hero-metric">
+        <span class="case__metric-value">{{ content.resolve(caso.metric) }}</span>
+        <span class="case__metric-label technical-label">{{ content.resolve(caso.metricLabel) }}</span>
+      </div>
+      <div class="case__hero-title">
+        <span class="case__tag technical-label">{{ content.resolve(caso.tag) }}</span>
+        <h1 class="case__title">{{ caso.title }}</h1>
+        <p class="case__narrative" [innerHTML]="content.resolveMarkdown(caso.narrative)"></p>
+      </div>
+    </header>
+
+    <div class="case__sections">
+      <article class="case__section">
+        <h2 class="case__section-label technical-label">{{ trans.t('proyectos.challenge_label') }}</h2>
+        <p class="case__section-body" [innerHTML]="content.resolveMarkdown(caso.challenge)"></p>
+      </article>
+
+      <article class="case__section">
+        <h2 class="case__section-label technical-label">{{ trans.t('proyectos.approach_label') }}</h2>
+        <p class="case__section-body" [innerHTML]="content.resolveMarkdown(caso.approach)"></p>
+      </article>
+
+      <article class="case__section case__section--impact">
+        <h2 class="case__section-label technical-label">{{ trans.t('proyectos.impact_label') }}</h2>
+        <ul class="case__impact-list">
+          @for (item of content.resolveMarkdownList(caso.impact); track item) {
+            <li class="case__impact-item" [innerHTML]="item"></li>
+          }
+        </ul>
+      </article>
+    </div>
+
+    <footer class="case__footer">
+      <span class="case__stack-label technical-label">{{ trans.t('proyectos.stack_label') }}</span>
+      <span class="case__stack technical-label" [innerHTML]="content.resolveMarkdown(caso.stack)"></span>
+      @if (caso.repoUrl) {
+        <a class="case__repo-link technical-label" [href]="caso.repoUrl" target="_blank" rel="noopener noreferrer">
+          {{ trans.t('proyectos.repo_link') }}
+        </a>
+      }
+    </footer>
+  </section>
+}

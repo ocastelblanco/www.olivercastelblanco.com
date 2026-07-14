@@ -13,8 +13,8 @@
         <div class="proyectos__card-content">
           <span class="proyectos__card-tag technical-label">{{ content.resolve(caso.tag) }}</span>
           <h2 class="proyectos__card-title">{{ caso.title }}</h2>
-          <p class="proyectos__card-narrative">{{ content.resolve(caso.narrative) }}</p>
-          <p class="proyectos__card-stack technical-label">{{ content.resolve(caso.stack) }}</p>
+          <p class="proyectos__card-narrative" [innerHTML]="content.resolveMarkdown(caso.narrative)"></p>
+          <p class="proyectos__card-stack technical-label" [innerHTML]="content.resolveMarkdown(caso.stack)"></p>
           <a class="proyectos__card-link technical-label" [routerLink]="'/proyectos/' + caso.slug">
             {{ trans.t('proyectos.view_case') }}
           </a>

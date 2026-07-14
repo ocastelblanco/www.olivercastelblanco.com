@@ -1,0 +1,50 @@
+{
+  "slug": "ocastelblanco",
+  "tag": {
+    "es": "El Caso de Estudio Meta",
+    "en": "The Meta Case Study"
+  },
+  "metric": {
+    "es": "$0.00 /mes",
+    "en": "$0.00 /mo"
+  },
+  "metricLabel": {
+    "es": "OPEX base de infraestructura",
+    "en": "infrastructure baseline OPEX"
+  },
+  "title": "www.ocastelblanco.com",
+  "repoUrl": "https://github.com/ocastelblanco/www.olivercastelblanco.com",
+  "accent": "secondary",
+  "seoDescription": {
+    "es": "www.ocastelblanco.com: escaparate arquitectónico serverless desarrollado con flujos aumentados por IA, diseñado y construido por Oliver Castelblanco.",
+    "en": "www.ocastelblanco.com: a serverless architectural showcase engineered with AI-augmented workflows, architected and built by Oliver Castelblanco."
+  },
+  "narrative": {
+    "es": "Eliminando el desperdicios de recursos ociosos a través de arquitectura *serverless* (*Cloud Economics*).",
+    "en": "Eliminating idle resource waste via demand-driven serverless architecture. (Cloud Economics)."
+  },
+  "challenge": {
+    "es": "Los portafolios web profesionales suelen sufrir de altos costos de mantenimiento, rigidez para la actualización de contenido o costos de *hosting* innecesarios. El reto técnico consistía en construir una plataforma digital altamente interactiva y de carga ultra-rápida que funcionara como una prueba de concepto viva y de grado de producción. El despliegue debía demostrar capacidades *Cloud-Native* de nivel empresarial —como *pipelines* automatizados de CI/CD, latencia mínima y escalabilidad elástica— fijando el costo operativo de infraestructura base (OPEX) en cero absoluto.",
+    "en": "Personal portfolio websites are historically notorious for high maintenance overhead, static limitations, or excessive cloud hosting costs. The technical challenge was to build a highly interactive, lightning-fast digital platform that serves as a live, production-grade architectural showcase. The deployment needed to demonstrate enterprise-level Cloud-Native capabilities—such as automated CI/CD pipelines, ultra-low latency, and near-infinite scalability—while flattening operational baseline costs (OPEX) to absolute zero."
+  },
+  "approach": {
+    "es": "Diseñé un patrón arquitectónico *serverless* y desacoplado sobre **AWS Lambda**, combinando renderizado estático con ejecución bajo demanda en el borde de la red. Para comprimir el ciclo de desarrollo (SDLC) y maximizar la productividad de ingeniería, orquesté un flujo de desarrollo aumentado por IA. Integré **Google Stitch** para gobernar programáticamente el sistema de diseño atómico y utilicé un motor de orquestación de IA (**Claude Code**) para sintetizar la sintaxis, optimizar el rendimiento y acelerar la velocidad de entrega. Este diseño prescinde de instancias de cómputo tradicionales, utilizando arquitectura *serverless* para eliminar por completo el desperdicio de recursos ociosos y mitigar proactivamente la deuda técnica mediante *pipelines* de código limpio y modularizado.",
+    "en": "I engineered a serverless, decoupled architectural pattern deployed on AWS Lambda, leveraging static rendering with on-demand edge execution. To accelerate the development cycle (SDLC) and maximize R&D productivity, I orchestrated an AI-augmented engineering pipeline. I integrated **Google Stitch** to programmatically govern the atomic design system and utilized advanced AI orchestration (**Claude Code**) to synthesize code structure, optimize performance, and drastically reduce development velocity. This setup bypasses the need for traditional compute instances, leveraging serverless architecture to completely eliminate idle resource waste and minimize long-term technical debt through automated, componentized clean code pipelines."
+  },
+  "impact": {
+    "es": [
+      "**Optimización de Headcount y Velocidad:** Demostración práctica de cómo un único Arquitecto de Soluciones, mediante flujos aumentados por IA, puede igualar la velocidad de entrega y calidad técnica de una célula tradicional de desarrollo de 4 personas.",
+      "**Finanzas Cloud (TCO):** Establecimiento de un **OPEX** base de $0 USD/mes mediante el modelo de pago por consumo de **AWS Lambda**, eliminando costos fijos de licenciamiento y servidores ociosos.",
+      "**Mitigación de Deuda Técnica:** Eliminación de fricción de mantenimiento mediante el despliegue de recursos desacoplados y compilados, garantizando una plataforma escalable y libre de costos de administración tradicionales."
+    ],
+    "en": [
+      "**Headcount & Velocity Optimization:** Demonstrated that a single Solutions Architect utilizing AI-augmented pipelines can match the engineering output and velocity of a traditional 4-person development pod.",
+      "**Cloud Economics (TCO):** Established a $0/month baseline **OPEX** utilizing **AWS Lambda’s** pay-per-use pricing, completely removing ongoing licensing and idle infrastructure costs.",
+      "**Zero Legacy Drag:** Mitigated technical debt by deploying decoupled, compiled assets, ensuring the platform remains highly maintainable and easily scalable with zero configuration overhead."
+    ]
+  },
+  "stack": {
+    "es": "Angular 22 SSR + Serverless · AWS · IA-Augmented Code",
+    "en": "Angular 22 SSR + Serverless · AWS · IA-Augmented Code"
+  }
+}

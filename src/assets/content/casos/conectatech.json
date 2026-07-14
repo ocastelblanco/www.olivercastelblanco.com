@@ -13,21 +13,35 @@
     "en": "staff requirements"
   },
   "title": "ConectaTech",
+  "repoUrl": "https://github.com/ocastelblanco/conectatech.co",
+  "accent": "primary",
+  "seoDescription": {
+    "es": "Cómo ConectaTech redujo en un 80% sus requerimientos de personal con una plataforma de automatización diseñada por Oliver Castelblanco.",
+    "en": "How ConectaTech cut staff requirements by 80% with an automation platform architected by Oliver Castelblanco."
+  },
   "narrative": {
     "es": "Cómo la IA permitió a un solo arquitecto construir un ecosistema nacional.",
     "en": "How AI enabled a single architect to build a national ecosystem."
   },
   "challenge": {
-    "es": "Se necesitaba un sistema de administración curricular y gestión de pines escalable sobre Moodle sin un equipo de 20 desarrolladores.",
-    "en": "A scalable curriculum management and pin administration system for Moodle was needed — without a team of 20 developers."
+    "es": "Moodle es un estándar robusto en el sector educativo, pero introduce una alta rigidez operativa y una pesada carga administrativa. El aprovisionamiento y estructuración de cursos para educación básica y media requería días de gestión manual en base de datos. Adicionalmente, el ecosistema debía soportar de forma simultánea dos modelos de negocio con dinámicas opuestas: la venta directa institucional (B2B con matriculación interna) y un modelo *SaaS* indirecto escalable mediante la distribución de pines de acceso para editoriales aliadas. Esta dualidad generaba una fricción crítica en la gestión de accesos, limitando la escalabilidad del sistema e incrementando el Costo Total de Propiedad (TCO) debido a la necesidad de personal técnico dedicado.",
+    "en": "Moodle is a robust e-learning standard but introduces severe operational rigidity and administrative overhead. Educational content delivery for K-12 segments traditionally required days of manual provisioning, database configuration, and course structuring. Furthermore, handling dual business models—direct institutional B2B deployments and an indirect, high-volume reseller SaaS model via license keys (pins)—created massive friction in access management. Scalability was heavily constrained by technical debt and the need for dedicated sysadmins, driving up the Total Cost of Ownership (TCO)."
   },
   "approach": {
-    "es": "Orquestación de IA para generar módulos en Angular 21 y servicios backend en AWS S3 / EC2.",
-    "en": "AI orchestration to generate Angular 21 modules and backend services on AWS S3 / EC2."
+    "es": "Diseñé una capa de middleware desacoplada que actúa como una plataforma de abstracción inteligente, aislando la creación de contenido de la rigidez del núcleo de Moodle. Los autores compilan las mallas curriculares utilizando Markdown estándar, contenido que nuestra tubería automatizada de ingesta e interfaz en Angular 21 convierte en entornos educativos estructurados en cuestión de minutos, eliminando los procesos manuales.\n\nPara acelerar el *Time-to-Market* y minimizar el **CAPEX** de desarrollo, orquesté flujos de ingeniería asistida por IA (*AI-Augmented Engineering*), asumiendo la arquitectura y el despliegue del sistema completo de forma autónoma. Implementé un motor de matriculación nativo integrado directamente a la persistencia de **Moodle**, el cual unifica la gestión institucional directa y un modelo auto-gestionado de distribución de pines para terceros, transformando un monolito en un ecosistema *SaaS* altamente escalable. ",
+    "en": "I architected a decoupled middleware layer that functions as an intelligent abstraction platform, separating content creation from Moodle’s rigid core. Authors compile curricula using standard Markdown (via Google Docs workflows), which our Angular 21 frontend and automated ingestion pipeline seamlessly convert into fully structured **Moodle** environments in minutes, not days.\n\nTo accelerate the engineering phase and minimize R&D **CAPEX**, I orchestrated AI-driven development workflows (AI-Augmented Engineering) to single-handedly build the system architecture. I designed a native enrollment engine that interacts directly with the core database, supporting both direct B2B institutional setups and a self-service, tenant-managed pin distribution model—effectively turning a monolithic legacy system into a multi-tenant SaaS."
   },
   "impact": {
-    "es": ["MVP entregado en 4 semanas", "-80% requerimientos de staff técnico tradicional"],
-    "en": ["MVP delivered in 4 weeks", "-80% traditional technical staff requirements"]
+    "es": [
+      "**Eficiencia Operativa:** Reducción del 80% en el tiempo de aprovisionamiento de aulas virtuales, acelerando la entrega de cursos de días a minutos.",
+      "**Optimización de Costos (FinOps):** Costo de personal técnico adicional equivalente a $0 adicionales, automatizando por completo el flujo de despliegue. La arquitectura optimizó el consumo de cómputo y base de datos, manteniendo el **OPEX** de infraestructura en mínimos estrictos.",
+      "**Escalabilidad del Negocio:** Habilitación exitosa de canales duales de monetización (*SaaS* por pines y *B2B* directo), permitiendo que un único arquitecto administre y escale una plataforma educativa de alto volumen sin incrementar el *headcount*."
+    ],
+    "en": [
+      "**Operational Efficiency:** Reduced virtual classroom provisioning time by 80%, slashing course delivery from days to minutes.",
+      "**Cloud Economics & TCO:** Achieved a $0 increase in technical staff payroll by automating deployment pipelines. The architecture optimized compute and database footprint, drastically lowering infrastructure **OPEX**.",
+      "**Business Scalability:** Successfully monetized dual distribution channels, allowing a single architect to manage and scale a multi-tenant educational platform serving high-volume business and institutional clients."
+    ]
   },
   "stack": {
     "es": "Angular 21 · Moodle 5.1 · AWS · Código Aumentado por IA",

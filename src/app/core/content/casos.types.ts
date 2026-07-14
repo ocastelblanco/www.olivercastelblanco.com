@@ -17,4 +17,13 @@ export interface CasoDeEstudio {
     en: string[];
   };
   stack: Bilingue;
+  /** Enlace externo opcional — normalmente la URL del repositorio en GitHub. */
+  repoUrl?: string;
+  /**
+   * Color de acento de la página de detalle: `'primary'` (Cyber Lime, default)
+   * o `'secondary'` (Electric Cyan).
+   */
+  accent?: string;
+  /** Meta description por idioma. Si falta, se usa `narrative` sin marcado Markdown. */
+  seoDescription?: Bilingue;
 }

@@ -53,5 +53,6 @@ export interface Translations {
     approach_label: string;
     impact_label: string;
     stack_label: string;
+    repo_link: string;
   };
 }
