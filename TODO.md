@@ -21,69 +21,87 @@
 
 ---
 
-## Tarea 1 — [INFRA]: Deploy de producción — Lambda + CloudFront + S3
+## Tarea 1 — [INFRA]: Base multi-stage — separar `preview` de `production`
 
-**Origen:** `MEMORY.md` §2 Pendientes y ADR-009 (fase 2). Hace el sitio rediseñado
-accesible en `https://ocastelblanco.com` y completa el ciclo MVP.
+**Origen:** prerequisito bloqueante del switch a producción (ver ADR-012 y ADR-013).
+Hoy `serverless.yml` no distingue ambientes: el dominio de la API está fijo a
+`api.ocastelblanco.com` **para cualquier stage** y hoy lo tiene tomado `preview`. Desplegar
+`production` sin esto hace que ambos stages se peleen el mismo dominio. Ninguna otra tarea
+del switch puede empezar antes de que esto quede resuelto.
 
-**Archivos:** `serverless.yml` (stage `production`, configuración de dominio),
-`.github/workflows/deploy.yml` (job de producción bajo condición `rediseno-2026`),
-posible `cloudfront.yml` o recursos en `serverless.yml` para CloudFront + S3.
+**Archivos:** `serverless.yml`, `angular.json`, `src/environments/*.ts`,
+`src/lambda/contact-handler.mjs`, `src/lambda/lab-handler.mjs`.
 
 **Qué hacer:**
-1. Agregar stage `production` en `serverless.yml`: mismo Lambda + URL pero con
-   `domainName: ocastelblanco.com` (o vía CloudFront). `NG_ALLOWED_HOSTS` para el
-   dominio de producción.
-2. Provisionar distribución CloudFront con `ocastelblanco.com` como CNAME apuntando
-   al Lambda, con certificado ACM en `us-east-1`.
-3. Bucket S3 `cdn.ocastelblanco.com` para assets estáticos (`dist/ocastelblanco/browser/`)
-   con CloudFront delante. Este es el MISMO bucket que usará el contenido dinámico
-   (`lab.json`, ver punto 7) — separar por prefijo, ej. `/browser/` vs `/content/`.
-4. Actualizar `angular.json` / build config para que los assets apunten al CDN en producción.
-5. Workflow: job `deploy-prod` que se dispara solo en push a `rediseno-2026`.
-6. **Al entrar a producción:** eliminar `LAMBDA_URL_RE` de `src/lambda/contact-handler.mjs`.
-7. **Cierra el gap de ADR-011:** una vez exista el bucket, conectar `src/lambda/lab-handler.mjs`
-   para que escriba `lab.json` (prefijo `/content/`) con `@aws-sdk/client-s3` en vez del stub
-   actual (`200 { ok, received }` sin persistir). Dar permisos IAM mínimos a la función `lab`
-   (solo `s3:PutObject` sobre ese prefijo) e invalidar CloudFront tras cada escritura (o TTL
-   corto en `/content/*`).
+1. **Dominio de API por stage** en `serverless.yml`: mapa `custom.domains` con
+   `production: api.ocastelblanco.com` y `preview: preview-api.ocastelblanco.com`,
+   consumido como `${self:custom.domains.${sls:stage}}`. El certificado wildcard
+   `*.ocastelblanco.com` ya existe en ACM `us-east-1` — no hay que emitir uno nuevo.
+   Liberar primero el mapeo actual (`npx sls delete_domain --stage preview`) antes de
+   que `production` reclame `api.ocastelblanco.com`.
+2. **Bucket de contenido por stage**: `ocastelblanco-cdn-production` y
+   `ocastelblanco-cdn-preview`. **Sin puntos en el nombre** — un bucket con puntos rompe
+   el TLS del SDK de AWS (`bucket.s3.amazonaws.com` no matchea el wildcard del cert), y
+   el `lab-handler` va a escribir ahí con `@aws-sdk/client-s3`. El subdominio
+   `cdn.ocastelblanco.com` queda descartado como origen (ver ADR-012: un solo CloudFront
+   con dos orígenes).
+3. **Arreglar el gap de environments (bug latente).** `angular.json` no tiene
+   `fileReplacements`, así que `environment.prod.ts` es código muerto y **todos** los
+   builds usan `environment.ts` — en producción The Lab leería el fixture de desarrollo
+   (`content/lab.dev.json`). Definir tres configuraciones de build con sus respectivos
+   `fileReplacements`: `development`, `preview` (apunta a `preview-api.…`) y `production`.
+4. **CORS por stage** en ambos handlers. NO eliminar `LAMBDA_URL_RE` como decía el plan
+   anterior: con el nuevo flujo, `preview` es un ambiente permanente que debe seguir
+   funcionando. Reemplazar la constante hardcodeada por una allowlist leída de una
+   variable de entorno inyectada por stage (`ALLOWED_ORIGINS`): en `production` solo
+   `https://ocastelblanco.com`; en `preview`, la Function URL del stage.
+5. Desplegar `production` por primera vez y verificar por su Lambda Function URL
+   (todavía sin tocar DNS ni CloudFront).
 
 **Definition of done:**
-- [ ] `https://ocastelblanco.com` sirve el rediseño 2026 (Angular SSR via Lambda)
-- [ ] Assets estáticos servidos desde `https://cdn.ocastelblanco.com` (CloudFront + S3)
-- [ ] `NG_ALLOWED_HOSTS` incluye `ocastelblanco.com`
-- [ ] CORS del contact handler restringido solo a `https://ocastelblanco.com`
-- [ ] `npm run build` en verde con config de producción
-- [ ] CI/CD deploy a `production` activo en GitHub Actions
-- [ ] `POST /lab` escribe `lab.json` real en `cdn.ocastelblanco.com/content/lab.json` (ya no es stub)
-- [ ] Publicar desde el Google Sheet actualiza el contenido visible en `/lab` tras la invalidación
+- [ ] `npx sls deploy --stage production` y `--stage preview` conviven sin pelearse el dominio
+- [ ] `preview-api.ocastelblanco.com` y `api.ocastelblanco.com` responden por separado
+- [ ] Los dos buckets de contenido existen, sin acceso público de escritura ni listado
+- [ ] `ng build --configuration production` produce un bundle que apunta a `api.ocastelblanco.com` y al `lab.json` real (verificado con `grep` en el bundle)
+- [ ] La Function URL del stage `production` sirve el rediseño completo
+- [ ] `npm run build` y `npm run lint` en verde
 
 ---
 
-## Tarea 2 — [DOCS]: Bitácora de proceso — Entrada MVP en `docs/proceso/`
+## Tarea 2 — [FEATURE]: Terminal de contacto funcional (SES) + rate limiting
 
-**Origen:** `TODO.md` §1 regla 5 — al cerrar una iteración mayor (MVP completo tras deploy de
-producción), se documenta el proceso en `docs/proceso/` siguiendo `docs/proceso/README.md`.
-Esta entrada es insumo directo de "The Lab" y la narrativa de orquestación IA del sitio.
+**Origen:** el formulario no entrega mensajes — `contact-handler.mjs:59` valida y hace
+`console.log` a CloudWatch, nada más. Además `CLAUDE.md` §6 A07 **prohíbe** desplegar
+`/contact` a producción sin mitigación anti-abuso, por lo que esto es prioridad 1 del
+motor JIT (gap OWASP que bloquea producción).
 
-**Archivos:** `docs/proceso/` — nueva entrada en formato definido en
-[`docs/proceso/README.md`](./docs/proceso/README.md) cubriendo la construcción del MVP
-(boilerplate Angular 22 → arquitectura de contenido → SEO técnico → deploy, pasando por
-identidad visual, i18n y CI/CD).
+**Archivos:** `src/lambda/contact-handler.mjs`, `serverless.yml`, `package.json`.
 
 **Qué hacer:**
-1. Leer `docs/proceso/README.md` para la convención de nombrado y estructura.
-2. Crear la entrada del MVP (puede ser un solo archivo o varios según convención),
-   cubriendo: stack decision, rol de IA en cada fase, métricas (tiempo, tokens, PRs).
-3. La entrada debe ser citable y servir como contenido para The Lab.
-
-**Dependencia:** completar Tarea 1 (Deploy de producción) antes de escribir esta entrada,
-ya que el deploy cierra el ciclo MVP.
+1. Enviar el mensaje con `@aws-sdk/client-sesv2` (`SendEmailCommand`):
+   `From: contacto@ocastelblanco.com`, `To: ocastelblanco@gmail.com`,
+   `Reply-To:` el email del visitante. El dominio `ocastelblanco.com` ya está verificado
+   en SES (`SendingEnabled: true`) y `ocastelblanco@gmail.com` está verificado como
+   identidad — **SES está en sandbox, pero el sandbox solo restringe destinatarios**, así
+   que este envío funciona hoy sin pedir production access.
+2. **No** implementar auto-respuesta al visitante todavía: el sandbox la bloquearía
+   (destinatario no verificado). Requiere solicitar production access primero.
+3. Escapar el contenido del mensaje antes de interpolarlo en el cuerpo del correo
+   (`CLAUDE.md` §6 A03) — preferir cuerpo `Text` sobre `Html`.
+4. Permisos IAM mínimos para la función `contact`: solo `ses:SendEmail` sobre la
+   identidad del dominio, nada de `ses:*`.
+5. **Rate limiting (A07)**: `provider.httpApi.defaultRouteSettings` con
+   `throttlingRateLimit` / `throttlingBurstLimit`, más `reservedConcurrency` baja en la
+   función `contact`. Acota el costo de un abuso sin el ~USD 6/mes de AWS WAF.
+6. Mantener el honeypot actual.
 
 **Definition of done:**
-- [ ] Entrada en `docs/proceso/` siguiendo la convención de `docs/proceso/README.md`
-- [ ] Cubre la narrativa completa del MVP: decisiones de diseño, rol de IA, métricas
-- [ ] Contenido citable directamente en The Lab
+- [ ] Enviar el formulario en el stage `preview` entrega un correo real a la bandeja
+- [ ] `Reply-To` permite responderle al visitante directamente desde el correo
+- [ ] El rol IAM de `contact` no tiene permisos SES más amplios que `ses:SendEmail`
+- [ ] Throttling verificado y documentado en `MEMORY.md` §5
+- [ ] Un payload con el campo `website` lleno sigue devolviendo `200` sin enviar correo
+- [ ] `npm run build` y `npm run lint` en verde
 
 ---
 
@@ -325,6 +343,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-04 | El usuario define el objetivo del día: reemplazar el sitio en vivo (`ocastelblanco.com` + `olivercastelblanco.com`) por el rediseño, montando todo lo posible **antes** del switch de DNS para que el corte sea rápido y reversible. Se audita el estado real en AWS y aparecen cuatro hallazgos que reordenan el plan: (1) `serverless.yml` fija `api.ocastelblanco.com` para cualquier stage y hoy lo tiene `preview` — desplegar `production` sin arreglarlo genera conflicto, así que es prerequisito bloqueante; (2) los 4 hostnames son alias de la distribución CloudFront `E1MX0LNEKZOG8H` y un alias solo puede vivir en una distribución, por lo que **no** se puede pre-construir una distribución nueva con esos alias — se decide reusar la existente cambiándole el origen (ADR-012), lo que reduce el switch a un solo `update-distribution` reversible; (3) `angular.json` no tiene `fileReplacements`, así que `environment.prod.ts` es código muerto y The Lab en producción leería el fixture de desarrollo — bug latente que se absorbe en la Tarea 1; (4) el formulario de contacto nunca entregó mensajes (solo `console.log`), y `CLAUDE.md` §6 A07 prohíbe desplegar `/contact` sin rate limiting, lo que lo vuelve prioridad 1 (gap OWASP que bloquea producción). La tarea monolítica "Deploy de producción" se descompone en la secuencia ordenada de `MEMORY.md` §2. "Bitácora de proceso — Entrada MVP" se retira temporalmente de la lista activa (sigue dependiendo del switch) | Tarea 1 anterior (Deploy de producción) descompuesta. Nueva Tarea 1: Base multi-stage (`preview`/`production`). Nueva Tarea 2: Terminal de contacto funcional vía SES + rate limiting. "Bitácora de proceso" fuera de la lista activa, pendiente de reincorporación tras el switch |
 | 2026-07-11 | Arquitectura de contenido completada y verificada (build + lint en verde, PR #17 fusionada). Siguiente prioridad Alta: Deploy de producción (ya seleccionada como Tarea 2, sin dependencias bloqueantes) pasa a Tarea 1. Para la nueva Tarea 2 se reincorpora Bitácora de proceso — Entrada MVP (retirada temporalmente cuando se antepuso Arquitectura de contenido): sigue dependiendo del deploy, pero ya puede volver a ocupar el slot de Tarea 2. Se añade a la Tarea 1 (Deploy) un paso nuevo: conectar `lab-handler.mjs` a S3 real una vez exista el bucket de contenido, cerrando el gap dejado por la tarea recién completada | Tarea 1 (Arquitectura de contenido) movida al historial. Tarea 2 (Deploy producción) pasa a ser Tarea 1, con paso adicional de escritura a S3 para Lab. Nueva Tarea 2: Bitácora de proceso — Entrada MVP |
 | 2026-07-11 | El usuario solicita anteponer al deploy de producción una nueva iniciativa: separar contenido de UI en "Casos de estudio" y "The Lab" (secciones acumulativas tipo blog, hoy hardcodeadas en diccionarios i18n). Se decide estrategia híbrida (ADR-011): casos de estudio como JSON tipado en el repo (2 publicaciones/año no justifican pipeline externo) y The Lab vía Google Sheets → Apps Script → `POST /lab` con token → `lab.json` en S3, con subset Markdown (negrita/itálica/tachado/links) escrito como texto plano en las celdas. Para mantener 2 tareas activas, "Bitácora de proceso — Entrada MVP" se retira temporalmente (dependía del deploy de todas formas; se reincorporará al liberarse un slot) | Nueva Tarea 1: Arquitectura de contenido (Casos de estudio + The Lab). Tarea 1 anterior (Deploy producción) pasa a Tarea 2. "Bitácora de proceso" fuera de la lista activa, pendiente de reincorporación |
 | 2026-06-11 | No existe código de aplicación; máxima prioridad Alta es el boilerplate Angular 22 (base para todo lo demás), seguida por los design tokens (requeridos por toda UI futura) | Se seleccionan las Tareas 1 y 2 de este archivo. Tarea 2 depende de que exista el workspace generado en la Tarea 1. |
