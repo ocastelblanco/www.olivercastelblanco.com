@@ -7,7 +7,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — preparando el switch de producción (pasos 1-4/8 completados, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
+| Versión | MVP en construcción — preparando el switch de producción (pasos 1-5/8 completados, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
@@ -50,9 +50,9 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 2. [x] **Terminal de contacto funcional** — SES + rate limiting (gap OWASP A07 que bloquea producción). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/contacto-ses-rate-limiting`)
 3. [x] **The Lab a S3** — `lab-handler.mjs` escribe `content/lab.json` con `@aws-sdk/client-s3`, IAM mínimo, invalidación de CloudFront (cierra el gap de ADR-011). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/lab-s3-real`)
 4. [x] **CloudFront sirve `/content/*`** — OAC + behavior acotado a `/content/*` únicamente (ver revisión ADR-012 2026-08-04: un behavior amplio `*.js`/`*.css` ahora rompería el sitio anterior, que usa el mismo patrón de nombres con hash). Subir el bundle Angular y los behaviors de assets estáticos se posponen al paso 8. Completada y verificada 2026-08-04 (PR pendiente, rama `feature/cloudfront-content-behavior`)
-5. [ ] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012) ← **Tarea 1**
-6. [ ] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013) ← **Tarea 2**
-7. [ ] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013)
+5. [x] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/cloudfront-301-olivercastelblanco`)
+6. [ ] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013) ← **Tarea 1**
+7. [ ] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013) ← **Tarea 2**
 8. [ ] **EL SWITCH** — cambiar el origen por defecto (`/*`) de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`, **más** (movido desde el paso 4 original): subir `dist/ocastelblanco/browser/` al bucket de contenido y agregar los behaviors de assets estáticos (`*.js`, `*.css`, etc.) → S3. Ambos cambios deben ir atómicos con el cambio de origen — antes del switch esos patrones de path colisionan con los assets del sitio anterior (mismo esquema de nombres con hash)
 
 ### Pendientes (no bloquean el switch)
@@ -448,6 +448,35 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   al switch (paso 8), donde ocurren atómicamente junto con el cambio de origen por
   defecto — en ese momento el sitio anterior ya no existe, así que la colisión de nombres
   deja de ser posible.
+- **Implementado 2026-08-04 (paso 4 — `/content/*`):** Origin Access Control
+  `ocastelblanco-cdn-production-oac` (`E31BG8XJQBYR7A`), origen nuevo
+  `S3-ocastelblanco-cdn-production` (vía OAC) y behavior `/content/*` (`CachePolicyId`
+  managed `CachingDisabled`) agregados a `E1MX0LNEKZOG8H`. Bucket policy condicionada a
+  `AWS:SourceArn` de la distribución — no cuenta como pública, los 4 flags de
+  `PublicAccessBlockConfiguration` del bucket siguen en `true`. El origen original y el
+  behavior por defecto no se tocaron.
+- **Implementado 2026-08-04 (paso 5 — 301 `olivercastelblanco.com`):** CloudFront
+  Function `olivercastelblanco-redirect` (`cloudfront-js-2.0`, evento `viewer-request`)
+  asociada solo al behavior por defecto: si `Host` es `olivercastelblanco.com` o
+  `www.olivercastelblanco.com`, responde `301` hacia el mismo host+path+querystring bajo
+  `ocastelblanco.com`; para cualquier otro host, deja pasar la request sin modificarla.
+  Probada con `aws cloudfront test-function` (3 casos: host secundario con
+  path+querystring, `www.` secundario, host canónico sin cambios) antes de publicarla y
+  asociarla. Verificado en vivo: los 4 hostnames responden como se espera, el sitio
+  anterior (home + `main.js`) sin cambios.
+- **Gotcha descubierto al verificar (no es una regresión de esta tarea):** la
+  distribución ya tenía `CustomErrorResponses` configurados desde el sitio anterior
+  (403/404 → `/index.html` con `200`, `ErrorCachingMinTTL: 300`) — un fallback típico de
+  SPA. Como el `ResponsePagePath` (`/index.html`) no matchea `/content/*`, CloudFront lo
+  resuelve por el behavior por defecto (bucket viejo). Consecuencia: pedir
+  `/content/lab.json` cuando el objeto **no existe** en el bucket de contenido devuelve
+  `200` con el `index.html` del sitio anterior, no un `404` limpio — comportamiento
+  preexistente, no introducido por esta tarea (confirmado: con el objeto presente,
+  `/content/lab.json` responde el JSON real correctamente). Relevante para cuando el
+  frontend haga fetch de Lab en producción: si el objeto llega a faltar, el fetch
+  recibiría HTML en vez de JSON. No bloqueante hoy (el switch de paso 8 reemplaza el
+  origen del sitio anterior de todas formas), pero anotar como riesgo a revisar si
+  `CustomErrorResponses` se hereda tal cual tras el switch.
 
 ### ADR-013 — Flujo CI/CD por ambientes y renombrado de `master` a `main`
 
@@ -579,6 +608,8 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 | Origin Access Control | `ocastelblanco-cdn-production-oac` (`E31BG8XJQBYR7A`) | Creado el 2026-08-04. Único origen que puede leer `ocastelblanco-cdn-production` |
 | Distribución `E1MX0LNEKZOG8H` — origen nuevo | `S3-ocastelblanco-cdn-production` → `ocastelblanco-cdn-production.s3.us-east-1.amazonaws.com` | Agregado el 2026-08-04 vía OAC. El origen original (`S3-ocastelblanco.com`) y el behavior por defecto (`/*`) **no se tocaron** |
 | Distribución `E1MX0LNEKZOG8H` — behavior nuevo | `/content/*` → `S3-ocastelblanco-cdn-production`, `CachePolicyId` managed `CachingDisabled` (`4135ea2d-6df8-44a3-9df3-4b5a84be39ad`) | Agregado el 2026-08-04. Único behavior además del por defecto |
+| CloudFront Function | `olivercastelblanco-redirect` (`arn:aws:cloudfront::696912647258:function/olivercastelblanco-redirect`) | Creada y publicada el 2026-08-04. Asociada al behavior por defecto de `E1MX0LNEKZOG8H`, evento `viewer-request` |
+| Distribución `E1MX0LNEKZOG8H` — `CustomErrorResponses` | 403/404 → `/index.html` (200), `ErrorCachingMinTTL: 300` | Preexistente (sitio anterior, fallback de SPA) — descubierto al verificar la tarea de `/content/*`, ver ADR-012 gotcha |
 
 ## 6. Patrones de código establecidos
 
@@ -679,6 +710,8 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 | SES en sandbox | Restringe **destinatarios**, no remitentes. Enviar a una identidad verificada (`ocastelblanco@gmail.com`) funciona; enviar al email arbitrario de un visitante (auto-respuesta) falla hasta pedir production access. |
 | El clasificador de permisos de Claude Code bloquea comandos AWS mutantes (deploy, delete-api-mapping) aunque el usuario ya haya autorizado la acción en general | Cada comando destructivo/mutante pide su propia aprobación puntual en el momento de ejecutarse — no basta un "sí" genérico previo. Explicar qué hace el comando exacto antes de que el usuario lo apruebe. |
 | `aws lambda get-function-configuration` **no** expone `ReservedConcurrentExecutions` | Es una API separada: `aws lambda get-function-concurrency --function-name <fn>`. Si sale `null`/vacío en `get-function-configuration`, no significa que la concurrencia reservada no esté configurada — hay que consultar el endpoint correcto antes de reportar un fallo. |
+| Agregar un `CacheBehavior` nuevo a una distribución CloudFront no invalida lo que ya estaba cacheado bajo el behavior por defecto para ese mismo path | Si un path (ej. `/content/lab.json`) se pidió antes de que existiera su behavior específico, un edge POP puede seguir sirviendo la respuesta vieja durante su TTL. Correr `create-invalidation` sobre el path nuevo después de agregar el behavior, no asumir que el cambio de config invalida el caché existente. |
+| `CustomErrorResponses` a nivel de distribución (403/404 → `/index.html`) se resuelven con su **propio** lookup de behavior para el `ResponsePagePath` | Si el `ResponsePagePath` no matchea el `PathPattern` del behavior original de la request, CloudFront lo sirve desde el behavior que sí matchea (típicamente el default) — no desde el origen que generó el error. Un objeto faltante en un behavior nuevo puede terminar devolviendo `200` con contenido de OTRO origen en vez de un `404` limpio. Revisar `CustomErrorResponses` de la distribución antes de asumir que "no existe el objeto" se traduce en un error visible. |
 | Dominio `api.ocastelblanco.com` era EDGE en API Gateway (incompatible con HTTP API v2) | Se eliminó y recreó como REGIONAL con `npx sls create_domain`. CNAME en Route 53 actualizado manualmente a `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com`. |
 | `.gitignore` del sitio anterior se eliminó junto con todo lo demás | Se recreó un `.gitignore` nuevo en el primer commit de `rediseno-2026`, incluyendo `src/secrets/secrets*.ts`, `.claude/` y `.omc/` |
 | TypeScript 6 (`~6.0.2`) ya no soporta `baseUrl` en `tsconfig.json` (TS5101) | Omitir `baseUrl`; los `paths` deben usar rutas relativas con prefijo `./` (TS5090), p. ej. `["./src/app/core/*"]` |
@@ -916,3 +949,36 @@ ADR-012, revisión 2026-08-04).
 **Próxima tarea (Tarea 1 nueva):** CloudFront Function de 301 para
 `olivercastelblanco.com` (paso 5 de la secuencia). **Tarea 2 nueva:** Nuevo flujo CI/CD —
 PR abre `preview`, merge a `main` despliega `production` (paso 6, ADR-013).
+
+## 15. Sesión 2026-08-04 (continuación 5) — Ejecución de la Tarea: CloudFront Function de 301
+
+**Qué se hizo:** implementado el paso 5 de la secuencia de §2 (ADR-012).
+
+- CloudFront Function `olivercastelblanco-redirect` (`cloudfront-js-2.0`): si
+  `Host` es `olivercastelblanco.com` o `www.olivercastelblanco.com`, responde `301` hacia
+  el mismo host equivalente bajo `ocastelblanco.com`, preservando path y querystring; para
+  cualquier otro host, deja pasar la request sin modificarla.
+- Probada con `aws cloudfront test-function` **antes** de publicarla o asociarla (3 casos:
+  host secundario con path+querystring, `www.` secundario, host canónico) — los 3 pasaron
+  exactamente como se esperaba.
+- Publicada (`publish-function`) y asociada **solo** al behavior por defecto (`/*`) de
+  `E1MX0LNEKZOG8H`, evento `viewer-request`. El origen, los behaviors existentes
+  (`/content/*` de la tarea anterior) y los 4 alias no se tocaron.
+- Verificado en vivo: `olivercastelblanco.com` y `www.olivercastelblanco.com` → `301`
+  con `Location` correcto; `ocastelblanco.com` y `www.ocastelblanco.com` → `200` sin
+  redirigir; `main.js` del sitio anterior sin cambios.
+- **Hallazgo durante la verificación (no es una regresión):** al probar
+  `/content/lab.json` sin el objeto de prueba (borrado al final de la tarea anterior), la
+  respuesta fue `200` con el `index.html` del sitio anterior en vez de un `404`. Se
+  investigó y se confirmó que la distribución ya tenía `CustomErrorResponses` (403/404 →
+  `/index.html`, `200`) configurados desde el sitio anterior — un fallback de SPA
+  preexistente. Como `/index.html` no matchea `/content/*`, CloudFront lo resuelve por el
+  behavior por defecto (bucket viejo). Confirmado que con el objeto presente,
+  `/content/lab.json` responde el JSON real correctamente — no hay regresión, es
+  comportamiento preexistente que ahora queda documentado (ver ADR-012 y §7 Gotchas).
+- Ningún comando AWS mutante de esta tarea fue bloqueado por el clasificador de permisos.
+- Sin cambios en `serverless.yml` ni código de aplicación.
+
+**Próxima tarea (Tarea 1 nueva):** Nuevo flujo CI/CD — PR abre `preview`, merge a `main`
+despliega `production` (paso 6, ADR-013). **Tarea 2 nueva:** Renombrar `master` → `main`
+y reemplazar su contenido con `rediseno-2026` (paso 7).

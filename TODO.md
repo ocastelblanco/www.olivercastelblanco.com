@@ -21,42 +21,7 @@
 
 ---
 
-## Tarea 1 — [INFRA]: CloudFront Function de 301 — `olivercastelblanco.com` → dominio canónico
-
-**Origen:** paso 5 de la secuencia hacia el switch (`MEMORY.md` §2, ADR-012). Hoy
-`olivercastelblanco.com` y `www.olivercastelblanco.com` sirven exactamente el mismo
-contenido que `ocastelblanco.com` (mismo CloudFront, mismo origen) — contenido duplicado
-que penaliza SEO. El usuario ya decidió consolidar la autoridad en `ocastelblanco.com`
-como dominio canónico.
-
-**Archivos:** CloudFront Function (gestionada manualmente en la consola/CLI, fuera de
-`serverless.yml` — ver ADR-012 Consecuencias), asociada a la distribución `E1MX0LNEKZOG8H`.
-
-**Qué hacer:**
-1. Crear una CloudFront Function (runtime `cloudfront-js-2.0`) en el evento
-   `viewer-request` que, si el header `Host` es `olivercastelblanco.com` o
-   `www.olivercastelblanco.com`, devuelva un `301` hacia el mismo path en
-   `https://ocastelblanco.com` (preservando path y querystring).
-2. Para cualquier otro `Host` (`ocastelblanco.com`, `www.ocastelblanco.com`), dejar pasar
-   la request sin modificarla.
-3. Asociar la función al behavior por defecto (`/*`) de la distribución existente, en el
-   evento `viewer-request` (antes de que llegue al origen — evita gastar una invocación de
-   Lambda/fetch a S3 para una request que de todas formas se va a redirigir).
-4. **No** modificar los 4 alias de la distribución — la función coexiste con ellos, el
-   redirect ocurre a nivel de CloudFront Function, no de DNS.
-5. Verificar en Search Console (fuera de este repo) que el 301 no rompe el indexado
-   existente de `olivercastelblanco.com` — dejar la verificación anotada en `MEMORY.md`.
-
-**Definition of done:**
-- [ ] `curl -I https://olivercastelblanco.com/cualquier-ruta` devuelve `301` con
-      `Location: https://ocastelblanco.com/cualquier-ruta`
-- [ ] Lo mismo para `www.olivercastelblanco.com`
-- [ ] `curl -I https://ocastelblanco.com/` y `www.ocastelblanco.com` NO redirigen (siguen sirviendo el sitio anterior sin cambios — el switch aún no ocurrió)
-- [ ] Documentado en `MEMORY.md` ADR-012 el estado final de la CloudFront Function
-
----
-
-## Tarea 2 — [INFRA]: Nuevo flujo CI/CD — PR abre `preview`, merge a `main` despliega `production`
+## Tarea 1 — [INFRA]: Nuevo flujo CI/CD — PR abre `preview`, merge a `main` despliega `production`
 
 **Origen:** paso 6 de la secuencia hacia el switch (`MEMORY.md` §2, ADR-013). El workflow
 actual (`deploy.yml`) dispara el deploy a `preview` en cada `push` a `rediseno-2026` y a
@@ -91,7 +56,62 @@ requiere cambiar el trigger de `push` a `pull_request` y agregar el job de produ
 
 ---
 
+## Tarea 2 — [INFRA]: Renombrar `master` → `main` y reemplazar su contenido con `rediseno-2026`
+
+**Origen:** paso 7 de la secuencia hacia el switch (`MEMORY.md` §2, ADR-013). Objetivo del
+día definido por el usuario: `rediseno-2026` reemplaza completamente a la rama de
+producción, que además pasa a llamarse `main`. Depende de la Tarea 1 (el nuevo flujo
+CI/CD debe apuntar a `main` antes de que `main` exista con el contenido correcto, para
+evitar una ventana sin CI funcionando).
+
+**Archivos:** ninguno de código — operación de Git/GitHub (ramas, default branch,
+protecciones), más `CLAUDE.md` (referencias a `master`/`rediseno-2026` en el git flow).
+
+**Qué hacer:**
+1. Confirmar con el usuario el momento exacto de ejecutar esto — es una operación sobre
+   la estructura del repo, no reversible con un simple revert (ver Prohibiciones de
+   `CLAUDE.md`: ningún push directo a ramas protegidas, y esto redefine cuál es la rama
+   protegida).
+2. Crear `main` a partir del contenido actual de `rediseno-2026` (`git push origin
+   rediseno-2026:main` o equivalente) — **no** un rename de `rediseno-2026` en sí, para no
+   perder la trazabilidad de las 40+ tareas ya documentadas contra ese nombre de rama.
+3. Cambiar el default branch del repositorio en GitHub de `master` a `main`
+   (`gh repo edit --default-branch main`).
+4. Actualizar las reglas de protección de rama: `main` protegida (regla que hoy tiene
+   `master`), `rediseno-2026` deja de ser rama protegida de larga vida.
+5. Actualizar `CLAUDE.md` §"Git Flow para Agentes IA": reemplazar las referencias a
+   `master`/`rediseno-2026` como ramas protegidas por `main` únicamente; quitar las notas
+   condicionales ("hoy `rediseno-2026`, tras el renombrado `main`") que ya no aplican.
+6. `master` (el sitio anterior) **no se borra** — queda como referencia histórica/rollback,
+   ya no como default branch ni protegida activamente.
+7. Verificar que el workflow de CI/CD (Tarea 1, ya fusionada) funciona correctamente
+   contra `main` antes de dar la tarea por cerrada.
+
+**Definition of done:**
+- [ ] `main` existe en GitHub con el contenido de `rediseno-2026`, es el default branch y la rama protegida
+- [ ] `rediseno-2026` deja de ser la rama base de nuevos PRs
+- [ ] `master` sigue existiendo (rollback), pero no es default ni recibe nuevos PRs
+- [ ] `CLAUDE.md` actualizado sin referencias condicionales a `master`/`rediseno-2026`
+- [ ] Un PR de prueba contra `main` dispara el deploy a `preview` correctamente (Tarea 1 ya fusionada)
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-08-04 — [INFRA]: CloudFront Function de 301 — `olivercastelblanco.com` → dominio canónico
+
+Implementado el paso 5 de la secuencia hacia el switch (ADR-012). CloudFront Function
+`olivercastelblanco-redirect` (`cloudfront-js-2.0`, evento `viewer-request`): si `Host` es
+`olivercastelblanco.com` o `www.olivercastelblanco.com`, responde `301` hacia el mismo
+host equivalente bajo `ocastelblanco.com` preservando path y querystring; cualquier otro
+host pasa sin modificarse. Probada con `aws cloudfront test-function` (3 casos) antes de
+publicarla y asociarla — solo al behavior por defecto de `E1MX0LNEKZOG8H`, sin tocar
+`/content/*`, el origen ni los 4 alias. Verificado en vivo: los 4 hostnames responden
+correctamente, sitio anterior sin cambios. Hallazgo durante la verificación (no es
+regresión de esta tarea): la distribución ya tenía `CustomErrorResponses` (403/404 →
+`/index.html`, `200`) desde el sitio anterior — un objeto faltante en `/content/*`
+devuelve el `index.html` del sitio viejo en vez de un `404` limpio, documentado como
+gotcha en `MEMORY.md` §7. Sin cambios en `serverless.yml` ni código de aplicación.
 
 ### 2026-08-04 — [INFRA]: CloudFront sirve `/content/*` (OAC + behavior, acotado)
 
@@ -427,6 +447,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-04 (6) | CloudFront Function de 301 completada y verificada en AWS real (probada con `aws cloudfront test-function` antes de asociarla, sitio anterior sin cambios). Siguiente prioridad: Nuevo flujo CI/CD (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Renombrar master → main" (paso 7 de la secuencia en `MEMORY.md` §2): depende de que el nuevo flujo CI/CD ya apunte a `main` para evitar una ventana sin CI funcionando, por lo que queda en el slot 2 hasta que la Tarea 1 se complete | Tarea 1 (CloudFront Function 301) movida al historial. Tarea 2 (Nuevo flujo CI/CD) pasa a ser Tarea 1. Nueva Tarea 2: Renombrar master → main |
 | 2026-08-04 (5) | Assets + behaviors de CloudFront ejecutada con alcance reducido a `/content/*` tras detectar que un behavior amplio `*.js`/`*.css` habría roto el sitio en vivo (mismo patrón de nombres con hash) — aprobado por el usuario antes de tocar la distribución. Completada y verificada en AWS real (OAC, bucket policy condicionada, sitio anterior sin cambios). Siguiente prioridad: CloudFront Function de 301 (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Nuevo flujo CI/CD" (paso 6 de la secuencia en `MEMORY.md` §2): es independiente de la Tarea 1 (ambas tocan la distribución/el pipeline pero configuran cosas distintas) y resuelve un pendiente conocido (`LAB_PUBLISH_TOKEN` vacío en `production`) | Tarea 1 (Assets + behaviors CloudFront) movida al historial. Tarea 2 (CloudFront Function 301) pasa a ser Tarea 1. Nueva Tarea 2: Nuevo flujo CI/CD |
 | 2026-08-04 (4) | The Lab → S3 real completada y verificada en AWS real: escritura confirmada con `aws s3api get-object`, rol IAM dedicado, invalidación condicional sin romper el flujo cuando no hay distribución (`npm run build`/`lint` en verde). Siguiente prioridad: Assets + behaviors de CloudFront (ya seleccionada como Tarea 2, su dependencia de contenido real en `/content/*` quedó satisfecha) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "CloudFront Function de 301" (paso 5 de la secuencia en `MEMORY.md` §2): resuelve el problema de contenido duplicado SEO entre `olivercastelblanco.com` y el dominio canónico, es independiente de la Tarea 1 (ambas tocan la misma distribución pero configuran cosas distintas) | Tarea 1 (The Lab → S3) movida al historial. Tarea 2 (Assets + behaviors CloudFront) pasa a ser Tarea 1. Nueva Tarea 2: CloudFront Function de 301 |
 | 2026-08-04 (3) | Terminal de contacto vía SES completada y verificada en AWS real: envío confirmado en CloudWatch, honeypot y validaciones intactos, rol IAM dedicado y throttling verificados (`npm run build`/`lint` en verde). Siguiente prioridad: The Lab → S3 (ya seleccionada como Tarea 2, sin dependencias pendientes — el bloqueo original de bucket inexistente desapareció con la Tarea de base multi-stage) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Assets + behaviors de CloudFront" (paso 4 de la secuencia en `MEMORY.md` §2): depende de que The Lab → S3 exista para tener contenido real que servir desde `/content/*`, pero puede empezar a prepararse en paralelo (subida de assets, OAC) | Tarea 1 (Terminal de contacto) movida al historial. Tarea 2 (The Lab → S3) pasa a ser Tarea 1. Nueva Tarea 2: Assets + behaviors de CloudFront |
