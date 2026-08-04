@@ -3,12 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - master
-      - rediseno-2026
+      - main
   pull_request:
     branches:
-      - master
-      - rediseno-2026
+      - main
 
 jobs:
   build-test-lint:

@@ -7,13 +7,15 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — preparando el switch de producción (pasos 1-6/8 completados, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
-| URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
-| URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
-| URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
-| URL API | `https://api.ocastelblanco.com` — activo, apunta al HTTP API Gateway del stage `preview` |
-| Rama principal (protegida) | `master` — sitio anterior. **Se renombra a `main` y se reemplaza con `rediseno-2026`** (ADR-013) |
-| Rama de desarrollo (protegida) | `rediseno-2026` — rediseño desde cero. Desaparece tras el renombrado |
+| Versión | MVP en construcción — preparando el switch de producción (pasos 1-7/8 completados, falta solo EL SWITCH, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
+| URL producción (sitio en vivo) | `https://ocastelblanco.com` — sirve el **sitio anterior** todavía (paso 8, el switch, sin ejecutar) |
+| URL producción (rediseño, sin DNS aún) | Lambda Function URL del stage `production` — sirve el rediseño completo, accesible solo por esa URL hasta el switch |
+| URL preview (Lambda) | Lambda Function URL del stage `preview` — un solo URL compartido, el último PR desplegado gana |
+| URL CDN | Descartado como subdominio propio (ADR-012) — el contenido de `/content/*` se sirve desde la misma distribución que el sitio en vivo, vía OAC |
+| URL API `production` | `https://api.ocastelblanco.com` — activo desde el 2026-08-04, apunta al HTTP API del stage `production` |
+| URL API `preview` | `https://preview-api.ocastelblanco.com` — activo desde el 2026-08-04 |
+| Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
+| Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs. `master` (sitio anterior) tampoco, queda como rollback |
 | Última sesión | 2026-08-04 |
 
 ## 2. Funcionalidades
@@ -52,12 +54,12 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 4. [x] **CloudFront sirve `/content/*`** — OAC + behavior acotado a `/content/*` únicamente (ver revisión ADR-012 2026-08-04: un behavior amplio `*.js`/`*.css` ahora rompería el sitio anterior, que usa el mismo patrón de nombres con hash). Subir el bundle Angular y los behaviors de assets estáticos se posponen al paso 8. Completada y verificada 2026-08-04 (PR pendiente, rama `feature/cloudfront-content-behavior`)
 5. [x] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/cloudfront-301-olivercastelblanco`)
 6. [x] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013). Workflow implementado y verificado para `preview` 2026-08-04 (PR pendiente, rama `feature/cicd-pr-preview-merge-production`); el disparo real de `production` queda pendiente de que exista `main` (paso 7)
-7. [ ] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013) ← **Tarea 1**
-8. [ ] **EL SWITCH** — cambiar el origen por defecto (`/*`) de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`, **más** (movido desde el paso 4 original): subir `dist/ocastelblanco/browser/` al bucket de contenido y agregar los behaviors de assets estáticos (`*.js`, `*.css`, etc.) → S3. Ambos cambios deben ir atómicos con el cambio de origen — antes del switch esos patrones de path colisionan con los assets del sitio anterior (mismo esquema de nombres con hash) ← **Tarea 2 (solo preparación/planificación — la ejecución requiere autorización explícita del usuario en el momento, ver `CLAUDE.md`)**
+7. [x] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013). Completada y verificada 2026-08-04 — primer `deploy-production` real disparado y exitoso (PR de limpieza pendiente, rama `feature/renombrar-main-cleanup`)
+8. [ ] **EL SWITCH** — cambiar el origen por defecto (`/*`) de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`, **más** (movido desde el paso 4 original): subir `dist/ocastelblanco/browser/` al bucket de contenido y agregar los behaviors de assets estáticos (`*.js`, `*.css`, etc.) → S3. Ambos cambios deben ir atómicos con el cambio de origen — antes del switch esos patrones de path colisionan con los assets del sitio anterior (mismo esquema de nombres con hash) ← **Tarea 1 (solo preparación/planificación — la ejecución requiere autorización explícita del usuario en el momento, ver `CLAUDE.md`)**
 
 ### Pendientes (no bloquean el switch)
 - [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (retirada de la lista activa; depende del switch)
-- [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO)
+- [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO) ← **Tarea 2**
 - [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
 
@@ -481,8 +483,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 ### ADR-013 — Flujo CI/CD por ambientes y renombrado de `master` a `main`
 
 - **Fecha:** 2026-08-04
-- **Estado:** Parcialmente implementado — el workflow (puntos 2-3 de la Decisión) ya está
-  en producción; el renombrado (punto 1) queda como tarea pendiente separada
+- **Estado:** Implementado por completo
 - **Decisión:**
   1. **Rama de producción: `main`.** Se renombra `master` → `main` y su contenido se
      reemplaza completamente por `rediseno-2026`. `main` pasa a ser la rama protegida de
@@ -527,6 +528,21 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   `main` sí dispara `deploy-production` y que el Lambda de producción queda con
   `LAB_PUBLISH_TOKEN` real — solo se puede probar una vez exista `main` (tarea de
   renombrado).
+- **Implementado 2026-08-04 (punto 1 — renombrado):** `main` creada con
+  `git push origin rediseno-2026:main` (no un `git branch -m`, para conservar
+  `rediseno-2026` como referencia histórica intacta). Ese mismo push, por ser un `push` a
+  `main`, disparó `deploy-production` **por primera vez** — confirmado exitoso
+  (`Build & Deploy (production)` en verde, `deploy-preview` correctamente omitido) y
+  `LAB_PUBLISH_TOKEN` de producción confirmado configurado (verificado que no está vacío,
+  sin exponer el valor). Default branch del repositorio cambiado a `main`
+  (`gh repo edit --default-branch main`). **Sin protecciones de rama que migrar**: ni
+  `master` ni `rediseno-2026` tenían protección real de GitHub configurada — la
+  "protección" siempre fue una convención de `CLAUDE.md`, no una regla de plataforma.
+  `.github/workflows/deploy.yml` (`pull_request.branches`) y `.github/workflows/ci.yml`
+  (push/pull_request) actualizados de `rediseno-2026`/`master` a `main`. `CLAUDE.md`
+  actualizado: sección "Ramas protegidas" sin condicionales, `main` como única rama
+  protegida. `master` y `rediseno-2026` no se borraron — quedan como referencia histórica
+  sin protección activa.
 
 ### ADR-014 — Entrega del formulario de contacto vía Amazon SES
 
@@ -1027,3 +1043,38 @@ y reemplazar su contenido con `rediseno-2026` (paso 7).
 con `rediseno-2026` (paso 7 de la secuencia). **Tarea 2 nueva:** EL SWITCH (paso 8) —
 solo como preparación/planificación en el motor JIT; la ejecución real sigue requiriendo
 autorización explícita del usuario en el momento (`CLAUDE.md`).
+
+## 17. Sesión 2026-08-04 (continuación 7) — Ejecución de la Tarea: Renombrar `master` → `main`
+
+**Qué se hizo:** implementado el paso 7 de la secuencia de §2 (ADR-013) — el penúltimo
+antes del switch.
+
+- Antes de ejecutar, se confirmó explícitamente con el usuario (vía `AskUserQuestion`) que
+  crear `main` dispararía de inmediato el primer `deploy-production` real, como efecto
+  secundario del push — el usuario autorizó ejecutar toda la secuencia sin pausas
+  adicionales.
+- `git push origin rediseno-2026:main` — creó `main` con el contenido de `rediseno-2026`
+  sin renombrar la rama origen (se conserva `rediseno-2026` con su historial intacto).
+  Ese push disparó `deploy-production` por primera vez: exitoso
+  (`Build & Deploy (production)` en verde), `deploy-preview` correctamente omitido.
+  `LAB_PUBLISH_TOKEN` de producción confirmado configurado (sin exponer el valor).
+  Producción verificada sirviendo correctamente tras el redeploy.
+- Default branch del repositorio cambiado a `main` (`gh repo edit --default-branch main`).
+- **Hallazgo:** ni `master` ni `rediseno-2026` tenían protección de rama real en GitHub
+  (`gh api .../branches/.../protection` → 404 en ambas). La "protección" documentada en
+  `CLAUDE.md` siempre fue una convención de disciplina del agente, no una regla de
+  plataforma — no hubo nada que migrar en ese frente.
+  `.github/workflows/deploy.yml` (`pull_request.branches`) y `.github/workflows/ci.yml`
+  (push/pull_request, antes apuntando a `master`+`rediseno-2026`) actualizados a `main`.
+  `CLAUDE.md` §"Git Flow para Agentes IA" actualizado: `main` como única rama protegida,
+  sin las notas condicionales del renombrado en curso.
+- `master` y `rediseno-2026` no se borraron — quedan como referencia histórica sin
+  protección activa.
+- Cambios de `deploy.yml`/`ci.yml`/`CLAUDE.md` van en un PR aparte contra `main` (rama
+  `feature/renombrar-main-cleanup`) — sirve además como la prueba en vivo de que
+  `deploy-preview` dispara correctamente contra la nueva base.
+
+**Próxima tarea (Tarea 1 nueva):** EL SWITCH (paso 8) — solo preparación/planificación en
+el motor JIT; la ejecución real requiere autorización explícita del usuario en el momento
+(`CLAUDE.md`). **Tarea 2 nueva:** evaluar el fetch SSR de `lab.json` (gap de SEO conocido
+desde ADR-011, independiente del switch).

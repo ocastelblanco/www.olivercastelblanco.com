@@ -8,7 +8,8 @@
 
 `ocastelblanco.com` es el sitio web personal de **Oliver Castelblanco**, Solutions Architect &
 AI Orchestrator. Es la segunda iteración (rediseño 2026) construida totalmente desde cero en la
-rama `rediseno-2026`.
+rama `rediseno-2026`, cuyo contenido pasó a ser la rama de producción `main` el 2026-08-04
+(ADR-013).
 
 El sitio cumple dos objetivos:
 
@@ -226,17 +227,15 @@ Consecuencias para el agente:
 
 ### Ramas protegidas
 
-La **rama de producción** y `rediseno-2026` están protegidas. **Ningún agente puede hacer
-commits directos a ellas.**
+La rama **`main`** está protegida (rama de producción, ADR-013). **Ningún agente puede
+hacer commits directos a ella.**
 
-> ⚠️ **Renombrado en curso (2026-08-04, ADR-013):** la rama de producción pasa de `master`
-> a **`main`**, y su contenido se reemplaza por `rediseno-2026`. Mientras el renombrado no
-> se haya ejecutado, la rama base de los PRs sigue siendo `rediseno-2026`. **Verificar
-> siempre cuál existe antes de crear un PR** (`git branch -r`) en vez de asumirlo.
-
-> Nota histórica: durante el bootstrap inicial del proyecto (documentación + primer
-> boilerplate) se permitió commitear directamente a `rediseno-2026` por ser una rama
-> huérfana recién creada sin flujo de PRs establecido todavía. Esa excepción ya venció.
+> Nota histórica: `rediseno-2026` fue la rama de producción durante el rediseño 2026
+> (permitiéndose commits directos solo en el bootstrap inicial, ver ADRs 001-013 en
+> `MEMORY.md`). El 2026-08-04 su contenido reemplazó a `master` bajo el nombre `main`
+> (ADR-013) — `rediseno-2026` queda archivada, ya no es la rama base de PRs.
+> `master` (el sitio anterior) tampoco se borra — queda como referencia histórica de
+> rollback, sin protección activa.
 
 ### Protocolo obligatorio antes de cualquier cambio de código
 
@@ -244,17 +243,13 @@ commits directos a ellas.**
 ```bash
 git branch --show-current
 ```
-Si el resultado es una rama protegida (`main`/`master` o `rediseno-2026`), ejecutar el
-Paso 2. Si ya hay una feature branch activa, continuar desde el Paso 3.
+Si el resultado es `main` (rama protegida), ejecutar el Paso 2. Si ya hay una feature
+branch activa, continuar desde el Paso 3.
 
 **Paso 2 — Crear feature branch:**
 ```bash
-# Confirmar primero cuál es la rama base vigente
-git branch -r
-
-# Desde la rama de desarrollo vigente (`main` tras el renombrado, `rediseno-2026` antes)
-git checkout <rama-base>
-git pull origin <rama-base>
+git checkout main
+git pull origin main
 git checkout -b [PREFIJO]/descripcion-corta-en-kebab-case
 ```
 
@@ -279,7 +274,7 @@ git commit -m "tipo(alcance): descripción en español colombiano"
 ```bash
 git push -u origin HEAD
 gh pr create \
-  --base <rama-base> \
+  --base main \
   --title "tipo(alcance): descripción breve" \
   --body "$(cat <<'EOF'
 ## Cambios realizados
