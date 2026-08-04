@@ -45,6 +45,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -55,6 +61,15 @@
                   "type": "anyComponentStyle",
                   "maximumWarning": "4kB",
                   "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "preview": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.preview.ts"
                 }
               ],
               "outputHashing": "all"
@@ -72,6 +87,9 @@
           "configurations": {
             "production": {
               "buildTarget": "ocastelblanco:build:production"
+            },
+            "preview": {
+              "buildTarget": "ocastelblanco:build:preview"
             },
             "development": {
               "buildTarget": "ocastelblanco:build:development"

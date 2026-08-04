@@ -30,7 +30,11 @@ jobs:
         run: npm run lint
 
       - name: Build
-        run: npm run build
+        # Este job solo despliega al stage `preview` (ver ADR-013 — el job de
+        # `production`, disparado por merge a main, llega en una tarea aparte).
+        # `npm run build` (sin --configuration) resolvería a la config de
+        # producción por defecto, apuntando al dominio y contenido equivocados.
+        run: npm run build:preview
 
       - name: Deploy
         id: deploy
