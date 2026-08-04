@@ -7,7 +7,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — preparando el switch de producción (pasos 1-3/8 completados, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
+| Versión | MVP en construcción — preparando el switch de producción (pasos 1-4/8 completados, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
@@ -49,11 +49,11 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 1. [x] **Base multi-stage** — dominio de API por stage, buckets de contenido, `fileReplacements`, CORS por stage. Completada y verificada en AWS real 2026-08-04 (PR #22, ver historial en `TODO.md`)
 2. [x] **Terminal de contacto funcional** — SES + rate limiting (gap OWASP A07 que bloquea producción). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/contacto-ses-rate-limiting`)
 3. [x] **The Lab a S3** — `lab-handler.mjs` escribe `content/lab.json` con `@aws-sdk/client-s3`, IAM mínimo, invalidación de CloudFront (cierra el gap de ADR-011). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/lab-s3-real`)
-4. [ ] **Assets + behaviors de CloudFront** — subir `dist/ocastelblanco/browser/` al bucket y configurar los behaviors por ruta (`/content/*` y assets → S3, resto → Lambda SSR) ← **Tarea 1**
-5. [ ] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012) ← **Tarea 2**
-6. [ ] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013)
+4. [x] **CloudFront sirve `/content/*`** — OAC + behavior acotado a `/content/*` únicamente (ver revisión ADR-012 2026-08-04: un behavior amplio `*.js`/`*.css` ahora rompería el sitio anterior, que usa el mismo patrón de nombres con hash). Subir el bundle Angular y los behaviors de assets estáticos se posponen al paso 8. Completada y verificada 2026-08-04 (PR pendiente, rama `feature/cloudfront-content-behavior`)
+5. [ ] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012) ← **Tarea 1**
+6. [ ] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013) ← **Tarea 2**
 7. [ ] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013)
-8. [ ] **EL SWITCH** — cambiar el origen de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`
+8. [ ] **EL SWITCH** — cambiar el origen por defecto (`/*`) de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`, **más** (movido desde el paso 4 original): subir `dist/ocastelblanco/browser/` al bucket de contenido y agregar los behaviors de assets estáticos (`*.js`, `*.css`, etc.) → S3. Ambos cambios deben ir atómicos con el cambio de origen — antes del switch esos patrones de path colisionan con los assets del sitio anterior (mismo esquema de nombres con hash)
 
 ### Pendientes (no bloquean el switch)
 - [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (retirada de la lista activa; depende del switch)
@@ -434,6 +434,20 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   - `cdn.ocastelblanco.com` no se provisiona. Si más adelante se quiere assets sin cookies,
     se agrega como alias adicional sobre la misma distribución.
   - Tras cada escritura de `lab.json` hay que invalidar `/content/*` (o dejar TTL corto).
+- **Revisión 2026-08-04 (alcance de "Behaviors por ruta" reducido):** al ejecutar la tarea
+  de CloudFront se detectó que el sitio anterior sirve sus propios assets
+  (`main.*.js`, `styles.*.css`, `runtime.*.js`, `polyfills.*.js`) en la raíz con el mismo
+  patrón de nombres con hash que usa Angular — confirmado con `curl` contra el bundle en
+  vivo. Un behavior amplio `*.js`/`*.css` agregado **antes** del switch interceptaría esos
+  requests y rompería el sitio en vivo de inmediato (los assets del rediseño, distintos,
+  quedarían sirviéndose donde el navegador espera los del sitio anterior). En cambio,
+  `/content/*` es un path que el sitio anterior no usa en absoluto — cero riesgo.
+  **Consecuencia:** el punto 2 de la Decisión se ejecuta en dos tiempos: `/content/*` se
+  agrega ahora (paso 4 de la secuencia, sin tocar el behavior por defecto ni los alias);
+  los behaviors de assets estáticos y la subida del bundle Angular al bucket se posponen
+  al switch (paso 8), donde ocurren atómicamente junto con el cambio de origen por
+  defecto — en ese momento el sitio anterior ya no existe, así que la colisión de nombres
+  deja de ser posible.
 
 ### ADR-013 — Flujo CI/CD por ambientes y renombrado de `master` a `main`
 
@@ -562,6 +576,9 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 | Buckets de contenido | `ocastelblanco-cdn-production`, `ocastelblanco-cdn-preview` | Creados el 2026-08-04. Sin puntos en el nombre, a propósito. `PublicAccessBlockConfiguration` completo (100% privados), `DeletionPolicy: Retain` |
 | HTTP API `production` | `production-ocastelblanco-com` (`b2dotiifn7`) | Creado el 2026-08-04 |
 | HTTP API `preview` | `preview-ocastelblanco-com` (`ya6s5r8a54`) | Preexistente desde ADR-009, sin cambios |
+| Origin Access Control | `ocastelblanco-cdn-production-oac` (`E31BG8XJQBYR7A`) | Creado el 2026-08-04. Único origen que puede leer `ocastelblanco-cdn-production` |
+| Distribución `E1MX0LNEKZOG8H` — origen nuevo | `S3-ocastelblanco-cdn-production` → `ocastelblanco-cdn-production.s3.us-east-1.amazonaws.com` | Agregado el 2026-08-04 vía OAC. El origen original (`S3-ocastelblanco.com`) y el behavior por defecto (`/*`) **no se tocaron** |
+| Distribución `E1MX0LNEKZOG8H` — behavior nuevo | `/content/*` → `S3-ocastelblanco-cdn-production`, `CachePolicyId` managed `CachingDisabled` (`4135ea2d-6df8-44a3-9df3-4b5a84be39ad`) | Agregado el 2026-08-04. Único behavior además del por defecto |
 
 ## 6. Patrones de código establecidos
 
@@ -859,3 +876,43 @@ de ADR-011.
 **Próxima tarea (Tarea 1 nueva):** Assets + behaviors de CloudFront (paso 4 de la
 secuencia). **Tarea 2 nueva:** CloudFront Function de 301 para `olivercastelblanco.com`
 (paso 5).
+
+## 14. Sesión 2026-08-04 (continuación 4) — Ejecución de la Tarea: CloudFront sirve `/content/*`
+
+**Qué se hizo:** implementado el paso 4 de la secuencia de §2, con **alcance reducido**
+respecto al plan original tras detectar un riesgo real de romper el sitio en vivo (ver
+ADR-012, revisión 2026-08-04).
+
+- Antes de tocar la distribución en vivo, se confirmó con `curl` que el sitio anterior
+  sirve `main.*.js`, `styles.*.css`, `runtime.*.js`, `polyfills.*.js` en la raíz con el
+  mismo patrón de hash que usa Angular — un behavior amplio `*.js`/`*.css` habría
+  interceptado y roto esos assets de inmediato. Se presentó el hallazgo al usuario, que
+  aprobó acotar la tarea solo a `/content/*` (path que el sitio anterior no usa en
+  absoluto) y posponer los behaviors de assets estáticos al switch (paso 8).
+- Creada una Origin Access Control (`ocastelblanco-cdn-production-oac`,
+  `E31BG8XJQBYR7A`) para el bucket `ocastelblanco-cdn-production`.
+- Actualizada la distribución `E1MX0LNEKZOG8H` (`update-distribution` sobre la config
+  obtenida primero de forma read-only, con `--if-match` del ETag correcto): se agregó un
+  origen nuevo (`S3-ocastelblanco-cdn-production`, vía OAC) y un behavior nuevo
+  (`/content/*` → ese origen, `CachePolicyId` managed `CachingDisabled`). El origen
+  original, el behavior por defecto y los 4 alias quedaron sin ningún cambio.
+- Bucket policy en `ocastelblanco-cdn-production`: `s3:GetObject` para el principal
+  `cloudfront.amazonaws.com`, condicionado a `AWS:SourceArn` = ARN de esta distribución.
+  Verificado que **no** cuenta como política pública: los 4 flags de
+  `PublicAccessBlockConfiguration` siguen en `true` después de aplicarla — es el patrón
+  documentado de AWS para OAC + bucket 100% privado.
+- Verificado en vivo: `/content/lab.json` responde `200` vía
+  `https://dskarpvm0nxbp.cloudfront.net/content/lab.json` con un objeto de prueba escrito
+  directo a S3; acceso directo al bucket (sin pasar por CloudFront) devuelve `403`; el
+  sitio anterior (`ocastelblanco.com/`, `main.*.js`, `styles.*.css`) respondió `200` sin
+  ningún cambio antes y después del update. Objeto de prueba borrado al terminar.
+- A diferencia de tareas anteriores, ninguno de los comandos AWS mutantes de esta tarea
+  fue bloqueado por el clasificador de permisos (crear OAC, `update-distribution`,
+  `put-bucket-policy`) — posiblemente porque la autorización explícita ya había quedado
+  registrada en la decisión de acotar el alcance vía `AskUserQuestion`.
+- Sin cambios en `serverless.yml` ni código de aplicación — toda la configuración vive en
+  la distribución CloudFront, gestionada manualmente (ADR-012).
+
+**Próxima tarea (Tarea 1 nueva):** CloudFront Function de 301 para
+`olivercastelblanco.com` (paso 5 de la secuencia). **Tarea 2 nueva:** Nuevo flujo CI/CD —
+PR abre `preview`, merge a `main` despliega `production` (paso 6, ADR-013).
