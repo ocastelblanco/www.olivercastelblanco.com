@@ -5,8 +5,23 @@ plugins:
   - serverless-domain-manager
 
 custom:
+  # Dominio de API por stage — antes estaba fijo a api.ocastelblanco.com para
+  # cualquier stage, lo que hacía que preview y production se pelearan el mismo
+  # dominio (ver MEMORY.md ADR-013, TODO.md Tarea 1).
+  domains:
+    production: api.ocastelblanco.com
+    preview: preview-api.ocastelblanco.com
+  # Allowlist de CORS por stage. `preview` es un ambiente permanente (ADR-013),
+  # por eso necesita seguir aceptando su propia Function URL — no se elimina
+  # al entrar a producción como decía el plan anterior.
+  corsOrigins:
+    production: 'https://ocastelblanco.com,https://www.ocastelblanco.com'
+    preview: 'https://ocastelblanco.com'
+  corsOriginRegex:
+    production: ''
+    preview: '^https://[a-z0-9]+\.lambda-url\.us-east-1\.on\.aws$'
   customDomain:
-    domainName: api.ocastelblanco.com
+    domainName: ${self:custom.domains.${sls:stage}}
     apiType: http
     endpointType: regional
     stage: ${sls:stage}
@@ -22,6 +37,9 @@ provider:
     NODE_ENV: production
     NG_ALLOWED_HOSTS: '*.lambda-url.us-east-1.on.aws'
     LAB_PUBLISH_TOKEN: ${env:LAB_PUBLISH_TOKEN, ''}
+    ALLOWED_ORIGINS: ${self:custom.corsOrigins.${sls:stage}}
+    ALLOWED_ORIGIN_REGEX: ${self:custom.corsOriginRegex.${sls:stage}}
+    CONTENT_BUCKET: ocastelblanco-cdn-${sls:stage}
 
 build:
   esbuild:
@@ -62,3 +80,20 @@ package:
   patterns:
     - '!**'
     - 'dist/ocastelblanco/**'
+
+resources:
+  Resources:
+    # Bucket de contenido por stage (lab.json, assets). Sin puntos en el nombre:
+    # un bucket con puntos rompe la validación TLS del SDK de AWS (ver
+    # MEMORY.md §7 Gotchas). 100% privado — Task 4 lo expone vía CloudFront
+    # con Origin Access Control, nunca con una bucket policy pública.
+    ContentBucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
+      Properties:
+        BucketName: ocastelblanco-cdn-${sls:stage}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true

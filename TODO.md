@@ -21,54 +21,7 @@
 
 ---
 
-## Tarea 1 — [INFRA]: Base multi-stage — separar `preview` de `production`
-
-**Origen:** prerequisito bloqueante del switch a producción (ver ADR-012 y ADR-013).
-Hoy `serverless.yml` no distingue ambientes: el dominio de la API está fijo a
-`api.ocastelblanco.com` **para cualquier stage** y hoy lo tiene tomado `preview`. Desplegar
-`production` sin esto hace que ambos stages se peleen el mismo dominio. Ninguna otra tarea
-del switch puede empezar antes de que esto quede resuelto.
-
-**Archivos:** `serverless.yml`, `angular.json`, `src/environments/*.ts`,
-`src/lambda/contact-handler.mjs`, `src/lambda/lab-handler.mjs`.
-
-**Qué hacer:**
-1. **Dominio de API por stage** en `serverless.yml`: mapa `custom.domains` con
-   `production: api.ocastelblanco.com` y `preview: preview-api.ocastelblanco.com`,
-   consumido como `${self:custom.domains.${sls:stage}}`. El certificado wildcard
-   `*.ocastelblanco.com` ya existe en ACM `us-east-1` — no hay que emitir uno nuevo.
-   Liberar primero el mapeo actual (`npx sls delete_domain --stage preview`) antes de
-   que `production` reclame `api.ocastelblanco.com`.
-2. **Bucket de contenido por stage**: `ocastelblanco-cdn-production` y
-   `ocastelblanco-cdn-preview`. **Sin puntos en el nombre** — un bucket con puntos rompe
-   el TLS del SDK de AWS (`bucket.s3.amazonaws.com` no matchea el wildcard del cert), y
-   el `lab-handler` va a escribir ahí con `@aws-sdk/client-s3`. El subdominio
-   `cdn.ocastelblanco.com` queda descartado como origen (ver ADR-012: un solo CloudFront
-   con dos orígenes).
-3. **Arreglar el gap de environments (bug latente).** `angular.json` no tiene
-   `fileReplacements`, así que `environment.prod.ts` es código muerto y **todos** los
-   builds usan `environment.ts` — en producción The Lab leería el fixture de desarrollo
-   (`content/lab.dev.json`). Definir tres configuraciones de build con sus respectivos
-   `fileReplacements`: `development`, `preview` (apunta a `preview-api.…`) y `production`.
-4. **CORS por stage** en ambos handlers. NO eliminar `LAMBDA_URL_RE` como decía el plan
-   anterior: con el nuevo flujo, `preview` es un ambiente permanente que debe seguir
-   funcionando. Reemplazar la constante hardcodeada por una allowlist leída de una
-   variable de entorno inyectada por stage (`ALLOWED_ORIGINS`): en `production` solo
-   `https://ocastelblanco.com`; en `preview`, la Function URL del stage.
-5. Desplegar `production` por primera vez y verificar por su Lambda Function URL
-   (todavía sin tocar DNS ni CloudFront).
-
-**Definition of done:**
-- [ ] `npx sls deploy --stage production` y `--stage preview` conviven sin pelearse el dominio
-- [ ] `preview-api.ocastelblanco.com` y `api.ocastelblanco.com` responden por separado
-- [ ] Los dos buckets de contenido existen, sin acceso público de escritura ni listado
-- [ ] `ng build --configuration production` produce un bundle que apunta a `api.ocastelblanco.com` y al `lab.json` real (verificado con `grep` en el bundle)
-- [ ] La Function URL del stage `production` sirve el rediseño completo
-- [ ] `npm run build` y `npm run lint` en verde
-
----
-
-## Tarea 2 — [FEATURE]: Terminal de contacto funcional (SES) + rate limiting
+## Tarea 1 — [FEATURE]: Terminal de contacto funcional (SES) + rate limiting
 
 **Origen:** el formulario no entrega mensajes — `contact-handler.mjs:59` valida y hace
 `console.log` a CloudWatch, nada más. Además `CLAUDE.md` §6 A07 **prohíbe** desplegar
@@ -105,7 +58,86 @@ motor JIT (gap OWASP que bloquea producción).
 
 ---
 
+## Tarea 2 — [FEATURE]: The Lab → S3 real (cierra el gap de ADR-011)
+
+**Origen:** paso 3 de la secuencia hacia el switch (`MEMORY.md` §2). `lab-handler.mjs:75`
+valida el payload del Google Sheet pero nunca lo persiste — sigue siendo el stub original.
+Ya existen los buckets `ocastelblanco-cdn-production` y `ocastelblanco-cdn-preview`
+(Tarea 1 anterior), así que el bloqueo original desapareció.
+
+**Archivos:** `src/lambda/lab-handler.mjs`, `serverless.yml`, `package.json`.
+
+**Qué hacer:**
+1. Escribir `content/lab.json` en el bucket `CONTENT_BUCKET` (env var ya inyectada por
+   stage, ver `serverless.yml`) con `@aws-sdk/client-s3` (`PutObjectCommand`), reemplazando
+   el `// TODO: escribir a S3...` de `lab-handler.mjs:75`.
+2. IAM mínimo para la función `lab`: solo `s3:PutObject` sobre
+   `arn:aws:s3:::ocastelblanco-cdn-${sls:stage}/content/*` — nada de `s3:*` ni acceso a
+   otros prefijos del bucket.
+3. Los buckets son 100% privados (`BlockPublicAcls`, sin bucket policy pública, ver
+   ADR-012) — la lectura pública de `content/lab.json` llega en la Tarea de CloudFront
+   (paso 4 de la secuencia, `MEMORY.md` §2), no aquí. Esta tarea solo resuelve la
+   **escritura**.
+4. Invalidación de CloudFront: dejar el código listo (`@aws-sdk/client-cloudfront`,
+   `CreateInvalidationCommand` sobre `/content/*`) pero **condicionado a que exista una
+   distribución para ese stage** — hoy solo `production` tendrá una tras el switch. Usar
+   una env var `CLOUDFRONT_DISTRIBUTION_ID` opcional: si no está seteada, omitir la
+   invalidación sin fallar (stage `preview` no tiene CDN delante, ver
+   `environment.preview.ts`).
+5. Actualizar `environment.prod.ts`/`environment.preview.ts` si hiciera falta una vez se
+   confirme el path real servido.
+
+**Definition of done:**
+- [ ] `POST /lab` con token válido en `preview` escribe un objeto real en
+      `ocastelblanco-cdn-preview/content/lab.json` (verificable con `aws s3api get-object`)
+- [ ] El rol IAM de `lab` no tiene permisos S3 más amplios que `PutObject` sobre `/content/*`
+- [ ] Un payload inválido sigue devolviendo `400` sin escribir a S3
+- [ ] Un token inválido sigue devolviendo `401` sin escribir a S3
+- [ ] `npm run build` y `npm run lint` en verde
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-08-04 — [INFRA]: Base multi-stage — separar `preview` de `production`
+
+Prerequisito bloqueante del switch a producción (ADR-012, ADR-013). `serverless.yml` tenía
+`domainName: api.ocastelblanco.com` fijo para cualquier stage; hoy lo tenía tomado
+`preview`. Resuelto con `custom.domains` por stage (`${self:custom.domains.${sls:stage}}`):
+`production` → `api.ocastelblanco.com`, `preview` → `preview-api.ocastelblanco.com` (nuevo
+dominio creado con `npx sls create_domain --stage preview`, certificado wildcard
+`*.ocastelblanco.com` ya existente en ACM, sin emitir uno nuevo). Buckets de contenido por
+stage creados vía `resources.Resources.ContentBucket` en `serverless.yml`
+(`ocastelblanco-cdn-production` / `-preview`, sin puntos en el nombre, 100% privados con
+`PublicAccessBlockConfiguration` y `DeletionPolicy: Retain`). CORS de `contact-handler.mjs`
+y `lab-handler.mjs`: la allowlist hardcodeada pasa a `ALLOWED_ORIGINS`/
+`ALLOWED_ORIGIN_REGEX` inyectadas por stage — `preview` sigue aceptando su propia Lambda
+Function URL (ambiente permanente, ADR-013), corrigiendo el plan anterior que mandaba
+eliminarla. Corregido un **bug latente**: `angular.json` no tenía `fileReplacements`, así
+que `environment.prod.ts` era código muerto y todos los builds (incluido producción) usaban
+`environment.ts`; agregadas configuraciones `production` y `preview` con sus
+`fileReplacements` correspondientes (verificado con `grep` sobre los bundles: cada config
+compila la URL de API y el `labContentUrl` correctos). `environment.prod.ts.labContentUrl`
+corregido a `/content/lab.json` (same-origin, `cdn.ocastelblanco.com` descartado por
+ADR-012). `deploy.yml` usa `npm run build:preview` en vez del build de producción por
+defecto.
+
+**Desplegado y verificado en AWS:** preview vía el workflow existente (creó
+`preview-api.ocastelblanco.com` + `ocastelblanco-cdn-preview`); production con
+`npx sls deploy --stage production` manual (operación puntual autorizada explícitamente,
+ver `CLAUDE.md` — creó `ocastelblanco-cdn-production` y el HTTP API
+`production-ocastelblanco-com`). El dominio `api.ocastelblanco.com` estaba tomado por el
+`ApiMapping` viejo de `preview`; se liberó (`delete-api-mapping`) y se remapeó de inmediato
+a `production` (`create-api-mapping`) — swap autorizado explícitamente por el usuario, sin
+downtime real (se confirmó primero que el sitio anterior, aunque llama a
+`api.ocastelblanco.com/mensaje`, ya recibía 404 ahí desde antes de esta tarea — dominio
+reutilizado desde ADR-009, sin relación con este cambio). Verificado: ambos dominios
+responden por separado, CORS correcto en ambos stages (incluye `www.ocastelblanco.com` en
+producción), ambos buckets con `PublicAccessBlockConfiguration` completo, Function URL de
+`production` sirve las 4 rutas probadas (`/`, `/proyectos`, `/lab`, `/contacto`) con
+`<title>` correcto. Aún sin tocar DNS ni CloudFront — el sitio en vivo sigue sirviendo
+desde `E1MX0LNEKZOG8H` sin cambios. `npm run build`, `npm run build:preview` y `npm run
+lint` en verde localmente. PR #22 (rama `feature/base-multi-stage`).
 
 ### 2026-07-11 — [FEATURE]: Arquitectura de contenido — separar contenido de UI (Casos de estudio + The Lab)
 
@@ -343,6 +375,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-04 (2) | Base multi-stage completada y verificada en AWS real: ambos dominios de API responden por separado, ambos buckets de contenido existen y son privados, el bug de `fileReplacements` quedó corregido, y `production` sirve el rediseño completo por su Function URL (`npm run build`/`build:preview`/`lint` en verde, PR #22). El bloqueo que impedía avanzar con el switch desapareció. Siguiente prioridad: Terminal de contacto vía SES (ya seleccionada como Tarea 2, gap OWASP A07, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "The Lab → S3" (paso 3 de la secuencia en `MEMORY.md` §2): el bloqueo original (bucket inexistente) desapareció con la tarea recién completada, y es prerequisito de "Assets + behaviors CloudFront" (paso 4) | Tarea 1 (Base multi-stage) movida al historial. Tarea 2 (Contacto SES) pasa a ser Tarea 1. Nueva Tarea 2: The Lab → S3 real |
 | 2026-08-04 | El usuario define el objetivo del día: reemplazar el sitio en vivo (`ocastelblanco.com` + `olivercastelblanco.com`) por el rediseño, montando todo lo posible **antes** del switch de DNS para que el corte sea rápido y reversible. Se audita el estado real en AWS y aparecen cuatro hallazgos que reordenan el plan: (1) `serverless.yml` fija `api.ocastelblanco.com` para cualquier stage y hoy lo tiene `preview` — desplegar `production` sin arreglarlo genera conflicto, así que es prerequisito bloqueante; (2) los 4 hostnames son alias de la distribución CloudFront `E1MX0LNEKZOG8H` y un alias solo puede vivir en una distribución, por lo que **no** se puede pre-construir una distribución nueva con esos alias — se decide reusar la existente cambiándole el origen (ADR-012), lo que reduce el switch a un solo `update-distribution` reversible; (3) `angular.json` no tiene `fileReplacements`, así que `environment.prod.ts` es código muerto y The Lab en producción leería el fixture de desarrollo — bug latente que se absorbe en la Tarea 1; (4) el formulario de contacto nunca entregó mensajes (solo `console.log`), y `CLAUDE.md` §6 A07 prohíbe desplegar `/contact` sin rate limiting, lo que lo vuelve prioridad 1 (gap OWASP que bloquea producción). La tarea monolítica "Deploy de producción" se descompone en la secuencia ordenada de `MEMORY.md` §2. "Bitácora de proceso — Entrada MVP" se retira temporalmente de la lista activa (sigue dependiendo del switch) | Tarea 1 anterior (Deploy de producción) descompuesta. Nueva Tarea 1: Base multi-stage (`preview`/`production`). Nueva Tarea 2: Terminal de contacto funcional vía SES + rate limiting. "Bitácora de proceso" fuera de la lista activa, pendiente de reincorporación tras el switch |
 | 2026-07-11 | Arquitectura de contenido completada y verificada (build + lint en verde, PR #17 fusionada). Siguiente prioridad Alta: Deploy de producción (ya seleccionada como Tarea 2, sin dependencias bloqueantes) pasa a Tarea 1. Para la nueva Tarea 2 se reincorpora Bitácora de proceso — Entrada MVP (retirada temporalmente cuando se antepuso Arquitectura de contenido): sigue dependiendo del deploy, pero ya puede volver a ocupar el slot de Tarea 2. Se añade a la Tarea 1 (Deploy) un paso nuevo: conectar `lab-handler.mjs` a S3 real una vez exista el bucket de contenido, cerrando el gap dejado por la tarea recién completada | Tarea 1 (Arquitectura de contenido) movida al historial. Tarea 2 (Deploy producción) pasa a ser Tarea 1, con paso adicional de escritura a S3 para Lab. Nueva Tarea 2: Bitácora de proceso — Entrada MVP |
 | 2026-07-11 | El usuario solicita anteponer al deploy de producción una nueva iniciativa: separar contenido de UI en "Casos de estudio" y "The Lab" (secciones acumulativas tipo blog, hoy hardcodeadas en diccionarios i18n). Se decide estrategia híbrida (ADR-011): casos de estudio como JSON tipado en el repo (2 publicaciones/año no justifican pipeline externo) y The Lab vía Google Sheets → Apps Script → `POST /lab` con token → `lab.json` en S3, con subset Markdown (negrita/itálica/tachado/links) escrito como texto plano en las celdas. Para mantener 2 tareas activas, "Bitácora de proceso — Entrada MVP" se retira temporalmente (dependía del deploy de todas formas; se reincorporará al liberarse un slot) | Nueva Tarea 1: Arquitectura de contenido (Casos de estudio + The Lab). Tarea 1 anterior (Deploy producción) pasa a Tarea 2. "Bitácora de proceso" fuera de la lista activa, pendiente de reincorporación |

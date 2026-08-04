@@ -1,12 +1,20 @@
-const ALLOWED_ORIGINS = ['https://ocastelblanco.com'];
-// Lambda Function URLs del stage preview también son orígenes válidos
-const LAMBDA_URL_RE = /^https:\/\/[a-z0-9]+\.lambda-url\.us-east-1\.on\.aws$/;
+// Allowlist inyectada por stage (ver serverless.yml custom.corsOrigins /
+// corsOriginRegex) — production solo acepta el dominio real, preview además
+// acepta su propia Lambda Function URL.
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+const ALLOWED_ORIGIN_REGEX = process.env.ALLOWED_ORIGIN_REGEX
+  ? new RegExp(process.env.ALLOWED_ORIGIN_REGEX)
+  : null;
+
+function isAllowedOrigin(origin) {
+  return ALLOWED_ORIGINS.includes(origin) || (ALLOWED_ORIGIN_REGEX?.test(origin) ?? false);
+}
 
 function corsHeaders(origin) {
-  const allowed =
-    ALLOWED_ORIGINS.includes(origin) || LAMBDA_URL_RE.test(origin)
-      ? origin
-      : ALLOWED_ORIGINS[0];
+  const allowed = isAllowedOrigin(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     'Access-Control-Allow-Origin': allowed,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
