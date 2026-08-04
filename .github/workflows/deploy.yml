@@ -1,18 +1,31 @@
 name: Deploy to AWS Lambda
 
+# Flujo por ambientes (ADR-013): abrir/actualizar un PR contra la rama base
+# despliega `preview`; un push a la rama de producción (lo que genera un
+# merge de PR) despliega `production`. Sin trigger `push` sobre feature
+# branches — todo cambio pasa por PR (CLAUDE.md, ciclo de vida de un cambio).
+#
+# NOTA: `pull_request.branches` apunta hoy a `rediseno-2026` (rama base
+# vigente). El push trigger de producción apunta a `main`, que todavía no
+# existe — no se dispara hasta completar el renombrado (TODO.md, tarea
+# "Renombrar master -> main"). Actualizar ambos valores cuando esa tarea se
+# ejecute.
 on:
+  pull_request:
+    branches:
+      - rediseno-2026
+    types:
+      - opened
+      - synchronize
+      - reopened
   push:
     branches:
-      - 'feature/**'
-      - 'fix/**'
-      - 'refactor/**'
-      - 'docs/**'
-      - 'hotfix/**'
-      - 'rediseno-2026'
+      - main
 
 jobs:
-  deploy:
-    name: Build & Deploy
+  deploy-preview:
+    name: Build & Deploy (preview)
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
@@ -30,8 +43,6 @@ jobs:
         run: npm run lint
 
       - name: Build
-        # Este job solo despliega al stage `preview` (ver ADR-013 — el job de
-        # `production`, disparado por merge a main, llega en una tarea aparte).
         # `npm run build` (sin --configuration) resolvería a la config de
         # producción por defecto, apuntando al dominio y contenido equivocados.
         run: npm run build:preview
@@ -54,8 +65,53 @@ jobs:
             echo "" >> "$GITHUB_STEP_SUMMARY"
             echo "**[$URL]($URL)**" >> "$GITHUB_STEP_SUMMARY"
             echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "Branch: \`${{ github.ref_name }}\`" >> "$GITHUB_STEP_SUMMARY"
+            echo "PR: #${{ github.event.pull_request.number }} (\`${{ github.head_ref }}\`)" >> "$GITHUB_STEP_SUMMARY"
           fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          SERVERLESS_LICENSE_KEY: ${{ secrets.SERVERLESS_LICENSE_KEY }}
+          LAB_PUBLISH_TOKEN: ${{ secrets.LAB_PUBLISH_TOKEN }}
+
+  deploy-production:
+    name: Build & Deploy (production)
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        # Configuración `production` por defecto (defaultConfiguration en
+        # angular.json) — apunta a api.ocastelblanco.com y /content/lab.json.
+        run: npm run build
+
+      - name: Deploy
+        id: deploy
+        run: |
+          set +e
+          npx serverless deploy --stage production --verbose 2>&1 | tee /tmp/sls-output.txt
+          EXIT_CODE=${PIPESTATUS[0]}
+          set -e
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "::error::Serverless deploy failed with exit code $EXIT_CODE"
+            exit $EXIT_CODE
+          fi
+          echo "## 🚀 Production deploy" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Commit: \`${{ github.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

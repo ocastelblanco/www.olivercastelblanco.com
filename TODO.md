@@ -21,51 +21,17 @@
 
 ---
 
-## Tarea 1 — [INFRA]: Nuevo flujo CI/CD — PR abre `preview`, merge a `main` despliega `production`
-
-**Origen:** paso 6 de la secuencia hacia el switch (`MEMORY.md` §2, ADR-013). El workflow
-actual (`deploy.yml`) dispara el deploy a `preview` en cada `push` a `rediseno-2026` y a
-ramas `feature/**` — no existe todavía ningún job que despliegue a `production`. El flujo
-que el usuario definió (PR abierto → `preview`; PR fusionado a `main` → `production`)
-requiere cambiar el trigger de `push` a `pull_request` y agregar el job de producción.
-
-**Archivos:** `.github/workflows/deploy.yml`.
-
-**Qué hacer:**
-1. Cambiar el trigger del job de `preview` de `push` (sobre ramas `feature/**` etc.) a
-   `pull_request` (`opened`, `synchronize`, `reopened`) contra la rama base vigente —
-   `rediseno-2026` hoy, `main` tras el renombrado (Tarea pendiente, paso 7).
-2. Agregar un job `deploy-production` disparado por `push` a la rama de producción
-   (equivalente a "merge de PR" en GitHub Actions — un merge de PR genera un push a la
-   rama base).
-3. El job de `production` usa `npm run build` (configuración `production` por defecto,
-   ya correcto desde la tarea de base multi-stage) y
-   `npx serverless deploy --stage production`.
-4. `LAB_PUBLISH_TOKEN` de producción sigue vacío hoy (se desplegó así manualmente, ver
-   historial de "Base multi-stage") — este job por fin lo resuelve inyectando el secret
-   real de GitHub Actions también para `production`.
-5. Mantener el job de `preview` funcionando igual (mismo secret, misma lógica de
-   impresión de URL en el Step Summary).
-
-**Definition of done:**
-- [ ] Abrir un PR contra la rama base dispara **solo** el deploy a `preview` (no a `production`)
-- [ ] Un merge a la rama de producción dispara **solo** el deploy a `production`
-- [ ] El Lambda de `production` queda con `LAB_PUBLISH_TOKEN` real tras el primer deploy vía este workflow
-- [ ] `npm run lint` y `npm run build` siguen corriendo antes del deploy en ambos jobs
-- [ ] Documentado en `MEMORY.md` ADR-013 el estado final del workflow
-
----
-
-## Tarea 2 — [INFRA]: Renombrar `master` → `main` y reemplazar su contenido con `rediseno-2026`
+## Tarea 1 — [INFRA]: Renombrar `master` → `main` y reemplazar su contenido con `rediseno-2026`
 
 **Origen:** paso 7 de la secuencia hacia el switch (`MEMORY.md` §2, ADR-013). Objetivo del
 día definido por el usuario: `rediseno-2026` reemplaza completamente a la rama de
-producción, que además pasa a llamarse `main`. Depende de la Tarea 1 (el nuevo flujo
-CI/CD debe apuntar a `main` antes de que `main` exista con el contenido correcto, para
-evitar una ventana sin CI funcionando).
+producción, que además pasa a llamarse `main`. El workflow de CI/CD (tarea anterior, ya
+fusionada) ya está listo para `main` — su job `deploy-production` no se ha disparado
+todavía porque `main` no existe; esta tarea lo activa por primera vez.
 
-**Archivos:** ninguno de código — operación de Git/GitHub (ramas, default branch,
-protecciones), más `CLAUDE.md` (referencias a `master`/`rediseno-2026` en el git flow).
+**Archivos:** ninguno de código de aplicación — operación de Git/GitHub (ramas, default
+branch, protecciones), `.github/workflows/deploy.yml` (actualizar referencias de rama) y
+`CLAUDE.md` (referencias a `master`/`rediseno-2026` en el git flow).
 
 **Qué hacer:**
 1. Confirmar con el usuario el momento exacto de ejecutar esto — es una operación sobre
@@ -79,24 +45,82 @@ protecciones), más `CLAUDE.md` (referencias a `master`/`rediseno-2026` en el gi
    (`gh repo edit --default-branch main`).
 4. Actualizar las reglas de protección de rama: `main` protegida (regla que hoy tiene
    `master`), `rediseno-2026` deja de ser rama protegida de larga vida.
-5. Actualizar `CLAUDE.md` §"Git Flow para Agentes IA": reemplazar las referencias a
+5. Actualizar `.github/workflows/deploy.yml`: `pull_request.branches` de `rediseno-2026`
+   a `main`. El `push.branches: [main]` del job `deploy-production` no necesita cambio —
+   ya apunta ahí, y este es el momento en que empieza a dispararse de verdad.
+6. Actualizar `CLAUDE.md` §"Git Flow para Agentes IA": reemplazar las referencias a
    `master`/`rediseno-2026` como ramas protegidas por `main` únicamente; quitar las notas
    condicionales ("hoy `rediseno-2026`, tras el renombrado `main`") que ya no aplican.
-6. `master` (el sitio anterior) **no se borra** — queda como referencia histórica/rollback,
+7. `master` (el sitio anterior) **no se borra** — queda como referencia histórica/rollback,
    ya no como default branch ni protegida activamente.
-7. Verificar que el workflow de CI/CD (Tarea 1, ya fusionada) funciona correctamente
-   contra `main` antes de dar la tarea por cerrada.
+8. Verificar con un PR de prueba que `deploy-preview` dispara contra `main`, y que un
+   merge a `main` dispara `deploy-production` de verdad (primera ejecución real de ese
+   job) — confirmar que el Lambda de producción queda con `LAB_PUBLISH_TOKEN` real.
 
 **Definition of done:**
 - [ ] `main` existe en GitHub con el contenido de `rediseno-2026`, es el default branch y la rama protegida
 - [ ] `rediseno-2026` deja de ser la rama base de nuevos PRs
 - [ ] `master` sigue existiendo (rollback), pero no es default ni recibe nuevos PRs
-- [ ] `CLAUDE.md` actualizado sin referencias condicionales a `master`/`rediseno-2026`
-- [ ] Un PR de prueba contra `main` dispara el deploy a `preview` correctamente (Tarea 1 ya fusionada)
+- [ ] `deploy.yml` actualizado (`pull_request.branches: [main]`) y `CLAUDE.md` sin referencias condicionales a `master`/`rediseno-2026`
+- [ ] Un PR de prueba contra `main` dispara `deploy-preview` correctamente
+- [ ] Un merge a `main` dispara `deploy-production` por primera vez, y el Lambda de producción queda con `LAB_PUBLISH_TOKEN` real (verificable con `aws lambda get-function-configuration`)
+
+---
+
+## Tarea 2 — [INFRA]: EL SWITCH — preparación (la ejecución requiere autorización explícita)
+
+**Origen:** paso 8, última de la secuencia hacia el switch (`MEMORY.md` §2, ADR-012).
+Cierra el objetivo del día: reemplazar el sitio en vivo por el rediseño. **Esta entrada
+del motor JIT es solo para preparar y dejar todo listo** — la ejecución real (cambiar el
+origen de la distribución en vivo) requiere que el usuario lo pida de forma explícita e
+inequívoca en el momento, según `CLAUDE.md` ("El agente NUNCA debe ejecutar el switch de
+producción... sin que el usuario lo pida en ese momento y de forma inequívoca").
+
+**Archivos:** configuración de CloudFront (gestionada manualmente, ver ADR-012).
+
+**Qué hacer (preparación, sin ejecutar el switch todavía):**
+1. Subir `dist/ocastelblanco/browser/` al bucket `ocastelblanco-cdn-production` — dejar
+   listo el script/paso, pero no necesariamente automatizado todavía en CI (evaluar si
+   vale la pena agregarlo a `deploy-production` o dejarlo manual para el momento del
+   switch).
+2. Preparar (sin aplicar) la configuración de los behaviors de assets estáticos
+   (`*.js`, `*.css`, etc.) → origen S3 — recién se activan atómicamente junto con el
+   cambio de origen por defecto, nunca antes (ver ADR-012 revisión 2026-08-04: colisión
+   de nombres con el sitio anterior).
+3. Preparar (sin aplicar) el cambio de origen por defecto de `E1MX0LNEKZOG8H`: de
+   `S3-ocastelblanco.com` a la Function URL de `production`
+   (`mcbveoxamga7a3jmkfkqbqwble0ahapk.lambda-url.us-east-1.on.aws`, verificar que sigue
+   siendo la vigente antes de usarla).
+4. Confirmar el checklist previo: URLs `sameAs` del JSON-LD Person (`src/app/app.ts`),
+   `NG_ALLOWED_HOSTS` de `production` acepta el dominio del origen que CloudFront va a
+   usar para hablarle al Lambda.
+5. **Cuando el usuario autorice explícitamente el switch en el momento:** aplicar los
+   tres cambios (assets al bucket, behaviors de assets estáticos, cambio de origen por
+   defecto) en una sola operación (`update-distribution`), e invalidar `/*` al final.
+
+**Definition of done (de la preparación, no del switch):**
+- [ ] Bundle de producción subido al bucket, listo para servirse
+- [ ] Configuración de behaviors de assets estáticos redactada y revisada, sin aplicar
+- [ ] Checklist de verificación previa (JSON-LD, `NG_ALLOWED_HOSTS`) confirmado
+- [ ] El switch en sí **no se ejecuta** como parte de esta tarea del motor JIT
 
 ---
 
 ## Historial de tareas completadas
+
+### 2026-08-04 — [INFRA]: Nuevo flujo CI/CD — PR abre `preview`, merge a `main` despliega `production`
+
+Implementado el paso 6 de la secuencia hacia el switch (ADR-013). `.github/workflows/deploy.yml`
+reescrito con dos jobs: `deploy-preview` (trigger `pull_request`, contra `rediseno-2026`)
+y `deploy-production` (trigger `push` contra `main`, todavía inexistente). Se eliminó el
+trigger `push` sobre `feature/**` — todo cambio pasa por PR. `deploy-production` usa
+`npm run build` (config `production` por defecto) y `npx serverless deploy --stage
+production`, resolviendo el pendiente de `LAB_PUBLISH_TOKEN` vacío en producción.
+Verificado en vivo: abrir el PR #27 disparó solo `deploy-preview` (evento `pull_request`),
+`deploy-production` quedó correctamente omitido. El deploy de preview resultante
+respondió correctamente. **Verificación honesta pendiente:** `deploy-production` no se ha
+ejecutado ni una vez — `main` no existe todavía; queda verificado solo por revisión de
+código hasta la siguiente tarea (renombrado).
 
 ### 2026-08-04 — [INFRA]: CloudFront Function de 301 — `olivercastelblanco.com` → dominio canónico
 
@@ -447,6 +471,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-04 (7) | Nuevo flujo CI/CD implementado y verificado parcialmente (deploy-preview confirmado en vivo vía PR #27; deploy-production verificado solo por código, no se ha disparado porque main no existe). Siguiente prioridad: Renombrar master → main (ya seleccionada como Tarea 2, es el único paso que falta para activar deploy-production de verdad) pasa a Tarea 1. Para la nueva Tarea 2 se agrega EL SWITCH (paso 8, última de la secuencia) en modo preparación/planificación únicamente — la ejecución real sigue exigiendo autorización explícita del usuario en el momento (CLAUDE.md), el motor JIT solo trackea el trabajo previo | Tarea 1 (Nuevo flujo CI/CD) movida al historial. Tarea 2 (Renombrar master → main) pasa a ser Tarea 1. Nueva Tarea 2: EL SWITCH (preparación) |
 | 2026-08-04 (6) | CloudFront Function de 301 completada y verificada en AWS real (probada con `aws cloudfront test-function` antes de asociarla, sitio anterior sin cambios). Siguiente prioridad: Nuevo flujo CI/CD (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Renombrar master → main" (paso 7 de la secuencia en `MEMORY.md` §2): depende de que el nuevo flujo CI/CD ya apunte a `main` para evitar una ventana sin CI funcionando, por lo que queda en el slot 2 hasta que la Tarea 1 se complete | Tarea 1 (CloudFront Function 301) movida al historial. Tarea 2 (Nuevo flujo CI/CD) pasa a ser Tarea 1. Nueva Tarea 2: Renombrar master → main |
 | 2026-08-04 (5) | Assets + behaviors de CloudFront ejecutada con alcance reducido a `/content/*` tras detectar que un behavior amplio `*.js`/`*.css` habría roto el sitio en vivo (mismo patrón de nombres con hash) — aprobado por el usuario antes de tocar la distribución. Completada y verificada en AWS real (OAC, bucket policy condicionada, sitio anterior sin cambios). Siguiente prioridad: CloudFront Function de 301 (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Nuevo flujo CI/CD" (paso 6 de la secuencia en `MEMORY.md` §2): es independiente de la Tarea 1 (ambas tocan la distribución/el pipeline pero configuran cosas distintas) y resuelve un pendiente conocido (`LAB_PUBLISH_TOKEN` vacío en `production`) | Tarea 1 (Assets + behaviors CloudFront) movida al historial. Tarea 2 (CloudFront Function 301) pasa a ser Tarea 1. Nueva Tarea 2: Nuevo flujo CI/CD |
 | 2026-08-04 (4) | The Lab → S3 real completada y verificada en AWS real: escritura confirmada con `aws s3api get-object`, rol IAM dedicado, invalidación condicional sin romper el flujo cuando no hay distribución (`npm run build`/`lint` en verde). Siguiente prioridad: Assets + behaviors de CloudFront (ya seleccionada como Tarea 2, su dependencia de contenido real en `/content/*` quedó satisfecha) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "CloudFront Function de 301" (paso 5 de la secuencia en `MEMORY.md` §2): resuelve el problema de contenido duplicado SEO entre `olivercastelblanco.com` y el dominio canónico, es independiente de la Tarea 1 (ambas tocan la misma distribución pero configuran cosas distintas) | Tarea 1 (The Lab → S3) movida al historial. Tarea 2 (Assets + behaviors CloudFront) pasa a ser Tarea 1. Nueva Tarea 2: CloudFront Function de 301 |

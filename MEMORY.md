@@ -7,7 +7,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — preparando el switch de producción (pasos 1-5/8 completados, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
+| Versión | MVP en construcción — preparando el switch de producción (pasos 1-6/8 completados, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
@@ -51,9 +51,9 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 3. [x] **The Lab a S3** — `lab-handler.mjs` escribe `content/lab.json` con `@aws-sdk/client-s3`, IAM mínimo, invalidación de CloudFront (cierra el gap de ADR-011). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/lab-s3-real`)
 4. [x] **CloudFront sirve `/content/*`** — OAC + behavior acotado a `/content/*` únicamente (ver revisión ADR-012 2026-08-04: un behavior amplio `*.js`/`*.css` ahora rompería el sitio anterior, que usa el mismo patrón de nombres con hash). Subir el bundle Angular y los behaviors de assets estáticos se posponen al paso 8. Completada y verificada 2026-08-04 (PR pendiente, rama `feature/cloudfront-content-behavior`)
 5. [x] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/cloudfront-301-olivercastelblanco`)
-6. [ ] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013) ← **Tarea 1**
-7. [ ] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013) ← **Tarea 2**
-8. [ ] **EL SWITCH** — cambiar el origen por defecto (`/*`) de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`, **más** (movido desde el paso 4 original): subir `dist/ocastelblanco/browser/` al bucket de contenido y agregar los behaviors de assets estáticos (`*.js`, `*.css`, etc.) → S3. Ambos cambios deben ir atómicos con el cambio de origen — antes del switch esos patrones de path colisionan con los assets del sitio anterior (mismo esquema de nombres con hash)
+6. [x] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013). Workflow implementado y verificado para `preview` 2026-08-04 (PR pendiente, rama `feature/cicd-pr-preview-merge-production`); el disparo real de `production` queda pendiente de que exista `main` (paso 7)
+7. [ ] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013) ← **Tarea 1**
+8. [ ] **EL SWITCH** — cambiar el origen por defecto (`/*`) de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`, **más** (movido desde el paso 4 original): subir `dist/ocastelblanco/browser/` al bucket de contenido y agregar los behaviors de assets estáticos (`*.js`, `*.css`, etc.) → S3. Ambos cambios deben ir atómicos con el cambio de origen — antes del switch esos patrones de path colisionan con los assets del sitio anterior (mismo esquema de nombres con hash) ← **Tarea 2 (solo preparación/planificación — la ejecución requiere autorización explícita del usuario en el momento, ver `CLAUDE.md`)**
 
 ### Pendientes (no bloquean el switch)
 - [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (retirada de la lista activa; depende del switch)
@@ -481,7 +481,8 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 ### ADR-013 — Flujo CI/CD por ambientes y renombrado de `master` a `main`
 
 - **Fecha:** 2026-08-04
-- **Estado:** Decidido, pendiente de implementar
+- **Estado:** Parcialmente implementado — el workflow (puntos 2-3 de la Decisión) ya está
+  en producción; el renombrado (punto 1) queda como tarea pendiente separada
 - **Decisión:**
   1. **Rama de producción: `main`.** Se renombra `master` → `main` y su contenido se
      reemplaza completamente por `rediseno-2026`. `main` pasa a ser la rama protegida de
@@ -509,6 +510,23 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
     `deploy.yml`, el git flow de `CLAUDE.md`, y el default branch en GitHub.
   - Los PRs pasan a apuntar a `main` en vez de a `rediseno-2026`.
   - Las reglas de `CLAUDE.md` siguen vigentes: el agente nunca fusiona ni aprueba un PR.
+- **Implementado 2026-08-04 (puntos 2-3 — workflow):** `.github/workflows/deploy.yml`
+  reescrito con dos jobs. `deploy-preview` dispara por `pull_request`
+  (`opened`/`synchronize`/`reopened`) contra la rama base vigente — hoy
+  `pull_request.branches: [rediseno-2026]`, pendiente de actualizar a `main` en la tarea
+  de renombrado. `deploy-production` dispara por `push` contra `main` — no existe
+  todavía, así que este job no se ha ejecutado ni una sola vez; queda verificado por
+  revisión de código (misma estructura que `deploy-preview`, `npm run build` sin
+  `--configuration` y `--stage production`) hasta que la tarea de renombrado lo active de
+  verdad. Se eliminó el trigger `push` sobre `feature/**` — todo cambio pasa por PR.
+  Verificado en vivo: abrir el PR #27 disparó **solo** `deploy-preview` (evento
+  `pull_request`, `deploy-production` quedó correctamente omitido por su condición
+  `if: github.event_name == 'push'`); el deploy resultante respondió correctamente contra
+  `preview-api.ocastelblanco.com`.
+  **Pendiente real de esta implementación:** confirmar en la práctica que un merge a
+  `main` sí dispara `deploy-production` y que el Lambda de producción queda con
+  `LAB_PUBLISH_TOKEN` real — solo se puede probar una vez exista `main` (tarea de
+  renombrado).
 
 ### ADR-014 — Entrega del formulario de contacto vía Amazon SES
 
@@ -982,3 +1000,30 @@ PR abre `preview`, merge a `main` despliega `production` (paso 6, ADR-013).
 **Próxima tarea (Tarea 1 nueva):** Nuevo flujo CI/CD — PR abre `preview`, merge a `main`
 despliega `production` (paso 6, ADR-013). **Tarea 2 nueva:** Renombrar `master` → `main`
 y reemplazar su contenido con `rediseno-2026` (paso 7).
+
+## 16. Sesión 2026-08-04 (continuación 6) — Ejecución de la Tarea: Nuevo flujo CI/CD
+
+**Qué se hizo:** implementado el paso 6 de la secuencia de §2 (ADR-013).
+
+- `.github/workflows/deploy.yml` reescrito con dos jobs: `deploy-preview` (trigger
+  `pull_request`, `opened`/`synchronize`/`reopened`, contra `rediseno-2026`) y
+  `deploy-production` (trigger `push` contra `main`). Se eliminó el trigger `push` sobre
+  `feature/**` — todo cambio pasa por PR de ahora en adelante.
+- `deploy-production` usa `npm run build` (config `production` por defecto) y
+  `npx serverless deploy --stage production` — resuelve el pendiente de
+  `LAB_PUBLISH_TOKEN` vacío en `production` (quedó así del primer deploy manual de la
+  tarea de base multi-stage), inyectando el secret real de GitHub Actions.
+- Verificado en vivo: abrir el PR #27 disparó **solo** `deploy-preview` (evento
+  `pull_request`), `deploy-production` quedó correctamente omitido por su condición
+  (`if: github.event_name == 'push'`). El deploy de preview resultante respondió
+  correctamente contra `preview-api.ocastelblanco.com`.
+- **Verificación pendiente, honesta:** `deploy-production` no se ha ejecutado ni una sola
+  vez todavía — `main` no existe. Queda verificado solo por revisión de código (misma
+  estructura que `deploy-preview`, config y stage correctos). La prueba real (¿dispara
+  correctamente? ¿el Lambda de producción queda con el token real?) ocurre como parte de
+  la siguiente tarea, cuando `main` empiece a existir.
+
+**Próxima tarea (Tarea 1 nueva):** Renombrar `master` → `main` y reemplazar su contenido
+con `rediseno-2026` (paso 7 de la secuencia). **Tarea 2 nueva:** EL SWITCH (paso 8) —
+solo como preparación/planificación en el motor JIT; la ejecución real sigue requiriendo
+autorización explícita del usuario en el momento (`CLAUDE.md`).
