@@ -233,9 +233,13 @@ hacer commits directos a ella.**
 > Nota histórica: `rediseno-2026` fue la rama de producción durante el rediseño 2026
 > (permitiéndose commits directos solo en el bootstrap inicial, ver ADRs 001-013 en
 > `MEMORY.md`). El 2026-08-04 su contenido reemplazó a `master` bajo el nombre `main`
-> (ADR-013) — `rediseno-2026` queda archivada, ya no es la rama base de PRs.
-> `master` (el sitio anterior) tampoco se borra — queda como referencia histórica de
-> rollback, sin protección activa.
+> (ADR-013) — `rediseno-2026` queda archivada, ya no es la rama base de PRs. La rama
+> `master` (sitio anterior) se borró el mismo día, a pedido del usuario, tras confirmar
+> que ningún workflow ni infraestructura la referenciaba y crear el tag
+> `archive/sitio-anterior` apuntando a su último commit — el código sigue accesible ahí
+> permanentemente. El rollback real del sitio en vivo no depende de esta rama: depende
+> del bucket S3 `ocastelblanco.com` y de poder revertir el origen de CloudFront
+> (ADR-012), ninguno de los dos afectados por este borrado.
 
 ### Protocolo obligatorio antes de cualquier cambio de código
 

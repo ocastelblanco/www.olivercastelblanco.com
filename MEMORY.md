@@ -15,7 +15,8 @@
 | URL API `production` | `https://api.ocastelblanco.com` — activo desde el 2026-08-04, apunta al HTTP API del stage `production` |
 | URL API `preview` | `https://preview-api.ocastelblanco.com` — activo desde el 2026-08-04 |
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
-| Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs. `master` (sitio anterior) tampoco, queda como rollback |
+| Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
+| Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
 | Última sesión | 2026-08-04 |
 
 ## 2. Funcionalidades
@@ -1078,3 +1079,13 @@ antes del switch.
 el motor JIT; la ejecución real requiere autorización explícita del usuario en el momento
 (`CLAUDE.md`). **Tarea 2 nueva:** evaluar el fetch SSR de `lab.json` (gap de SEO conocido
 desde ADR-011, independiente del switch).
+
+**Fuera del motor JIT — pedido puntual del usuario (2026-08-04):** el usuario preguntó si
+podía borrar la rama `master` (sitio anterior). Se confirmó que era seguro: sin
+protección real en GitHub, sin referencias en workflows ni infraestructura, y que el
+rollback real del sitio en vivo depende del bucket S3 y de CloudFront (ADR-012), no de la
+rama. Se recomendó archivar antes de borrar; el usuario eligió esa opción. Ejecutado:
+`git tag archive/sitio-anterior origin/master` (verificado mismo SHA), push del tag,
+`git push origin --delete master`, limpieza de la rama local. `CLAUDE.md` §"Ramas
+protegidas" y `MEMORY.md` §1 actualizados para reflejar que `master` ya no existe como
+rama — el código queda accesible permanentemente vía el tag.
