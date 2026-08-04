@@ -21,44 +21,7 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Terminal de contacto funcional (SES) + rate limiting
-
-**Origen:** el formulario no entrega mensajes — `contact-handler.mjs:59` valida y hace
-`console.log` a CloudWatch, nada más. Además `CLAUDE.md` §6 A07 **prohíbe** desplegar
-`/contact` a producción sin mitigación anti-abuso, por lo que esto es prioridad 1 del
-motor JIT (gap OWASP que bloquea producción).
-
-**Archivos:** `src/lambda/contact-handler.mjs`, `serverless.yml`, `package.json`.
-
-**Qué hacer:**
-1. Enviar el mensaje con `@aws-sdk/client-sesv2` (`SendEmailCommand`):
-   `From: contacto@ocastelblanco.com`, `To: ocastelblanco@gmail.com`,
-   `Reply-To:` el email del visitante. El dominio `ocastelblanco.com` ya está verificado
-   en SES (`SendingEnabled: true`) y `ocastelblanco@gmail.com` está verificado como
-   identidad — **SES está en sandbox, pero el sandbox solo restringe destinatarios**, así
-   que este envío funciona hoy sin pedir production access.
-2. **No** implementar auto-respuesta al visitante todavía: el sandbox la bloquearía
-   (destinatario no verificado). Requiere solicitar production access primero.
-3. Escapar el contenido del mensaje antes de interpolarlo en el cuerpo del correo
-   (`CLAUDE.md` §6 A03) — preferir cuerpo `Text` sobre `Html`.
-4. Permisos IAM mínimos para la función `contact`: solo `ses:SendEmail` sobre la
-   identidad del dominio, nada de `ses:*`.
-5. **Rate limiting (A07)**: `provider.httpApi.defaultRouteSettings` con
-   `throttlingRateLimit` / `throttlingBurstLimit`, más `reservedConcurrency` baja en la
-   función `contact`. Acota el costo de un abuso sin el ~USD 6/mes de AWS WAF.
-6. Mantener el honeypot actual.
-
-**Definition of done:**
-- [ ] Enviar el formulario en el stage `preview` entrega un correo real a la bandeja
-- [ ] `Reply-To` permite responderle al visitante directamente desde el correo
-- [ ] El rol IAM de `contact` no tiene permisos SES más amplios que `ses:SendEmail`
-- [ ] Throttling verificado y documentado en `MEMORY.md` §5
-- [ ] Un payload con el campo `website` lleno sigue devolviendo `200` sin enviar correo
-- [ ] `npm run build` y `npm run lint` en verde
-
----
-
-## Tarea 2 — [FEATURE]: The Lab → S3 real (cierra el gap de ADR-011)
+## Tarea 1 — [FEATURE]: The Lab → S3 real (cierra el gap de ADR-011)
 
 **Origen:** paso 3 de la secuencia hacia el switch (`MEMORY.md` §2). `lab-handler.mjs:75`
 valida el payload del Google Sheet pero nunca lo persiste — sigue siendo el stub original.
@@ -97,7 +60,63 @@ Ya existen los buckets `ocastelblanco-cdn-production` y `ocastelblanco-cdn-previ
 
 ---
 
+## Tarea 2 — [INFRA]: Assets + behaviors de CloudFront
+
+**Origen:** paso 4 de la secuencia hacia el switch (`MEMORY.md` §2). Antes de poder hacer
+el switch (paso 8) la distribución `E1MX0LNEKZOG8H` necesita servir tanto el bundle
+Angular estático como el contenido dinámico del bucket, además de la Lambda SSR — hoy solo
+sirve el sitio anterior. Depende de la Tarea 1 (necesita que `content/lab.json` ya se
+pueda escribir para tener algo real que servir desde `/content/*`).
+
+**Archivos:** `serverless.yml` o script de deploy (subida de assets a S3), configuración
+de CloudFront (gestionada manualmente fuera de IaC, ver ADR-012).
+
+**Qué hacer:**
+1. Subir `dist/ocastelblanco/browser/` al bucket `ocastelblanco-cdn-production` tras cada
+   build de producción (paso nuevo en el pipeline — decidir si vive en `deploy.yml` o en
+   un script separado).
+2. Origin Access Control (OAC) en la distribución `E1MX0LNEKZOG8H` apuntando al bucket de
+   contenido de `production` — los buckets son 100% privados (ADR-012), la única forma de
+   servirlos públicamente es vía CloudFront con OAC, nunca con una bucket policy pública.
+3. Behaviors por ruta en la distribución existente: `/content/*` y los assets con hash
+   (`*.js`, `*.css`, etc.) → origen S3; el resto (`/*`) → origen Lambda SSR (todavía el
+   Lambda Function URL de `preview`/actual, no el de `production` — ese cambio de origen es
+   el switch en sí, paso 8, no esta tarea).
+4. Cache policy adecuada por tipo de contenido: assets con hash (`outputHashing: all`, ya
+   configurado) pueden cachear agresivo; `/content/lab.json` necesita TTL corto o
+   invalidación explícita (ver la Tarea 1, paso de invalidación condicional).
+5. **No tocar** los 4 alias existentes de la distribución todavía — eso también es parte
+   del switch (paso 8), no de esta tarea.
+
+**Definition of done:**
+- [ ] El bucket `ocastelblanco-cdn-production` tiene el bundle de `dist/ocastelblanco/browser/` tras un build
+- [ ] La distribución `E1MX0LNEKZOG8H` sirve esos assets vía OAC (probado con la URL `*.cloudfront.net`, sin tocar alias)
+- [ ] `/content/lab.json` responde desde la distribución sin necesitar acceso público directo al bucket
+- [ ] El bucket sigue sin política pública ni ACLs públicas (verificable con `aws s3api get-bucket-policy` y `get-public-access-block`)
+- [ ] Documentado en `MEMORY.md` ADR-012 el estado final de los behaviors (la distribución se gestiona manualmente, no vía IaC)
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-08-04 — [FEATURE]: Terminal de contacto funcional (SES) + rate limiting
+
+Implementado ADR-014. `contact-handler.mjs` entrega el mensaje vía `@aws-sdk/client-sesv2`
+(`SendEmailCommand`): `contacto@ocastelblanco.com` → `ocastelblanco@gmail.com`, `Reply-To`
+al email del visitante (ya validado contra `EMAIL_RE`, sin riesgo de inyección de headers).
+Cuerpo en texto plano (A03); el `Subject` sanea saltos de línea del campo `name` porque
+viaja como header de correo. Rol IAM dedicado `ContactLambdaRole` (solo logs +
+`ses:SendEmail` acotado a `arn:aws:ses:${aws:region}:${aws:accountId}:identity/ocastelblanco.com`,
+A01) reemplazando el rol compartido del servicio solo para esta función. Rate limiting
+(A07): `provider.httpApi.throttle` (`burstLimit: 10`, `rateLimit: 5`, aplica a toda la HTTP
+API compartida con `/lab`) + `reservedConcurrency: 5` en `contact`. Honeypot existente sin
+cambios. Desplegado a `preview` vía el workflow de GitHub Actions y verificado en vivo
+contra `preview-api.ocastelblanco.com`: honeypot devuelve `200` sin invocar SES, payload
+inválido devuelve `400`, mensaje válido de prueba devolvió `200 {"ok":true}` con el envío
+confirmado en CloudWatch (sin `contact_send_failed`, 332ms). Rol y concurrencia reservada
+verificados con `aws lambda get-function-concurrency` (gotcha nuevo:
+`get-function-configuration` no expone `ReservedConcurrentExecutions`). `npm run build`,
+`npm run build:preview` y `npm run lint` en verde.
 
 ### 2026-08-04 — [INFRA]: Base multi-stage — separar `preview` de `production`
 
@@ -375,6 +394,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-04 (3) | Terminal de contacto vía SES completada y verificada en AWS real: envío confirmado en CloudWatch, honeypot y validaciones intactos, rol IAM dedicado y throttling verificados (`npm run build`/`lint` en verde). Siguiente prioridad: The Lab → S3 (ya seleccionada como Tarea 2, sin dependencias pendientes — el bloqueo original de bucket inexistente desapareció con la Tarea de base multi-stage) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Assets + behaviors de CloudFront" (paso 4 de la secuencia en `MEMORY.md` §2): depende de que The Lab → S3 exista para tener contenido real que servir desde `/content/*`, pero puede empezar a prepararse en paralelo (subida de assets, OAC) | Tarea 1 (Terminal de contacto) movida al historial. Tarea 2 (The Lab → S3) pasa a ser Tarea 1. Nueva Tarea 2: Assets + behaviors de CloudFront |
 | 2026-08-04 (2) | Base multi-stage completada y verificada en AWS real: ambos dominios de API responden por separado, ambos buckets de contenido existen y son privados, el bug de `fileReplacements` quedó corregido, y `production` sirve el rediseño completo por su Function URL (`npm run build`/`build:preview`/`lint` en verde, PR #22). El bloqueo que impedía avanzar con el switch desapareció. Siguiente prioridad: Terminal de contacto vía SES (ya seleccionada como Tarea 2, gap OWASP A07, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "The Lab → S3" (paso 3 de la secuencia en `MEMORY.md` §2): el bloqueo original (bucket inexistente) desapareció con la tarea recién completada, y es prerequisito de "Assets + behaviors CloudFront" (paso 4) | Tarea 1 (Base multi-stage) movida al historial. Tarea 2 (Contacto SES) pasa a ser Tarea 1. Nueva Tarea 2: The Lab → S3 real |
 | 2026-08-04 | El usuario define el objetivo del día: reemplazar el sitio en vivo (`ocastelblanco.com` + `olivercastelblanco.com`) por el rediseño, montando todo lo posible **antes** del switch de DNS para que el corte sea rápido y reversible. Se audita el estado real en AWS y aparecen cuatro hallazgos que reordenan el plan: (1) `serverless.yml` fija `api.ocastelblanco.com` para cualquier stage y hoy lo tiene `preview` — desplegar `production` sin arreglarlo genera conflicto, así que es prerequisito bloqueante; (2) los 4 hostnames son alias de la distribución CloudFront `E1MX0LNEKZOG8H` y un alias solo puede vivir en una distribución, por lo que **no** se puede pre-construir una distribución nueva con esos alias — se decide reusar la existente cambiándole el origen (ADR-012), lo que reduce el switch a un solo `update-distribution` reversible; (3) `angular.json` no tiene `fileReplacements`, así que `environment.prod.ts` es código muerto y The Lab en producción leería el fixture de desarrollo — bug latente que se absorbe en la Tarea 1; (4) el formulario de contacto nunca entregó mensajes (solo `console.log`), y `CLAUDE.md` §6 A07 prohíbe desplegar `/contact` sin rate limiting, lo que lo vuelve prioridad 1 (gap OWASP que bloquea producción). La tarea monolítica "Deploy de producción" se descompone en la secuencia ordenada de `MEMORY.md` §2. "Bitácora de proceso — Entrada MVP" se retira temporalmente de la lista activa (sigue dependiendo del switch) | Tarea 1 anterior (Deploy de producción) descompuesta. Nueva Tarea 1: Base multi-stage (`preview`/`production`). Nueva Tarea 2: Terminal de contacto funcional vía SES + rate limiting. "Bitácora de proceso" fuera de la lista activa, pendiente de reincorporación tras el switch |
 | 2026-07-11 | Arquitectura de contenido completada y verificada (build + lint en verde, PR #17 fusionada). Siguiente prioridad Alta: Deploy de producción (ya seleccionada como Tarea 2, sin dependencias bloqueantes) pasa a Tarea 1. Para la nueva Tarea 2 se reincorpora Bitácora de proceso — Entrada MVP (retirada temporalmente cuando se antepuso Arquitectura de contenido): sigue dependiendo del deploy, pero ya puede volver a ocupar el slot de Tarea 2. Se añade a la Tarea 1 (Deploy) un paso nuevo: conectar `lab-handler.mjs` a S3 real una vez exista el bucket de contenido, cerrando el gap dejado por la tarea recién completada | Tarea 1 (Arquitectura de contenido) movida al historial. Tarea 2 (Deploy producción) pasa a ser Tarea 1, con paso adicional de escritura a S3 para Lab. Nueva Tarea 2: Bitácora de proceso — Entrada MVP |
