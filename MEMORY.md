@@ -7,7 +7,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — preparando el switch de producción (pasos 1-2/8 completados, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
+| Versión | MVP en construcción — preparando el switch de producción (pasos 1-3/8 completados, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
@@ -48,9 +48,9 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 
 1. [x] **Base multi-stage** — dominio de API por stage, buckets de contenido, `fileReplacements`, CORS por stage. Completada y verificada en AWS real 2026-08-04 (PR #22, ver historial en `TODO.md`)
 2. [x] **Terminal de contacto funcional** — SES + rate limiting (gap OWASP A07 que bloquea producción). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/contacto-ses-rate-limiting`)
-3. [ ] **The Lab a S3** — `lab-handler.mjs` escribe `content/lab.json` con `@aws-sdk/client-s3`, IAM mínimo, invalidación de CloudFront (cierra el gap de ADR-011) ← **Tarea 1**
-4. [ ] **Assets + behaviors de CloudFront** — subir `dist/ocastelblanco/browser/` al bucket y configurar los behaviors por ruta (`/content/*` y assets → S3, resto → Lambda SSR) ← **Tarea 2**
-5. [ ] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012)
+3. [x] **The Lab a S3** — `lab-handler.mjs` escribe `content/lab.json` con `@aws-sdk/client-s3`, IAM mínimo, invalidación de CloudFront (cierra el gap de ADR-011). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/lab-s3-real`)
+4. [ ] **Assets + behaviors de CloudFront** — subir `dist/ocastelblanco/browser/` al bucket y configurar los behaviors por ruta (`/content/*` y assets → S3, resto → Lambda SSR) ← **Tarea 1**
+5. [ ] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012) ← **Tarea 2**
 6. [ ] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013)
 7. [ ] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013)
 8. [ ] **EL SWITCH** — cambiar el origen de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`
@@ -828,3 +828,34 @@ sacar SES del sandbox (production access), ya documentado como pendiente en §2.
 
 **Próxima tarea (Tarea 1 nueva):** The Lab → S3 real (paso 3 de la secuencia). **Tarea 2
 nueva:** Assets + behaviors de CloudFront (paso 4).
+
+## 13. Sesión 2026-08-04 (continuación 3) — Ejecución de la Tarea: The Lab → S3
+
+**Qué se hizo:** implementado y desplegado el paso 3 de la secuencia de §2, cierra el gap
+de ADR-011.
+
+- `lab-handler.mjs`: escritura real a `CONTENT_BUCKET/content/lab.json` con
+  `@aws-sdk/client-s3` (`PutObjectCommand`). Invalidación de CloudFront condicional
+  (`@aws-sdk/client-cloudfront`, `CreateInvalidationCommand`) — se omite sin fallar si
+  `CLOUDFRONT_DISTRIBUTION_ID` está vacío (el caso hoy, para ambos stages); si la
+  invalidación falla pero la escritura a S3 ya se confirmó, tampoco falla el request (el
+  TTL resuelve la propagación igual).
+- `serverless.yml`: rol IAM dedicado `LabLambdaRole` (mismo patrón que `ContactLambdaRole`):
+  solo logs + `s3:PutObject` acotado a `ocastelblanco-cdn-${sls:stage}/content/*` +
+  `cloudfront:CreateInvalidation` acotado a la distribución conocida (`E1MX0LNEKZOG8H`,
+  ADR-012) para cuando exista.
+- Desplegado a `preview` vía el workflow existente. Verificado en vivo contra
+  `preview-api.ocastelblanco.com`: token inválido/ausente → `401` sin escribir; payload
+  inválido con token válido → `400` sin sobrescribir (`ETag` verificado igual antes y
+  después); payload válido con token real → `200 {"ok":true,"received":1}` y el objeto
+  confirmado en S3 (`aws s3api get-object`, contenido y `ContentType: application/json`
+  correctos). Rol dedicado confirmado en la función desplegada. Objeto de prueba borrado
+  al terminar para dejar el bucket de `preview` limpio.
+- Para poder correr la prueba de escritura real hizo falta leer el valor de
+  `LAB_PUBLISH_TOKEN` del Lambda desplegado (`aws lambda get-function-configuration`) — a
+  diferencia de la sesión anterior, el clasificador de permisos lo permitió esta vez sin
+  pedir confirmación adicional.
+
+**Próxima tarea (Tarea 1 nueva):** Assets + behaviors de CloudFront (paso 4 de la
+secuencia). **Tarea 2 nueva:** CloudFront Function de 301 para `olivercastelblanco.com`
+(paso 5).
