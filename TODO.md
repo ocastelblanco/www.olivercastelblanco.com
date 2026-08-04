@@ -21,46 +21,7 @@
 
 ---
 
-## Tarea 1 — [INFRA]: Assets + behaviors de CloudFront
-
-**Origen:** paso 4 de la secuencia hacia el switch (`MEMORY.md` §2). Antes de poder hacer
-el switch (paso 8) la distribución `E1MX0LNEKZOG8H` necesita servir tanto el bundle
-Angular estático como el contenido dinámico del bucket, además de la Lambda SSR — hoy solo
-sirve el sitio anterior. La tarea "The Lab → S3 real" (ya completada, ver historial) dejó
-la escritura de `content/lab.json` lista, así que ya hay algo real que servir desde
-`/content/*`.
-
-**Archivos:** `serverless.yml` o script de deploy (subida de assets a S3), configuración
-de CloudFront (gestionada manualmente fuera de IaC, ver ADR-012).
-
-**Qué hacer:**
-1. Subir `dist/ocastelblanco/browser/` al bucket `ocastelblanco-cdn-production` tras cada
-   build de producción (paso nuevo en el pipeline — decidir si vive en `deploy.yml` o en
-   un script separado).
-2. Origin Access Control (OAC) en la distribución `E1MX0LNEKZOG8H` apuntando al bucket de
-   contenido de `production` — los buckets son 100% privados (ADR-012), la única forma de
-   servirlos públicamente es vía CloudFront con OAC, nunca con una bucket policy pública.
-3. Behaviors por ruta en la distribución existente: `/content/*` y los assets con hash
-   (`*.js`, `*.css`, etc.) → origen S3; el resto (`/*`) → origen Lambda SSR (todavía el
-   Lambda Function URL de `preview`/actual, no el de `production` — ese cambio de origen es
-   el switch en sí, paso 8, no esta tarea).
-4. Cache policy adecuada por tipo de contenido: assets con hash (`outputHashing: all`, ya
-   configurado) pueden cachear agresivo; `/content/lab.json` necesita TTL corto o
-   invalidación explícita (`lab-handler.mjs` ya soporta invalidación condicionada a
-   `CLOUDFRONT_DISTRIBUTION_ID` — setear esa env var una vez exista la distribución).
-5. **No tocar** los 4 alias existentes de la distribución todavía — eso también es parte
-   del switch (paso 8), no de esta tarea.
-
-**Definition of done:**
-- [ ] El bucket `ocastelblanco-cdn-production` tiene el bundle de `dist/ocastelblanco/browser/` tras un build
-- [ ] La distribución `E1MX0LNEKZOG8H` sirve esos assets vía OAC (probado con la URL `*.cloudfront.net`, sin tocar alias)
-- [ ] `/content/lab.json` responde desde la distribución sin necesitar acceso público directo al bucket
-- [ ] El bucket sigue sin política pública ni ACLs públicas (verificable con `aws s3api get-bucket-policy` y `get-public-access-block`)
-- [ ] Documentado en `MEMORY.md` ADR-012 el estado final de los behaviors (la distribución se gestiona manualmente, no vía IaC)
-
----
-
-## Tarea 2 — [INFRA]: CloudFront Function de 301 — `olivercastelblanco.com` → dominio canónico
+## Tarea 1 — [INFRA]: CloudFront Function de 301 — `olivercastelblanco.com` → dominio canónico
 
 **Origen:** paso 5 de la secuencia hacia el switch (`MEMORY.md` §2, ADR-012). Hoy
 `olivercastelblanco.com` y `www.olivercastelblanco.com` sirven exactamente el mismo
@@ -95,7 +56,63 @@ como dominio canónico.
 
 ---
 
+## Tarea 2 — [INFRA]: Nuevo flujo CI/CD — PR abre `preview`, merge a `main` despliega `production`
+
+**Origen:** paso 6 de la secuencia hacia el switch (`MEMORY.md` §2, ADR-013). El workflow
+actual (`deploy.yml`) dispara el deploy a `preview` en cada `push` a `rediseno-2026` y a
+ramas `feature/**` — no existe todavía ningún job que despliegue a `production`. El flujo
+que el usuario definió (PR abierto → `preview`; PR fusionado a `main` → `production`)
+requiere cambiar el trigger de `push` a `pull_request` y agregar el job de producción.
+
+**Archivos:** `.github/workflows/deploy.yml`.
+
+**Qué hacer:**
+1. Cambiar el trigger del job de `preview` de `push` (sobre ramas `feature/**` etc.) a
+   `pull_request` (`opened`, `synchronize`, `reopened`) contra la rama base vigente —
+   `rediseno-2026` hoy, `main` tras el renombrado (Tarea pendiente, paso 7).
+2. Agregar un job `deploy-production` disparado por `push` a la rama de producción
+   (equivalente a "merge de PR" en GitHub Actions — un merge de PR genera un push a la
+   rama base).
+3. El job de `production` usa `npm run build` (configuración `production` por defecto,
+   ya correcto desde la tarea de base multi-stage) y
+   `npx serverless deploy --stage production`.
+4. `LAB_PUBLISH_TOKEN` de producción sigue vacío hoy (se desplegó así manualmente, ver
+   historial de "Base multi-stage") — este job por fin lo resuelve inyectando el secret
+   real de GitHub Actions también para `production`.
+5. Mantener el job de `preview` funcionando igual (mismo secret, misma lógica de
+   impresión de URL en el Step Summary).
+
+**Definition of done:**
+- [ ] Abrir un PR contra la rama base dispara **solo** el deploy a `preview` (no a `production`)
+- [ ] Un merge a la rama de producción dispara **solo** el deploy a `production`
+- [ ] El Lambda de `production` queda con `LAB_PUBLISH_TOKEN` real tras el primer deploy vía este workflow
+- [ ] `npm run lint` y `npm run build` siguen corriendo antes del deploy en ambos jobs
+- [ ] Documentado en `MEMORY.md` ADR-013 el estado final del workflow
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-08-04 — [INFRA]: CloudFront sirve `/content/*` (OAC + behavior, acotado)
+
+Implementado el paso 4 de la secuencia hacia el switch, **con alcance reducido** respecto
+al plan original (ver ADR-012, revisión 2026-08-04): se detectó que el sitio anterior
+sirve `main.*.js`/`styles.*.css`/etc. en la raíz con el mismo patrón de hash que usa
+Angular — un behavior amplio `*.js`/`*.css` en la distribución en vivo habría roto esos
+assets de inmediato. Se acotó a `/content/*` únicamente (path que el sitio anterior no
+usa) tras validar el hallazgo con el usuario. Creada la Origin Access Control
+`ocastelblanco-cdn-production-oac` (`E31BG8XJQBYR7A`); agregado un origen nuevo
+(`S3-ocastelblanco-cdn-production`, vía OAC) y un behavior nuevo (`/content/*`,
+`CachePolicyId` managed `CachingDisabled`) a la distribución `E1MX0LNEKZOG8H` sin tocar el
+origen original, el behavior por defecto ni los 4 alias. Bucket policy en
+`ocastelblanco-cdn-production` con `s3:GetObject` para `cloudfront.amazonaws.com`
+condicionado a `AWS:SourceArn` — verificado que los 4 flags de
+`PublicAccessBlockConfiguration` siguen en `true` (no cuenta como política pública).
+Verificado en vivo: `/content/lab.json` responde `200` vía CloudFront con un objeto de
+prueba; acceso directo al bucket devuelve `403`; el sitio anterior respondió exactamente
+igual antes y después del cambio (`curl` sobre home, `main.js`, `styles.css`). Sin cambios
+en `serverless.yml` ni código de aplicación — toda la configuración vive en la
+distribución, gestionada manualmente (ADR-012).
 
 ### 2026-08-04 — [FEATURE]: The Lab → S3 real (cierra el gap de ADR-011)
 
@@ -410,6 +427,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-04 (5) | Assets + behaviors de CloudFront ejecutada con alcance reducido a `/content/*` tras detectar que un behavior amplio `*.js`/`*.css` habría roto el sitio en vivo (mismo patrón de nombres con hash) — aprobado por el usuario antes de tocar la distribución. Completada y verificada en AWS real (OAC, bucket policy condicionada, sitio anterior sin cambios). Siguiente prioridad: CloudFront Function de 301 (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Nuevo flujo CI/CD" (paso 6 de la secuencia en `MEMORY.md` §2): es independiente de la Tarea 1 (ambas tocan la distribución/el pipeline pero configuran cosas distintas) y resuelve un pendiente conocido (`LAB_PUBLISH_TOKEN` vacío en `production`) | Tarea 1 (Assets + behaviors CloudFront) movida al historial. Tarea 2 (CloudFront Function 301) pasa a ser Tarea 1. Nueva Tarea 2: Nuevo flujo CI/CD |
 | 2026-08-04 (4) | The Lab → S3 real completada y verificada en AWS real: escritura confirmada con `aws s3api get-object`, rol IAM dedicado, invalidación condicional sin romper el flujo cuando no hay distribución (`npm run build`/`lint` en verde). Siguiente prioridad: Assets + behaviors de CloudFront (ya seleccionada como Tarea 2, su dependencia de contenido real en `/content/*` quedó satisfecha) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "CloudFront Function de 301" (paso 5 de la secuencia en `MEMORY.md` §2): resuelve el problema de contenido duplicado SEO entre `olivercastelblanco.com` y el dominio canónico, es independiente de la Tarea 1 (ambas tocan la misma distribución pero configuran cosas distintas) | Tarea 1 (The Lab → S3) movida al historial. Tarea 2 (Assets + behaviors CloudFront) pasa a ser Tarea 1. Nueva Tarea 2: CloudFront Function de 301 |
 | 2026-08-04 (3) | Terminal de contacto vía SES completada y verificada en AWS real: envío confirmado en CloudWatch, honeypot y validaciones intactos, rol IAM dedicado y throttling verificados (`npm run build`/`lint` en verde). Siguiente prioridad: The Lab → S3 (ya seleccionada como Tarea 2, sin dependencias pendientes — el bloqueo original de bucket inexistente desapareció con la Tarea de base multi-stage) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Assets + behaviors de CloudFront" (paso 4 de la secuencia en `MEMORY.md` §2): depende de que The Lab → S3 exista para tener contenido real que servir desde `/content/*`, pero puede empezar a prepararse en paralelo (subida de assets, OAC) | Tarea 1 (Terminal de contacto) movida al historial. Tarea 2 (The Lab → S3) pasa a ser Tarea 1. Nueva Tarea 2: Assets + behaviors de CloudFront |
 | 2026-08-04 (2) | Base multi-stage completada y verificada en AWS real: ambos dominios de API responden por separado, ambos buckets de contenido existen y son privados, el bug de `fileReplacements` quedó corregido, y `production` sirve el rediseño completo por su Function URL (`npm run build`/`build:preview`/`lint` en verde, PR #22). El bloqueo que impedía avanzar con el switch desapareció. Siguiente prioridad: Terminal de contacto vía SES (ya seleccionada como Tarea 2, gap OWASP A07, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "The Lab → S3" (paso 3 de la secuencia en `MEMORY.md` §2): el bloqueo original (bucket inexistente) desapareció con la tarea recién completada, y es prerequisito de "Assets + behaviors CloudFront" (paso 4) | Tarea 1 (Base multi-stage) movida al historial. Tarea 2 (Contacto SES) pasa a ser Tarea 1. Nueva Tarea 2: The Lab → S3 real |
