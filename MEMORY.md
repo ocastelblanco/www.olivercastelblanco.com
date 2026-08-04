@@ -7,7 +7,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — preparando el switch de producción (ver `MEMORY.md` §2 "Secuencia hacia el switch") |
+| Versión | MVP en construcción — preparando el switch de producción (paso 1/8 completado, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
@@ -46,9 +46,9 @@ Orden de ejecución acordado. Todo se monta **antes** del switch para que el cor
 solo `update-distribution` reversible (ADR-012). Las 2 primeras son las tareas activas del
 motor JIT; el resto vive aquí hasta que se libere un slot.
 
-1. [ ] **Base multi-stage** — dominio de API por stage, buckets de contenido, `fileReplacements`, CORS por stage ← **Tarea 1, bloquea todo lo demás**
-2. [ ] **Terminal de contacto funcional** — SES + rate limiting (gap OWASP A07 que bloquea producción) ← **Tarea 2**
-3. [ ] **The Lab a S3** — `lab-handler.mjs` escribe `content/lab.json` con `@aws-sdk/client-s3`, IAM mínimo, invalidación de CloudFront (cierra el gap de ADR-011)
+1. [x] **Base multi-stage** — dominio de API por stage, buckets de contenido, `fileReplacements`, CORS por stage. Completada y verificada en AWS real 2026-08-04 (PR #22, ver historial en `TODO.md`)
+2. [ ] **Terminal de contacto funcional** — SES + rate limiting (gap OWASP A07 que bloquea producción) ← **Tarea 1**
+3. [ ] **The Lab a S3** — `lab-handler.mjs` escribe `content/lab.json` con `@aws-sdk/client-s3`, IAM mínimo, invalidación de CloudFront (cierra el gap de ADR-011) ← **Tarea 2**
 4. [ ] **Assets + behaviors de CloudFront** — subir `dist/ocastelblanco/browser/` al bucket y configurar los behaviors por ruta (`/content/*` y assets → S3, resto → Lambda SSR)
 5. [ ] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012)
 6. [ ] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013)
@@ -535,7 +535,8 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 | Dominio principal | `ocastelblanco.com` | Activo (apunta al sitio anterior) |
 | Lambda stage `preview` | URL generada en primer deploy (ver GitHub Actions Step Summary) | Activo — despliega en cada push a feature branches y `rediseno-2026` |
 | Subdominio CDN | `cdn.ocastelblanco.com` | **Descartado** — se usa una sola distribución con dos orígenes (ADR-012) |
-| Subdominio API | `api.ocastelblanco.com` | Activo, atado hoy al stage `preview` — se reasigna a `production` en la Tarea 1 |
+| Subdominio API `production` | `api.ocastelblanco.com` | Activo, remapeado a `production` el 2026-08-04 |
+| Subdominio API `preview` | `preview-api.ocastelblanco.com` | Activo desde el 2026-08-04 |
 | Serverless service name | `ocastelblanco-com` | Definido en `serverless.yml` |
 | Región AWS | `us-east-1` | Definido en `serverless.yml` y workflow |
 | GitHub Secrets | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `SERVERLESS_LICENSE_KEY`, `LAB_PUBLISH_TOKEN` | Configurados |
@@ -549,12 +550,15 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 | Zona Route 53 secundaria | `Z2R96ZJLUQAPS0` (`olivercastelblanco.com`) | ALIAS tipo A del apex y de `www` → **la misma** distribución |
 | Certificado ACM (us-east-1) | `…:certificate/58c03e3a-7a35-44c5-8c71-19a633764abb` | Cubre `ocastelblanco.com`, `*.ocastelblanco.com`, `olivercastelblanco.com`, `*.olivercastelblanco.com`. **No hace falta emitir uno nuevo** |
 | Certificado ACM wildcard extra | `…:certificate/21646dff-5c24-47c8-b35b-04a74f008d1e` | Solo `*.ocastelblanco.com`, sin usar (`InUse: false`) |
-| Dominio API Gateway | `api.ocastelblanco.com` → `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com` | REGIONAL, CNAME manual en Route 53 |
+| Dominio API Gateway `production` | `api.ocastelblanco.com` → `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com` | REGIONAL. `ApiMapping` remapeado el 2026-08-04 al HTTP API `production-ocastelblanco-com` (`b2dotiifn7`) |
+| Dominio API Gateway `preview` | `preview-api.ocastelblanco.com` → `d-dl4wxqv362.execute-api.us-east-1.amazonaws.com` | REGIONAL, creado el 2026-08-04 con `npx sls create_domain --stage preview`. `ApiMapping` → HTTP API `preview-ocastelblanco-com` (`ya6s5r8a54`) |
 | SES — identidad de dominio | `ocastelblanco.com` | `VerificationStatus: SUCCESS`, `SendingEnabled: true`, DKIM en Route 53 |
 | SES — identidad de email | `ocastelblanco@gmail.com` | `SUCCESS` — destinatario válido aun en sandbox |
 | SES — estado de la cuenta | `ProductionAccessEnabled: false` | **Sandbox**: restringe destinatarios, no remitentes (ver ADR-014) |
 | Buckets S3 del sitio anterior | `ocastelblanco.com`, `www.ocastelblanco.com` | **No borrar tras el switch** — son el plan de rollback |
-| Buckets de contenido nuevos | `ocastelblanco-cdn-production`, `ocastelblanco-cdn-preview` | Por crear (Tarea 1). Sin puntos en el nombre, a propósito |
+| Buckets de contenido | `ocastelblanco-cdn-production`, `ocastelblanco-cdn-preview` | Creados el 2026-08-04. Sin puntos en el nombre, a propósito. `PublicAccessBlockConfiguration` completo (100% privados), `DeletionPolicy: Retain` |
+| HTTP API `production` | `production-ocastelblanco-com` (`b2dotiifn7`) | Creado el 2026-08-04 |
+| HTTP API `preview` | `preview-ocastelblanco-com` (`ya6s5r8a54`) | Preexistente desde ADR-009, sin cambios |
 
 ## 6. Patrones de código establecidos
 
@@ -593,15 +597,17 @@ Sin `baseUrl` (deprecado en TS 6, TS5101). Los `paths` deben usar rutas con pref
 
 ### Entornos
 
-> ⚠️ **Estado real (auditado 2026-08-04):** `angular.json` **no tiene `fileReplacements`**,
-> por lo que `src/environments/environment.prod.ts` es **código muerto** — todos los builds,
-> incluido el de producción, resuelven `@env/environment` a `environment.ts`. Consecuencia:
-> en producción The Lab leería el fixture de desarrollo (`content/lab.dev.json`) en vez del
-> `lab.json` real. Se corrige en la Tarea 1 del motor JIT definiendo configuraciones
-> `development` / `preview` / `production` con sus respectivos `fileReplacements`.
+> ✅ **Corregido 2026-08-04** (Tarea "Base multi-stage"): `angular.json` tenía **tres
+> configuraciones sin `fileReplacements`**, por lo que `environment.prod.ts` era código
+> muerto y todos los builds (incluido producción) resolvían `@env/environment` a
+> `environment.ts` — en producción The Lab habría leído el fixture de desarrollo. Ahora hay
+> tres configs con sus respectivos `fileReplacements`, verificadas con `grep` sobre los
+> bundles compilados: `development` → `environment.ts`, `preview` →
+> `environment.preview.ts` (`preview-api.ocastelblanco.com`), `production` →
+> `environment.prod.ts` (`api.ocastelblanco.com`, `labContentUrl: /content/lab.json`).
 
-`src/environments/environment.ts` (dev) y `environment.prod.ts` exponen `production`,
-`apiUrl` y `labContentUrl`. Solo dos archivos los consumen:
+`src/environments/environment.ts` (dev), `environment.preview.ts` y `environment.prod.ts`
+exponen `production`, `apiUrl` y `labContentUrl`. Solo dos archivos los consumen:
 `src/app/core/content/content.service.ts` y `src/app/core/services/contact.service.ts`.
 
 ### Design tokens (Technical Industrial Minimalism)
@@ -648,9 +654,10 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 | **CORS por stage** — `contact-handler.mjs` y `lab-handler.mjs` permiten `*.lambda-url.us-east-1.on.aws` con una constante hardcodeada | ⚠️ **Corrige la instrucción anterior**, que mandaba eliminar `LAMBDA_URL_RE` al entrar a producción. Con ADR-013 `preview` es un ambiente permanente y necesita ese origen. La allowlist debe inyectarse por stage como variable de entorno: solo `https://ocastelblanco.com` en `production`, la Function URL en `preview`. |
 | Un alias (CNAME) de CloudFront solo puede existir en **una** distribución, globalmente | Imposible pre-construir una distribución nueva con los alias del sitio en vivo para probarla antes del corte. Por eso el switch reusa la distribución existente cambiándole el origen (ADR-012). |
 | Bucket S3 con puntos en el nombre rompe TLS en el SDK de AWS | `mi.bucket.s3.amazonaws.com` no matchea el wildcard `*.s3.amazonaws.com` del certificado. Los buckets que se accedan con `@aws-sdk/client-s3` (como el de contenido, que escribe `lab-handler`) deben ir **sin puntos**: `ocastelblanco-cdn-production`. |
-| `serverless.yml` fija `domainName: api.ocastelblanco.com` para cualquier stage | Desplegar un segundo stage hace que ambos se peleen el mismo dominio en API Gateway. El dominio debe resolverse por stage (`${self:custom.domains.${sls:stage}}`), y hay que liberar el mapeo viejo con `npx sls delete_domain --stage preview` antes de reasignarlo. |
-| `environment.prod.ts` nunca se usa — no hay `fileReplacements` en `angular.json` | Todos los builds resuelven `@env/environment` a `environment.ts`. Verificar con `grep` en el bundle de `dist/` que la URL esperada quedó compilada, no asumirlo por el nombre del archivo. |
+| ✅ *(resuelto 2026-08-04)* `serverless.yml` fijaba `domainName: api.ocastelblanco.com` para cualquier stage | Ahora el dominio se resuelve por stage (`${self:custom.domains.${sls:stage}}`). Lección para el próximo dominio nuevo: `serverless-domain-manager` **no crea el dominio automáticamente en el primer `sls deploy`** — hay que correr `npx sls create_domain --stage <stage>` explícitamente antes (mismo patrón de ADR-009). Si el dominio ya existe pero pertenece a otro stage, `sls deploy` falla con `ApiMapping key already exists` — la única forma de reasignarlo sin downtime de DNS es cirugía manual con `aws apigatewayv2 delete-api-mapping` + `create-api-mapping` sobre el `ApiMappingId` (el recurso `DomainName` en sí no se toca, así que Route 53 no cambia). |
+| ✅ *(resuelto 2026-08-04)* `environment.prod.ts` nunca se usaba — no había `fileReplacements` en `angular.json` | Ahora `production`/`preview`/`development` tienen sus `fileReplacements`. Lección: no asumir que un `environment.*.ts` está activo solo porque existe el archivo — verificar con `grep` en el bundle de `dist/` que la URL esperada quedó realmente compilada. |
 | SES en sandbox | Restringe **destinatarios**, no remitentes. Enviar a una identidad verificada (`ocastelblanco@gmail.com`) funciona; enviar al email arbitrario de un visitante (auto-respuesta) falla hasta pedir production access. |
+| El clasificador de permisos de Claude Code bloquea comandos AWS mutantes (deploy, delete-api-mapping) aunque el usuario ya haya autorizado la acción en general | Cada comando destructivo/mutante pide su propia aprobación puntual en el momento de ejecutarse — no basta un "sí" genérico previo. Explicar qué hace el comando exacto antes de que el usuario lo apruebe. |
 | Dominio `api.ocastelblanco.com` era EDGE en API Gateway (incompatible con HTTP API v2) | Se eliminó y recreó como REGIONAL con `npx sls create_domain`. CNAME en Route 53 actualizado manualmente a `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com`. |
 | `.gitignore` del sitio anterior se eliminó junto con todo lo demás | Se recreó un `.gitignore` nuevo en el primer commit de `rediseno-2026`, incluyendo `src/secrets/secrets*.ts`, `.claude/` y `.omc/` |
 | TypeScript 6 (`~6.0.2`) ya no soporta `baseUrl` en `tsconfig.json` (TS5101) | Omitir `baseUrl`; los `paths` deben usar rutas relativas con prefijo `./` (TS5090), p. ej. `["./src/app/core/*"]` |
@@ -745,3 +752,50 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 
 **Estado al cierre de la sesión:** solo documentación. No se tocó infraestructura ni código
 de aplicación. La secuencia de 8 pasos vive en §2; las 2 tareas activas, en `TODO.md`.
+
+## 11. Sesión 2026-08-04 (continuación) — Ejecución de la Tarea 1: Base multi-stage
+
+**Qué se hizo:** implementado y desplegado el paso 1 de la secuencia de §2 (ver ADR-013,
+detalle técnico en §5 "Inventario AWS" y §6 "Entornos"). Resumen ejecutivo:
+
+- Antes de tocar código, se verificó con `curl` que el sitio anterior (en vivo) llama a
+  `https://api.ocastelblanco.com/mensaje` para su propio formulario — pero esa ruta ya
+  devolvía `404` **antes** de esta sesión (el dominio fue reutilizado para el backend del
+  rediseño desde ADR-009, 18-jun). Esto confirmó que remapear `api.ocastelblanco.com` no
+  introducía ninguna regresión nueva.
+- `serverless.yml`, `angular.json`, ambos handlers Lambda, `package.json` y `deploy.yml`
+  editados según el plan de `TODO.md`. Verificado localmente (`npm run lint`, `npm run
+  build`, `npm run build:preview`, `grep` sobre los bundles) antes de tocar AWS.
+- **Preview** se desplegó a través del workflow existente (push a la feature branch) — la
+  forma correcta, porque usa el secret `LAB_PUBLISH_TOKEN` real de GitHub Actions. Primer
+  intento falló (`serverless-domain-manager` no crea el dominio automáticamente en el
+  primer deploy); se corrió `npx sls create_domain --stage preview` manualmente y se
+  reintentó el mismo run con `gh run rerun --failed`.
+- **Production** se desplegó manualmente desde local (`npx sls deploy --stage production`)
+  — operación puntual, sin job de CI todavía (llega en el paso 6 de la secuencia). El
+  clasificador de permisos bloqueó el comando; el usuario autorizó explícitamente antes de
+  ejecutarlo. Igual que preview, el primer intento falló en el paso de dominio (esta vez
+  porque `api.ocastelblanco.com` ya existía con un `ApiMapping` apuntando al HTTP API viejo
+  de `preview`) — el stack de Lambdas/bucket sí se creó igual (`CREATE_COMPLETE`).
+- El swap del `ApiMapping` (`delete-api-mapping` + `create-api-mapping`, sin tocar el
+  recurso `DomainName` ni Route 53) también requirió autorización explícita puntual del
+  clasificador para el comando de borrado. Ejecutado sin incidentes.
+- Verificación final: `preview-api.ocastelblanco.com` y `api.ocastelblanco.com` responden
+  por separado; CORS correcto en ambos stages (`production` acepta `ocastelblanco.com` y
+  `www.ocastelblanco.com`, `preview` acepta su propia Lambda URL); ambos buckets con
+  `PublicAccessBlockConfiguration` completo; la Function URL de `production` sirve `/`,
+  `/proyectos`, `/lab` y `/contacto` con el `<title>` correcto.
+
+**Pendiente detectado, no bloqueante:** `LAB_PUBLISH_TOKEN` en `production` quedó vacío
+(desplegado desde local sin ese secret exportado). No afecta nada hoy — `lab-handler.mjs`
+sigue siendo un stub — pero hay que recordarlo cuando el paso 6 (job de CI para
+`production`) le inyecte el secret real de GitHub Actions.
+
+**Próxima tarea (Tarea 1 nueva):** Terminal de contacto vía SES + rate limiting (gap OWASP
+A07). **Tarea 2 nueva:** The Lab → S3 real — el bloqueo original (bucket inexistente)
+desapareció con esta tarea.
+
+**Estado al cierre:** PR #22 abierta (`feature/base-multi-stage` → `rediseno-2026`), sin
+fusionar. La infraestructura ya está desplegada y verificada en AWS aunque el PR del código
+que la generó siga pendiente de revisión — es el patrón normal en infraestructura como
+código: el estado real ya coincide con lo que el PR propone.
