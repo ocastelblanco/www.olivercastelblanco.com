@@ -33,6 +33,12 @@ provider:
   region: us-east-1
   memorySize: 512
   timeout: 15
+  # Rate limiting (CLAUDE.md §6 A07) — aplica a toda la HTTP API compartida
+  # (/contact y /lab). Acota el costo de un abuso sin pagar AWS WAF (~USD 6/mes).
+  httpApi:
+    throttle:
+      burstLimit: 10
+      rateLimit: 5
   environment:
     NODE_ENV: production
     NG_ALLOWED_HOSTS: '*.lambda-url.us-east-1.on.aws'
@@ -58,6 +64,11 @@ functions:
       cors: true
   contact:
     handler: src/lambda/contact-handler.handler
+    # Rol dedicado (least privilege) en vez del rol compartido del servicio —
+    # ver resources.Resources.ContactLambdaRole. Concurrencia reservada baja
+    # como segunda capa de rate limiting (A07), acota el costo de un abuso.
+    role: ContactLambdaRole
+    reservedConcurrency: 5
     events:
       - httpApi:
           path: /contact
@@ -83,6 +94,30 @@ package:
 
 resources:
   Resources:
+    # Rol dedicado para `contact` — el resto de las funciones sigue en el rol
+    # compartido que genera Serverless por defecto. Solo permisos de logs
+    # (managed policy estándar) + ses:SendEmail acotado a la identidad de
+    # dominio, nunca ses:* (CLAUDE.md §6 A01).
+    ContactLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: lambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        Policies:
+          - PolicyName: SendContactEmail
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action: ses:SendEmail
+                  Resource: arn:aws:ses:${aws:region}:${aws:accountId}:identity/ocastelblanco.com
     # Bucket de contenido por stage (lab.json, assets). Sin puntos en el nombre:
     # un bucket con puntos rompe la validación TLS del SDK de AWS (ver
     # MEMORY.md §7 Gotchas). 100% privado — Task 4 lo expone vía CloudFront
