@@ -1,19 +1,13 @@
 name: Deploy to AWS Lambda
 
-# Flujo por ambientes (ADR-013): abrir/actualizar un PR contra la rama base
-# despliega `preview`; un push a la rama de producción (lo que genera un
-# merge de PR) despliega `production`. Sin trigger `push` sobre feature
-# branches — todo cambio pasa por PR (CLAUDE.md, ciclo de vida de un cambio).
-#
-# NOTA: `pull_request.branches` apunta hoy a `rediseno-2026` (rama base
-# vigente). El push trigger de producción apunta a `main`, que todavía no
-# existe — no se dispara hasta completar el renombrado (TODO.md, tarea
-# "Renombrar master -> main"). Actualizar ambos valores cuando esa tarea se
-# ejecute.
+# Flujo por ambientes (ADR-013): abrir/actualizar un PR contra `main`
+# despliega `preview`; un merge a `main` (push) despliega `production`. Sin
+# trigger `push` sobre feature branches — todo cambio pasa por PR
+# (CLAUDE.md, ciclo de vida de un cambio).
 on:
   pull_request:
     branches:
-      - rediseno-2026
+      - main
     types:
       - opened
       - synchronize

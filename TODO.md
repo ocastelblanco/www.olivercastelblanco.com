@@ -21,53 +21,7 @@
 
 ---
 
-## Tarea 1 — [INFRA]: Renombrar `master` → `main` y reemplazar su contenido con `rediseno-2026`
-
-**Origen:** paso 7 de la secuencia hacia el switch (`MEMORY.md` §2, ADR-013). Objetivo del
-día definido por el usuario: `rediseno-2026` reemplaza completamente a la rama de
-producción, que además pasa a llamarse `main`. El workflow de CI/CD (tarea anterior, ya
-fusionada) ya está listo para `main` — su job `deploy-production` no se ha disparado
-todavía porque `main` no existe; esta tarea lo activa por primera vez.
-
-**Archivos:** ninguno de código de aplicación — operación de Git/GitHub (ramas, default
-branch, protecciones), `.github/workflows/deploy.yml` (actualizar referencias de rama) y
-`CLAUDE.md` (referencias a `master`/`rediseno-2026` en el git flow).
-
-**Qué hacer:**
-1. Confirmar con el usuario el momento exacto de ejecutar esto — es una operación sobre
-   la estructura del repo, no reversible con un simple revert (ver Prohibiciones de
-   `CLAUDE.md`: ningún push directo a ramas protegidas, y esto redefine cuál es la rama
-   protegida).
-2. Crear `main` a partir del contenido actual de `rediseno-2026` (`git push origin
-   rediseno-2026:main` o equivalente) — **no** un rename de `rediseno-2026` en sí, para no
-   perder la trazabilidad de las 40+ tareas ya documentadas contra ese nombre de rama.
-3. Cambiar el default branch del repositorio en GitHub de `master` a `main`
-   (`gh repo edit --default-branch main`).
-4. Actualizar las reglas de protección de rama: `main` protegida (regla que hoy tiene
-   `master`), `rediseno-2026` deja de ser rama protegida de larga vida.
-5. Actualizar `.github/workflows/deploy.yml`: `pull_request.branches` de `rediseno-2026`
-   a `main`. El `push.branches: [main]` del job `deploy-production` no necesita cambio —
-   ya apunta ahí, y este es el momento en que empieza a dispararse de verdad.
-6. Actualizar `CLAUDE.md` §"Git Flow para Agentes IA": reemplazar las referencias a
-   `master`/`rediseno-2026` como ramas protegidas por `main` únicamente; quitar las notas
-   condicionales ("hoy `rediseno-2026`, tras el renombrado `main`") que ya no aplican.
-7. `master` (el sitio anterior) **no se borra** — queda como referencia histórica/rollback,
-   ya no como default branch ni protegida activamente.
-8. Verificar con un PR de prueba que `deploy-preview` dispara contra `main`, y que un
-   merge a `main` dispara `deploy-production` de verdad (primera ejecución real de ese
-   job) — confirmar que el Lambda de producción queda con `LAB_PUBLISH_TOKEN` real.
-
-**Definition of done:**
-- [ ] `main` existe en GitHub con el contenido de `rediseno-2026`, es el default branch y la rama protegida
-- [ ] `rediseno-2026` deja de ser la rama base de nuevos PRs
-- [ ] `master` sigue existiendo (rollback), pero no es default ni recibe nuevos PRs
-- [ ] `deploy.yml` actualizado (`pull_request.branches: [main]`) y `CLAUDE.md` sin referencias condicionales a `master`/`rediseno-2026`
-- [ ] Un PR de prueba contra `main` dispara `deploy-preview` correctamente
-- [ ] Un merge a `main` dispara `deploy-production` por primera vez, y el Lambda de producción queda con `LAB_PUBLISH_TOKEN` real (verificable con `aws lambda get-function-configuration`)
-
----
-
-## Tarea 2 — [INFRA]: EL SWITCH — preparación (la ejecución requiere autorización explícita)
+## Tarea 1 — [INFRA]: EL SWITCH — preparación (la ejecución requiere autorización explícita)
 
 **Origen:** paso 8, última de la secuencia hacia el switch (`MEMORY.md` §2, ADR-012).
 Cierra el objetivo del día: reemplazar el sitio en vivo por el rediseño. **Esta entrada
@@ -106,7 +60,57 @@ producción... sin que el usuario lo pida en ese momento y de forma inequívoca"
 
 ---
 
+## Tarea 2 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
+
+**Origen:** gap documentado desde ADR-011 (2026-07-11): `ContentService.loadLabEntries()`
+solo hace fetch de `lab.json` cuando `isPlatformBrowser` es verdadero — el SSR/prerender
+no incluye las entradas de Lab en el HTML inicial servido a buscadores/crawlers. Es
+independiente del switch (no depende de que exista `main` ni de que el sitio esté en
+producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA".
+
+**Archivos:** `src/app/core/content/content.service.ts`, posiblemente
+`src/app/features/lab/lab.ts` (o el componente que resuelve la ruta `/lab`).
+
+**Qué hacer:**
+1. Revisar el mecanismo actual de `loadLabEntries()` — hoy condicionado a
+   `isPlatformBrowser`, evaluar mover la carga a un resolver/guard SSR-safe (Angular
+   `ResolveFn`) o a un `TransferState` que precargue en el servidor y evite un doble fetch
+   en el cliente.
+2. Verificar que el fetch SSR funcione tanto contra el fixture de dev
+   (`content/lab.dev.json`) como contra la URL real de producción
+   (`environment.prod.ts.labContentUrl`, hoy `/content/lab.json`, same-origin).
+3. Confirmar que el prerender (`ng build`, 7 rutas estáticas) incluye las entradas de Lab
+   en el HTML de `/lab` — verificable con `grep` sobre `dist/ocastelblanco/browser/lab/index.html`.
+4. No romper el flujo actual de actualización de contenido (Google Sheets → `POST /lab` →
+   S3) — el fetch SSR debe seguir siendo dinámico en cada build/request, no cachear
+   contenido stale de forma permanente.
+
+**Definition of done:**
+- [ ] El HTML pre-renderizado de `/lab` incluye el contenido real de las entradas (verificable con `curl`/`grep`, sin ejecutar JS)
+- [ ] El fetch no se duplica innecesariamente entre servidor y cliente (o si se duplica, está justificado y documentado)
+- [ ] Funciona igual en dev (fixture) y en preview/producción (URL real)
+- [ ] `npm run build` y `npm run lint` en verde
+- [ ] Documentado en `MEMORY.md` ADR-011 que el gap quedó cerrado
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-08-04 — [INFRA]: Renombrar `master` → `main` y reemplazar su contenido con `rediseno-2026`
+
+Implementado el paso 7 de la secuencia hacia el switch (ADR-013), penúltimo antes del
+switch. Confirmado explícitamente con el usuario antes de ejecutar (crear `main` dispara
+de inmediato el primer `deploy-production` real, como efecto secundario del push).
+`git push origin rediseno-2026:main` creó `main` sin renombrar la rama origen (se
+conserva `rediseno-2026` con su historial intacto) — ese mismo push disparó
+`deploy-production` por primera vez: exitoso, `deploy-preview` correctamente omitido,
+`LAB_PUBLISH_TOKEN` de producción confirmado configurado. Default branch del repositorio
+cambiado a `main`. Hallazgo: ni `master` ni `rediseno-2026` tenían protección de rama real
+en GitHub — la "protección" siempre fue una convención de `CLAUDE.md`, no una regla de
+plataforma, así que no hubo nada que migrar. `.github/workflows/deploy.yml` y `ci.yml`
+actualizados de `master`/`rediseno-2026` a `main`; `CLAUDE.md` §"Git Flow" actualizado sin
+condicionales. `master` y `rediseno-2026` no se borraron — quedan como referencia
+histórica sin protección activa.
 
 ### 2026-08-04 — [INFRA]: Nuevo flujo CI/CD — PR abre `preview`, merge a `main` despliega `production`
 
@@ -471,6 +475,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-04 (8) | Renombrado master → main completado y verificado: primer deploy-production real disparado y exitoso, LAB_PUBLISH_TOKEN confirmado configurado, default branch cambiado. Siguiente prioridad: EL SWITCH en modo preparación (ya seleccionada como Tarea 2, único paso restante de la secuencia de 8) pasa a Tarea 1. Para la nueva Tarea 2 se elige de la lista de pendientes no bloqueantes (`MEMORY.md` §2): "Evaluar fetch SSR de lab.json" — gap de SEO documentado desde ADR-011, independiente del switch, acción concreta ejecutable ya (a diferencia de la auto-respuesta SES, que depende de una solicitud externa a AWS, o la bitácora de proceso, que sigue dependiendo del switch) | Tarea 1 (Renombrar master → main) movida al historial. Tarea 2 (EL SWITCH, preparación) pasa a ser Tarea 1. Nueva Tarea 2: Fetch SSR de The Lab |
 | 2026-08-04 (7) | Nuevo flujo CI/CD implementado y verificado parcialmente (deploy-preview confirmado en vivo vía PR #27; deploy-production verificado solo por código, no se ha disparado porque main no existe). Siguiente prioridad: Renombrar master → main (ya seleccionada como Tarea 2, es el único paso que falta para activar deploy-production de verdad) pasa a Tarea 1. Para la nueva Tarea 2 se agrega EL SWITCH (paso 8, última de la secuencia) en modo preparación/planificación únicamente — la ejecución real sigue exigiendo autorización explícita del usuario en el momento (CLAUDE.md), el motor JIT solo trackea el trabajo previo | Tarea 1 (Nuevo flujo CI/CD) movida al historial. Tarea 2 (Renombrar master → main) pasa a ser Tarea 1. Nueva Tarea 2: EL SWITCH (preparación) |
 | 2026-08-04 (6) | CloudFront Function de 301 completada y verificada en AWS real (probada con `aws cloudfront test-function` antes de asociarla, sitio anterior sin cambios). Siguiente prioridad: Nuevo flujo CI/CD (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Renombrar master → main" (paso 7 de la secuencia en `MEMORY.md` §2): depende de que el nuevo flujo CI/CD ya apunte a `main` para evitar una ventana sin CI funcionando, por lo que queda en el slot 2 hasta que la Tarea 1 se complete | Tarea 1 (CloudFront Function 301) movida al historial. Tarea 2 (Nuevo flujo CI/CD) pasa a ser Tarea 1. Nueva Tarea 2: Renombrar master → main |
 | 2026-08-04 (5) | Assets + behaviors de CloudFront ejecutada con alcance reducido a `/content/*` tras detectar que un behavior amplio `*.js`/`*.css` habría roto el sitio en vivo (mismo patrón de nombres con hash) — aprobado por el usuario antes de tocar la distribución. Completada y verificada en AWS real (OAC, bucket policy condicionada, sitio anterior sin cambios). Siguiente prioridad: CloudFront Function de 301 (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Nuevo flujo CI/CD" (paso 6 de la secuencia en `MEMORY.md` §2): es independiente de la Tarea 1 (ambas tocan la distribución/el pipeline pero configuran cosas distintas) y resuelve un pendiente conocido (`LAB_PUBLISH_TOKEN` vacío en `production`) | Tarea 1 (Assets + behaviors CloudFront) movida al historial. Tarea 2 (CloudFront Function 301) pasa a ser Tarea 1. Nueva Tarea 2: Nuevo flujo CI/CD |
