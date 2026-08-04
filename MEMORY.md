@@ -7,7 +7,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — preparando el switch de producción (paso 1/8 completado, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
+| Versión | MVP en construcción — preparando el switch de producción (pasos 1-2/8 completados, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
@@ -47,9 +47,9 @@ solo `update-distribution` reversible (ADR-012). Las 2 primeras son las tareas a
 motor JIT; el resto vive aquí hasta que se libere un slot.
 
 1. [x] **Base multi-stage** — dominio de API por stage, buckets de contenido, `fileReplacements`, CORS por stage. Completada y verificada en AWS real 2026-08-04 (PR #22, ver historial en `TODO.md`)
-2. [ ] **Terminal de contacto funcional** — SES + rate limiting (gap OWASP A07 que bloquea producción) ← **Tarea 1**
-3. [ ] **The Lab a S3** — `lab-handler.mjs` escribe `content/lab.json` con `@aws-sdk/client-s3`, IAM mínimo, invalidación de CloudFront (cierra el gap de ADR-011) ← **Tarea 2**
-4. [ ] **Assets + behaviors de CloudFront** — subir `dist/ocastelblanco/browser/` al bucket y configurar los behaviors por ruta (`/content/*` y assets → S3, resto → Lambda SSR)
+2. [x] **Terminal de contacto funcional** — SES + rate limiting (gap OWASP A07 que bloquea producción). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/contacto-ses-rate-limiting`)
+3. [ ] **The Lab a S3** — `lab-handler.mjs` escribe `content/lab.json` con `@aws-sdk/client-s3`, IAM mínimo, invalidación de CloudFront (cierra el gap de ADR-011) ← **Tarea 1**
+4. [ ] **Assets + behaviors de CloudFront** — subir `dist/ocastelblanco/browser/` al bucket y configurar los behaviors por ruta (`/content/*` y assets → S3, resto → Lambda SSR) ← **Tarea 2**
 5. [ ] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012)
 6. [ ] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013)
 7. [ ] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013)
@@ -540,6 +540,9 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 | Serverless service name | `ocastelblanco-com` | Definido en `serverless.yml` |
 | Región AWS | `us-east-1` | Definido en `serverless.yml` y workflow |
 | GitHub Secrets | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `SERVERLESS_LICENSE_KEY`, `LAB_PUBLISH_TOKEN` | Configurados |
+| Rate limiting `/contact` y `/lab` | `provider.httpApi.throttle`: `burstLimit: 10`, `rateLimit: 5` (req/s sostenidas) | Activo desde el 2026-08-04, ambos stages. Aplica a toda la HTTP API compartida, no solo a `/contact` |
+| Concurrencia reservada `contact` | `reservedConcurrency: 5` | Activo desde el 2026-08-04. Verificar con `aws lambda get-function-concurrency` — **no** aparece en `get-function-configuration` |
+| Remitente del formulario de contacto | `contacto@ocastelblanco.com` → `ocastelblanco@gmail.com` (Reply-To: email del visitante) | Activo desde el 2026-08-04 (ADR-014). Rol dedicado `ContactLambdaRole`, solo `ses:SendEmail` |
 
 ### Inventario AWS (auditado 2026-08-04, cuenta `696912647258`)
 
@@ -658,6 +661,7 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 | ✅ *(resuelto 2026-08-04)* `environment.prod.ts` nunca se usaba — no había `fileReplacements` en `angular.json` | Ahora `production`/`preview`/`development` tienen sus `fileReplacements`. Lección: no asumir que un `environment.*.ts` está activo solo porque existe el archivo — verificar con `grep` en el bundle de `dist/` que la URL esperada quedó realmente compilada. |
 | SES en sandbox | Restringe **destinatarios**, no remitentes. Enviar a una identidad verificada (`ocastelblanco@gmail.com`) funciona; enviar al email arbitrario de un visitante (auto-respuesta) falla hasta pedir production access. |
 | El clasificador de permisos de Claude Code bloquea comandos AWS mutantes (deploy, delete-api-mapping) aunque el usuario ya haya autorizado la acción en general | Cada comando destructivo/mutante pide su propia aprobación puntual en el momento de ejecutarse — no basta un "sí" genérico previo. Explicar qué hace el comando exacto antes de que el usuario lo apruebe. |
+| `aws lambda get-function-configuration` **no** expone `ReservedConcurrentExecutions` | Es una API separada: `aws lambda get-function-concurrency --function-name <fn>`. Si sale `null`/vacío en `get-function-configuration`, no significa que la concurrencia reservada no esté configurada — hay que consultar el endpoint correcto antes de reportar un fallo. |
 | Dominio `api.ocastelblanco.com` era EDGE en API Gateway (incompatible con HTTP API v2) | Se eliminó y recreó como REGIONAL con `npx sls create_domain`. CNAME en Route 53 actualizado manualmente a `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com`. |
 | `.gitignore` del sitio anterior se eliminó junto con todo lo demás | Se recreó un `.gitignore` nuevo en el primer commit de `rediseno-2026`, incluyendo `src/secrets/secrets*.ts`, `.claude/` y `.omc/` |
 | TypeScript 6 (`~6.0.2`) ya no soporta `baseUrl` en `tsconfig.json` (TS5101) | Omitir `baseUrl`; los `paths` deben usar rutas relativas con prefijo `./` (TS5090), p. ej. `["./src/app/core/*"]` |
@@ -795,7 +799,32 @@ sigue siendo un stub — pero hay que recordarlo cuando el paso 6 (job de CI par
 A07). **Tarea 2 nueva:** The Lab → S3 real — el bloqueo original (bucket inexistente)
 desapareció con esta tarea.
 
-**Estado al cierre:** PR #22 abierta (`feature/base-multi-stage` → `rediseno-2026`), sin
-fusionar. La infraestructura ya está desplegada y verificada en AWS aunque el PR del código
-que la generó siga pendiente de revisión — es el patrón normal en infraestructura como
-código: el estado real ya coincide con lo que el PR propone.
+**Estado al cierre:** PR #22 (`feature/base-multi-stage` → `rediseno-2026`) aprobada y
+fusionada por el usuario. Rama local limpiada (`git branch -d`, `git remote prune`).
+
+## 12. Sesión 2026-08-04 (continuación 2) — Ejecución de la Tarea: Contacto vía SES
+
+**Qué se hizo:** implementado y desplegado el paso 2 de la secuencia de §2 (ADR-014).
+
+- `contact-handler.mjs`: entrega real vía `@aws-sdk/client-sesv2` (`SendEmailCommand`),
+  `contacto@ocastelblanco.com` → `ocastelblanco@gmail.com`, `Reply-To` al visitante. Cuerpo
+  en texto plano (A03); el `Subject` sanea saltos de línea del campo `name` (viaja como
+  header de correo, el body no).
+- `serverless.yml`: rol IAM dedicado `ContactLambdaRole` (solo logs + `ses:SendEmail`
+  acotado a la identidad de dominio, A01) reemplazando el rol compartido del servicio solo
+  para esta función. Rate limiting (A07): `provider.httpApi.throttle`
+  (`burstLimit: 10`, `rateLimit: 5`, aplica a toda la HTTP API) +
+  `reservedConcurrency: 5` en `contact`.
+- Desplegado a `preview` vía el workflow existente (push a la feature branch).
+- Verificado en vivo contra `preview-api.ocastelblanco.com`: honeypot sigue devolviendo
+  `200` sin invocar SES; payload inválido sigue devolviendo `400`; un mensaje válido de
+  prueba devolvió `200 {"ok":true}` y el log de CloudWatch confirma que no hubo
+  `contact_send_failed` (SES aceptó el envío en 332ms). Rol y concurrencia reservada
+  verificados con `aws lambda get-function-concurrency` (`get-function-configuration` **no**
+  expone `ReservedConcurrentExecutions` — gotcha nuevo para la próxima vez).
+
+**Pendiente, no bloqueante:** auto-respuesta al visitante sigue sin implementar — requiere
+sacar SES del sandbox (production access), ya documentado como pendiente en §2.
+
+**Próxima tarea (Tarea 1 nueva):** The Lab → S3 real (paso 3 de la secuencia). **Tarea 2
+nueva:** Assets + behaviors de CloudFront (paso 4).
