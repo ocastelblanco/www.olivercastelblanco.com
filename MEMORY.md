@@ -7,14 +7,14 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — shell, i18n, Home, Proyectos, Contacto, The Lab + CI/CD Lambda + SEO técnico implementados |
+| Versión | MVP en construcción — preparando el switch de producción (ver `MEMORY.md` §2 "Secuencia hacia el switch") |
 | URL producción | `https://ocastelblanco.com` (sitio anterior aún activo en `master`) |
 | URL preview (Lambda) | Lambda Function URL en stage `preview` — se genera tras primer push al workflow CI/CD |
 | URL CDN | `https://cdn.ocastelblanco.com` (no provisionado en esta iteración) |
 | URL API | `https://api.ocastelblanco.com` — activo, apunta al HTTP API Gateway del stage `preview` |
-| Rama principal (protegida) | `master` — sitio anterior (Angular Universal + Serverless) |
-| Rama de desarrollo (protegida) | `rediseno-2026` — rediseño desde cero |
-| Última sesión | 2026-06-22 |
+| Rama principal (protegida) | `master` — sitio anterior. **Se renombra a `main` y se reemplaza con `rediseno-2026`** (ADR-013) |
+| Rama de desarrollo (protegida) | `rediseno-2026` — rediseño desde cero. Desaparece tras el renombrado |
+| Última sesión | 2026-08-04 |
 
 ## 2. Funcionalidades
 
@@ -40,11 +40,26 @@
 - [x] SEO técnico básico (`SeoService`, JSON-LD Person+WebSite vía DOCUMENT, meta tags OG+Twitter Card, `public/sitemap.xml` con 6 rutas, PR #16 fusionada)
 - [x] Arquitectura de contenido — Casos de estudio (JSON tipado) + The Lab (Sheets→API→S3, ADR-011), `ContentService`, subset Markdown seguro, endpoint `POST /lab` (stub validado), Apps Script documentado (PR #17 fusionada)
 
-### Pendientes (ver `TODO.md` para las 2 tareas activas)
-- [ ] `serverless.yml` production stage + CloudFront + S3 para assets estáticos ← **siguiente**
-- [ ] Escribir `lab.json` a S3 desde `lab-handler.mjs` con `@aws-sdk/client-s3` (bloqueado por la existencia del bucket de contenido; se resuelve como parte del deploy de producción)
-- [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (depende del deploy de producción)
+### Secuencia hacia el switch de producción (2026-08-04)
+
+Orden de ejecución acordado. Todo se monta **antes** del switch para que el corte sea un
+solo `update-distribution` reversible (ADR-012). Las 2 primeras son las tareas activas del
+motor JIT; el resto vive aquí hasta que se libere un slot.
+
+1. [ ] **Base multi-stage** — dominio de API por stage, buckets de contenido, `fileReplacements`, CORS por stage ← **Tarea 1, bloquea todo lo demás**
+2. [ ] **Terminal de contacto funcional** — SES + rate limiting (gap OWASP A07 que bloquea producción) ← **Tarea 2**
+3. [ ] **The Lab a S3** — `lab-handler.mjs` escribe `content/lab.json` con `@aws-sdk/client-s3`, IAM mínimo, invalidación de CloudFront (cierra el gap de ADR-011)
+4. [ ] **Assets + behaviors de CloudFront** — subir `dist/ocastelblanco/browser/` al bucket y configurar los behaviors por ruta (`/content/*` y assets → S3, resto → Lambda SSR)
+5. [ ] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012)
+6. [ ] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013)
+7. [ ] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013)
+8. [ ] **EL SWITCH** — cambiar el origen de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`
+
+### Pendientes (no bloquean el switch)
+- [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (retirada de la lista activa; depende del switch)
 - [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO)
+- [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
+- [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
 
 ## 3. Registro de Decisiones de Arquitectura (ADRs)
 
@@ -374,6 +389,113 @@
     el secret `LAB_PUBLISH_TOKEN` de GitHub Actions (pasado al deploy de `serverless.yml`)
     — nunca en el código fuente.
 
+### ADR-012 — Switch a producción: reusar la distribución CloudFront existente, con dos orígenes
+
+- **Fecha:** 2026-08-04
+- **Estado:** Decidido, pendiente de implementar
+- **Contexto:** El sitio anterior se sirve desde la distribución CloudFront
+  `E1MX0LNEKZOG8H` (`dskarpvm0nxbp.cloudfront.net`), cuyo origen es el bucket S3
+  `ocastelblanco.com`. Esa **única** distribución tiene los cuatro hostnames como alias:
+  `ocastelblanco.com`, `www.ocastelblanco.com`, `olivercastelblanco.com` y
+  `www.olivercastelblanco.com` (los dos primeros vía la zona `Z1IA95OEGZFX3B`, los otros
+  dos vía `Z2R96ZJLUQAPS0`, todos como registros ALIAS de tipo A).
+- **Restricción determinante:** un alias (CNAME) de CloudFront solo puede existir en **una**
+  distribución a la vez, globalmente. Por lo tanto es **imposible** pre-construir una
+  distribución nueva que ya cargue esos alias y probarla por el dominio real antes del
+  corte. Cualquier estrategia de "distribución nueva" obliga a quitar los alias de la vieja
+  y agregarlos a la nueva, con una ventana en la que ningún hostname responde.
+- **Decisión:**
+  1. **Reusar la distribución existente.** El switch consiste en cambiar su origen del
+     bucket S3 del sitio viejo a la Lambda Function URL del stage `production`. No se toca
+     Route 53, no hay propagación de DNS que esperar, no hay conflicto de alias, y el
+     rollback es restaurar el origen anterior (un solo `update-distribution`).
+  2. **Una sola distribución con dos orígenes**, en vez del `cdn.ocastelblanco.com`
+     separado que planteaba ADR-011. Behaviors por ruta: `/content/*` y los assets
+     estáticos van al bucket S3 de contenido; el resto (`/*`) va al Lambda SSR.
+  3. **`olivercastelblanco.com` deja de servir contenido duplicado**: una CloudFront
+     Function en el evento `viewer-request` devuelve `301` hacia el hostname equivalente
+     en `ocastelblanco.com`, que queda como dominio canónico.
+- **Razón:** el objetivo del día es que el corte sea lo más rápido y reversible posible.
+  Reusar la distribución convierte el switch en una operación atómica. La topología de un
+  solo CloudFront además deja el fetch de `lab.json` **same-origin**, lo que elimina el
+  preflight CORS, un segundo certificado y un registro DNS extra. El 301 consolida la
+  autoridad SEO en un dominio en vez de repartirla entre dos con contenido idéntico.
+- **Consecuencias:**
+  - La distribución `E1MX0LNEKZOG8H` queda **gestionada manualmente** (CLI/consola), no por
+    `serverless.yml` — CloudFormation no adopta recursos preexistentes sin un import
+    explícito. Cualquier cambio en ella debe registrarse en este ADR. Migrarla a IaC queda
+    como pendiente no bloqueante.
+  - El bucket S3 del sitio anterior (`ocastelblanco.com`) **no se borra** tras el switch:
+    es el plan de rollback. Conservarlo al menos hasta que el rediseño lleve tiempo estable.
+  - Los buckets de contenido nuevos **no llevan puntos** en el nombre
+    (`ocastelblanco-cdn-production` / `-preview`). Un bucket con puntos rompe la validación
+    TLS del SDK de AWS (`bucket.s3.amazonaws.com` no matchea el wildcard `*.s3.amazonaws.com`),
+    y el `lab-handler` escribe ahí con `@aws-sdk/client-s3`.
+  - `cdn.ocastelblanco.com` no se provisiona. Si más adelante se quiere assets sin cookies,
+    se agrega como alias adicional sobre la misma distribución.
+  - Tras cada escritura de `lab.json` hay que invalidar `/content/*` (o dejar TTL corto).
+
+### ADR-013 — Flujo CI/CD por ambientes y renombrado de `master` a `main`
+
+- **Fecha:** 2026-08-04
+- **Estado:** Decidido, pendiente de implementar
+- **Decisión:**
+  1. **Rama de producción: `main`.** Se renombra `master` → `main` y su contenido se
+     reemplaza completamente por `rediseno-2026`. `main` pasa a ser la rama protegida de
+     producción; `rediseno-2026` desaparece como rama de larga vida.
+  2. **Todo cambio nace en una feature branch** (`feature/`, `fix/`, `docs/`, `refactor/`,
+     `hotfix/`), sin excepción.
+  3. **Abrir un PR dispara el deploy a `preview`.** El trigger pasa de `push` sobre ramas a
+     `pull_request` (`opened`, `synchronize`, `reopened`): el ambiente de preview solo se
+     consume cuando hay algo que revisar, y cada commit nuevo al PR lo actualiza.
+  4. **Fusionar el PR a `main` dispara el deploy a `production`.**
+  5. Los stages `preview` y `production` son infraestructura **completamente separada**
+     (Lambdas, API Gateway, dominio de API y bucket de contenido propios).
+- **Razón:** el usuario necesita validar cada cambio en una URL real antes de aprobarlo, y
+  que la aprobación humana del PR sea la única puerta a producción. Serverless Framework ya
+  aísla los recursos por stage, así que no hace falta infraestructura adicional para lograrlo
+  — solo volver stage-aware lo que hoy está hardcodeado.
+- **Consecuencias:**
+  - `preview` es un ambiente **permanente**, no un artefacto temporal. Por eso el CORS de
+    los handlers **no** debe restringirse solo a `https://ocastelblanco.com` como decía el
+    plan anterior (que mandaba borrar `LAMBDA_URL_RE`): la allowlist se inyecta por stage
+    como variable de entorno.
+  - Un solo Lambda URL de `preview` compartido: el último PR desplegado gana. Si dos PRs
+    abiertos compiten, hay que re-desplegar el que se quiera revisar.
+  - Todas las referencias a `master` deben actualizarse: `.github/workflows/ci.yml`,
+    `deploy.yml`, el git flow de `CLAUDE.md`, y el default branch en GitHub.
+  - Los PRs pasan a apuntar a `main` en vez de a `rediseno-2026`.
+  - Las reglas de `CLAUDE.md` siguen vigentes: el agente nunca fusiona ni aprueba un PR.
+
+### ADR-014 — Entrega del formulario de contacto vía Amazon SES
+
+- **Fecha:** 2026-08-04
+- **Estado:** Decidido, pendiente de implementar
+- **Contexto:** `contact-handler.mjs` valida el payload y escribe un `console.log` a
+  CloudWatch, pero **nunca entrega el mensaje** — el formulario está desconectado de punta
+  a punta desde que se implementó.
+- **Decisión:** entregar por Amazon SES (`@aws-sdk/client-sesv2`, `SendEmailCommand`) desde
+  `contacto@ocastelblanco.com` hacia `ocastelblanco@gmail.com`, con `Reply-To` apuntando al
+  email del visitante para poder responderle directamente desde el cliente de correo.
+- **Razón:** la cuenta ya tiene el dominio `ocastelblanco.com` verificado en SES
+  (`SendingEnabled: true`, DKIM configurado en Route 53) y `ocastelblanco@gmail.com`
+  verificado como identidad de email. No hace falta infraestructura ni proveedor nuevo.
+- **Consecuencias:**
+  - **SES está en sandbox** (`ProductionAccessEnabled: false`). El sandbox restringe
+    **destinatarios**, no remitentes: enviar al buzón ya verificado funciona hoy sin pedir
+    production access. Lo que **no** funciona en sandbox es una auto-respuesta al visitante
+    (destinatario arbitrario, no verificado) — queda pendiente y requiere solicitar el
+    acceso a producción primero.
+  - La identidad de dominio cubre cualquier remitente `@ocastelblanco.com`; la identidad
+    `info@ocastelblanco.com` figura en estado `FAILED` pero es irrelevante para esto.
+  - IAM mínimo: la función `contact` recibe solo `ses:SendEmail` sobre la identidad del
+    dominio (`CLAUDE.md` §6 A01), nunca `ses:*`.
+  - El mensaje del visitante se envía como cuerpo `Text`, no `Html`, para no arrastrar el
+    riesgo de inyección en el correo de notificación (`CLAUDE.md` §6 A03).
+  - Rate limiting obligatorio antes de producción (`CLAUDE.md` §6 A07): se resuelve con
+    `defaultRouteSettings` del HTTP API + `reservedConcurrency` en la función, en vez de
+    AWS WAF (~USD 6/mes, incompatible con el objetivo de costo ~cero de ADR-003).
+
 ## 4. Dependencias instaladas
 
 | Paquete | Versión | Tipo |
@@ -412,11 +534,27 @@
 |---|---|---|
 | Dominio principal | `ocastelblanco.com` | Activo (apunta al sitio anterior) |
 | Lambda stage `preview` | URL generada en primer deploy (ver GitHub Actions Step Summary) | Activo — despliega en cada push a feature branches y `rediseno-2026` |
-| Subdominio CDN | `cdn.ocastelblanco.com` | No provisionado en esta iteración |
-| Subdominio API | `api.ocastelblanco.com` | No provisionado |
+| Subdominio CDN | `cdn.ocastelblanco.com` | **Descartado** — se usa una sola distribución con dos orígenes (ADR-012) |
+| Subdominio API | `api.ocastelblanco.com` | Activo, atado hoy al stage `preview` — se reasigna a `production` en la Tarea 1 |
 | Serverless service name | `ocastelblanco-com` | Definido en `serverless.yml` |
 | Región AWS | `us-east-1` | Definido en `serverless.yml` y workflow |
-| GitHub Secrets | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `SERVERLESS_LICENSE_KEY` | Configurados |
+| GitHub Secrets | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `SERVERLESS_LICENSE_KEY`, `LAB_PUBLISH_TOKEN` | Configurados |
+
+### Inventario AWS (auditado 2026-08-04, cuenta `696912647258`)
+
+| Recurso | Identificador | Notas |
+|---|---|---|
+| Distribución CloudFront del sitio en vivo | `E1MX0LNEKZOG8H` → `dskarpvm0nxbp.cloudfront.net` | Origen actual: bucket S3 `ocastelblanco.com`. Tiene **los 4 alias**. Es la que se reusa en el switch (ADR-012) |
+| Zona Route 53 primaria | `Z1IA95OEGZFX3B` (`ocastelblanco.com`) | ALIAS tipo A del apex y de `www` → la distribución de arriba |
+| Zona Route 53 secundaria | `Z2R96ZJLUQAPS0` (`olivercastelblanco.com`) | ALIAS tipo A del apex y de `www` → **la misma** distribución |
+| Certificado ACM (us-east-1) | `…:certificate/58c03e3a-7a35-44c5-8c71-19a633764abb` | Cubre `ocastelblanco.com`, `*.ocastelblanco.com`, `olivercastelblanco.com`, `*.olivercastelblanco.com`. **No hace falta emitir uno nuevo** |
+| Certificado ACM wildcard extra | `…:certificate/21646dff-5c24-47c8-b35b-04a74f008d1e` | Solo `*.ocastelblanco.com`, sin usar (`InUse: false`) |
+| Dominio API Gateway | `api.ocastelblanco.com` → `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com` | REGIONAL, CNAME manual en Route 53 |
+| SES — identidad de dominio | `ocastelblanco.com` | `VerificationStatus: SUCCESS`, `SendingEnabled: true`, DKIM en Route 53 |
+| SES — identidad de email | `ocastelblanco@gmail.com` | `SUCCESS` — destinatario válido aun en sandbox |
+| SES — estado de la cuenta | `ProductionAccessEnabled: false` | **Sandbox**: restringe destinatarios, no remitentes (ver ADR-014) |
+| Buckets S3 del sitio anterior | `ocastelblanco.com`, `www.ocastelblanco.com` | **No borrar tras el switch** — son el plan de rollback |
+| Buckets de contenido nuevos | `ocastelblanco-cdn-production`, `ocastelblanco-cdn-preview` | Por crear (Tarea 1). Sin puntos en el nombre, a propósito |
 
 ## 6. Patrones de código establecidos
 
@@ -455,8 +593,16 @@ Sin `baseUrl` (deprecado en TS 6, TS5101). Los `paths` deben usar rutas con pref
 
 ### Entornos
 
-`src/environments/environment.ts` (dev) y `environment.prod.ts` exponen `production` y
-`apiUrl` (`https://dev.api.ocastelblanco.com` / `https://api.ocastelblanco.com`).
+> ⚠️ **Estado real (auditado 2026-08-04):** `angular.json` **no tiene `fileReplacements`**,
+> por lo que `src/environments/environment.prod.ts` es **código muerto** — todos los builds,
+> incluido el de producción, resuelven `@env/environment` a `environment.ts`. Consecuencia:
+> en producción The Lab leería el fixture de desarrollo (`content/lab.dev.json`) en vez del
+> `lab.json` real. Se corrige en la Tarea 1 del motor JIT definiendo configuraciones
+> `development` / `preview` / `production` con sus respectivos `fileReplacements`.
+
+`src/environments/environment.ts` (dev) y `environment.prod.ts` exponen `production`,
+`apiUrl` y `labContentUrl`. Solo dos archivos los consumen:
+`src/app/core/content/content.service.ts` y `src/app/core/services/contact.service.ts`.
 
 ### Design tokens (Technical Industrial Minimalism)
 
@@ -499,7 +645,12 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 | Situación | Solución |
 |---|---|
 | `git rm -rf .` en una rama huérfana no borra archivos que estaban en `.gitignore` (ya removido) | Limpiar manualmente `node_modules`, `dist`, `.angular`, `.DS_Store`, `src/secrets/*` después del `git rm` |
-| **CORS producción pendiente** — `contact-handler.mjs` permite `*.lambda-url.us-east-1.on.aws` para el stage preview | Al hacer el deploy de producción, eliminar `LAMBDA_URL_RE` de `src/lambda/contact-handler.mjs` (línea 3 y el `\|\|` en `corsHeaders`). En prod el único origen válido es `https://ocastelblanco.com`. |
+| **CORS por stage** — `contact-handler.mjs` y `lab-handler.mjs` permiten `*.lambda-url.us-east-1.on.aws` con una constante hardcodeada | ⚠️ **Corrige la instrucción anterior**, que mandaba eliminar `LAMBDA_URL_RE` al entrar a producción. Con ADR-013 `preview` es un ambiente permanente y necesita ese origen. La allowlist debe inyectarse por stage como variable de entorno: solo `https://ocastelblanco.com` en `production`, la Function URL en `preview`. |
+| Un alias (CNAME) de CloudFront solo puede existir en **una** distribución, globalmente | Imposible pre-construir una distribución nueva con los alias del sitio en vivo para probarla antes del corte. Por eso el switch reusa la distribución existente cambiándole el origen (ADR-012). |
+| Bucket S3 con puntos en el nombre rompe TLS en el SDK de AWS | `mi.bucket.s3.amazonaws.com` no matchea el wildcard `*.s3.amazonaws.com` del certificado. Los buckets que se accedan con `@aws-sdk/client-s3` (como el de contenido, que escribe `lab-handler`) deben ir **sin puntos**: `ocastelblanco-cdn-production`. |
+| `serverless.yml` fija `domainName: api.ocastelblanco.com` para cualquier stage | Desplegar un segundo stage hace que ambos se peleen el mismo dominio en API Gateway. El dominio debe resolverse por stage (`${self:custom.domains.${sls:stage}}`), y hay que liberar el mapeo viejo con `npx sls delete_domain --stage preview` antes de reasignarlo. |
+| `environment.prod.ts` nunca se usa — no hay `fileReplacements` en `angular.json` | Todos los builds resuelven `@env/environment` a `environment.ts`. Verificar con `grep` en el bundle de `dist/` que la URL esperada quedó compilada, no asumirlo por el nombre del archivo. |
+| SES en sandbox | Restringe **destinatarios**, no remitentes. Enviar a una identidad verificada (`ocastelblanco@gmail.com`) funciona; enviar al email arbitrario de un visitante (auto-respuesta) falla hasta pedir production access. |
 | Dominio `api.ocastelblanco.com` era EDGE en API Gateway (incompatible con HTTP API v2) | Se eliminó y recreó como REGIONAL con `npx sls create_domain`. CNAME en Route 53 actualizado manualmente a `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com`. |
 | `.gitignore` del sitio anterior se eliminó junto con todo lo demás | Se recreó un `.gitignore` nuevo en el primer commit de `rediseno-2026`, incluyendo `src/secrets/secrets*.ts`, `.claude/` y `.omc/` |
 | TypeScript 6 (`~6.0.2`) ya no soporta `baseUrl` en `tsconfig.json` (TS5101) | Omitir `baseUrl`; los `paths` deben usar rutas relativas con prefijo `./` (TS5090), p. ej. `["./src/app/core/*"]` |
@@ -525,11 +676,9 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 | `.github/workflows/ci.yml` | Workflow de CI: lint + build + test en push/PR a `master` y `rediseno-2026` |
 | `eslint.config.js` | Configuración de ESLint (`@angular-eslint/schematics`) |
 
-## 9. Contexto de la sesión actual
+## 9. Sesión 2026-07-11 — Arquitectura de contenido
 
-**Fecha:** 2026-07-11
-
-**Qué se hizo hoy:**
+**Qué se hizo:**
 - Arquitectura de contenido completada y fusionada (PR #17, ver ADR-011):
   - `ContentService` (`src/app/core/content/`, signals) como fuente única de contenido
     para Casos de estudio y The Lab.
@@ -555,11 +704,44 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 - Limpieza local: rama `feature/arquitectura-contenido` eliminada (local y remoto);
   `rediseno-2026` actualizado.
 
-**Próxima tarea (Tarea 1):** Deploy de producción — `serverless.yml` stage `production` +
-distribución CloudFront + bucket S3 `cdn.ocastelblanco.com`. Este mismo bucket es el que
-`lab-handler.mjs` necesita para dejar de ser un stub (ver Tarea 1 de `TODO.md`, paso nuevo
-de escritura a S3). Bitácora de proceso — Entrada MVP pasa a Tarea 2 (depende del deploy).
+---
 
-**Pendiente al entrar a producción:** eliminar `LAMBDA_URL_RE` de `src/lambda/contact-handler.mjs` (ver §7 Gotchas).
+## 10. Sesión 2026-08-04 — Plan del switch a producción
 
-**Verificar antes del deploy:** URLs `sameAs` del JSON-LD Person en `src/app/app.ts` — GitHub `https://github.com/ocastelblanco` y LinkedIn `https://linkedin.com/in/ocastelblanco`.
+**Objetivo del día (definido por el usuario):** reemplazar el sitio en vivo
+(`ocastelblanco.com` y `olivercastelblanco.com`) por el rediseño, montando todo lo posible
+**antes** del corte de DNS para que el switch sea rápido y simple. Además, fusionar
+`rediseno-2026` sobre la rama de producción, reemplazándola por completo.
+
+**Auditoría de AWS — cuatro hallazgos que reordenaron el plan:**
+
+1. **Prerequisito bloqueante:** `serverless.yml:9` fija `api.ocastelblanco.com` para
+   cualquier stage, y hoy lo tiene tomado `preview`. Desplegar `production` sin arreglarlo
+   hace que los dos stages se peleen el dominio. → Tarea 1.
+2. **El switch no admite pre-construcción:** los 4 hostnames son alias de la distribución
+   `E1MX0LNEKZOG8H`, y un alias de CloudFront solo puede vivir en una distribución. Se
+   decidió reusar esa distribución cambiándole el origen → el corte queda como un solo
+   `update-distribution` reversible (ADR-012).
+3. **Bug latente de producción:** `angular.json` no tiene `fileReplacements`, así que
+   `environment.prod.ts` es código muerto y The Lab en producción leería el fixture de
+   desarrollo. Absorbido en la Tarea 1.
+4. **El formulario de contacto nunca entregó nada:** `contact-handler.mjs:59` solo hace
+   `console.log`. Sumado a que `CLAUDE.md` §6 A07 prohíbe desplegar `/contact` sin rate
+   limiting, pasa a ser prioridad 1 del motor JIT → Tarea 2 (ADR-014).
+
+**Decisiones tomadas por el usuario en esta sesión:**
+
+| Decisión | Elección | Queda en |
+|---|---|---|
+| Rama de producción | Renombrar `master` → `main` | ADR-013 |
+| Estrategia de switch | Reusar la distribución CloudFront existente | ADR-012 |
+| Topología del CDN | Una distribución, dos orígenes (S3 + Lambda SSR) | ADR-012 |
+| Dominio secundario | `olivercastelblanco.com` → 301 al canónico | ADR-012 |
+
+**Lo que NO cambió y sigue vigente:**
+- **Verificar antes del switch:** URLs `sameAs` del JSON-LD Person en `src/app/app.ts` —
+  GitHub `https://github.com/ocastelblanco` y LinkedIn `https://linkedin.com/in/ocastelblanco`.
+- El gap de SSR de The Lab (ADR-011): el fetch solo corre en el navegador.
+
+**Estado al cierre de la sesión:** solo documentación. No se tocó infraestructura ni código
+de aplicación. La secuencia de 8 pasos vive en §2; las 2 tareas activas, en `TODO.md`.

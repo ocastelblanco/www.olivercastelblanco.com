@@ -197,15 +197,46 @@ directamente por el usuario sin validarla contra una lista explícita de dominio
 Las siguientes reglas son **obligatorias** para cualquier agente que opere en este
 repositorio. No existe excepción, aunque el usuario lo solicite explícitamente.
 
+### Ciclo de vida de un cambio (ADR-013)
+
+**Todo** cambio — feature, fix, documentación, refactor, tarea suelta — sigue este ciclo.
+No hay excepciones ni atajos, aunque el cambio sea de una línea.
+
+```
+feature branch  ──►  abrir PR  ──►  deploy automático a `preview`
+                                          │
+                    el usuario revisa en la URL de preview
+                                          │
+                    ajustes ──► commits a la misma rama ──► redeploy a `preview`
+                                          │
+                    el usuario aprueba y fusiona el PR
+                                          │
+                                          ▼
+                              deploy automático a `production`
+```
+
+Consecuencias para el agente:
+- **El agente nunca despliega a mano.** Desplegar es efecto de abrir un PR o de que un
+  humano lo fusione. No ejecutar `npx serverless deploy` salvo que el usuario lo pida
+  explícitamente para una operación puntual.
+- **Abrir el PR no es opcional**: es lo que genera el ambiente de revisión. Un cambio sin
+  PR es un cambio que el usuario no puede ver.
+- `preview` es un ambiente **permanente y compartido**: un solo Lambda URL, el último PR
+  desplegado gana. Si hay varios PRs abiertos, avisar al usuario cuál está publicado.
+
 ### Ramas protegidas
 
-Las ramas `master` y `rediseno-2026` están protegidas. **Ningún agente puede hacer commits
-directos a ellas.**
+La **rama de producción** y `rediseno-2026` están protegidas. **Ningún agente puede hacer
+commits directos a ellas.**
 
-> Nota: durante el bootstrap inicial del proyecto (documentación + primer boilerplate) se
-> permitió commitear directamente a `rediseno-2026` por ser una rama huérfana recién creada
-> sin flujo de PRs establecido todavía. A partir de que exista código funcional, esta regla
-> aplica estrictamente.
+> ⚠️ **Renombrado en curso (2026-08-04, ADR-013):** la rama de producción pasa de `master`
+> a **`main`**, y su contenido se reemplaza por `rediseno-2026`. Mientras el renombrado no
+> se haya ejecutado, la rama base de los PRs sigue siendo `rediseno-2026`. **Verificar
+> siempre cuál existe antes de crear un PR** (`git branch -r`) en vez de asumirlo.
+
+> Nota histórica: durante el bootstrap inicial del proyecto (documentación + primer
+> boilerplate) se permitió commitear directamente a `rediseno-2026` por ser una rama
+> huérfana recién creada sin flujo de PRs establecido todavía. Esa excepción ya venció.
 
 ### Protocolo obligatorio antes de cualquier cambio de código
 
@@ -213,21 +244,24 @@ directos a ellas.**
 ```bash
 git branch --show-current
 ```
-Si el resultado es `master` o `rediseno-2026`, ejecutar el Paso 2. Si ya hay una feature
-branch activa, continuar desde el Paso 3.
+Si el resultado es una rama protegida (`main`/`master` o `rediseno-2026`), ejecutar el
+Paso 2. Si ya hay una feature branch activa, continuar desde el Paso 3.
 
 **Paso 2 — Crear feature branch:**
 ```bash
-# Desde rediseno-2026 (nunca desde master)
-git checkout rediseno-2026
-git pull origin rediseno-2026
+# Confirmar primero cuál es la rama base vigente
+git branch -r
+
+# Desde la rama de desarrollo vigente (`main` tras el renombrado, `rediseno-2026` antes)
+git checkout <rama-base>
+git pull origin <rama-base>
 git checkout -b [PREFIJO]/descripcion-corta-en-kebab-case
 ```
 
 Prefijos válidos:
 - `feature/` — nueva funcionalidad
 - `fix/` — corrección de bug
-- `hotfix/` — corrección urgente (desde `master`)
+- `hotfix/` — corrección urgente (desde la rama de producción)
 - `docs/` — solo documentación
 - `refactor/` — refactorización sin cambio funcional
 
@@ -241,11 +275,11 @@ git add [archivos específicos]   # Nunca `git add .` o `git add -A`
 git commit -m "tipo(alcance): descripción en español colombiano"
 ```
 
-**Paso 4 — Crear el Pull Request al finalizar:**
+**Paso 4 — Crear el Pull Request al finalizar** (esto dispara el deploy a `preview`):
 ```bash
 git push -u origin HEAD
 gh pr create \
-  --base rediseno-2026 \
+  --base <rama-base> \
   --title "tipo(alcance): descripción breve" \
   --body "$(cat <<'EOF'
 ## Cambios realizados
@@ -268,16 +302,20 @@ EOF
 
 | Acción prohibida | Por qué |
 |---|---|
-| `git push origin master` | Commit directo a producción |
+| `git push origin main` (o `master`) | Commit directo a producción |
 | `git push --force` en cualquier rama | Destruye historial |
 | `git merge` de cualquier PR | Solo humanos pueden aprobar y fusionar |
 | `--no-verify` en commits o pushes | Omite hooks de seguridad |
 | `git add .` o `git add -A` | Puede incluir secretos o archivos no deseados |
 | Commitear `secrets.ts`, `.env`, `*.pem` | Exposición de credenciales |
+| `npx serverless deploy` por iniciativa propia | El despliegue lo dispara el PR o el merge, no el agente (ADR-013) |
+| Modificar la distribución CloudFront `E1MX0LNEKZOG8H` sin autorización explícita | Es la que sirve el sitio en vivo; un cambio de origen es el switch de producción (ADR-012) |
+| Borrar los buckets `ocastelblanco.com` / `www.ocastelblanco.com` | Son el plan de rollback del switch |
 
 ### El agente NUNCA debe:
 - Fusionar un PR (ni con `gh pr merge`, ni con `git merge`).
 - Aprobar su propio PR.
 - Cerrar un PR sin fusionar si el trabajo está completo — dejarlo abierto para revisión humana.
-- Crear un PR hacia `master` directamente (siempre hacia `rediseno-2026` primero, excepto
-  hotfixes documentados).
+- Crear un PR hacia la rama de producción saltándose el flujo (excepto hotfixes documentados).
+- Ejecutar el switch de producción (cambiar el origen de la distribución CloudFront) sin
+  que el usuario lo pida en ese momento y de forma inequívoca.
