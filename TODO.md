@@ -21,52 +21,14 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: The Lab → S3 real (cierra el gap de ADR-011)
-
-**Origen:** paso 3 de la secuencia hacia el switch (`MEMORY.md` §2). `lab-handler.mjs:75`
-valida el payload del Google Sheet pero nunca lo persiste — sigue siendo el stub original.
-Ya existen los buckets `ocastelblanco-cdn-production` y `ocastelblanco-cdn-preview`
-(Tarea 1 anterior), así que el bloqueo original desapareció.
-
-**Archivos:** `src/lambda/lab-handler.mjs`, `serverless.yml`, `package.json`.
-
-**Qué hacer:**
-1. Escribir `content/lab.json` en el bucket `CONTENT_BUCKET` (env var ya inyectada por
-   stage, ver `serverless.yml`) con `@aws-sdk/client-s3` (`PutObjectCommand`), reemplazando
-   el `// TODO: escribir a S3...` de `lab-handler.mjs:75`.
-2. IAM mínimo para la función `lab`: solo `s3:PutObject` sobre
-   `arn:aws:s3:::ocastelblanco-cdn-${sls:stage}/content/*` — nada de `s3:*` ni acceso a
-   otros prefijos del bucket.
-3. Los buckets son 100% privados (`BlockPublicAcls`, sin bucket policy pública, ver
-   ADR-012) — la lectura pública de `content/lab.json` llega en la Tarea de CloudFront
-   (paso 4 de la secuencia, `MEMORY.md` §2), no aquí. Esta tarea solo resuelve la
-   **escritura**.
-4. Invalidación de CloudFront: dejar el código listo (`@aws-sdk/client-cloudfront`,
-   `CreateInvalidationCommand` sobre `/content/*`) pero **condicionado a que exista una
-   distribución para ese stage** — hoy solo `production` tendrá una tras el switch. Usar
-   una env var `CLOUDFRONT_DISTRIBUTION_ID` opcional: si no está seteada, omitir la
-   invalidación sin fallar (stage `preview` no tiene CDN delante, ver
-   `environment.preview.ts`).
-5. Actualizar `environment.prod.ts`/`environment.preview.ts` si hiciera falta una vez se
-   confirme el path real servido.
-
-**Definition of done:**
-- [ ] `POST /lab` con token válido en `preview` escribe un objeto real en
-      `ocastelblanco-cdn-preview/content/lab.json` (verificable con `aws s3api get-object`)
-- [ ] El rol IAM de `lab` no tiene permisos S3 más amplios que `PutObject` sobre `/content/*`
-- [ ] Un payload inválido sigue devolviendo `400` sin escribir a S3
-- [ ] Un token inválido sigue devolviendo `401` sin escribir a S3
-- [ ] `npm run build` y `npm run lint` en verde
-
----
-
-## Tarea 2 — [INFRA]: Assets + behaviors de CloudFront
+## Tarea 1 — [INFRA]: Assets + behaviors de CloudFront
 
 **Origen:** paso 4 de la secuencia hacia el switch (`MEMORY.md` §2). Antes de poder hacer
 el switch (paso 8) la distribución `E1MX0LNEKZOG8H` necesita servir tanto el bundle
 Angular estático como el contenido dinámico del bucket, además de la Lambda SSR — hoy solo
-sirve el sitio anterior. Depende de la Tarea 1 (necesita que `content/lab.json` ya se
-pueda escribir para tener algo real que servir desde `/content/*`).
+sirve el sitio anterior. La tarea "The Lab → S3 real" (ya completada, ver historial) dejó
+la escritura de `content/lab.json` lista, así que ya hay algo real que servir desde
+`/content/*`.
 
 **Archivos:** `serverless.yml` o script de deploy (subida de assets a S3), configuración
 de CloudFront (gestionada manualmente fuera de IaC, ver ADR-012).
@@ -84,7 +46,8 @@ de CloudFront (gestionada manualmente fuera de IaC, ver ADR-012).
    el switch en sí, paso 8, no esta tarea).
 4. Cache policy adecuada por tipo de contenido: assets con hash (`outputHashing: all`, ya
    configurado) pueden cachear agresivo; `/content/lab.json` necesita TTL corto o
-   invalidación explícita (ver la Tarea 1, paso de invalidación condicional).
+   invalidación explícita (`lab-handler.mjs` ya soporta invalidación condicionada a
+   `CLOUDFRONT_DISTRIBUTION_ID` — setear esa env var una vez exista la distribución).
 5. **No tocar** los 4 alias existentes de la distribución todavía — eso también es parte
    del switch (paso 8), no de esta tarea.
 
@@ -97,7 +60,60 @@ de CloudFront (gestionada manualmente fuera de IaC, ver ADR-012).
 
 ---
 
+## Tarea 2 — [INFRA]: CloudFront Function de 301 — `olivercastelblanco.com` → dominio canónico
+
+**Origen:** paso 5 de la secuencia hacia el switch (`MEMORY.md` §2, ADR-012). Hoy
+`olivercastelblanco.com` y `www.olivercastelblanco.com` sirven exactamente el mismo
+contenido que `ocastelblanco.com` (mismo CloudFront, mismo origen) — contenido duplicado
+que penaliza SEO. El usuario ya decidió consolidar la autoridad en `ocastelblanco.com`
+como dominio canónico.
+
+**Archivos:** CloudFront Function (gestionada manualmente en la consola/CLI, fuera de
+`serverless.yml` — ver ADR-012 Consecuencias), asociada a la distribución `E1MX0LNEKZOG8H`.
+
+**Qué hacer:**
+1. Crear una CloudFront Function (runtime `cloudfront-js-2.0`) en el evento
+   `viewer-request` que, si el header `Host` es `olivercastelblanco.com` o
+   `www.olivercastelblanco.com`, devuelva un `301` hacia el mismo path en
+   `https://ocastelblanco.com` (preservando path y querystring).
+2. Para cualquier otro `Host` (`ocastelblanco.com`, `www.ocastelblanco.com`), dejar pasar
+   la request sin modificarla.
+3. Asociar la función al behavior por defecto (`/*`) de la distribución existente, en el
+   evento `viewer-request` (antes de que llegue al origen — evita gastar una invocación de
+   Lambda/fetch a S3 para una request que de todas formas se va a redirigir).
+4. **No** modificar los 4 alias de la distribución — la función coexiste con ellos, el
+   redirect ocurre a nivel de CloudFront Function, no de DNS.
+5. Verificar en Search Console (fuera de este repo) que el 301 no rompe el indexado
+   existente de `olivercastelblanco.com` — dejar la verificación anotada en `MEMORY.md`.
+
+**Definition of done:**
+- [ ] `curl -I https://olivercastelblanco.com/cualquier-ruta` devuelve `301` con
+      `Location: https://ocastelblanco.com/cualquier-ruta`
+- [ ] Lo mismo para `www.olivercastelblanco.com`
+- [ ] `curl -I https://ocastelblanco.com/` y `www.ocastelblanco.com` NO redirigen (siguen sirviendo el sitio anterior sin cambios — el switch aún no ocurrió)
+- [ ] Documentado en `MEMORY.md` ADR-012 el estado final de la CloudFront Function
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-08-04 — [FEATURE]: The Lab → S3 real (cierra el gap de ADR-011)
+
+Implementado el paso 3 de la secuencia hacia el switch. `lab-handler.mjs`: escritura real
+a `CONTENT_BUCKET/content/lab.json` con `@aws-sdk/client-s3` (`PutObjectCommand`),
+reemplazando el stub. Invalidación de CloudFront condicional
+(`@aws-sdk/client-cloudfront`, `CreateInvalidationCommand`) — se omite sin fallar si
+`CLOUDFRONT_DISTRIBUTION_ID` está vacío (el caso hoy, para ambos stages); un fallo de
+invalidación tampoco hace fallar el request, ya que la escritura a S3 se confirma antes.
+Rol IAM dedicado `LabLambdaRole` (mismo patrón que `ContactLambdaRole`): solo logs +
+`s3:PutObject` acotado a `/content/*` del bucket del propio stage + `cloudfront:CreateInvalidation`
+acotado a la distribución conocida (`E1MX0LNEKZOG8H`). Desplegado a `preview` vía el
+workflow existente y verificado en vivo contra `preview-api.ocastelblanco.com`: token
+inválido/ausente → `401` sin escribir; payload inválido con token válido → `400` sin
+sobrescribir (`ETag` verificado antes/después); payload válido con token real →
+`200 {"ok":true,"received":1}` con el objeto confirmado en S3 (contenido y `ContentType`
+correctos, `aws s3api get-object`). Objeto de prueba borrado al terminar. `npm run build`
+y `npm run lint` en verde.
 
 ### 2026-08-04 — [FEATURE]: Terminal de contacto funcional (SES) + rate limiting
 
@@ -394,6 +410,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-04 (4) | The Lab → S3 real completada y verificada en AWS real: escritura confirmada con `aws s3api get-object`, rol IAM dedicado, invalidación condicional sin romper el flujo cuando no hay distribución (`npm run build`/`lint` en verde). Siguiente prioridad: Assets + behaviors de CloudFront (ya seleccionada como Tarea 2, su dependencia de contenido real en `/content/*` quedó satisfecha) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "CloudFront Function de 301" (paso 5 de la secuencia en `MEMORY.md` §2): resuelve el problema de contenido duplicado SEO entre `olivercastelblanco.com` y el dominio canónico, es independiente de la Tarea 1 (ambas tocan la misma distribución pero configuran cosas distintas) | Tarea 1 (The Lab → S3) movida al historial. Tarea 2 (Assets + behaviors CloudFront) pasa a ser Tarea 1. Nueva Tarea 2: CloudFront Function de 301 |
 | 2026-08-04 (3) | Terminal de contacto vía SES completada y verificada en AWS real: envío confirmado en CloudWatch, honeypot y validaciones intactos, rol IAM dedicado y throttling verificados (`npm run build`/`lint` en verde). Siguiente prioridad: The Lab → S3 (ya seleccionada como Tarea 2, sin dependencias pendientes — el bloqueo original de bucket inexistente desapareció con la Tarea de base multi-stage) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Assets + behaviors de CloudFront" (paso 4 de la secuencia en `MEMORY.md` §2): depende de que The Lab → S3 exista para tener contenido real que servir desde `/content/*`, pero puede empezar a prepararse en paralelo (subida de assets, OAC) | Tarea 1 (Terminal de contacto) movida al historial. Tarea 2 (The Lab → S3) pasa a ser Tarea 1. Nueva Tarea 2: Assets + behaviors de CloudFront |
 | 2026-08-04 (2) | Base multi-stage completada y verificada en AWS real: ambos dominios de API responden por separado, ambos buckets de contenido existen y son privados, el bug de `fileReplacements` quedó corregido, y `production` sirve el rediseño completo por su Function URL (`npm run build`/`build:preview`/`lint` en verde, PR #22). El bloqueo que impedía avanzar con el switch desapareció. Siguiente prioridad: Terminal de contacto vía SES (ya seleccionada como Tarea 2, gap OWASP A07, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "The Lab → S3" (paso 3 de la secuencia en `MEMORY.md` §2): el bloqueo original (bucket inexistente) desapareció con la tarea recién completada, y es prerequisito de "Assets + behaviors CloudFront" (paso 4) | Tarea 1 (Base multi-stage) movida al historial. Tarea 2 (Contacto SES) pasa a ser Tarea 1. Nueva Tarea 2: The Lab → S3 real |
 | 2026-08-04 | El usuario define el objetivo del día: reemplazar el sitio en vivo (`ocastelblanco.com` + `olivercastelblanco.com`) por el rediseño, montando todo lo posible **antes** del switch de DNS para que el corte sea rápido y reversible. Se audita el estado real en AWS y aparecen cuatro hallazgos que reordenan el plan: (1) `serverless.yml` fija `api.ocastelblanco.com` para cualquier stage y hoy lo tiene `preview` — desplegar `production` sin arreglarlo genera conflicto, así que es prerequisito bloqueante; (2) los 4 hostnames son alias de la distribución CloudFront `E1MX0LNEKZOG8H` y un alias solo puede vivir en una distribución, por lo que **no** se puede pre-construir una distribución nueva con esos alias — se decide reusar la existente cambiándole el origen (ADR-012), lo que reduce el switch a un solo `update-distribution` reversible; (3) `angular.json` no tiene `fileReplacements`, así que `environment.prod.ts` es código muerto y The Lab en producción leería el fixture de desarrollo — bug latente que se absorbe en la Tarea 1; (4) el formulario de contacto nunca entregó mensajes (solo `console.log`), y `CLAUDE.md` §6 A07 prohíbe desplegar `/contact` sin rate limiting, lo que lo vuelve prioridad 1 (gap OWASP que bloquea producción). La tarea monolítica "Deploy de producción" se descompone en la secuencia ordenada de `MEMORY.md` §2. "Bitácora de proceso — Entrada MVP" se retira temporalmente de la lista activa (sigue dependiendo del switch) | Tarea 1 anterior (Deploy de producción) descompuesta. Nueva Tarea 1: Base multi-stage (`preview`/`production`). Nueva Tarea 2: Terminal de contacto funcional vía SES + rate limiting. "Bitácora de proceso" fuera de la lista activa, pendiente de reincorporación tras el switch |

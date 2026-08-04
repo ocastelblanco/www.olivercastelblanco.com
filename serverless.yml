@@ -46,6 +46,9 @@ provider:
     ALLOWED_ORIGINS: ${self:custom.corsOrigins.${sls:stage}}
     ALLOWED_ORIGIN_REGEX: ${self:custom.corsOriginRegex.${sls:stage}}
     CONTENT_BUCKET: ocastelblanco-cdn-${sls:stage}
+    # Vacío hasta el switch (MEMORY.md §2 paso 4/8) — sin distribución todavía
+    # para ningún stage. lab-handler.mjs omite la invalidación si está vacío.
+    CLOUDFRONT_DISTRIBUTION_ID: ${env:CLOUDFRONT_DISTRIBUTION_ID, ''}
 
 build:
   esbuild:
@@ -78,6 +81,8 @@ functions:
           method: OPTIONS
   lab:
     handler: src/lambda/lab-handler.handler
+    # Rol dedicado (least privilege) — ver resources.Resources.LabLambdaRole.
+    role: LabLambdaRole
     events:
       - httpApi:
           path: /lab
@@ -118,6 +123,33 @@ resources:
                 - Effect: Allow
                   Action: ses:SendEmail
                   Resource: arn:aws:ses:${aws:region}:${aws:accountId}:identity/ocastelblanco.com
+    # Rol dedicado para `lab` — solo logs + s3:PutObject acotado al prefijo
+    # /content/ del bucket de contenido del propio stage (nunca s3:* ni acceso
+    # a otros prefijos, CLAUDE.md §6 A01) + cloudfront:CreateInvalidation
+    # acotado a la distribución conocida (ADR-012) para cuando exista.
+    LabLambdaRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: lambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        Policies:
+          - PolicyName: WriteLabContent
+            PolicyDocument:
+              Version: '2012-10-17'
+              Statement:
+                - Effect: Allow
+                  Action: s3:PutObject
+                  Resource: arn:aws:s3:::ocastelblanco-cdn-${sls:stage}/content/*
+                - Effect: Allow
+                  Action: cloudfront:CreateInvalidation
+                  Resource: arn:aws:cloudfront::${aws:accountId}:distribution/E1MX0LNEKZOG8H
     # Bucket de contenido por stage (lab.json, assets). Sin puntos en el nombre:
     # un bucket con puntos rompe la validación TLS del SDK de AWS (ver
     # MEMORY.md §7 Gotchas). 100% privado — Task 4 lo expone vía CloudFront

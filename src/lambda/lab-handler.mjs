@@ -1,3 +1,6 @@
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront';
+
 // Allowlist inyectada por stage (ver serverless.yml custom.corsOrigins /
 // corsOriginRegex) — production solo acepta el dominio real, preview además
 // acepta su propia Lambda Function URL.
@@ -8,6 +11,16 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
 const ALLOWED_ORIGIN_REGEX = process.env.ALLOWED_ORIGIN_REGEX
   ? new RegExp(process.env.ALLOWED_ORIGIN_REGEX)
   : null;
+
+const CONTENT_BUCKET = process.env.CONTENT_BUCKET;
+const CONTENT_KEY = 'content/lab.json';
+// Vacío hasta que exista una distribución para el stage (hoy solo `preview`
+// está desplegado; `production` la recibe recién en el switch, ver
+// MEMORY.md §2 paso 4/8). Sin distribución configurada, se omite la
+// invalidación sin fallar el request.
+const CLOUDFRONT_DISTRIBUTION_ID = process.env.CLOUDFRONT_DISTRIBUTION_ID || '';
+const s3 = new S3Client({});
+const cloudfront = new CloudFrontClient({});
 
 function isAllowedOrigin(origin) {
   return ALLOWED_ORIGINS.includes(origin) || (ALLOWED_ORIGIN_REGEX?.test(origin) ?? false);
@@ -80,8 +93,38 @@ export const handler = async (event) => {
     }
   }
 
-  // TODO: escribir a S3 con @aws-sdk/client-s3 cuando el bucket de contenido exista
-  // (ver Tarea 2 del TODO.md). Por ahora solo se valida el payload y se responde el stub.
+  try {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: CONTENT_BUCKET,
+        Key: CONTENT_KEY,
+        Body: JSON.stringify(body),
+        ContentType: 'application/json',
+      }),
+    );
+  } catch (err) {
+    console.error(JSON.stringify({ event: 'lab_write_failed', error: err.message }));
+    return json(502, { error: 'No se pudo publicar el contenido. Intenta de nuevo.' }, origin);
+  }
+
+  if (CLOUDFRONT_DISTRIBUTION_ID) {
+    try {
+      await cloudfront.send(
+        new CreateInvalidationCommand({
+          DistributionId: CLOUDFRONT_DISTRIBUTION_ID,
+          InvalidationBatch: {
+            CallerReference: `lab-${Date.now()}`,
+            Paths: { Quantity: 1, Items: [`/${CONTENT_KEY}`] },
+          },
+        }),
+      );
+    } catch (err) {
+      // La escritura a S3 ya se confirmó — una invalidación fallida solo
+      // retrasa la propagación (el TTL de CloudFront la resuelve igual), no
+      // amerita devolver error al cliente.
+      console.error(JSON.stringify({ event: 'lab_invalidation_failed', error: err.message }));
+    }
+  }
 
   return json(200, { ok: true, received: body.length }, origin);
 };
