@@ -10,6 +10,8 @@ import { join } from 'node:path';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
+// Evita filtrar el stack en el header Response (CLAUDE.md §6 A05).
+app.disable('x-powered-by');
 const angularApp = new AngularNodeAppEngine();
 
 /**

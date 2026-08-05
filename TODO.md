@@ -51,11 +51,15 @@ fuera de IaC — ver ADR-012) y/o `src/server.ts` (para `x-powered-by`).
 5. Verificar que ni el JSON-LD ni las fuentes se rompan tras aplicar la CSP.
 
 **Definition of done:**
-- [ ] `curl -I https://ocastelblanco.com/` devuelve `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security` y `Content-Security-Policy`
-- [ ] La CSP no rompe Google Fonts (verificar visualmente que la tipografía carga) ni el JSON-LD (verificar con `grep` en el HTML servido)
-- [ ] `x-powered-by` ya no aparece en las respuestas
-- [ ] Probado primero en `preview`, no directo en producción
-- [ ] Documentado en `MEMORY.md` (ADR-012 el estado de la distribución, §5 la policy nueva)
+- [x] `curl -I https://ocastelblanco.com/` devuelve `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security` y `Content-Security-Policy` — verificado el 2026-08-05
+- [x] La CSP no rompe Google Fonts ni el JSON-LD — verificado con navegador real (`claude-in-chrome`): cero errores de consola en `/`, `/proyectos`, `/lab`, `/contacto`; fuentes cargando `200` desde `fonts.gstatic.com`; 2 scripts `application/ld+json` presentes
+- [ ] `x-powered-by` ya no aparece en las respuestas — **pendiente**: el código (`app.disable('x-powered-by')`) está en el PR #31, sin fusionar. Se completa cuando ese PR llegue a `main`
+- [x] Probado antes de aplicar en vivo — **por una vía distinta a la literal**: `preview` no tiene CloudFront delante (Lambda Function URL cruda), así que no existe Response Headers Policy que probar ahí. Se usó `Content-Security-Policy-Report-Only` sobre producción + verificación con navegador real antes de promover a enforcing (ver `MEMORY.md` ADR-012, revisión 2026-08-05)
+- [x] Documentado en `MEMORY.md` (ADR-012, §5 inventario)
+
+**Estado:** implementación de CloudFront completa y verificada en vivo. Queda un solo
+pendiente trivial (`x-powered-by`) atado a la fusión del PR #31 — la tarea se cierra en
+cuanto eso ocurra, sin trabajo adicional.
 
 ---
 

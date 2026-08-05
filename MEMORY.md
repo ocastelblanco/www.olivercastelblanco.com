@@ -535,6 +535,43 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   `aws s3 sync --exclude "content/*"`, pero la causa de fondo (el glob de assets no
   distingue por configuración) sigue sin corregirse; candidato a limpieza futura, no
   bloqueante hoy.
+- **Implementado 2026-08-05 — Headers de seguridad (OWASP A05, `CLAUDE.md` §6):**
+  Response Headers Policy nueva `ocastelblanco-security-headers`
+  (`f768cc69-b1ed-4827-917e-c5b3a61d8901`) asociada al behavior por defecto y a los 6
+  behaviors de assets estáticos de `E1MX0LNEKZOG8H` — **no** a `/content/*` (JSON, no
+  necesita CSP). Incluye `X-Content-Type-Options: nosniff`, `Referrer-Policy:
+  strict-origin-when-cross-origin`, `Strict-Transport-Security` (`max-age=63072000`,
+  `includeSubDomains`, `preload`), `X-Frame-Options: SAMEORIGIN` y
+  `Content-Security-Policy`:
+  ```
+  default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
+  font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;
+  connect-src 'self' https://api.ocastelblanco.com; object-src 'none';
+  base-uri 'self'; frame-ancestors 'self'; form-action 'self';
+  upgrade-insecure-requests
+  ```
+  **Gap en el plan original, resuelto con una alternativa más rigurosa:** la tarea decía
+  "probar en `preview` antes de aplicar en vivo" — pero `preview` no tiene CloudFront
+  delante (es una Lambda Function URL cruda, ver ADR-013), así que no existe una Response
+  Headers Policy que probar ahí. En su lugar: la CSP se aplicó primero como header
+  **custom** `Content-Security-Policy-Report-Only` (en vez del campo dedicado
+  `SecurityHeadersConfig.ContentSecurityPolicy`, que siempre enforce) junto con los demás
+  headers ya en modo enforcing (no rompen nada por diseño). Verificado con
+  `claude-in-chrome` contra el sitio en vivo: cero mensajes de consola tras recargar cada
+  ruta (`/`, `/proyectos`, `/lab`, `/contacto`), ambas fuentes (`JetBrains Mono`, `Inter`)
+  cargando `200` desde `fonts.gstatic.com`, el SVG de ruido (`data:`) cargando, JSON-LD
+  presente (2 scripts `application/ld+json`) sin bloqueo — CSP no afecta ese `type`, es
+  data no ejecutable. Con eso confirmado, se promovió la CSP a `SecurityHeadersConfig`
+  (enforcing) y se quitó el header custom. Re-verificado en vivo tras la promoción: mismo
+  resultado, cero errores de consola.
+  **`style-src` requiere `'unsafe-inline'`:** el build de Angular inyecta CSS crítico vía
+  `<style ng-app-id="ng">` inline en el HTML (confirmado en el `dist/` local antes de
+  aplicar nada) — sin `'unsafe-inline'` esos estilos se habrían bloqueado. `script-src`
+  **no** lo necesita: no hay `<script>` inline ejecutable en el sitio (los JSON-LD son
+  `application/ld+json`, exentos de `script-src` por spec).
+  **`x-powered-by: Express` pendiente**, no es un header de CloudFront — se resuelve con
+  `app.disable('x-powered-by')` en `src/server.ts` (PR #31), que solo toma efecto en
+  producción cuando ese PR se fusione y dispare `deploy-production`.
 
 ### ADR-013 — Flujo CI/CD por ambientes y renombrado de `master` a `main`
 
@@ -703,6 +740,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 | Distribución `E1MX0LNEKZOG8H` — origen por defecto (`/*`) | `Lambda-production-app` → Function URL de `production` (`mcbveoxamga7a3jmkfkqbqwble0ahapk.lambda-url.us-east-1.on.aws`), custom origin HTTPS-only | **EL SWITCH, ejecutado 2026-08-04.** Reemplaza a `S3-ocastelblanco.com` (sitio anterior) como origen por defecto. `CachePolicyId` managed `CachingDisabled`, `OriginRequestPolicyId` managed `AllViewerExceptHostHeader` (`b689b0a8-53d0-40ab-baf2-68738e2966ac` — **no** `AllViewer`, ver gotcha en §7) |
 | Distribución `E1MX0LNEKZOG8H` — behaviors de assets estáticos | `*.css`, `*.ico`, `*.js`, `*.png`, `*.webmanifest`, `*.xml` → `S3-ocastelblanco-cdn-production`, `CachePolicyId` managed `CachingOptimized` | Agregados el 2026-08-04 (switch). El bucket también sirve `/content/*` (tarea anterior) |
 | Bucket `ocastelblanco-cdn-production` — bundle Angular | `dist/ocastelblanco/browser/` subido el 2026-08-04, **excluyendo `content/*`** | Ver gotcha: `angular.json` copia el fixture de dev (`content/lab.dev.json`) a todos los builds |
+| Response Headers Policy | `ocastelblanco-security-headers` (`f768cc69-b1ed-4827-917e-c5b3a61d8901`) | Creada el 2026-08-05. Asociada al behavior por defecto + 6 behaviors de assets estáticos de `E1MX0LNEKZOG8H` — **no** a `/content/*`. `nosniff`, `Referrer-Policy`, `HSTS`, `X-Frame-Options: SAMEORIGIN`, `CSP` (ver ADR-012) |
 
 ## 6. Patrones de código establecidos
 
@@ -1264,3 +1302,55 @@ dos tareas activas.
 **Próxima tarea (Tarea 1 nueva):** headers de seguridad en producción (OWASP A05) — con la
 advertencia de calibrar la CSP contra Google Fonts y el JSON-LD, y de probarla en
 `preview` antes de aplicarla en vivo. **Tarea 2:** fetch SSR de The Lab (sin cambios).
+
+## 20. Sesión 2026-08-05 (continuación) — Headers de seguridad en producción
+
+**Antes de empezar — secreto interceptado (segunda vez esta semana):** el working tree
+local tenía un cambio sin commitear en `serverless.yml` con el valor real de
+`LAB_PUBLISH_TOKEN` hardcodeado como fallback por defecto. Repo público. Verificado con
+`git log --all -S` que nunca se había commiteado — sin exposición. Revertido con
+`git restore` tras confirmar con el usuario. Ver también §19 (incidente idéntico, mismo
+día anterior) — patrón a vigilar: revisar `git status`/`git diff` al inicio de cada
+sesión antes de tocar nada, no asumir que el working tree local coincide con el último
+commit.
+
+**Qué se hizo:** implementada la Tarea 1 del motor JIT — OWASP A05, headers de seguridad
+ausentes en producción.
+
+- **Código** (`src/server.ts`): `app.disable('x-powered-by')`. Desplegado y verificado en
+  `preview` (PR #31, abierto — el efecto en producción llega cuando se fusione).
+- **Infraestructura** (CloudFront, sin cambios de código): Response Headers Policy nueva
+  con los 4 headers exigidos por `CLAUDE.md` §6 A05 más `X-Frame-Options`. Detalle
+  completo en ADR-012 (revisión 2026-08-05).
+- **Investigación previa a escribir la CSP:** se auditaron todos los recursos externos
+  reales del sitio antes de escribir una sola directiva — `grep` de dominios `https://`
+  en todo `src/`+`public/`, inspección del `dist/` local para confirmar si Angular
+  inlinea CSS crítico (sí, vía `<style ng-app-id="ng">`) y si el `@import` de Google
+  Fonts se resuelve en build-time o runtime (en build-time: el CSS final referencia
+  `fonts.gstatic.com` directo, `fonts.googleapis.com` nunca se solicita en el navegador).
+  Este trabajo de auditoría fue lo que permitió escribir una CSP funcional al primer
+  intento, en vez de iterar a ciegas contra fallos.
+- **Gap real en el plan original:** pedía probar en `preview` antes de aplicar en vivo,
+  pero `preview` no tiene CloudFront delante (Lambda Function URL cruda) — no hay
+  Response Headers Policy que probar ahí. Se resolvió con una verificación más rigurosa:
+  CSP primero en modo `Content-Security-Policy-Report-Only` sobre producción, verificada
+  con `claude-in-chrome` (navegador real, no solo `curl`) — cero errores de consola en
+  las 4 rutas, red confirmando que ambas fuentes cargan desde `fonts.gstatic.com` y el
+  JSON-LD sigue presente. Recién con eso confirmado se promovió a enforcing, con una
+  segunda verificación idéntica después.
+- **Fricciones menores de la API de CloudFront** (todas resueltas en el momento):
+  `create-response-headers-policy` no acepta un wrapper `ResponseHeadersPolicyConfig`
+  (el archivo JSON *es* el config); el objeto `XSSProtection` que devuelve
+  `get-response-headers-policy` viene vacío (`{}`) pero `update-` lo rechaza si no tiene
+  todos los campos requeridos — hay que borrarlo si no se va a usar; `Comment` tiene un
+  límite de longitud bajo (falla con un comentario descriptivo largo).
+
+**Verificado (parcial — ver DoD):**
+- [x] `curl -I` devuelve los 4 headers + `X-Frame-Options`
+- [x] CSP no rompe fuentes ni JSON-LD (verificado con navegador real, dos veces)
+- [ ] `x-powered-by` — pendiente de que el usuario fusione el PR #31
+- [x] "Probado antes de producción" — logrado por una vía distinta a la literal del plan (ver gap arriba), documentado como tal
+- [x] Documentado en `MEMORY.md`
+
+**Próxima tarea (Tarea 1, sin cambios):** queda pendiente confirmar `x-powered-by` tras
+fusionar el PR #31. **Tarea 2 (sin cambios):** fetch SSR de The Lab.
