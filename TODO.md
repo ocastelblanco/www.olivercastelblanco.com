@@ -21,42 +21,34 @@
 
 ---
 
-## Tarea 1 — [INFRA]: EL SWITCH — preparación (la ejecución requiere autorización explícita)
+## Tarea 1 — [DOCS]: Bitácora de proceso — Entrada MVP en `docs/proceso/`
 
-**Origen:** paso 8, última de la secuencia hacia el switch (`MEMORY.md` §2, ADR-012).
-Cierra el objetivo del día: reemplazar el sitio en vivo por el rediseño. **Esta entrada
-del motor JIT es solo para preparar y dejar todo listo** — la ejecución real (cambiar el
-origen de la distribución en vivo) requiere que el usuario lo pida de forma explícita e
-inequívoca en el momento, según `CLAUDE.md` ("El agente NUNCA debe ejecutar el switch de
-producción... sin que el usuario lo pida en ese momento y de forma inequívoca").
+**Origen:** `TODO.md` §1 regla 5 — el switch de producción (2026-08-04) cerró la
+iteración mayor del MVP: el rediseño completo reemplazó al sitio anterior en
+`ocastelblanco.com`. Esta documentación es insumo directo de "The Lab" y de la narrativa
+de orquestación IA del sitio (`PRD.md` §2) — la propia construcción de este sitio, con IA
+como colaboradora principal, es contenido citable.
 
-**Archivos:** configuración de CloudFront (gestionada manualmente, ver ADR-012).
+**Archivos:** `docs/proceso/` — nueva entrada siguiendo la convención de
+[`docs/proceso/README.md`](./docs/proceso/README.md).
 
-**Qué hacer (preparación, sin ejecutar el switch todavía):**
-1. Subir `dist/ocastelblanco/browser/` al bucket `ocastelblanco-cdn-production` — dejar
-   listo el script/paso, pero no necesariamente automatizado todavía en CI (evaluar si
-   vale la pena agregarlo a `deploy-production` o dejarlo manual para el momento del
-   switch).
-2. Preparar (sin aplicar) la configuración de los behaviors de assets estáticos
-   (`*.js`, `*.css`, etc.) → origen S3 — recién se activan atómicamente junto con el
-   cambio de origen por defecto, nunca antes (ver ADR-012 revisión 2026-08-04: colisión
-   de nombres con el sitio anterior).
-3. Preparar (sin aplicar) el cambio de origen por defecto de `E1MX0LNEKZOG8H`: de
-   `S3-ocastelblanco.com` a la Function URL de `production`
-   (`mcbveoxamga7a3jmkfkqbqwble0ahapk.lambda-url.us-east-1.on.aws`, verificar que sigue
-   siendo la vigente antes de usarla).
-4. Confirmar el checklist previo: URLs `sameAs` del JSON-LD Person (`src/app/app.ts`),
-   `NG_ALLOWED_HOSTS` de `production` acepta el dominio del origen que CloudFront va a
-   usar para hablarle al Lambda.
-5. **Cuando el usuario autorice explícitamente el switch en el momento:** aplicar los
-   tres cambios (assets al bucket, behaviors de assets estáticos, cambio de origen por
-   defecto) en una sola operación (`update-distribution`), e invalidar `/*` al final.
+**Qué hacer:**
+1. Leer `docs/proceso/README.md` para la convención de nombrado y estructura.
+2. Crear la entrada del MVP cubriendo la narrativa completa: boilerplate Angular 22 →
+   identidad visual → i18n → arquitectura de contenido (Casos de estudio + The Lab) →
+   SEO técnico → infraestructura multi-stage → CI/CD por ambientes → el switch de
+   producción (incluyendo el incidente del `Host` header y su resolución — un caso real
+   de debugging asistido por IA, altamente citable).
+3. Cubrir: decisiones de stack (Angular 22 signals/zoneless, serverless AWS), rol de la
+   IA en cada fase, métricas aproximadas (número de PRs — 28 al cierre del switch,
+   ADRs documentados — 14, tiempo de resolución del incidente del switch).
+4. La entrada debe ser citable directamente desde The Lab una vez el fetch SSR (Tarea 2)
+   esté resuelto.
 
-**Definition of done (de la preparación, no del switch):**
-- [ ] Bundle de producción subido al bucket, listo para servirse
-- [ ] Configuración de behaviors de assets estáticos redactada y revisada, sin aplicar
-- [ ] Checklist de verificación previa (JSON-LD, `NG_ALLOWED_HOSTS`) confirmado
-- [ ] El switch en sí **no se ejecuta** como parte de esta tarea del motor JIT
+**Definition of done:**
+- [ ] Entrada en `docs/proceso/` siguiendo la convención de `docs/proceso/README.md`
+- [ ] Cubre la narrativa completa del MVP: decisiones de diseño, rol de IA, incidente del switch, métricas
+- [ ] Contenido citable directamente en The Lab
 
 ---
 
@@ -95,6 +87,40 @@ producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA".
 ---
 
 ## Historial de tareas completadas
+
+### 2026-08-04 — [INFRA]: EL SWITCH — ejecución (cierra la secuencia de 8 pasos, MVP completo)
+
+Ejecutado el paso 8, último de la secuencia hacia producción (ADR-012). Preparación
+(turno anterior): bundle de `dist/ocastelblanco/browser/` subido a
+`ocastelblanco-cdn-production` (excluyendo `content/*`, ver gotcha de `angular.json` en
+`MEMORY.md` §7), config de la distribución redactada y verificada contra la API de AWS
+sin aplicar, checklist de JSON-LD/`NG_ALLOWED_HOSTS` confirmado. El usuario autorizó la
+ejecución de forma explícita e inequívoca tras fusionar el PR #28.
+
+**Ejecución:** nuevo origen custom hacia la Function URL de `production`,
+`DefaultCacheBehavior` cambiado a ese origen (antes `S3-ocastelblanco.com`), 6 behaviors
+nuevos para assets estáticos con hash → `S3-ocastelblanco-cdn-production`. Primer intento
+de `update-distribution` falló por un campo legacy (`MinTTL`) incompatible con
+`CachePolicyId` — corregido. Segundo intento desplegado, pero **el sitio quedó roto
+(`403` en todas las rutas)**: el `OriginRequestPolicyId` managed `AllViewer` usado para
+forwardear headers a la Lambda reenviaba también el `Host` original del visitante,
+rompiendo la validación de `NG_ALLOWED_HOSTS` de Angular (`getAllowedHostsFromEnv()`) —
+el 403 lo generaba la propia app, no CloudFront ni IAM. Diagnosticado comparando el
+`x-amzn-requestid` de la respuesta contra el `RequestId` de CloudWatch (no coincidían).
+**Fix:** `AllViewer` reemplazado por el managed `AllViewerExceptHostHeader`, que reenvía
+todo lo demás pero deja que CloudFront sustituya `Host` por el dominio del origen.
+Resuelto en el mismo turno, sin ventana prolongada de sitio caído.
+
+**Verificado en vivo tras el fix:** `ocastelblanco.com`/`www.` → `200` con el rediseño;
+`/proyectos`, `/lab`, `/contacto` → `200`; assets estáticos servidos desde S3;
+`olivercastelblanco.com`/`www.` siguen redirigiendo (`301`); `api.ocastelblanco.com` sin
+cambios; 15 requests consecutivos, todos `200`. Gotcha de `CustomErrorResponses`
+(403/404 → `/index.html`) confirmado persistente, ahora contra el nuevo origen — no
+bloqueante. Documentado en `MEMORY.md` ADR-012 (revisión con el incidente completo) y §7
+(gotcha nuevo sobre `OriginRequestPolicyId` y el header `Host`).
+
+**Resultado:** `https://ocastelblanco.com` sirve el rediseño 2026 completo. Objetivo del
+día cumplido — la secuencia de 8 pasos hacia el switch queda cerrada.
 
 ### 2026-08-04 — [INFRA]: Renombrar `master` → `main` y reemplazar su contenido con `rediseno-2026`
 
@@ -475,6 +501,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-04 (9) | EL SWITCH ejecutado y verificado en vivo — ocastelblanco.com sirve el rediseño completo. Incidente breve (Host header mal reenviado por AllViewer) diagnosticado y resuelto en el mismo turno. La secuencia de 8 pasos hacia producción queda completa: cierra una iteración mayor del producto (regla 5 del motor JIT). Se reincorpora "Bitácora de proceso — Entrada MVP" (retirada temporalmente desde el 2026-07-11 por depender del switch) como Tarea 1 de alta prioridad. Fetch SSR de The Lab (ya seleccionada como Tarea 2, independiente del switch) permanece sin cambios | Tarea 1 (EL SWITCH) movida al historial. Nueva Tarea 1: Bitácora de proceso — Entrada MVP. Tarea 2 (Fetch SSR de The Lab) sin cambios |
 | 2026-08-04 (8) | Renombrado master → main completado y verificado: primer deploy-production real disparado y exitoso, LAB_PUBLISH_TOKEN confirmado configurado, default branch cambiado. Siguiente prioridad: EL SWITCH en modo preparación (ya seleccionada como Tarea 2, único paso restante de la secuencia de 8) pasa a Tarea 1. Para la nueva Tarea 2 se elige de la lista de pendientes no bloqueantes (`MEMORY.md` §2): "Evaluar fetch SSR de lab.json" — gap de SEO documentado desde ADR-011, independiente del switch, acción concreta ejecutable ya (a diferencia de la auto-respuesta SES, que depende de una solicitud externa a AWS, o la bitácora de proceso, que sigue dependiendo del switch) | Tarea 1 (Renombrar master → main) movida al historial. Tarea 2 (EL SWITCH, preparación) pasa a ser Tarea 1. Nueva Tarea 2: Fetch SSR de The Lab |
 | 2026-08-04 (7) | Nuevo flujo CI/CD implementado y verificado parcialmente (deploy-preview confirmado en vivo vía PR #27; deploy-production verificado solo por código, no se ha disparado porque main no existe). Siguiente prioridad: Renombrar master → main (ya seleccionada como Tarea 2, es el único paso que falta para activar deploy-production de verdad) pasa a Tarea 1. Para la nueva Tarea 2 se agrega EL SWITCH (paso 8, última de la secuencia) en modo preparación/planificación únicamente — la ejecución real sigue exigiendo autorización explícita del usuario en el momento (CLAUDE.md), el motor JIT solo trackea el trabajo previo | Tarea 1 (Nuevo flujo CI/CD) movida al historial. Tarea 2 (Renombrar master → main) pasa a ser Tarea 1. Nueva Tarea 2: EL SWITCH (preparación) |
 | 2026-08-04 (6) | CloudFront Function de 301 completada y verificada en AWS real (probada con `aws cloudfront test-function` antes de asociarla, sitio anterior sin cambios). Siguiente prioridad: Nuevo flujo CI/CD (ya seleccionada como Tarea 2, sin dependencias pendientes) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza "Renombrar master → main" (paso 7 de la secuencia en `MEMORY.md` §2): depende de que el nuevo flujo CI/CD ya apunte a `main` para evitar una ventana sin CI funcionando, por lo que queda en el slot 2 hasta que la Tarea 1 se complete | Tarea 1 (CloudFront Function 301) movida al historial. Tarea 2 (Nuevo flujo CI/CD) pasa a ser Tarea 1. Nueva Tarea 2: Renombrar master → main |
