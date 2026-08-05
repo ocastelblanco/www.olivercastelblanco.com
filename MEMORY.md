@@ -569,6 +569,16 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   aplicar nada) — sin `'unsafe-inline'` esos estilos se habrían bloqueado. `script-src`
   **no** lo necesita: no hay `<script>` inline ejecutable en el sitio (los JSON-LD son
   `application/ld+json`, exentos de `script-src` por spec).
+  **Corrección 2026-08-05 (Angular 22.1):** la afirmación anterior era cierta con Angular
+  22.0.1, pero el upgrade a 22.1 (PR #34) la invalidó — en 22.1 `provideClientHydration()`
+  habilita **hidratación incremental por defecto**, que arrastra event replay e inyecta 2
+  `<script>` inline jsaction (el contrato `ng-event-dispatch-contract` y el bootstrap
+  `window.__jsaction_bootstrap(...)`), bloqueados por `script-src 'self'` en producción
+  (error CSP en consola, clics pre-hidratación perdidos). No existe `withNoEventReplay()`
+  en la API pública de 22.1: el opt-out correcto es
+  `provideClientHydration(withNoIncrementalHydration())` en `app.config.ts` — con eso el
+  `dist/` vuelve a tener cero scripts inline ejecutables (verificado por hash en las 8
+  páginas prerenderizadas) y la CSP queda estricta sin tocar la Response Headers Policy.
   **`x-powered-by: Express` pendiente**, no es un header de CloudFront — se resuelve con
   `app.disable('x-powered-by')` en `src/server.ts` (PR #31), que solo toma efecto en
   producción cuando ese PR se fusione y dispare `deploy-production`.
