@@ -21,34 +21,41 @@
 
 ---
 
-## Tarea 1 — [DOCS]: Bitácora de proceso — Entrada MVP en `docs/proceso/`
+## Tarea 1 — [SEC]: Headers de seguridad en producción (OWASP A05)
 
-**Origen:** `TODO.md` §1 regla 5 — el switch de producción (2026-08-04) cerró la
-iteración mayor del MVP: el rediseño completo reemplazó al sitio anterior en
-`ocastelblanco.com`. Esta documentación es insumo directo de "The Lab" y de la narrativa
-de orquestación IA del sitio (`PRD.md` §2) — la propia construcción de este sitio, con IA
-como colaboradora principal, es contenido citable.
+**Origen:** **Prioridad 1 del motor JIT** — gap OWASP activo en producción. `CLAUDE.md` §6
+A05 exige explícitamente: *"Headers de seguridad (`Content-Security-Policy`,
+`X-Content-Type-Options: nosniff`, `Referrer-Policy`) configurados en la respuesta de
+CloudFront/Lambda"*. Verificado con `curl` el 2026-08-05: **ninguno de esos headers está
+presente** en `https://ocastelblanco.com`. El requisito existía desde antes, pero solo se
+volvió un gap *activo en producción* con el switch del 2026-08-04.
 
-**Archivos:** `docs/proceso/` — nueva entrada siguiendo la convención de
-[`docs/proceso/README.md`](./docs/proceso/README.md).
+Además, la respuesta expone `x-powered-by: Express` — divulgación innecesaria del stack.
+
+**Archivos:** configuración de CloudFront (Response Headers Policy, gestionada manualmente
+fuera de IaC — ver ADR-012) y/o `src/server.ts` (para `x-powered-by`).
 
 **Qué hacer:**
-1. Leer `docs/proceso/README.md` para la convención de nombrado y estructura.
-2. Crear la entrada del MVP cubriendo la narrativa completa: boilerplate Angular 22 →
-   identidad visual → i18n → arquitectura de contenido (Casos de estudio + The Lab) →
-   SEO técnico → infraestructura multi-stage → CI/CD por ambientes → el switch de
-   producción (incluyendo el incidente del `Host` header y su resolución — un caso real
-   de debugging asistido por IA, altamente citable).
-3. Cubrir: decisiones de stack (Angular 22 signals/zoneless, serverless AWS), rol de la
-   IA en cada fase, métricas aproximadas (número de PRs — 28 al cierre del switch,
-   ADRs documentados — 14, tiempo de resolución del incidente del switch).
-4. La entrada debe ser citable directamente desde The Lab una vez el fetch SSR (Tarea 2)
-   esté resuelto.
+1. Crear una **Response Headers Policy** de CloudFront (o usar una gestionada por AWS como
+   base) con al menos: `X-Content-Type-Options: nosniff`, `Referrer-Policy`,
+   `Strict-Transport-Security`, y `Content-Security-Policy`.
+2. **La CSP requiere cuidado:** el sitio carga Google Fonts (`fonts.googleapis.com`,
+   `fonts.gstatic.com` — ver `src/styles/_typography.scss`) e inyecta JSON-LD como
+   `<script type="application/ld+json">`. Una CSP mal calibrada rompe la tipografía o el
+   SEO estructurado. Construirla iterativamente y **verificar en `preview` antes de
+   aplicarla a la distribución en vivo** — el ambiente de preview existe justamente para
+   esto (ADR-013).
+3. Asociar la policy al behavior por defecto y a los behaviors de assets estáticos de
+   `E1MX0LNEKZOG8H`.
+4. Desactivar `x-powered-by` en Express (`app.disable('x-powered-by')` en `src/server.ts`).
+5. Verificar que ni el JSON-LD ni las fuentes se rompan tras aplicar la CSP.
 
 **Definition of done:**
-- [ ] Entrada en `docs/proceso/` siguiendo la convención de `docs/proceso/README.md`
-- [ ] Cubre la narrativa completa del MVP: decisiones de diseño, rol de IA, incidente del switch, métricas
-- [ ] Contenido citable directamente en The Lab
+- [ ] `curl -I https://ocastelblanco.com/` devuelve `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security` y `Content-Security-Policy`
+- [ ] La CSP no rompe Google Fonts (verificar visualmente que la tipografía carga) ni el JSON-LD (verificar con `grep` en el HTML servido)
+- [ ] `x-powered-by` ya no aparece en las respuestas
+- [ ] Probado primero en `preview`, no directo en producción
+- [ ] Documentado en `MEMORY.md` (ADR-012 el estado de la distribución, §5 la policy nueva)
 
 ---
 
@@ -87,6 +94,27 @@ producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA".
 ---
 
 ## Historial de tareas completadas
+
+### 2026-08-05 — [DOCS]: Bitácora de proceso — Entrada MVP en `docs/proceso/`
+
+Creada [`docs/proceso/2026-08-mvp-en-produccion.md`](./docs/proceso/2026-08-mvp-en-produccion.md)
+siguiendo la convención de `docs/proceso/README.md` (prefijo `AAAA-MM-`, estructura de
+iteración mayor). **Alcance ajustado respecto al plan original:** la entrada cubre de los
+PRs #15 a #29 (2026-06-20 → 2026-08-04), no toda la historia del proyecto — el boilerplate,
+la identidad visual y el i18n ya estaban documentados en las dos entradas de junio, así que
+reescribirlos habría duplicado contenido. La entrada enlaza a las anteriores en una sección
+"Entradas relacionadas" para que la narrativa completa siga siendo navegable.
+
+Contenido: la auditoría inicial que encontró tres bugs latentes que la documentación no
+reflejaba (dominio de API fijo para todos los stages, `environment.prod.ts` como código
+muerto por falta de `fileReplacements`, formulario de contacto que nunca entregó un mensaje)
+más la restricción de alias de CloudFront que invalidó la estrategia obvia del switch; la
+secuencia de 8 pasos y su lógica de ordenamiento; las ADR-012/013/014; el incidente del
+header `Host` con su diagnóstico completo (por qué CloudWatch mostraba éxito y la pista del
+`x-amzn-requestid`); la sección de orquestación con los cuatro puntos de decisión humana; 8
+gotchas técnicos reutilizables; y métricas verificadas contra GitHub y el repo (29 PRs, 14
+ADRs, 102 commits) en vez de las aproximadas que traía el plan. `README.md` de
+`docs/proceso/` actualizado con la entrada nueva en el índice. Enlaces internos verificados.
 
 ### 2026-08-04 — [INFRA]: EL SWITCH — ejecución (cierra la secuencia de 8 pasos, MVP completo)
 
@@ -501,6 +529,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-05 | Bitácora de proceso completada (entrada del MVP en `docs/proceso/`, alcance acotado a PRs #15-29 para no duplicar las entradas de junio). Al recalcular prioridades aparece un hallazgo que reordena la lista: `CLAUDE.md` §6 A05 exige headers de seguridad (`Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`) en la respuesta de CloudFront/Lambda, y verificado con `curl` **ninguno está presente** en producción — además de que se filtra `x-powered-by: Express`. El requisito existía desde antes, pero solo se volvió un **gap OWASP activo en producción** con el switch del 2026-08-04, lo que lo convierte en Prioridad 1 del motor JIT, por encima del fetch SSR (Prioridad 2, completa la feature Alta "SEO técnico"). Revisado también el roadmap de `PRD.md` §6: todos los items Alta y Media están completos salvo "Integración con Cloudinary" (Media), que queda por debajo de ambas tareas activas | Nueva Tarea 1: Headers de seguridad en producción (OWASP A05). Tarea 2 (Fetch SSR de The Lab) sin cambios. Bitácora de proceso movida al historial |
 | 2026-08-04 (9) | EL SWITCH ejecutado y verificado en vivo — ocastelblanco.com sirve el rediseño completo. Incidente breve (Host header mal reenviado por AllViewer) diagnosticado y resuelto en el mismo turno. La secuencia de 8 pasos hacia producción queda completa: cierra una iteración mayor del producto (regla 5 del motor JIT). Se reincorpora "Bitácora de proceso — Entrada MVP" (retirada temporalmente desde el 2026-07-11 por depender del switch) como Tarea 1 de alta prioridad. Fetch SSR de The Lab (ya seleccionada como Tarea 2, independiente del switch) permanece sin cambios | Tarea 1 (EL SWITCH) movida al historial. Nueva Tarea 1: Bitácora de proceso — Entrada MVP. Tarea 2 (Fetch SSR de The Lab) sin cambios |
 | 2026-08-04 (8) | Renombrado master → main completado y verificado: primer deploy-production real disparado y exitoso, LAB_PUBLISH_TOKEN confirmado configurado, default branch cambiado. Siguiente prioridad: EL SWITCH en modo preparación (ya seleccionada como Tarea 2, único paso restante de la secuencia de 8) pasa a Tarea 1. Para la nueva Tarea 2 se elige de la lista de pendientes no bloqueantes (`MEMORY.md` §2): "Evaluar fetch SSR de lab.json" — gap de SEO documentado desde ADR-011, independiente del switch, acción concreta ejecutable ya (a diferencia de la auto-respuesta SES, que depende de una solicitud externa a AWS, o la bitácora de proceso, que sigue dependiendo del switch) | Tarea 1 (Renombrar master → main) movida al historial. Tarea 2 (EL SWITCH, preparación) pasa a ser Tarea 1. Nueva Tarea 2: Fetch SSR de The Lab |
 | 2026-08-04 (7) | Nuevo flujo CI/CD implementado y verificado parcialmente (deploy-preview confirmado en vivo vía PR #27; deploy-production verificado solo por código, no se ha disparado porque main no existe). Siguiente prioridad: Renombrar master → main (ya seleccionada como Tarea 2, es el único paso que falta para activar deploy-production de verdad) pasa a Tarea 1. Para la nueva Tarea 2 se agrega EL SWITCH (paso 8, última de la secuencia) en modo preparación/planificación únicamente — la ejecución real sigue exigiendo autorización explícita del usuario en el momento (CLAUDE.md), el motor JIT solo trackea el trabajo previo | Tarea 1 (Nuevo flujo CI/CD) movida al historial. Tarea 2 (Renombrar master → main) pasa a ser Tarea 1. Nueva Tarea 2: EL SWITCH (preparación) |
