@@ -21,39 +21,7 @@
 
 ---
 
-## Tarea 1 — [FIX]: `deploy-production` nunca sincroniza el bundle a S3 (sitio roto desde el PR #34)
-
-**Origen:** reportado por el usuario 2026-08-05 como "la sección LAB no está funcionando".
-Diagnóstico completo en `MEMORY.md` ADR-012 (incidente 2026-08-05). El HTML SSR de
-producción referencia `main-ULIRP6NN.js`, pero `ocastelblanco-cdn-production` solo tenía
-`main-FZPF2OGB.js` (subido a mano el 2026-08-04, nunca actualizado desde entonces).
-`.github/workflows/deploy.yml` nunca tuvo un paso de `aws s3 sync` — cada deploy que
-cambia el bundle del navegador (PR #34, luego PR #35) deja el Lambda y S3 desincronizados.
-Con `X-Content-Type-Options: nosniff`, el navegador bloquea el JS servido con
-`Content-Type` equivocado: **cero JS de cliente corre en producción**, no solo en `/lab`
-(el resto del sitio se ve normal porque está prerenderizado). **Estado: en PR** (rama
-`fix/ci-sync-assets-estaticos-s3`).
-
-**Qué se hizo:** dos steps nuevos en el job `deploy-production` (no en `deploy-preview`,
-que no tiene CloudFront/S3 delante, ADR-013): `aws s3 sync dist/ocastelblanco/browser
-s3://ocastelblanco-cdn-production --exclude "content/*"` + `aws cloudfront
-create-invalidation --distribution-id E1MX0LNEKZOG8H --paths "/*"` (necesario por el
-`ErrorCachingMinTTL` de la distribución — un path que ya devolvió error puede seguir
-cacheado aunque el objeto correcto ya esté en S3).
-
-**Definition of done:**
-- [x] `npm run build` y `npm run lint` en verde
-- [ ] PR fusionado, `deploy-production` verde con los dos steps nuevos ejecutados
-- [ ] Verificado en vivo: `main-*.js` responde con `Content-Type: application/javascript` y
-      `x-cache: Miss/Hit from cloudfront` (no `Error from cloudfront`); `/lab` muestra las
-      entradas reales en el navegador
-- [ ] Confirmar que las credenciales de GitHub Actions tienen permiso para los dos steps
-      nuevos (`s3:PutObject`/`s3:ListBucket` sobre el bucket, `cloudfront:CreateInvalidation`
-      sobre `E1MX0LNEKZOG8H`) — si el step falla por IAM, ampliar la policy
-
----
-
-## Tarea 2 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
+## Tarea 1 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
 
 **Origen:** gap documentado desde ADR-011 (2026-07-11): `ContentService.loadLabEntries()`
 solo hace fetch de `lab.json` cuando `isPlatformBrowser` es verdadero — el SSR/prerender
@@ -87,14 +55,74 @@ producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA".
 
 ---
 
-> Nota del motor JIT (2026-08-05): la tarea "[FIX]: `angular.json` copia el fixture de
-> dev a todos los builds" salió de la lista activa al entrar el fix de CSP (Prioridad 1,
-> bug en producción). El gap sigue documentado en `MEMORY.md` (ADR-012, gotcha §7) y
-> puede volver a entrar en un recalculo futuro.
+## Tarea 2 — [FIX]: `angular.json` copia el fixture de dev (`lab.dev.json`) a todos los builds
+
+**Origen:** gotcha detectado durante la preparación de EL SWITCH (2026-08-04, ver
+`MEMORY.md` ADR-012 §"paso 8") y confirmado vigente en el incidente de CSP del
+2026-08-05. El glob de assets `**/*` sobre `public/` en `angular.json` copia
+`public/content/lab.dev.json` a `dist/ocastelblanco/browser/content/lab.dev.json` en
+**cualquier** configuración (`development`, `preview`, `production` por igual) — hoy se
+esquiva excluyendo `content/*` del `aws s3 sync` a producción, pero el archivo sigue
+presente en el bundle que sirve la Lambda vía `express.static` (`src/server.ts`), y por lo
+tanto potencialmente accesible en producción/preview si CloudFront o la Lambda lo sirven
+directo.
+
+**Qué hacer:**
+1. Separar el asset `content/lab.dev.json` del resto del glob `**/*` de `public/` en
+   `angular.json`, de forma que solo se incluya en la configuración `development` (o se
+   excluya explícitamente en `production`/`preview`).
+2. Verificar con `find`/`grep` sobre `dist/ocastelblanco/browser/` (build de cada
+   configuración) que el fixture solo aparece en el build de `development`.
+3. Confirmar que `ContentService` (dev) sigue encontrando el fixture localmente con
+   `npm start` tras el cambio — no romper el flujo actual de desarrollo.
+
+**Definition of done:**
+- [ ] `content/lab.dev.json` ausente de `dist/ocastelblanco/browser/` en builds `production`/`preview`
+- [ ] Presente y funcional en el build/servidor de `development`
+- [ ] `npm run build`, `npm run build:preview` y `npm run lint` en verde
+- [ ] Documentado en `MEMORY.md` (ADR-012, gotcha §7) que el gap quedó cerrado
 
 ---
 
 ## Historial de tareas completadas
+
+### 2026-08-05 — [FIX]: CSP bloqueaba un `onload` inline inyectado por el build (CSS crítico)
+
+PR #37 fusionado y verificado en producción real. El usuario reportó en DevTools
+`Executing inline event handler violates ... script-src 'self''` al inspeccionar The Lab.
+No era CSS ni contenido de Lab: el build de producción (`@angular/build:application`)
+inyecta por defecto `<link rel="stylesheet" href="styles-*.css" media="print"
+onload="this.media='all'">` en el `<head>` de **las 7 rutas prerenderizadas** — el truco
+estándar de carga async de CSS crítico (`optimization.styles.inlineCritical`, default
+`true`). Ese `onload=""` es un manejador de evento inline real, bloqueado igual que un
+`onclick`. Fix: `"optimization": {"styles": {"inlineCritical": false}}` en `angular.json`
+(config base, heredada por `production`/`preview`). Verificado con `grep` sobre
+`dist/ocastelblanco/browser/**/index.html` (sin `onload=` en ninguna ruta),
+`curl` contra `https://ocastelblanco.com/lab` (CSP real de CloudFront presente, sin
+`onload=` en el HTML servido) y navegación real con `claude-in-chrome` (cero errores de
+consola, entradas de Lab visibles). **Nota de proceso:** el usuario reportó haber
+fusionado el PR mientras `gh pr view 37` seguía mostrando `state: OPEN` — se verificó con
+la API de GitHub en vez de asumir el reporte, y el PR se fusionó efectivamente minutos
+después. Detalle completo en `MEMORY.md` ADR-012 (revisión de esta sesión).
+
+### 2026-08-05 — [FIX]: `deploy-production` nunca sincronizaba el bundle a S3 (sitio roto desde el PR #34)
+
+PR #36 fusionado y verificado en producción real. Reportado por el usuario como "la
+sección LAB no está funcionando". El HTML SSR de producción referenciaba
+`main-ULIRP6NN.js`, pero `ocastelblanco-cdn-production` solo tenía `main-FZPF2OGB.js`
+(subido a mano el 2026-08-04, nunca actualizado desde entonces) —
+`.github/workflows/deploy.yml` nunca tuvo un paso de `aws s3 sync`, así que cada deploy
+que cambiaba el bundle del navegador (PR #34, luego #35) dejaba el Lambda y S3
+desincronizados. Con `X-Content-Type-Options: nosniff`, el navegador bloqueaba el JS
+servido con `Content-Type` equivocado: **cero JS de cliente corría en producción**, no
+solo en `/lab` (el resto del sitio se veía normal por estar prerenderizado). Fix: dos
+steps nuevos en `deploy-production` (no en `deploy-preview`, sin CloudFront/S3 delante) —
+`aws s3 sync dist/ocastelblanco/browser s3://ocastelblanco-cdn-production --exclude
+"content/*"` + `aws cloudfront create-invalidation --distribution-id E1MX0LNEKZOG8H
+--paths "/*"`. Verificado tras el merge: `deploy-production` corrió ambos steps sin
+fallar (credenciales IAM ya alcanzaban), `main-*.js` responde `Content-Type:
+text/javascript` + `x-cache: Miss from cloudfront`, `/lab` muestra las entradas reales en
+un navegador real. Detalle completo en `MEMORY.md` ADR-012.
 
 ### 2026-08-05 — [FIX]: Scripts inline de event replay bloqueados por CSP en producción
 
@@ -105,7 +133,10 @@ por `script-src 'self'`. No existe `withNoEventReplay()` en la API pública de 2
 opt-out correcto es `withNoIncrementalHydration()`. `dist/` verificado sin scripts inline
 ejecutables. **Efecto secundario descubierto tras el merge:** este fix no arregló la
 sección Lab que el usuario reportó rota — esa rotura tenía una causa distinta y anterior
-(ver Tarea 1 vigente, `deploy-production` nunca sincroniza S3).
+(ver la entrada de arriba, `deploy-production` nunca sincroniza S3). **Corrección
+posterior (2026-08-05, misma sesión extendida):** tampoco eliminó por completo los
+errores de CSP en consola — quedaba el `onload` inline del CSS crítico, causa
+independiente resuelta en PR #37 (ver entrada de arriba).
 
 ### 2026-08-05 — [SEC]: Headers de seguridad en producción (OWASP A05)
 
@@ -581,6 +612,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-05 (3) | `deploy-production` (S3 sync, PR #36) y el fix de CSP del `onload` inline de CSS crítico (PR #37) completados y verificados en producción real (`curl` + navegador real, cero errores de consola). Sin gaps OWASP activos en producción. Fetch SSR de The Lab (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se reincorpora "limpiar el glob de assets de `angular.json`" (gotcha documentado desde el switch, ADR-012): sin dependencias bloqueantes, es más concreta y acotada que abrir la migración a IaC de CloudFront o la integración con Cloudinary | Tareas de S3 sync y CSP (`onload`) movidas al historial. Tarea 2 (Fetch SSR de The Lab) pasa a ser Tarea 1. Nueva Tarea 2: limpiar el glob de assets de `angular.json` |
 | 2026-08-05 (2) | Headers de seguridad completados y verificados en producción real (los 5 headers presentes, `x-powered-by` confirmado ausente tras el merge del PR #31). Sin gaps OWASP activos en producción — vuelve a aplicar la prioridad normal del roadmap. Fetch SSR de The Lab (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza limpiar el glob de assets de `angular.json` (gotcha documentado desde el switch, ADR-012 §7): es una corrección concreta y acotada, más urgente que abrir la migración a IaC de CloudFront o la integración con Cloudinary (ambas más grandes y sin gap activo). Aparte del motor JIT: se instaló un pre-commit hook (`husky`) que bloquea de forma permanente el patrón de secreto hardcodeado que causó dos incidentes reales seguidos | Tarea 1 (Headers de seguridad) movida al historial. Tarea 2 (Fetch SSR de The Lab) pasa a ser Tarea 1. Nueva Tarea 2: limpiar el glob de assets de `angular.json` |
 | 2026-08-05 | Bitácora de proceso completada (entrada del MVP en `docs/proceso/`, alcance acotado a PRs #15-29 para no duplicar las entradas de junio). Al recalcular prioridades aparece un hallazgo que reordena la lista: `CLAUDE.md` §6 A05 exige headers de seguridad (`Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`) en la respuesta de CloudFront/Lambda, y verificado con `curl` **ninguno está presente** en producción — además de que se filtra `x-powered-by: Express`. El requisito existía desde antes, pero solo se volvió un **gap OWASP activo en producción** con el switch del 2026-08-04, lo que lo convierte en Prioridad 1 del motor JIT, por encima del fetch SSR (Prioridad 2, completa la feature Alta "SEO técnico"). Revisado también el roadmap de `PRD.md` §6: todos los items Alta y Media están completos salvo "Integración con Cloudinary" (Media), que queda por debajo de ambas tareas activas | Nueva Tarea 1: Headers de seguridad en producción (OWASP A05). Tarea 2 (Fetch SSR de The Lab) sin cambios. Bitácora de proceso movida al historial |
 | 2026-08-04 (9) | EL SWITCH ejecutado y verificado en vivo — ocastelblanco.com sirve el rediseño completo. Incidente breve (Host header mal reenviado por AllViewer) diagnosticado y resuelto en el mismo turno. La secuencia de 8 pasos hacia producción queda completa: cierra una iteración mayor del producto (regla 5 del motor JIT). Se reincorpora "Bitácora de proceso — Entrada MVP" (retirada temporalmente desde el 2026-07-11 por depender del switch) como Tarea 1 de alta prioridad. Fetch SSR de The Lab (ya seleccionada como Tarea 2, independiente del switch) permanece sin cambios | Tarea 1 (EL SWITCH) movida al historial. Nueva Tarea 1: Bitácora de proceso — Entrada MVP. Tarea 2 (Fetch SSR de The Lab) sin cambios |

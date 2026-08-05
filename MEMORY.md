@@ -41,6 +41,8 @@
 - [x] Endpoint backend Terminal de contacto (Lambda `contact`, `httpApi` POST+OPTIONS, CORS dinámico, `api.ocastelblanco.com` custom domain, `ContactService`, PR #15 fusionada)
 - [x] SEO técnico básico (`SeoService`, JSON-LD Person+WebSite vía DOCUMENT, meta tags OG+Twitter Card, `public/sitemap.xml` con 6 rutas, PR #16 fusionada)
 - [x] Arquitectura de contenido — Casos de estudio (JSON tipado) + The Lab (Sheets→API→S3, ADR-011), `ContentService`, subset Markdown seguro, endpoint `POST /lab` (stub validado), Apps Script documentado (PR #17 fusionada)
+- [x] Fix `deploy-production` nunca sincronizaba S3 — sitio sin JS de cliente desde el PR #34 (incidente 2026-08-05, ver ADR-012). PR #36 fusionado y verificado en vivo
+- [x] Fix CSP: `onload` inline inyectado por `optimization.styles.inlineCritical` de Angular bloqueado en producción (incidente 2026-08-05, ver ADR-012). PR #37 fusionado y verificado en vivo
 
 ### Secuencia hacia el switch de producción (2026-08-04)
 
@@ -607,12 +609,39 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   (necesario porque el `ErrorCachingMinTTL` de la distribución puede seguir sirviendo la
   respuesta de error vieja para un path aunque el objeto correcto ya esté en S3 — mismo
   patrón que el incidente del switch). La invalidación no modifica la distribución
-  (`CLAUDE.md` — prohibido sin autorización), solo purga su caché. **Pendiente de
-  verificación honesta:** requiere que las credenciales de GitHub Actions
-  (`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`) tengan `s3:PutObject`/`s3:ListBucket` sobre
-  `ocastelblanco-cdn-production` y `cloudfront:CreateInvalidation` sobre
-  `E1MX0LNEKZOG8H` — no confirmado desde este entorno (son secrets del repo); si el deploy
-  falla en alguno de los dos steps nuevos, hay que ampliar el IAM policy de esa credencial.
+  (`CLAUDE.md` — prohibido sin autorización), solo purga su caché.
+  **Verificado en producción tras el merge (PR #36):** `deploy-production` corrió los dos
+  steps nuevos sin fallar (credenciales IAM ya tenían el permiso necesario, no hizo falta
+  ampliar la policy). `curl` contra `main-ULIRP6NN.js` en vivo confirma
+  `Content-Type: text/javascript` y `x-cache: Miss from cloudfront` (no `Error from
+  cloudfront`); `/lab` renderiza las entradas reales en un navegador real
+  (`claude-in-chrome`, cero errores de consola). Incidente cerrado.
+  **Incidente 2026-08-05 (continuación) — CSP bloquea un `onload` inline inyectado por el
+  build, sitio visualmente completo pero con error de consola en `/lab`:** tras fusionar el
+  fix de arriba, el usuario seguía viendo en consola
+  `Executing inline event handler violates ... script-src 'self'`. Diagnóstico: no era CSS
+  ni contenido de Lab — `grep` sobre `dist/ocastelblanco/browser/**/index.html` (build de
+  producción real) mostró el mismo patrón idéntico en las 7 rutas prerenderizadas:
+  `<link rel="stylesheet" href="styles-*.css" media="print" onload="this.media='all'">`,
+  el truco estándar de "CSS crítico async" que `@angular/build:application` inyecta por
+  defecto (`optimization.styles.inlineCritical`, default `true` en producción) — un
+  `onload=""` es un manejador de evento inline real, indistinguible para la CSP de un
+  `onclick`. No relacionado con `withNoIncrementalHydration()` (ADR de más arriba): ese
+  fix es sobre `withEventReplay`/hidratación, este es sobre la estrategia de carga de CSS;
+  confirmado además que `withEventReplay()` **nunca estuvo activo** en este proyecto (es
+  opt-in explícito en Angular 22.1, no un efecto colateral de la hidratación incremental —
+  el comentario original en `app.config.ts` que lo daba por hecho era impreciso). **Fix:**
+  `"optimization": {"styles": {"inlineCritical": false}}` agregado a la configuración base
+  de `angular.json` (heredada por `production` y `preview`; `development` ya sobreescribe
+  `optimization` a `false` completo, sin conflicto). **Verificado:** `dist/` local sin
+  ningún atributo `on*` en ningún `index.html` antes/después del cambio (confirma que era
+  el único origen); PR #37 fusionado; `curl` contra `https://ocastelblanco.com/lab`
+  confirma CSP real de CloudFront (`script-src 'self'`, sin `unsafe-inline`/hash/nonce) y
+  cero `onload=` en el HTML servido; verificado en navegador real (`claude-in-chrome`) sin
+  mensajes de consola y con las 2 entradas de Lab visibles. **Gotcha nuevo:** `preview`
+  (Lambda Function URL cruda, sin CloudFront delante) no tiene ningún header
+  `Content-Security-Policy` — no sirve como ambiente para probar cumplimiento de CSP, solo
+  producción la aplica.
 
 ### ADR-013 — Flujo CI/CD por ambientes y renombrado de `master` a `main`
 
@@ -884,6 +913,8 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 | Un fallback no vacío en `${env:VAR, 'valor'}` dentro de `serverless.yml` es indistinguible de un secreto hardcodeado — pasó dos veces (2026-08-04 y 2026-08-05) | El fallback de un secreto real debe ser siempre `''`. Desde el 2026-08-05 hay un pre-commit hook (`husky` + `scripts/check-hardcoded-secrets.mjs`) que bloquea el commit si detecta el patrón en `.yml`/`.yaml` con nombres de variable que matchean `TOKEN\|SECRET\|KEY\|PASSWORD\|CREDENTIAL`. Para deploys locales: `export VAR=...` en la shell antes de `sls deploy`, nunca escribir el valor en el archivo. |
 | `aws lambda get-function-configuration` **no** expone `ReservedConcurrentExecutions` | Es una API separada: `aws lambda get-function-concurrency --function-name <fn>`. Si sale `null`/vacío en `get-function-configuration`, no significa que la concurrencia reservada no esté configurada — hay que consultar el endpoint correcto antes de reportar un fallo. |
 | Agregar un `CacheBehavior` nuevo a una distribución CloudFront no invalida lo que ya estaba cacheado bajo el behavior por defecto para ese mismo path | Si un path (ej. `/content/lab.json`) se pidió antes de que existiera su behavior específico, un edge POP puede seguir sirviendo la respuesta vieja durante su TTL. Correr `create-invalidation` sobre el path nuevo después de agregar el behavior, no asumir que el cambio de config invalida el caché existente. |
+| La CSP (`Content-Security-Policy`) solo existe en producción, vía la Response Headers Policy de CloudFront (fuera del repo) | `preview` es una Lambda Function URL cruda sin CloudFront delante (ADR-013) — `curl -I` confirma que no manda ningún header de CSP. No sirve como ambiente para probar cumplimiento de CSP; hay que verificar contra `https://ocastelblanco.com` real (o `Content-Security-Policy-Report-Only` temporal en producción, como en el rollout inicial). |
+| `optimization.styles.inlineCritical` de `@angular/build:application` (default `true` en builds de producción) inyecta `<link ... media="print" onload="this.media='all'">` en el `<head>` de cada página prerenderizada | Ese `onload=""` es un manejador de evento inline real — bloqueado por `script-src 'self'` sin `unsafe-inline`/hash/nonce, con el mismo mensaje de consola que un `onclick` inline. Fix: `"optimization": {"styles": {"inlineCritical": false}}` en `angular.json`. Verificar con `grep -roE '\son[a-z]+="' dist/.../browser` que no quede ningún atributo `on*` tras el build. |
 | `CustomErrorResponses` a nivel de distribución (403/404 → `/index.html`) se resuelven con su **propio** lookup de behavior para el `ResponsePagePath` | Si el `ResponsePagePath` no matchea el `PathPattern` del behavior original de la request, CloudFront lo sirve desde el behavior que sí matchea (típicamente el default) — no desde el origen que generó el error. Un objeto faltante en un behavior nuevo puede terminar devolviendo `200` con contenido de OTRO origen en vez de un `404` limpio. Revisar `CustomErrorResponses` de la distribución antes de asumir que "no existe el objeto" se traduce en un error visible. |
 | ⚠️ Un `OriginRequestPolicyId` que reenvíe el header `Host` (ej. managed `AllViewer`) rompe orígenes custom que validan `Host` (Lambda Function URL + `NG_ALLOWED_HOSTS` de Angular, ALBs, APIs con Host-based routing) | Sin origin request policy que incluya `Host`, CloudFront sustituye automáticamente el `Host` del viewer por el dominio del origen antes de reenviarlo — es el comportamiento que hace funcionar `NG_ALLOWED_HOSTS` con un patrón fijo como `*.lambda-url.us-east-1.on.aws`. `AllViewer` reenvía el `Host` **original del visitante**, rompiendo esa validación con un `403` que la app genera internamente (no un error de CloudFront/IAM — los logs de CloudWatch muestran la invocación como "exitosa" porque no hubo excepción, solo una respuesta 403 legítima de la app). Si se necesita reenviar headers/cookies/querystrings a un origen así, usar el managed `AllViewerExceptHostHeader` (`b689b0a8-53d0-40ab-baf2-68738e2966ac`), nunca `AllViewer`. Diagnóstico: si CloudWatch muestra invocaciones normales pero el cliente recibe 403, comparar el `x-amzn-requestid` de la respuesta contra el `RequestId` más reciente en los logs — si no coinciden, hay respuestas cacheadas o de intentos distintos de por medio. |
 | Dominio `api.ocastelblanco.com` era EDGE en API Gateway (incompatible con HTTP API v2) | Se eliminó y recreó como REGIONAL con `npx sls create_domain`. CNAME en Route 53 actualizado manualmente a `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com`. |
@@ -1433,6 +1464,36 @@ ausente en producción. Sin gaps OWASP activos. El motor JIT queda con:
   `content/lab.dev.json` deje de copiarse a builds que no son `development` — corrección
   acotada, sin dependencias externas, buena candidata para arrancar directo la próxima
   sesión.
+
+Nada bloqueante ni a medias — la próxima sesión puede empezar la Tarea 1 sin retomar
+contexto adicional de esta.
+
+## 22. Sesión 2026-08-05 (continuación 3) — CSP: `onload` inline de CSS crítico
+
+**Qué se hizo:** el usuario reportó el mismo síntoma de siempre en un formato nuevo — un
+error de consola en DevTools, no "Lab no funciona" — tras el deploy del fix de S3 del PR
+#36. Diagnóstico completo y fix documentados en ADR-012 (revisión de esta sesión): la
+causa era `optimization.styles.inlineCritical` de Angular (no la hidratación/event replay
+de la revisión anterior), corregido en `angular.json`, PR #37.
+
+**Nota de proceso:** el usuario reportó "ya fusioné el PR" mientras `gh pr view 37` seguía
+mostrando `state: OPEN`. Se verificó con la API de GitHub (dos veces) en vez de asumir el
+reporte del usuario, y se le señaló la discrepancia directamente — el PR se fusionó
+efectivamente unos minutos después. Lección: verificar estado real (`gh pr view`,
+`curl` contra el sitio en vivo) antes de re-diagnosticar un "fix que no funcionó", en vez
+de asumir que el reporte del usuario sobre su propia acción es exacto.
+
+**Cierre de sesión:** PR #37 fusionado y verificado en vivo (producción real, sin `onload=`,
+sin errores de consola, entradas de Lab visibles). Local sincronizado con `main`, rama
+`fix/csp-inline-onload-critical-css` borrada (local y remota). El motor JIT queda con:
+
+- **Tarea 1 (nueva):** Fetch SSR de The Lab (gap de SEO, ADR-011) — era Tarea 2, sin
+  cambios en su descripción, pasa a Tarea 1 al no tener dependencias pendientes.
+- **Tarea 2 (nueva):** Limpiar el glob de assets de `angular.json` — `content/lab.dev.json`
+  se copia hoy a todos los builds (gotcha documentado desde el switch, ADR-012 §"paso 8").
+  Vuelve a entrar tras haber sido desplazada dos veces seguidas por incidentes de
+  Prioridad 1 (event replay, luego S3 sync/CSP) — sin gaps OWASP activos en producción,
+  es la candidata más concreta y acotada sin dependencias bloqueantes.
 
 Nada bloqueante ni a medias — la próxima sesión puede empezar la Tarea 1 sin retomar
 contexto adicional de esta.
