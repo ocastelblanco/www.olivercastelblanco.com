@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-08-04 |
+| Última sesión | 2026-08-05 |
 
 ## 2. Funcionalidades
 
@@ -57,11 +57,17 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 7. [x] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013). Completada y verificada 2026-08-04 — primer `deploy-production` real disparado y exitoso (PR de limpieza pendiente, rama `feature/renombrar-main-cleanup`)
 8. [x] **EL SWITCH** — cambiar el origen por defecto (`/*`) de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`, **más** (movido desde el paso 4 original): subir `dist/ocastelblanco/browser/` al bucket de contenido y agregar los behaviors de assets estáticos (`*.js`, `*.css`, etc.) → S3. **Ejecutado y verificado en vivo 2026-08-04** — `ocastelblanco.com` sirve el rediseño completo. Incidente breve durante la ejecución (Host header mal reenviado, resuelto en minutos) documentado en ADR-012. **La secuencia de 8 pasos hacia el switch queda completa.**
 
-### Pendientes (no bloquean el switch)
-- [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (retirada de la lista activa; depende del switch)
+### Pendientes tras el switch
+
+- [ ] 🔴 **Headers de seguridad ausentes en producción (OWASP A05)** — `CLAUDE.md` §6 exige `Content-Security-Policy`, `X-Content-Type-Options: nosniff` y `Referrer-Policy` en la respuesta de CloudFront/Lambda; verificado con `curl` el 2026-08-05 que **ninguno está presente**. Además se filtra `x-powered-by: Express`. Gap **activo en producción** desde el switch → Prioridad 1 del motor JIT ← **Tarea 1**
+- [x] Bitácora de proceso `docs/proceso/` — entrada MVP. Completada 2026-08-05 (`2026-08-mvp-en-produccion.md`, cubre PRs #15-29)
 - [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO) ← **Tarea 2**
 - [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
+- [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue
+- [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
+- [ ] Evaluar un `404` limpio para `/content/*` — hoy el `CustomErrorResponses` heredado (403/404 → `/index.html`) hace que un objeto faltante devuelva `200` con HTML
+- [ ] Integración con Cloudinary para gestión de imágenes (`PRD.md` §6, prioridad Media — único item del roadmap sin completar fuera de los de prioridad Baja)
 
 ## 3. Registro de Decisiones de Arquitectura (ADRs)
 
@@ -822,6 +828,7 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 | `docs/arquitectura/arch_orch_project_prd.md` | Brief de marca/diseño "ARCH_ORCH" (Google Stitch) |
 | `docs/proceso/Stitch.md` | Bitácora del proceso de diseño con IA (prompts y resultados) |
 | `docs/proceso/*.zip` | Exports de pantallas generadas con Google Stitch |
+| `docs/proceso/2026-08-mvp-en-produccion.md` | Bitácora del cierre del MVP: auditoría previa, secuencia de 8 pasos hacia el switch, incidente del header `Host` y gotchas de CloudFront/SES |
 | `.github/workflows/ci.yml` | Workflow de CI: lint + build + test en push/PR a `master` y `rediseno-2026` |
 | `eslint.config.js` | Configuración de ESLint (`@angular-eslint/schematics`) |
 
@@ -1212,3 +1219,48 @@ MVP, esta tarea se reincorpora con prioridad alta — regla 5 del motor JIT en `
 fetch SSR de `lab.json`, auto-respuesta SES, migrar CloudFront a IaC, limpiar el glob de
 assets de `angular.json` para que `content/lab.dev.json` no llegue a builds que no son
 `development`.
+
+## 19. Sesión 2026-08-05 — Bitácora del MVP y hallazgo de headers de seguridad
+
+**Antes de empezar — secreto hardcodeado interceptado:** el working tree local tenía un
+cambio sin commitear en `serverless.yml` que ponía el valor real de `LAB_PUBLISH_TOKEN`
+como fallback por defecto (`${env:LAB_PUBLISH_TOKEN, '<token real>'}`). El repositorio es
+**público**; se verificó con `git log --all -S` que el token **nunca había sido
+commiteado**, así que no hubo exposición. Revertido con `git restore` tras confirmarlo con
+el usuario. Para desplegar en local sin tocar el archivo: `export LAB_PUBLISH_TOKEN=...`
+en la shell antes de `sls deploy`.
+
+**Qué se hizo:** completada la Tarea 1 del motor JIT — entrada de bitácora del MVP en
+`docs/proceso/2026-08-mvp-en-produccion.md`.
+
+- **Alcance ajustado respecto al plan:** el plan pedía cubrir "la narrativa completa"
+  desde el boilerplate. Pero el boilerplate, la identidad visual y el i18n ya estaban
+  documentados en las dos entradas de junio — reescribirlos habría duplicado contenido. La
+  entrada cubre de los PRs #15 a #29 (el hueco sin documentar desde la última entrada) y
+  enlaza a las anteriores en una sección "Entradas relacionadas".
+- **Métricas verificadas, no estimadas:** el plan traía "28 PRs" como aproximación. Se
+  consultó GitHub y el repo directamente: **29 PRs fusionados, 14 ADRs, 102 commits en
+  `main`**. La entrada usa los valores reales.
+- Contenido principal: la auditoría inicial y sus tres bugs latentes, la restricción de
+  alias de CloudFront, la secuencia de 8 pasos con su lógica de ordenamiento, las
+  ADR-012/013/014, el incidente del header `Host` con el detalle del diagnóstico, los
+  cuatro puntos de decisión humana, y 8 gotchas técnicos reutilizables.
+- `docs/proceso/README.md` actualizado con la entrada en el índice; enlaces internos
+  verificados.
+
+**Hallazgo de la sesión (reordena el motor JIT):** al recalcular prioridades se verificó
+con `curl` que `https://ocastelblanco.com` **no devuelve ningún header de seguridad** —
+ni `Content-Security-Policy`, ni `X-Content-Type-Options`, ni `Referrer-Policy`, ni
+`Strict-Transport-Security` — pese a que `CLAUDE.md` §6 A05 los exige explícitamente.
+Además expone `x-powered-by: Express`. El requisito existía desde antes, pero solo se
+convirtió en un **gap OWASP activo en producción** con el switch del 2026-08-04, lo que
+por las reglas del motor JIT lo vuelve **Prioridad 1** — por encima del fetch SSR de The
+Lab (Prioridad 2, completa la feature Alta "SEO técnico").
+
+Revisado también el roadmap de `PRD.md` §6: todos los items de prioridad Alta y Media
+están completos salvo "Integración con Cloudinary" (Media), que queda por debajo de las
+dos tareas activas.
+
+**Próxima tarea (Tarea 1 nueva):** headers de seguridad en producción (OWASP A05) — con la
+advertencia de calibrar la CSP contra Google Fonts y el JSON-LD, y de probarla en
+`preview` antes de aplicarla en vivo. **Tarea 2:** fetch SSR de The Lab (sin cambios).
