@@ -112,3 +112,37 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           SERVERLESS_LICENSE_KEY: ${{ secrets.SERVERLESS_LICENSE_KEY }}
           LAB_PUBLISH_TOKEN: ${{ secrets.LAB_PUBLISH_TOKEN }}
+
+      # `serverless deploy` solo actualiza el Lambda de SSR — el bundle del navegador
+      # (JS/CSS con hash) se sirve aparte desde S3 detrás de CloudFront (ADR-012). Sin
+      # este paso, el HTML servido por el Lambda referencia hashes que nunca llegan al
+      # bucket: el navegador recibe un fallback con Content-Type equivocado para esos
+      # archivos y, por `X-Content-Type-Options: nosniff`, ningún JS del cliente llega a
+      # ejecutarse (afecta a cualquier sección que dependa de hidratación, ej. The Lab).
+      # `--exclude "content/*"` evita pisar el contenido de Lab, que gestiona por separado
+      # el Lambda `lab` (POST /lab → S3, ver serverless.yml).
+      - name: Sync static assets to S3
+        run: |
+          aws s3 sync dist/ocastelblanco/browser s3://ocastelblanco-cdn-production \
+            --exclude "content/*" \
+            --cache-control "public, max-age=31536000, immutable"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+
+      # Invalida la caché de CloudFront: sin esto, un path que ya devolvió error antes de
+      # que este paso existiera (ej. un `main-*.js` servido en 404 y cacheado por el
+      # ErrorCachingMinTTL de la distribución) seguiría sirviendo la respuesta vieja pese a
+      # que el objeto correcto ya está en S3. No modifica la distribución (`E1MX0LNEKZOG8H`,
+      # CLAUDE.md), solo purga su caché — mismo tipo de operación usada en el incidente del
+      # switch (MEMORY.md, 2026-08-04).
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id E1MX0LNEKZOG8H \
+            --paths "/*"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1

@@ -582,6 +582,37 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   **`x-powered-by: Express` pendiente**, no es un header de CloudFront — se resuelve con
   `app.disable('x-powered-by')` en `src/server.ts` (PR #31), que solo toma efecto en
   producción cuando ese PR se fusione y dispare `deploy-production`.
+  **Incidente 2026-08-05 — `deploy-production` nunca sincronizó S3, sitio roto desde el PR
+  #34:** reportado por el usuario como "la sección LAB no está funcionando". Diagnóstico
+  (`claude-in-chrome` + `curl` + `aws s3 ls` contra el bucket real): el HTML SSR de
+  producción referenciaba `main-ULIRP6NN.js`, pero `ocastelblanco-cdn-production` solo
+  tenía `main-FZPF2OGB.js` — el bundle subido a mano durante el switch del 2026-08-04
+  (`aws s3 ls` mostraba **un único timestamp**, `2026-08-04T23:53`, en todos los objetos
+  con hash). CloudFront devolvía un fallback HTML (`Content-Type: text/html`) para esa
+  ruta; con `X-Content-Type-Options: nosniff` (headers de seguridad de esta misma sección)
+  el navegador bloquea ese script — **cero JS de cliente se ejecutaba en todo el sitio**,
+  no solo en `/lab`. Solo se notó en The Lab porque es la única sección cuyo contenido
+  depende de un fetch client-side (`ContentService.loadLabEntries()`); el resto del sitio
+  está prerenderizado y se ve normal sin JS. Causa raíz: `.github/workflows/deploy.yml`
+  **nunca tuvo un paso de `aws s3 sync`** — el único sync a `ocastelblanco-cdn-production`
+  fue la operación manual puntual del switch (paso 8, MEMORY.md más abajo). Cada deploy de
+  `main` que cambia el bundle del navegador (PR #34 Angular 22.1, luego PR #35 este mismo
+  fix de CSP) actualiza el Lambda de inmediato pero deja S3 congelado en el estado del
+  2026-08-04, rompiendo la hidratación en cuanto el hash del bundle cambia. **Fix:**
+  agregados dos steps a `deploy-production` (no a `deploy-preview` — ese stage es una
+  Lambda Function URL cruda sin CloudFront/S3 delante, ADR-013): `aws s3 sync
+  dist/ocastelblanco/browser s3://ocastelblanco-cdn-production --exclude "content/*"` (la
+  exclusión evita pisar el contenido de Lab, gestionado aparte por `lab-handler.mjs`) y
+  `aws cloudfront create-invalidation --distribution-id E1MX0LNEKZOG8H --paths "/*"`
+  (necesario porque el `ErrorCachingMinTTL` de la distribución puede seguir sirviendo la
+  respuesta de error vieja para un path aunque el objeto correcto ya esté en S3 — mismo
+  patrón que el incidente del switch). La invalidación no modifica la distribución
+  (`CLAUDE.md` — prohibido sin autorización), solo purga su caché. **Pendiente de
+  verificación honesta:** requiere que las credenciales de GitHub Actions
+  (`AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY`) tengan `s3:PutObject`/`s3:ListBucket` sobre
+  `ocastelblanco-cdn-production` y `cloudfront:CreateInvalidation` sobre
+  `E1MX0LNEKZOG8H` — no confirmado desde este entorno (son secrets del repo); si el deploy
+  falla en alguno de los dos steps nuevos, hay que ampliar el IAM policy de esa credencial.
 
 ### ADR-013 — Flujo CI/CD por ambientes y renombrado de `master` a `main`
 
