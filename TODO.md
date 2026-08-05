@@ -21,49 +21,7 @@
 
 ---
 
-## Tarea 1 — [SEC]: Headers de seguridad en producción (OWASP A05)
-
-**Origen:** **Prioridad 1 del motor JIT** — gap OWASP activo en producción. `CLAUDE.md` §6
-A05 exige explícitamente: *"Headers de seguridad (`Content-Security-Policy`,
-`X-Content-Type-Options: nosniff`, `Referrer-Policy`) configurados en la respuesta de
-CloudFront/Lambda"*. Verificado con `curl` el 2026-08-05: **ninguno de esos headers está
-presente** en `https://ocastelblanco.com`. El requisito existía desde antes, pero solo se
-volvió un gap *activo en producción* con el switch del 2026-08-04.
-
-Además, la respuesta expone `x-powered-by: Express` — divulgación innecesaria del stack.
-
-**Archivos:** configuración de CloudFront (Response Headers Policy, gestionada manualmente
-fuera de IaC — ver ADR-012) y/o `src/server.ts` (para `x-powered-by`).
-
-**Qué hacer:**
-1. Crear una **Response Headers Policy** de CloudFront (o usar una gestionada por AWS como
-   base) con al menos: `X-Content-Type-Options: nosniff`, `Referrer-Policy`,
-   `Strict-Transport-Security`, y `Content-Security-Policy`.
-2. **La CSP requiere cuidado:** el sitio carga Google Fonts (`fonts.googleapis.com`,
-   `fonts.gstatic.com` — ver `src/styles/_typography.scss`) e inyecta JSON-LD como
-   `<script type="application/ld+json">`. Una CSP mal calibrada rompe la tipografía o el
-   SEO estructurado. Construirla iterativamente y **verificar en `preview` antes de
-   aplicarla a la distribución en vivo** — el ambiente de preview existe justamente para
-   esto (ADR-013).
-3. Asociar la policy al behavior por defecto y a los behaviors de assets estáticos de
-   `E1MX0LNEKZOG8H`.
-4. Desactivar `x-powered-by` en Express (`app.disable('x-powered-by')` en `src/server.ts`).
-5. Verificar que ni el JSON-LD ni las fuentes se rompan tras aplicar la CSP.
-
-**Definition of done:**
-- [x] `curl -I https://ocastelblanco.com/` devuelve `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security` y `Content-Security-Policy` — verificado el 2026-08-05
-- [x] La CSP no rompe Google Fonts ni el JSON-LD — verificado con navegador real (`claude-in-chrome`): cero errores de consola en `/`, `/proyectos`, `/lab`, `/contacto`; fuentes cargando `200` desde `fonts.gstatic.com`; 2 scripts `application/ld+json` presentes
-- [ ] `x-powered-by` ya no aparece en las respuestas — **pendiente**: el código (`app.disable('x-powered-by')`) está en el PR #31, sin fusionar. Se completa cuando ese PR llegue a `main`
-- [x] Probado antes de aplicar en vivo — **por una vía distinta a la literal**: `preview` no tiene CloudFront delante (Lambda Function URL cruda), así que no existe Response Headers Policy que probar ahí. Se usó `Content-Security-Policy-Report-Only` sobre producción + verificación con navegador real antes de promover a enforcing (ver `MEMORY.md` ADR-012, revisión 2026-08-05)
-- [x] Documentado en `MEMORY.md` (ADR-012, §5 inventario)
-
-**Estado:** implementación de CloudFront completa y verificada en vivo. Queda un solo
-pendiente trivial (`x-powered-by`) atado a la fusión del PR #31 — la tarea se cierra en
-cuanto eso ocurra, sin trabajo adicional.
-
----
-
-## Tarea 2 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
+## Tarea 1 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
 
 **Origen:** gap documentado desde ADR-011 (2026-07-11): `ContentService.loadLabEntries()`
 solo hace fetch de `lab.json` cuando `isPlatformBrowser` es verdadero — el SSR/prerender
@@ -97,7 +55,83 @@ producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA".
 
 ---
 
+## Tarea 2 — [FIX]: `angular.json` copia el fixture de dev a todos los builds
+
+**Origen:** gap descubierto el 2026-08-04 al preparar el switch (`MEMORY.md` ADR-012,
+gotcha en §7). El glob de assets (`{ "glob": "**/*", "input": "public" }`) no distingue
+por configuración, así que `public/content/lab.dev.json` (fixture de desarrollo) termina
+copiado a **todos** los builds, incluido `production`. Se esquivó excluyendo `content/*`
+al subir el bundle a S3 durante el switch, pero la causa de fondo sigue sin corregirse —
+cualquier build futuro (manual, o si el paso de exclusión se olvida en un script nuevo)
+puede volver a filtrar el fixture a producción.
+
+**Archivos:** `angular.json` (sección `architect.build.options.assets`).
+
+**Qué hacer:**
+1. Mover `public/content/lab.dev.json` fuera de `public/` (ej. a
+   `src/assets-dev/content/lab.dev.json` o similar) y agregar un asset **condicional**
+   solo en la configuración `development` de `angular.json` — las configs `preview` y
+   `production` no deben referenciarlo en absoluto.
+2. Alternativa más simple si mover el archivo complica otras rutas: mantener
+   `public/content/lab.dev.json` pero excluir explícitamente `content/**` del glob
+   general y agregar un asset específico para ese archivo solo bajo `development`.
+3. Verificar que el fixture **sigue funcionando en `ng serve`/dev** después del cambio —
+   no romper el flujo actual de desarrollo local de The Lab.
+4. Confirmar que `content/lab.dev.json` **no aparece** en `dist/ocastelblanco/browser/`
+   al compilar con `--configuration preview` o `--configuration production` (por defecto).
+5. Ya no haría falta el `--exclude "content/*"` en el `aws s3 sync` del switch — dejar
+   anotado para la próxima vez que se suba el bundle completo (no es necesario tocar el
+   comando ahora si no se va a ejecutar en esta tarea).
+
+**Definition of done:**
+- [ ] `grep -r "lab.dev.json" dist/ocastelblanco/browser/` no encuentra nada tras un build `production` o `preview`
+- [ ] `ng serve` (dev) sigue sirviendo el fixture correctamente en `/content/lab.dev.json`
+- [ ] `npm run build`, `npm run build:preview` y `npm run lint` en verde
+- [ ] Documentado en `MEMORY.md` (ADR-012, marcar el gotcha como resuelto)
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-08-05 — [SEC]: Headers de seguridad en producción (OWASP A05)
+
+Response Headers Policy nueva en CloudFront (`ocastelblanco-security-headers`) asociada
+al behavior por defecto y a los 6 behaviors de assets estáticos de `E1MX0LNEKZOG8H` — no
+a `/content/*` (JSON, sin necesidad de CSP). Incluye `X-Content-Type-Options: nosniff`,
+`Referrer-Policy: strict-origin-when-cross-origin`, `Strict-Transport-Security`
+(`max-age=63072000`, `includeSubDomains`, `preload`), `X-Frame-Options: SAMEORIGIN` y
+`Content-Security-Policy` calibrada tras auditar los recursos externos reales del sitio
+(`grep` de dominios en `src/`+`public/`, inspección del `dist/` local para confirmar que
+Angular inlinea CSS crítico vía `<style ng-app-id="ng">` y que el `@import` de Google
+Fonts se resuelve en build-time, no runtime).
+
+**Gap real en el plan original:** pedía probar en `preview` antes de aplicar en vivo,
+pero `preview` no tiene CloudFront delante (Lambda Function URL cruda, ADR-013) — no
+existe Response Headers Policy que probar ahí. Resuelto con una vía más rigurosa: CSP
+primero en modo `Content-Security-Policy-Report-Only` sobre producción, verificada con
+un navegador real (`claude-in-chrome`) — cero errores de consola en las 4 rutas del
+sitio, fuentes cargando desde `fonts.gstatic.com`, JSON-LD presente sin bloqueo. Promovida
+a enforcing recién con eso confirmado, con una segunda verificación idéntica después.
+
+`app.disable('x-powered-by')` en `src/server.ts` (código, desplegado vía PR normal).
+Confirmado en producción tras el merge: `x-powered-by` ya no aparece en las respuestas.
+
+### 2026-08-05 — [CHORE]: Bloquear secretos hardcodeados con pre-commit hook
+
+Fuera del motor JIT — pedido directo del usuario tras dos incidentes reales seguidos
+(2026-08-04 y 2026-08-05): el valor real de `LAB_PUBLISH_TOKEN` quedó como fallback no
+vacío en `${env:VAR, '...'}` dentro de `serverless.yml`, sin commitear en ambos casos
+pero a un `git add` de exponerse en un repo público.
+
+`husky` instalado (`prepare` script, se instala solo con `npm install`).
+`scripts/check-hardcoded-secrets.mjs`: escanea las líneas agregadas de archivos
+`.yml`/`.yaml` en stage buscando `${env:VAR_NAME, 'valor-no-vacío'}` donde `VAR_NAME`
+matchea `TOKEN|SECRET|KEY|PASSWORD|CREDENTIAL`. Bloquea el commit si encuentra una
+coincidencia. Probado de extremo a extremo con un `git commit` real reproduciendo el
+patrón exacto del incidente — bloqueado correctamente, sin commit creado; confirmado
+también que no genera falsos positivos con variables no-secretas (`NODE_ENV`,
+`AWS_REGION`) con fallback no vacío. Documentado en `CLAUDE.md` §6 A02 como regla
+permanente.
 
 ### 2026-08-05 — [DOCS]: Bitácora de proceso — Entrada MVP en `docs/proceso/`
 
@@ -533,6 +567,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-08-05 (2) | Headers de seguridad completados y verificados en producción real (los 5 headers presentes, `x-powered-by` confirmado ausente tras el merge del PR #31). Sin gaps OWASP activos en producción — vuelve a aplicar la prioridad normal del roadmap. Fetch SSR de The Lab (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza limpiar el glob de assets de `angular.json` (gotcha documentado desde el switch, ADR-012 §7): es una corrección concreta y acotada, más urgente que abrir la migración a IaC de CloudFront o la integración con Cloudinary (ambas más grandes y sin gap activo). Aparte del motor JIT: se instaló un pre-commit hook (`husky`) que bloquea de forma permanente el patrón de secreto hardcodeado que causó dos incidentes reales seguidos | Tarea 1 (Headers de seguridad) movida al historial. Tarea 2 (Fetch SSR de The Lab) pasa a ser Tarea 1. Nueva Tarea 2: limpiar el glob de assets de `angular.json` |
 | 2026-08-05 | Bitácora de proceso completada (entrada del MVP en `docs/proceso/`, alcance acotado a PRs #15-29 para no duplicar las entradas de junio). Al recalcular prioridades aparece un hallazgo que reordena la lista: `CLAUDE.md` §6 A05 exige headers de seguridad (`Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`) en la respuesta de CloudFront/Lambda, y verificado con `curl` **ninguno está presente** en producción — además de que se filtra `x-powered-by: Express`. El requisito existía desde antes, pero solo se volvió un **gap OWASP activo en producción** con el switch del 2026-08-04, lo que lo convierte en Prioridad 1 del motor JIT, por encima del fetch SSR (Prioridad 2, completa la feature Alta "SEO técnico"). Revisado también el roadmap de `PRD.md` §6: todos los items Alta y Media están completos salvo "Integración con Cloudinary" (Media), que queda por debajo de ambas tareas activas | Nueva Tarea 1: Headers de seguridad en producción (OWASP A05). Tarea 2 (Fetch SSR de The Lab) sin cambios. Bitácora de proceso movida al historial |
 | 2026-08-04 (9) | EL SWITCH ejecutado y verificado en vivo — ocastelblanco.com sirve el rediseño completo. Incidente breve (Host header mal reenviado por AllViewer) diagnosticado y resuelto en el mismo turno. La secuencia de 8 pasos hacia producción queda completa: cierra una iteración mayor del producto (regla 5 del motor JIT). Se reincorpora "Bitácora de proceso — Entrada MVP" (retirada temporalmente desde el 2026-07-11 por depender del switch) como Tarea 1 de alta prioridad. Fetch SSR de The Lab (ya seleccionada como Tarea 2, independiente del switch) permanece sin cambios | Tarea 1 (EL SWITCH) movida al historial. Nueva Tarea 1: Bitácora de proceso — Entrada MVP. Tarea 2 (Fetch SSR de The Lab) sin cambios |
 | 2026-08-04 (8) | Renombrado master → main completado y verificado: primer deploy-production real disparado y exitoso, LAB_PUBLISH_TOKEN confirmado configurado, default branch cambiado. Siguiente prioridad: EL SWITCH en modo preparación (ya seleccionada como Tarea 2, único paso restante de la secuencia de 8) pasa a Tarea 1. Para la nueva Tarea 2 se elige de la lista de pendientes no bloqueantes (`MEMORY.md` §2): "Evaluar fetch SSR de lab.json" — gap de SEO documentado desde ADR-011, independiente del switch, acción concreta ejecutable ya (a diferencia de la auto-respuesta SES, que depende de una solicitud externa a AWS, o la bitácora de proceso, que sigue dependiendo del switch) | Tarea 1 (Renombrar master → main) movida al historial. Tarea 2 (EL SWITCH, preparación) pasa a ser Tarea 1. Nueva Tarea 2: Fetch SSR de The Lab |
