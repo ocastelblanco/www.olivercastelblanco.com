@@ -2,7 +2,7 @@
 
 Sitio web personal de **Oliver Castelblanco**, Solutions Architect & AI Orchestrator. Es la
 segunda iteración (rediseño 2026) del sitio, construida desde cero en la rama
-`rediseno-2026` con Angular 22 (standalone, Signals, zoneless) y SSR, bajo la identidad
+`main` con Angular 22 (standalone, Signals, zoneless) y SSR, bajo la identidad
 visual "Industrial Minimalism / Technical Dark Mode" descrita en [`DESIGN.md`](./DESIGN.md).
 
 El proyecto cumple dos objetivos:
@@ -108,13 +108,11 @@ El proyecto cumple dos objetivos:
 
 ## Primeros pasos (desarrollo local)
 
-1. **Clonar el repositorio y cambiar a la rama de desarrollo activa** (`rediseno-2026`,
-   no `master`):
+1. **Clonar el repositorio** (la rama por defecto es `main`, la rama de producción):
 
    ```bash
    git clone https://github.com/<org>/www.olivercastelblanco.com.git
    cd www.olivercastelblanco.com
-   git checkout rediseno-2026
    ```
 
 2. **Instalar dependencias**:
@@ -443,16 +441,16 @@ Este proyecto sigue lineamientos OWASP Top 10 documentados en detalle en
 
 ## Flujo de trabajo con Git
 
-Las ramas `master` y `rediseno-2026` están **protegidas** — ningún cambio se commitea
-directamente sobre ellas. El flujo obligatorio (humanos y agentes IA) es:
+La rama `main` está **protegida** — ningún cambio se commitea
+directamente sobre ella. El flujo obligatorio (humanos y agentes IA) es:
 
-1. Crear una feature branch desde `rediseno-2026`:
+1. Crear una feature branch desde `main`:
    ```bash
-   git checkout rediseno-2026
-   git pull origin rediseno-2026
+   git checkout main
+   git pull origin main
    git checkout -b feature/descripcion-corta
    ```
-   Prefijos válidos: `feature/`, `fix/`, `hotfix/` (desde `master`), `docs/`, `refactor/`.
+   Prefijos válidos: `feature/`, `fix/`, `hotfix/`, `docs/`, `refactor/`.
 
 2. Verificar que el build pasa antes de commitear:
    ```bash
@@ -462,8 +460,8 @@ directamente sobre ellas. El flujo obligatorio (humanos y agentes IA) es:
 3. Commits siguiendo [Conventional Commits](https://www.conventionalcommits.org/) en
    español colombiano (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`).
 
-4. Abrir un Pull Request hacia `rediseno-2026` (nunca hacia `master` directamente, salvo
-   hotfixes documentados). Ver [`CLAUDE.md`](./CLAUDE.md) para la plantilla completa de PR.
+4. Abrir un Pull Request hacia `main`. Ver [`CLAUDE.md`](./CLAUDE.md) para la
+   plantilla completa de PR.
 
 ## Solución de problemas
 

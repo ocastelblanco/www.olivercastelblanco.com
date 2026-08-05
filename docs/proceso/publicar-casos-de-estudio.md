@@ -78,14 +78,14 @@ duplican componentes ni se registran rutas por caso. Los pasos son solo dos:
 Sigue el mismo flujo que cualquier feature (ver `CLAUDE.md` §"Git Flow para Agentes IA"):
 
 ```bash
-git checkout rediseno-2026 && git pull origin rediseno-2026
+git checkout main && git pull origin main
 git checkout -b feature/caso-{slug}
 # ... crear JSON y registrarlo en casos.data.ts ...
 npm run build && npm run lint
 git add <archivos específicos>
 git commit -m "feat(proyectos): agregar caso de estudio {Nombre}"
 git push -u origin HEAD
-gh pr create --base rediseno-2026 --title "feat(proyectos): agregar caso de estudio {Nombre}" --body "..."
+gh pr create --base main --title "feat(proyectos): agregar caso de estudio {Nombre}" --body "..."
 ```
 
 Un humano revisa y fusiona el PR — el agente nunca fusiona sus propios cambios.
