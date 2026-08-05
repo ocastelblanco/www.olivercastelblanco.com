@@ -21,7 +21,29 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
+## Tarea 1 — [FIX]: Scripts inline de event replay bloqueados por CSP en producción
+
+**Origen:** bug introducido por el PR #34 (Angular 22.0 → 22.1, 2026-08-05). En 22.1
+`provideClientHydration()` habilita hidratación incremental por defecto, que activa event
+replay e inyecta 2 `<script>` inline jsaction — bloqueados por la CSP
+(`script-src 'self'`, enforcing desde 2026-08-05). Error visible en DevTools de producción
+y clics previos a la hidratación perdidos. **Estado: en PR** (rama
+`fix/csp-scripts-inline-hidratacion`).
+
+**Qué se hizo:** `provideClientHydration(withNoIncrementalHydration())` en
+`app.config.ts` (no existe `withNoEventReplay()` en 22.1; ese es el opt-out correcto).
+Verificado: `dist/` sin scripts inline ejecutables en las 8 páginas prerenderizadas
+(solo quedan JSON-LD y TransferState, exentos de `script-src` por spec). CSP intacta,
+sin cambios manuales en CloudFront.
+
+**Definition of done:**
+- [x] `dist/ocastelblanco/browser/**/*.html` sin `<script>` inline ejecutable (verificado por hash)
+- [x] `npm run build` y `npm run lint` en verde
+- [ ] PR fusionado y error de consola ausente en producción (verificación del usuario en DevTools)
+
+---
+
+## Tarea 2 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
 
 **Origen:** gap documentado desde ADR-011 (2026-07-11): `ContentService.loadLabEntries()`
 solo hace fetch de `lab.json` cuando `isPlatformBrowser` es verdadero — el SSR/prerender
@@ -55,39 +77,10 @@ producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA".
 
 ---
 
-## Tarea 2 — [FIX]: `angular.json` copia el fixture de dev a todos los builds
-
-**Origen:** gap descubierto el 2026-08-04 al preparar el switch (`MEMORY.md` ADR-012,
-gotcha en §7). El glob de assets (`{ "glob": "**/*", "input": "public" }`) no distingue
-por configuración, así que `public/content/lab.dev.json` (fixture de desarrollo) termina
-copiado a **todos** los builds, incluido `production`. Se esquivó excluyendo `content/*`
-al subir el bundle a S3 durante el switch, pero la causa de fondo sigue sin corregirse —
-cualquier build futuro (manual, o si el paso de exclusión se olvida en un script nuevo)
-puede volver a filtrar el fixture a producción.
-
-**Archivos:** `angular.json` (sección `architect.build.options.assets`).
-
-**Qué hacer:**
-1. Mover `public/content/lab.dev.json` fuera de `public/` (ej. a
-   `src/assets-dev/content/lab.dev.json` o similar) y agregar un asset **condicional**
-   solo en la configuración `development` de `angular.json` — las configs `preview` y
-   `production` no deben referenciarlo en absoluto.
-2. Alternativa más simple si mover el archivo complica otras rutas: mantener
-   `public/content/lab.dev.json` pero excluir explícitamente `content/**` del glob
-   general y agregar un asset específico para ese archivo solo bajo `development`.
-3. Verificar que el fixture **sigue funcionando en `ng serve`/dev** después del cambio —
-   no romper el flujo actual de desarrollo local de The Lab.
-4. Confirmar que `content/lab.dev.json` **no aparece** en `dist/ocastelblanco/browser/`
-   al compilar con `--configuration preview` o `--configuration production` (por defecto).
-5. Ya no haría falta el `--exclude "content/*"` en el `aws s3 sync` del switch — dejar
-   anotado para la próxima vez que se suba el bundle completo (no es necesario tocar el
-   comando ahora si no se va a ejecutar en esta tarea).
-
-**Definition of done:**
-- [ ] `grep -r "lab.dev.json" dist/ocastelblanco/browser/` no encuentra nada tras un build `production` o `preview`
-- [ ] `ng serve` (dev) sigue sirviendo el fixture correctamente en `/content/lab.dev.json`
-- [ ] `npm run build`, `npm run build:preview` y `npm run lint` en verde
-- [ ] Documentado en `MEMORY.md` (ADR-012, marcar el gotcha como resuelto)
+> Nota del motor JIT (2026-08-05): la tarea "[FIX]: `angular.json` copia el fixture de
+> dev a todos los builds" salió de la lista activa al entrar el fix de CSP (Prioridad 1,
+> bug en producción). El gap sigue documentado en `MEMORY.md` (ADR-012, gotcha §7) y
+> puede volver a entrar en un recalculo futuro.
 
 ---
 
