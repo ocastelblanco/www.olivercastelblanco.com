@@ -7,7 +7,7 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | **MVP en producción.** El switch se ejecutó el 2026-08-04 — secuencia de 8 pasos completa (ver `MEMORY.md` §2) |
+| Versión | **MVP en producción.** El switch se ejecutó el 2026-08-04 — secuencia de 8 pasos completa (ver `MEMORY.md` §2). Sin gaps OWASP activos en producción desde el 2026-08-05 |
 | URL producción (sitio en vivo) | `https://ocastelblanco.com` — sirve el **rediseño 2026** desde el 2026-08-04 |
 | URL preview (Lambda) | Lambda Function URL del stage `preview` — un solo URL compartido, el último PR desplegado gana |
 | URL CDN | Descartado como subdominio propio (ADR-012) — el contenido de `/content/*` se sirve desde la misma distribución que el sitio en vivo, vía OAC |
@@ -59,12 +59,12 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 
 ### Pendientes tras el switch
 
-- [ ] 🔴 **Headers de seguridad ausentes en producción (OWASP A05)** — `CLAUDE.md` §6 exige `Content-Security-Policy`, `X-Content-Type-Options: nosniff` y `Referrer-Policy` en la respuesta de CloudFront/Lambda; verificado con `curl` el 2026-08-05 que **ninguno está presente**. Además se filtra `x-powered-by: Express`. Gap **activo en producción** desde el switch → Prioridad 1 del motor JIT ← **Tarea 1**
+- [x] **Headers de seguridad ausentes en producción (OWASP A05)** — Completado y verificado 2026-08-05: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `X-Frame-Options` presentes en producción; `x-powered-by` confirmado ausente tras el merge del PR #31. Sin gaps OWASP activos en producción
 - [x] Bitácora de proceso `docs/proceso/` — entrada MVP. Completada 2026-08-05 (`2026-08-mvp-en-produccion.md`, cubre PRs #15-29)
-- [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO) ← **Tarea 2**
+- [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO) ← **Tarea 1**
 - [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
-- [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue
+- [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue ← **Tarea 2**
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
 - [ ] Evaluar un `404` limpio para `/content/*` — hoy el `CustomErrorResponses` heredado (403/404 → `/index.html`) hace que un objeto faltante devuelva `200` con HTML
 - [ ] Integración con Cloudinary para gestión de imágenes (`PRD.md` §6, prioridad Media — único item del roadmap sin completar fuera de los de prioridad Baja)
@@ -1382,3 +1382,16 @@ vista en cada sesión.
   (`${env:VAR, ''}`) y variables no relacionadas con secretos con fallback no vacío
   (`NODE_ENV`, `AWS_REGION`) **no** disparan el hook — sin falsos positivos.
 - Documentado en `CLAUDE.md` §6 A02 (regla permanente) y como gotcha nuevo en §7.
+
+**Cierre de sesión (fin del día, 2026-08-05):** ambos PRs (#31, #32) fusionados, local
+sincronizado con `main`, sin ramas ni PRs sueltos. Confirmado en vivo: `x-powered-by`
+ausente en producción. Sin gaps OWASP activos. El motor JIT queda con:
+
+- **Tarea 1:** Fetch SSR de The Lab (gap de SEO, ADR-011) — sin cambios respecto a antes.
+- **Tarea 2 (nueva):** limpiar el glob de assets de `angular.json` para que
+  `content/lab.dev.json` deje de copiarse a builds que no son `development` — corrección
+  acotada, sin dependencias externas, buena candidata para arrancar directo la próxima
+  sesión.
+
+Nada bloqueante ni a medias — la próxima sesión puede empezar la Tarea 1 sin retomar
+contexto adicional de esta.
