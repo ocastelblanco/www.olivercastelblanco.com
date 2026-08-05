@@ -21,25 +21,35 @@
 
 ---
 
-## Tarea 1 — [FIX]: Scripts inline de event replay bloqueados por CSP en producción
+## Tarea 1 — [FIX]: `deploy-production` nunca sincroniza el bundle a S3 (sitio roto desde el PR #34)
 
-**Origen:** bug introducido por el PR #34 (Angular 22.0 → 22.1, 2026-08-05). En 22.1
-`provideClientHydration()` habilita hidratación incremental por defecto, que activa event
-replay e inyecta 2 `<script>` inline jsaction — bloqueados por la CSP
-(`script-src 'self'`, enforcing desde 2026-08-05). Error visible en DevTools de producción
-y clics previos a la hidratación perdidos. **Estado: en PR** (rama
-`fix/csp-scripts-inline-hidratacion`).
+**Origen:** reportado por el usuario 2026-08-05 como "la sección LAB no está funcionando".
+Diagnóstico completo en `MEMORY.md` ADR-012 (incidente 2026-08-05). El HTML SSR de
+producción referencia `main-ULIRP6NN.js`, pero `ocastelblanco-cdn-production` solo tenía
+`main-FZPF2OGB.js` (subido a mano el 2026-08-04, nunca actualizado desde entonces).
+`.github/workflows/deploy.yml` nunca tuvo un paso de `aws s3 sync` — cada deploy que
+cambia el bundle del navegador (PR #34, luego PR #35) deja el Lambda y S3 desincronizados.
+Con `X-Content-Type-Options: nosniff`, el navegador bloquea el JS servido con
+`Content-Type` equivocado: **cero JS de cliente corre en producción**, no solo en `/lab`
+(el resto del sitio se ve normal porque está prerenderizado). **Estado: en PR** (rama
+`fix/ci-sync-assets-estaticos-s3`).
 
-**Qué se hizo:** `provideClientHydration(withNoIncrementalHydration())` en
-`app.config.ts` (no existe `withNoEventReplay()` en 22.1; ese es el opt-out correcto).
-Verificado: `dist/` sin scripts inline ejecutables en las 8 páginas prerenderizadas
-(solo quedan JSON-LD y TransferState, exentos de `script-src` por spec). CSP intacta,
-sin cambios manuales en CloudFront.
+**Qué se hizo:** dos steps nuevos en el job `deploy-production` (no en `deploy-preview`,
+que no tiene CloudFront/S3 delante, ADR-013): `aws s3 sync dist/ocastelblanco/browser
+s3://ocastelblanco-cdn-production --exclude "content/*"` + `aws cloudfront
+create-invalidation --distribution-id E1MX0LNEKZOG8H --paths "/*"` (necesario por el
+`ErrorCachingMinTTL` de la distribución — un path que ya devolvió error puede seguir
+cacheado aunque el objeto correcto ya esté en S3).
 
 **Definition of done:**
-- [x] `dist/ocastelblanco/browser/**/*.html` sin `<script>` inline ejecutable (verificado por hash)
 - [x] `npm run build` y `npm run lint` en verde
-- [ ] PR fusionado y error de consola ausente en producción (verificación del usuario en DevTools)
+- [ ] PR fusionado, `deploy-production` verde con los dos steps nuevos ejecutados
+- [ ] Verificado en vivo: `main-*.js` responde con `Content-Type: application/javascript` y
+      `x-cache: Miss/Hit from cloudfront` (no `Error from cloudfront`); `/lab` muestra las
+      entradas reales en el navegador
+- [ ] Confirmar que las credenciales de GitHub Actions tienen permiso para los dos steps
+      nuevos (`s3:PutObject`/`s3:ListBucket` sobre el bucket, `cloudfront:CreateInvalidation`
+      sobre `E1MX0LNEKZOG8H`) — si el step falla por IAM, ampliar la policy
 
 ---
 
@@ -85,6 +95,17 @@ producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA".
 ---
 
 ## Historial de tareas completadas
+
+### 2026-08-05 — [FIX]: Scripts inline de event replay bloqueados por CSP en producción
+
+PR #35 fusionado. `provideClientHydration(withNoIncrementalHydration())` en
+`app.config.ts` — en Angular 22.1 (PR #34) `provideClientHydration()` habilita
+hidratación incremental por defecto, que inyecta 2 `<script>` inline jsaction bloqueados
+por `script-src 'self'`. No existe `withNoEventReplay()` en la API pública de 22.1; el
+opt-out correcto es `withNoIncrementalHydration()`. `dist/` verificado sin scripts inline
+ejecutables. **Efecto secundario descubierto tras el merge:** este fix no arregló la
+sección Lab que el usuario reportó rota — esa rotura tenía una causa distinta y anterior
+(ver Tarea 1 vigente, `deploy-production` nunca sincroniza S3).
 
 ### 2026-08-05 — [SEC]: Headers de seguridad en producción (OWASP A05)
 
