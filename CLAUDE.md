@@ -126,6 +126,14 @@ públicas, ej. `FIREBASE_API_KEY` de cliente) puede usarse en código que se eje
 navegador. Las operaciones que requieren secretos viven exclusivamente en funciones Lambda.
 HTTPS obligatorio (forzado por CloudFront) en todo el sitio.
 
+**Barrera técnica (2026-08-05):** tras dos incidentes reales del mismo patrón — un valor
+real de `LAB_PUBLISH_TOKEN` dejado como fallback no vacío en `${env:VAR, '...'}` dentro de
+`serverless.yml`, sin commitear pero a un `git add` de exponerse en un repo público — hay
+un pre-commit hook (`husky` + `scripts/check-hardcoded-secrets.mjs`) que **bloquea el
+commit** si detecta ese patrón en un archivo `.yml`/`.yaml` en stage. Para desplegar con
+`sls deploy` en local sin tocar `serverless.yml`: `export LAB_PUBLISH_TOKEN=...` en la
+shell antes del comando. El fallback en el archivo debe quedar siempre como `''` (vacío).
+
 ### A03 — Inyección / XSS
 
 **Riesgo concreto:** el contenido de "The Lab" se renderiza desde Markdown/HTML; el

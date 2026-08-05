@@ -45,6 +45,12 @@ Thumbs.db
 
 # Secrets
 src/secrets/secrets*.ts
+.env
+.env.local
+.env.*.local
+
+# Husky (helper interno, no se commitea — ver https://typicode.github.io/husky)
+.husky/_
 
 # Claude / OMC local state
 .claude/

@@ -840,6 +840,7 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 | ✅ *(resuelto 2026-08-04)* `environment.prod.ts` nunca se usaba — no había `fileReplacements` en `angular.json` | Ahora `production`/`preview`/`development` tienen sus `fileReplacements`. Lección: no asumir que un `environment.*.ts` está activo solo porque existe el archivo — verificar con `grep` en el bundle de `dist/` que la URL esperada quedó realmente compilada. |
 | SES en sandbox | Restringe **destinatarios**, no remitentes. Enviar a una identidad verificada (`ocastelblanco@gmail.com`) funciona; enviar al email arbitrario de un visitante (auto-respuesta) falla hasta pedir production access. |
 | El clasificador de permisos de Claude Code bloquea comandos AWS mutantes (deploy, delete-api-mapping) aunque el usuario ya haya autorizado la acción en general | Cada comando destructivo/mutante pide su propia aprobación puntual en el momento de ejecutarse — no basta un "sí" genérico previo. Explicar qué hace el comando exacto antes de que el usuario lo apruebe. |
+| Un fallback no vacío en `${env:VAR, 'valor'}` dentro de `serverless.yml` es indistinguible de un secreto hardcodeado — pasó dos veces (2026-08-04 y 2026-08-05) | El fallback de un secreto real debe ser siempre `''`. Desde el 2026-08-05 hay un pre-commit hook (`husky` + `scripts/check-hardcoded-secrets.mjs`) que bloquea el commit si detecta el patrón en `.yml`/`.yaml` con nombres de variable que matchean `TOKEN\|SECRET\|KEY\|PASSWORD\|CREDENTIAL`. Para deploys locales: `export VAR=...` en la shell antes de `sls deploy`, nunca escribir el valor en el archivo. |
 | `aws lambda get-function-configuration` **no** expone `ReservedConcurrentExecutions` | Es una API separada: `aws lambda get-function-concurrency --function-name <fn>`. Si sale `null`/vacío en `get-function-configuration`, no significa que la concurrencia reservada no esté configurada — hay que consultar el endpoint correcto antes de reportar un fallo. |
 | Agregar un `CacheBehavior` nuevo a una distribución CloudFront no invalida lo que ya estaba cacheado bajo el behavior por defecto para ese mismo path | Si un path (ej. `/content/lab.json`) se pidió antes de que existiera su behavior específico, un edge POP puede seguir sirviendo la respuesta vieja durante su TTL. Correr `create-invalidation` sobre el path nuevo después de agregar el behavior, no asumir que el cambio de config invalida el caché existente. |
 | `CustomErrorResponses` a nivel de distribución (403/404 → `/index.html`) se resuelven con su **propio** lookup de behavior para el `ResponsePagePath` | Si el `ResponsePagePath` no matchea el `PathPattern` del behavior original de la request, CloudFront lo sirve desde el behavior que sí matchea (típicamente el default) — no desde el origen que generó el error. Un objeto faltante en un behavior nuevo puede terminar devolviendo `200` con contenido de OTRO origen en vez de un `404` limpio. Revisar `CustomErrorResponses` de la distribución antes de asumir que "no existe el objeto" se traduce en un error visible. |
@@ -1354,3 +1355,30 @@ ausentes en producción.
 
 **Próxima tarea (Tarea 1, sin cambios):** queda pendiente confirmar `x-powered-by` tras
 fusionar el PR #31. **Tarea 2 (sin cambios):** fetch SSR de The Lab.
+
+## 21. Sesión 2026-08-05 (continuación 2) — Barrera técnica contra secretos hardcodeados
+
+**Qué se hizo:** el usuario pidió eliminar de forma permanente el patrón que causó dos
+incidentes reales seguidos (§19, §20) — no volver a confiar en que se detecte a simple
+vista en cada sesión.
+
+- Instalado `husky` como devDependency; `npx husky init` configuró
+  `core.hooksPath: .husky/_` y agregó el script `prepare` a `package.json` (se instala
+  solo en cualquier `npm install` futuro).
+- `scripts/check-hardcoded-secrets.mjs`: escanea las líneas **agregadas** (`git diff
+  --cached`) de archivos `.yml`/`.yaml` en stage buscando
+  `${env:VAR_NAME, 'valor-no-vacío'}` donde `VAR_NAME` matchea
+  `TOKEN|SECRET|KEY|PASSWORD|CREDENTIAL` (case-insensitive). Si encuentra una coincidencia,
+  bloquea el commit con `exit 1` y un mensaje explicando el fix.
+- `.husky/pre-commit` corre ese script (reemplazó el `npm test` por defecto de
+  `husky init` — no se agregó testing al pre-commit, hubiera sido scope creep no pedido).
+- `.gitignore`: agregado `.husky/_` (helper interno de husky, no se commitea por
+  convención de la herramienta) y `.env`/`.env.local`/`.env.*.local` (defensivo, aunque
+  el proyecto no usa dotenv todavía).
+- **Probado de extremo a extremo, no solo el script aislado:** reproducido el patrón
+  exacto del incidente en `serverless.yml`, `git add`, y un `git commit` real —
+  bloqueado correctamente (`husky - pre-commit script failed (code 1)`, sin commit
+  creado, confirmado con `git log`). Confirmado también que el patrón seguro
+  (`${env:VAR, ''}`) y variables no relacionadas con secretos con fallback no vacío
+  (`NODE_ENV`, `AWS_REGION`) **no** disparan el hook — sin falsos positivos.
+- Documentado en `CLAUDE.md` §6 A02 (regla permanente) y como gotcha nuevo en §7.
