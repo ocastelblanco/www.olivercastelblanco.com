@@ -7,9 +7,8 @@
 
 | Campo | Valor |
 |---|---|
-| Versión | MVP en construcción — preparando el switch de producción (pasos 1-7/8 completados, falta solo EL SWITCH, ver `MEMORY.md` §2 "Secuencia hacia el switch") |
-| URL producción (sitio en vivo) | `https://ocastelblanco.com` — sirve el **sitio anterior** todavía (paso 8, el switch, sin ejecutar) |
-| URL producción (rediseño, sin DNS aún) | Lambda Function URL del stage `production` — sirve el rediseño completo, accesible solo por esa URL hasta el switch |
+| Versión | **MVP en producción.** El switch se ejecutó el 2026-08-04 — secuencia de 8 pasos completa (ver `MEMORY.md` §2) |
+| URL producción (sitio en vivo) | `https://ocastelblanco.com` — sirve el **rediseño 2026** desde el 2026-08-04 |
 | URL preview (Lambda) | Lambda Function URL del stage `preview` — un solo URL compartido, el último PR desplegado gana |
 | URL CDN | Descartado como subdominio propio (ADR-012) — el contenido de `/content/*` se sirve desde la misma distribución que el sitio en vivo, vía OAC |
 | URL API `production` | `https://api.ocastelblanco.com` — activo desde el 2026-08-04, apunta al HTTP API del stage `production` |
@@ -56,7 +55,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 5. [x] **CloudFront Function de 301** — `olivercastelblanco.com` y sus `www` redirigen al dominio canónico (ADR-012). Completada y verificada 2026-08-04 (PR pendiente, rama `feature/cloudfront-301-olivercastelblanco`)
 6. [x] **Nuevo flujo CI/CD** — PR abierto → deploy a `preview`; merge a `main` → deploy a `production` (ADR-013). Workflow implementado y verificado para `preview` 2026-08-04 (PR pendiente, rama `feature/cicd-pr-preview-merge-production`); el disparo real de `production` queda pendiente de que exista `main` (paso 7)
 7. [x] **Renombrar `master` → `main`** y reemplazar su contenido con `rediseno-2026` (ADR-013). Completada y verificada 2026-08-04 — primer `deploy-production` real disparado y exitoso (PR de limpieza pendiente, rama `feature/renombrar-main-cleanup`)
-8. [ ] **EL SWITCH** — cambiar el origen por defecto (`/*`) de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`, **más** (movido desde el paso 4 original): subir `dist/ocastelblanco/browser/` al bucket de contenido y agregar los behaviors de assets estáticos (`*.js`, `*.css`, etc.) → S3. Ambos cambios deben ir atómicos con el cambio de origen — antes del switch esos patrones de path colisionan con los assets del sitio anterior (mismo esquema de nombres con hash) ← **Tarea 1 (solo preparación/planificación — la ejecución requiere autorización explícita del usuario en el momento, ver `CLAUDE.md`)**
+8. [x] **EL SWITCH** — cambiar el origen por defecto (`/*`) de la distribución `E1MX0LNEKZOG8H` del bucket viejo a la Function URL de `production`, **más** (movido desde el paso 4 original): subir `dist/ocastelblanco/browser/` al bucket de contenido y agregar los behaviors de assets estáticos (`*.js`, `*.css`, etc.) → S3. **Ejecutado y verificado en vivo 2026-08-04** — `ocastelblanco.com` sirve el rediseño completo. Incidente breve durante la ejecución (Host header mal reenviado, resuelto en minutos) documentado en ADR-012. **La secuencia de 8 pasos hacia el switch queda completa.**
 
 ### Pendientes (no bloquean el switch)
 - [ ] Bitácora de proceso `docs/proceso/` — entrada MVP (retirada de la lista activa; depende del switch)
@@ -395,7 +394,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 ### ADR-012 — Switch a producción: reusar la distribución CloudFront existente, con dos orígenes
 
 - **Fecha:** 2026-08-04
-- **Estado:** Decidido, pendiente de implementar
+- **Estado:** Implementado — el switch se ejecutó el 2026-08-04, `ocastelblanco.com` sirve el rediseño
 - **Contexto:** El sitio anterior se sirve desde la distribución CloudFront
   `E1MX0LNEKZOG8H` (`dskarpvm0nxbp.cloudfront.net`), cuyo origen es el bucket S3
   `ocastelblanco.com`. Esa **única** distribución tiene los cuatro hostnames como alias:
@@ -480,6 +479,56 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   recibiría HTML en vez de JSON. No bloqueante hoy (el switch de paso 8 reemplaza el
   origen del sitio anterior de todas formas), pero anotar como riesgo a revisar si
   `CustomErrorResponses` se hereda tal cual tras el switch.
+  **Confirmado tras el switch:** el gotcha persiste, ahora contra el nuevo origen — pedir
+  `/content/lab.json` sin el objeto presente devuelve `200` con el HTML del rediseño
+  (renderizado por la Lambda vía el mismo `CustomErrorResponse`), no un `404`. Sigue sin
+  ser bloqueante (comportamiento idéntico al de antes del switch, solo que ahora
+  renderiza la app nueva) pero queda como candidato a revisar en una tarea futura si se
+  quiere un `404` limpio para `/content/*`.
+- **Implementado y ejecutado 2026-08-04 (paso 8 — EL SWITCH):** preparación completada
+  primero (bundle de `dist/ocastelblanco/browser/` subido a `ocastelblanco-cdn-production`
+  **excluyendo `content/*`** — ver gotcha nuevo sobre `angular.json` abajo — config de
+  behaviors de assets estáticos y cambio de origen redactados y verificados contra la API
+  de AWS antes de aplicar, checklist de JSON-LD/`NG_ALLOWED_HOSTS` confirmado). El usuario
+  autorizó la ejecución de forma explícita e inequívoca en el momento (`CLAUDE.md`).
+  Aplicado via `update-distribution`: origen nuevo `Lambda-production-app` (custom origin,
+  HTTPS-only, hacia la Function URL de `production`), `DefaultCacheBehavior.TargetOriginId`
+  cambiado a ese origen (antes `S3-ocastelblanco.com`), 6 behaviors nuevos para assets
+  estáticos con hash (`*.css`, `*.ico`, `*.js`, `*.png`, `*.webmanifest`, `*.xml`) →
+  `S3-ocastelblanco-cdn-production` con `CachePolicyId` managed `CachingOptimized`. Los 4
+  alias y `/content/*` no se tocaron.
+  **Incidente durante el switch (resuelto en minutos):** el primer intento de
+  `DefaultCacheBehavior` incluía `OriginRequestPolicyId` managed `AllViewer` (para
+  garantizar que headers/cookies/querystrings llegaran a la Lambda) — esto reenvía el
+  header `Host` **original del visitante** (`ocastelblanco.com`, o el dominio crudo de
+  CloudFront) en vez de sustituirlo por el dominio del origen, que es el comportamiento
+  por defecto de CloudFront para orígenes custom **sin** un origin request policy que
+  incluya `Host`. El checklist previo del switch había verificado la suposición correcta
+  (comportamiento por defecto) pero no contempló que agregar `AllViewer` la invalidaría.
+  Consecuencia: `getAllowedHostsFromEnv()` de Angular (`@angular/ssr/node`) rechazaba la
+  request con `403` porque el `Host` reenviado no matcheaba `NG_ALLOWED_HOSTS`
+  (`*.lambda-url.us-east-1.on.aws`) — el 403 lo generaba la propia app, no CloudFront ni
+  IAM, lo que inicialmente confundió el diagnóstico (los logs de CloudWatch mostraban
+  invocaciones "exitosas" porque Angular respondía 403 sin lanzar una excepción).
+  Diagnosticado comparando el `x-amzn-requestid` de la respuesta del cliente contra los
+  `RequestId` en CloudWatch — no coincidían, revelando que hubo múltiples intentos y que
+  el que llegó al cliente no era el que aparecía en el log más reciente. **Fix:**
+  reemplazar `OriginRequestPolicyId` por el managed `AllViewerExceptHostHeader`
+  (`b689b0a8-53d0-40ab-baf2-68738e2966ac`) — reenvía todo lo demás pero deja que
+  CloudFront sustituya `Host` por el dominio del origen, como se había verificado
+  originalmente. Aplicado, desplegado, invalidación de `/*` para limpiar las respuestas
+  403 que habían quedado cacheadas por el `ErrorCachingMinTTL` de la distribución.
+  **Verificado en vivo tras el fix:** `ocastelblanco.com`, `www.ocastelblanco.com` → `200`
+  con el título del rediseño; `/proyectos`, `/lab`, `/contacto` → `200`; assets estáticos
+  (`main-*.js`) servidos desde S3 (`x-cache: Miss from cloudfront`); `olivercastelblanco.com`
+  y su `www` siguen redirigiendo con `301`; `api.ocastelblanco.com` sin cambios (distribución
+  separada); 15 requests consecutivos a distintas rutas, todos `200`, sin repetición del 403.
+  **Gotcha nuevo descubierto en la preparación:** `angular.json` copia
+  `public/content/lab.dev.json` (fixture de dev) a **todos** los builds vía el glob de
+  assets `**/*`, incluido `production` — se evitó subir ese archivo al bucket con
+  `aws s3 sync --exclude "content/*"`, pero la causa de fondo (el glob de assets no
+  distingue por configuración) sigue sin corregirse; candidato a limpieza futura, no
+  bloqueante hoy.
 
 ### ADR-013 — Flujo CI/CD por ambientes y renombrado de `master` a `main`
 
@@ -645,6 +694,9 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 | Distribución `E1MX0LNEKZOG8H` — behavior nuevo | `/content/*` → `S3-ocastelblanco-cdn-production`, `CachePolicyId` managed `CachingDisabled` (`4135ea2d-6df8-44a3-9df3-4b5a84be39ad`) | Agregado el 2026-08-04. Único behavior además del por defecto |
 | CloudFront Function | `olivercastelblanco-redirect` (`arn:aws:cloudfront::696912647258:function/olivercastelblanco-redirect`) | Creada y publicada el 2026-08-04. Asociada al behavior por defecto de `E1MX0LNEKZOG8H`, evento `viewer-request` |
 | Distribución `E1MX0LNEKZOG8H` — `CustomErrorResponses` | 403/404 → `/index.html` (200), `ErrorCachingMinTTL: 300` | Preexistente (sitio anterior, fallback de SPA) — descubierto al verificar la tarea de `/content/*`, ver ADR-012 gotcha |
+| Distribución `E1MX0LNEKZOG8H` — origen por defecto (`/*`) | `Lambda-production-app` → Function URL de `production` (`mcbveoxamga7a3jmkfkqbqwble0ahapk.lambda-url.us-east-1.on.aws`), custom origin HTTPS-only | **EL SWITCH, ejecutado 2026-08-04.** Reemplaza a `S3-ocastelblanco.com` (sitio anterior) como origen por defecto. `CachePolicyId` managed `CachingDisabled`, `OriginRequestPolicyId` managed `AllViewerExceptHostHeader` (`b689b0a8-53d0-40ab-baf2-68738e2966ac` — **no** `AllViewer`, ver gotcha en §7) |
+| Distribución `E1MX0LNEKZOG8H` — behaviors de assets estáticos | `*.css`, `*.ico`, `*.js`, `*.png`, `*.webmanifest`, `*.xml` → `S3-ocastelblanco-cdn-production`, `CachePolicyId` managed `CachingOptimized` | Agregados el 2026-08-04 (switch). El bucket también sirve `/content/*` (tarea anterior) |
+| Bucket `ocastelblanco-cdn-production` — bundle Angular | `dist/ocastelblanco/browser/` subido el 2026-08-04, **excluyendo `content/*`** | Ver gotcha: `angular.json` copia el fixture de dev (`content/lab.dev.json`) a todos los builds |
 
 ## 6. Patrones de código establecidos
 
@@ -747,6 +799,7 @@ componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer pu
 | `aws lambda get-function-configuration` **no** expone `ReservedConcurrentExecutions` | Es una API separada: `aws lambda get-function-concurrency --function-name <fn>`. Si sale `null`/vacío en `get-function-configuration`, no significa que la concurrencia reservada no esté configurada — hay que consultar el endpoint correcto antes de reportar un fallo. |
 | Agregar un `CacheBehavior` nuevo a una distribución CloudFront no invalida lo que ya estaba cacheado bajo el behavior por defecto para ese mismo path | Si un path (ej. `/content/lab.json`) se pidió antes de que existiera su behavior específico, un edge POP puede seguir sirviendo la respuesta vieja durante su TTL. Correr `create-invalidation` sobre el path nuevo después de agregar el behavior, no asumir que el cambio de config invalida el caché existente. |
 | `CustomErrorResponses` a nivel de distribución (403/404 → `/index.html`) se resuelven con su **propio** lookup de behavior para el `ResponsePagePath` | Si el `ResponsePagePath` no matchea el `PathPattern` del behavior original de la request, CloudFront lo sirve desde el behavior que sí matchea (típicamente el default) — no desde el origen que generó el error. Un objeto faltante en un behavior nuevo puede terminar devolviendo `200` con contenido de OTRO origen en vez de un `404` limpio. Revisar `CustomErrorResponses` de la distribución antes de asumir que "no existe el objeto" se traduce en un error visible. |
+| ⚠️ Un `OriginRequestPolicyId` que reenvíe el header `Host` (ej. managed `AllViewer`) rompe orígenes custom que validan `Host` (Lambda Function URL + `NG_ALLOWED_HOSTS` de Angular, ALBs, APIs con Host-based routing) | Sin origin request policy que incluya `Host`, CloudFront sustituye automáticamente el `Host` del viewer por el dominio del origen antes de reenviarlo — es el comportamiento que hace funcionar `NG_ALLOWED_HOSTS` con un patrón fijo como `*.lambda-url.us-east-1.on.aws`. `AllViewer` reenvía el `Host` **original del visitante**, rompiendo esa validación con un `403` que la app genera internamente (no un error de CloudFront/IAM — los logs de CloudWatch muestran la invocación como "exitosa" porque no hubo excepción, solo una respuesta 403 legítima de la app). Si se necesita reenviar headers/cookies/querystrings a un origen así, usar el managed `AllViewerExceptHostHeader` (`b689b0a8-53d0-40ab-baf2-68738e2966ac`), nunca `AllViewer`. Diagnóstico: si CloudWatch muestra invocaciones normales pero el cliente recibe 403, comparar el `x-amzn-requestid` de la respuesta contra el `RequestId` más reciente en los logs — si no coinciden, hay respuestas cacheadas o de intentos distintos de por medio. |
 | Dominio `api.ocastelblanco.com` era EDGE en API Gateway (incompatible con HTTP API v2) | Se eliminó y recreó como REGIONAL con `npx sls create_domain`. CNAME en Route 53 actualizado manualmente a `d-7a9ppn7mtg.execute-api.us-east-1.amazonaws.com`. |
 | `.gitignore` del sitio anterior se eliminó junto con todo lo demás | Se recreó un `.gitignore` nuevo en el primer commit de `rediseno-2026`, incluyendo `src/secrets/secrets*.ts`, `.claude/` y `.omc/` |
 | TypeScript 6 (`~6.0.2`) ya no soporta `baseUrl` en `tsconfig.json` (TS5101) | Omitir `baseUrl`; los `paths` deben usar rutas relativas con prefijo `./` (TS5090), p. ej. `["./src/app/core/*"]` |
@@ -1089,3 +1142,73 @@ rama. Se recomendó archivar antes de borrar; el usuario eligió esa opción. Ej
 `git push origin --delete master`, limpieza de la rama local. `CLAUDE.md` §"Ramas
 protegidas" y `MEMORY.md` §1 actualizados para reflejar que `master` ya no existe como
 rama — el código queda accesible permanentemente vía el tag.
+
+## 18. Sesión 2026-08-04 (continuación 8) — EL SWITCH: ejecución y resultado
+
+**Qué se hizo:** ejecutado el paso 8, último de la secuencia hacia producción
+(`MEMORY.md` §2, ADR-012). El usuario autorizó explícitamente en el momento, tras
+fusionar el PR #28 (renombrado `master` → `main`).
+
+**Preparación (turno anterior, documentada ahora):**
+- `dist/ocastelblanco/browser/` (28 archivos) subido a `ocastelblanco-cdn-production`
+  con `aws s3 sync --exclude "content/*"` — la exclusión evitó que `content/lab.dev.json`
+  (fixture de dev, presente en el bundle por un gap de `angular.json`, ver gotcha en §7)
+  contaminara el prefijo `/content/*` reservado para el contenido real de The Lab.
+- Config de la distribución redactada sin aplicar: nuevo origen custom hacia la Function
+  URL de `production`, `DefaultCacheBehavior` apuntando ahí, 6 behaviors nuevos para
+  assets estáticos con hash. IDs de cache/origin-request policies managed verificados
+  contra la API de AWS antes de usarlos (no se confió en memoria).
+- Checklist confirmado: JSON-LD `sameAs` correctos, `NG_ALLOWED_HOSTS` compatible con el
+  comportamiento por defecto de CloudFront para orígenes custom.
+
+**Ejecución:**
+1. Config fresca de la distribución obtenida justo antes de aplicar (mismo ETag que la
+   base del draft — nada había cambiado).
+2. Primer intento de `update-distribution` falló: `MinTTL` no puede coexistir con
+   `CachePolicyId` en la misma cache behavior (campos legacy sobrantes del
+   `DefaultCacheBehavior` original). Corregido eliminando `MinTTL`/`DefaultTTL`/`MaxTTL`.
+3. Segundo intento aceptado (`Status: InProgress`) y desplegado (~2 min).
+4. **Verificación inicial reveló el sitio roto: `403` en todas las rutas**, incluida la
+   URL cruda de CloudFront (no específico de un alias). CloudWatch mostraba la invocación
+   Lambda como exitosa (sin excepción) — el diagnóstico se resolvió comparando el
+   `x-amzn-requestid` de la respuesta del cliente contra el `RequestId` más reciente en
+   los logs: no coincidían, revelando que la respuesta 403 no venía de esa invocación
+   "exitosa" sino de otra distinta.
+5. **Causa raíz:** el `OriginRequestPolicyId` managed `AllViewer` que se había usado
+   (para forwardear headers/cookies/querystrings a la Lambda) reenvía también el header
+   `Host` **original del visitante**, sobrescribiendo el comportamiento por defecto de
+   CloudFront de sustituirlo por el dominio del origen. Angular
+   (`getAllowedHostsFromEnv()`, `@angular/ssr/node`) rechazaba la request con `403`
+   porque ese `Host` no matcheaba `NG_ALLOWED_HOSTS` (`*.lambda-url.us-east-1.on.aws`) —
+   el 403 lo generaba la propia aplicación, no CloudFront ni un problema de permisos IAM.
+   El checklist previo había verificado la suposición correcta sobre el comportamiento
+   por defecto, pero no contempló que agregar `AllViewer` la invalidaría.
+6. **Fix:** `OriginRequestPolicyId` cambiado al managed `AllViewerExceptHostHeader`
+   (`b689b0a8-53d0-40ab-baf2-68738e2966ac`, verificado contra la API antes de usarlo) —
+   reenvía todo lo demás pero deja que CloudFront sustituya `Host` por el dominio del
+   origen. Aplicado, desplegado (~1 min), e invalidado `/*` para limpiar las respuestas
+   403 que habían quedado cacheadas por el `ErrorCachingMinTTL` de la distribución.
+7. **Verificación final, exhaustiva:** `ocastelblanco.com` y `www.` → `200` con el
+   título del rediseño; `/proyectos`, `/lab`, `/contacto` → `200`; assets estáticos
+   (`main-*.js`) servidos desde S3 (`x-cache: Miss from cloudfront`);
+   `olivercastelblanco.com` y su `www` siguen redirigiendo (`301`); `api.ocastelblanco.com`
+   sin cambios (distribución separada); 15 requests consecutivos a distintas rutas, todos
+   `200`. Confirmado que el gotcha de `CustomErrorResponses` (403/404 → `/index.html`)
+   persiste mismo que antes, ahora renderizando el rediseño en vez del sitio anterior —
+   no bloqueante, comportamiento consistente con lo documentado en la tarea de `/content/*`.
+
+**Tiempo total del incidente:** desde la primera verificación rota hasta la confirmación
+final, resuelto en el mismo turno — no hubo ventana prolongada de sitio caído sin que se
+estuviera trabajando activamente en el fix.
+
+**Resultado:** `https://ocastelblanco.com` sirve el rediseño 2026 completo. La secuencia
+de 8 pasos hacia el switch (`MEMORY.md` §2) queda **completa**. El objetivo del día
+(reemplazar el sitio en vivo, definido por el usuario al inicio de la sesión) está
+cumplido.
+
+**Pendientes que sobreviven al switch (no bloqueantes, ver `MEMORY.md` §2 "Pendientes"):**
+bitácora de proceso en `docs/proceso/` (ahora que el switch cerró la iteración mayor del
+MVP, esta tarea se reincorpora con prioridad alta — regla 5 del motor JIT en `TODO.md`),
+fetch SSR de `lab.json`, auto-respuesta SES, migrar CloudFront a IaC, limpiar el glob de
+assets de `angular.json` para que `content/lab.dev.json` no llegue a builds que no son
+`development`.
