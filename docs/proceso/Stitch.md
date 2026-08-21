@@ -25,7 +25,7 @@ The project now includes:
 All screens use JetBrains Mono for a technical feel and Inter for readability, maintaining a consistent, premium hardware aesthetic throughout.
 ```
 
-![[2026-05-01_14_30-stitch_ocastelblanco.com.zip]]
+[2026-05-01_14_30-stitch_ocastelblanco.com.zip](2026-05-01_14_30-stitch_ocastelblanco.com.zip)
 
 #### Input (Myself)
 
@@ -47,7 +47,7 @@ Here’s what I’ve done:
 The updated screens—Landing Page (ARCH_ORCH // Landing Page), AI Orchestration (ARCH_ORCH // AI Orchestration), Case Studies (ARCH_ORCH // Case Studies), and Terminal (ARCH_ORCH // Terminal)—are now live on your canvas.
 ```
 
-![[2026-05-01_14_40-stitch_ocastelblanco.com..zip]]
+[2026-05-01_14_40-stitch_ocastelblanco.com..zip](2026-05-01_14_40-stitch_ocastelblanco.com..zip)
 
 ### Prompt 2: Core Components (The Project Cards)
 
@@ -72,7 +72,7 @@ The new **ARCH_ORCH // Projects** screen features:
 How do these 'Metric-First' cards look to you? Would you like to add more project details or perhaps adjust the grid layout?
 ```
 
-![[2026-05-01-16_55-stitch_ocastelblanco.com.zip]]
+[2026-05-01-16_55-stitch_ocastelblanco.com.zip](2026-05-01-16_55-stitch_ocastelblanco.com.zip)
 
 ### Prompt 3: Navigation & Global Elements
 
@@ -97,7 +97,7 @@ Key features of this update:
 You can see the new layout in the **ARCH_ORCH // System Shell** screen on your canvas. Would you like to refine the hover animations or perhaps adjust the terminal's command set?
 ```
 
-![[2026-05-01-17_00-stitch_ocastelblanco.com.zip]]
+[2026-05-01-17_00-stitch_ocastelblanco.com.zip](2026-05-01-17_00-stitch_ocastelblanco.com.zip)
 
 #### Input (Myself)
 
@@ -120,7 +120,7 @@ Las actualizaciones clave incluyen:
 Puedes revisar las versiones finales de la **Página de Inicio**, **AI Orchestration**, **Case Studies**, **Terminal** y el **Registro de Proyectos** directamente en el canvas. ¿Te gustaría ajustar algún detalle de la navegación o de las animaciones?
 ```
 
-![[2026-05-01-17_10-stitch_ocastelblanco.com.zip]]
+[2026-05-01-17_10-stitch_ocastelblanco.com.zip](2026-05-01-17_10-stitch_ocastelblanco.com.zip)
 
 ### Exportación a AI Studio
 
