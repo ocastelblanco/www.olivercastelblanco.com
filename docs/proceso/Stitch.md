@@ -155,7 +155,7 @@ He implementado la aplicación **ARCH_ORCH // AI Solutions** siguiendo estrict
 La aplicación utiliza transiciones lineales y rápidas impulsadas por motion/react para mantener una sensación mecánica y táctil en cada interacción.
 ```
 
-![[arch_orch-__-ai-solutions.zip]]
+[arch_orch-__-ai-solutions.zip](arch_orch-__-ai-solutions.zip)
 
 ### Exporta PRD
 
@@ -167,4 +167,4 @@ I've generated a detailed Project Brief/PRD for **ARCH_ORCH**. It captures the 
 You can find the document on the canvas for easy reference. Is there anything else you'd like to add to the documentation or the designs?
 ```
 
-[[arch_orch_project_prd](../arquitectura/arch_orch_project_prd.md)]
+[arch_orch_project_prd](../arquitectura/arch_orch_project_prd.md)
