@@ -8,6 +8,7 @@
     "build:preview": "ng build --configuration preview",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:lambda": "node --test \"src/lambda/**/*.test.mjs\"",
     "serve:ssr:ocastelblanco": "node dist/ocastelblanco/server/server.mjs",
     "lint": "ng lint",
     "prepare": "husky"

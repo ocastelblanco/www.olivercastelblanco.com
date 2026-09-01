@@ -33,3 +33,6 @@ jobs:
 
       - name: Test
         run: npm test -- --watch=false
+
+      - name: Test Lambda
+        run: npm run test:lambda
