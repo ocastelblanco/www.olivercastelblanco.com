@@ -1,5 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { CloudFrontClient, CreateInvalidationCommand } from '@aws-sdk/client-cloudfront';
+import { limpiarEntrada, contarInvisibles } from './sanitize.mjs';
 
 // Allowlist inyectada por stage (ver serverless.yml custom.corsOrigins /
 // corsOriginRegex) — production solo acepta el dominio real, preview además
@@ -93,12 +94,28 @@ export const handler = async (event) => {
     }
   }
 
+  // La hoja se alimenta a mano y los pegados arrastran caracteres invisibles
+  // (U+200B y compañía) que llegarían intactos al JSON público. Se limpian
+  // después de validar, para que los errores de validación sigan describiendo
+  // lo que mandó el cliente y no una versión ya modificada.
+  const invisiblesRemovidos = body.reduce((total, entry) => total + contarInvisibles(entry), 0);
+  const contenido = body.map(limpiarEntrada);
+  if (invisiblesRemovidos > 0) {
+    console.log(
+      JSON.stringify({
+        event: 'lab_sanitized',
+        removed: invisiblesRemovidos,
+        entries: contenido.length,
+      }),
+    );
+  }
+
   try {
     await s3.send(
       new PutObjectCommand({
         Bucket: CONTENT_BUCKET,
         Key: CONTENT_KEY,
-        Body: JSON.stringify(body),
+        Body: JSON.stringify(contenido),
         ContentType: 'application/json',
       }),
     );
@@ -126,5 +143,5 @@ export const handler = async (event) => {
     }
   }
 
-  return json(200, { ok: true, received: body.length }, origin);
+  return json(200, { ok: true, received: body.length, sanitized: invisiblesRemovidos }, origin);
 };
