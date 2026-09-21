@@ -13,6 +13,13 @@ export interface Translations {
   lang: {
     toggle_label: string;
   };
+  cookies: {
+    eyebrow: string;
+    body: string;
+    accept: string;
+    reject: string;
+    manage_label: string;
+  };
   home: {
     headline: string;
     subheadline: string;

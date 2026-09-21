@@ -1,0 +1,16 @@
+@if (isBrowser && analytics.consent() === null) {
+  <div class="cookie-consent" role="region" [attr.aria-label]="trans.t('cookies.eyebrow')">
+    <div class="cookie-consent__text">
+      <span class="cookie-consent__eyebrow technical-label">{{ trans.t('cookies.eyebrow') }}</span>
+      <p class="cookie-consent__body">{{ trans.t('cookies.body') }}</p>
+    </div>
+    <div class="cookie-consent__actions">
+      <button class="cookie-consent__reject technical-label" type="button" (click)="reject()">
+        {{ trans.t('cookies.reject') }}
+      </button>
+      <button class="cookie-consent__accept technical-label" type="button" (click)="accept()">
+        {{ trans.t('cookies.accept') }}
+      </button>
+    </div>
+  </div>
+}

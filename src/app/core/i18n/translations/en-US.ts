@@ -13,6 +13,13 @@ export const enTranslations: Translations = {
   lang: {
     toggle_label: 'Switch language',
   },
+  cookies: {
+    eyebrow: '// cookies_analytics',
+    body: 'I use Google Analytics to measure visits. No ad tracking.',
+    accept: 'ACCEPT →',
+    reject: 'REJECT',
+    manage_label: '// cookies',
+  },
   contacto: {
     title: '> deploy_your_solution.sh',
     subtitle: 'Tell me the problem. We build the solution.',

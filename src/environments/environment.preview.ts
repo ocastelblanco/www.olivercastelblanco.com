@@ -5,4 +5,6 @@ export const environment = {
   // tiene un CDN delante de su bucket de contenido, así que usa el fixture de
   // dev hasta que exista una forma de servir `content/lab.json` públicamente.
   labContentUrl: 'content/lab.dev.json',
+  // Vacío en preview — mismo criterio que dev (ADR-014), evita contaminar GA4.
+  gaMeasurementId: '',
 };
