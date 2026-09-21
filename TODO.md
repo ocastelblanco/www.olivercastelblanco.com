@@ -21,74 +21,18 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Analítica web — GA4 + Consent Mode v2 + banner de consentimiento
-
-**Origen:** el usuario reportó el 2026-09-20 que la propiedad GA4 `G-Z9PLP5VH5C` no recibe
-datos. Auditoría del repo: **nunca se implementó analítica** (cero coincidencias de
-`gtag`/`googletagmanager`/`dataLayer`; el único hit, `angular.json:9`, es el UUID de
-telemetría del Angular CLI). Decisión completa en `MEMORY.md` **ADR-014**. Plan detallado
-en `~/.claude/plans/transient-cuddling-moth.md`.
-
-**Prerrequisitos:** ✅ propiedad confirmada (flujo `6027540977`, `G-Z9PLP5VH5C`).
-⏳ **Verificar primero** que en GA4 → Admin → Flujos de datos → Medición mejorada esté
-**desactivada** "Cambios de página basados en eventos del historial del navegador" — el
-usuario se comprometió a hacerlo; si sigue activa, cada navegación se cuenta dos veces.
-
-**Archivos:** `src/app/core/analytics/analytics.service.ts` (nuevo),
-`src/app/shared/shell/cookie-consent/` (nuevo), `src/environments/environment{,.prod,.preview}.ts`,
-`src/app/app.ts` / `app.html`, `src/app/shared/shell/topbar/`,
-`src/app/core/i18n/i18n.types.ts` + `translations/{es-CO,en-US}.ts`.
-
-**Qué hacer:**
-1. **Antes de todo lo demás**, ampliar la CSP de CloudFront (ver `MEMORY.md` ADR-015
-   §"CSP de producción" para el valor exacto). Guardar la CSP vigente antes de tocarla.
-   Una sola operación, cubre también la Tarea 2.
-2. `AnalyticsService`: cargar `gtag.js` inyectando el `<script>` desde TypeScript bajo
-   `isPlatformBrowser` — **cero HTML inline**, para no tener que meter `'unsafe-inline'`
-   en `script-src`. Patrón de `App.addJsonLd()` en `src/app/app.ts`.
-3. Consent Mode v2: empujar los defaults (`denied` en los cuatro señalizadores +
-   `wait_for_update: 500`) al `dataLayer` **antes** de anexar la etiqueta.
-4. `send_page_view: false` + `page_view` manual en `NavigationEnd` del Router, **diferido
-   con `afterNextRender`** y con `page_title: document.title` explícito — los títulos se
-   fijan en `ngOnInit` vía `SeoService`, que corre después de `NavigationEnd` (ver ADR-014
-   punto 4). Sin esto, cada vista queda registrada con el título de la anterior.
-5. Banner de consentimiento: barra fija inferior full-width, tokens de `DESIGN.md`
-   (`--color-surface-container-lowest`, borde `--color-outline-variant`, `--radius: 0`,
-   escala de 4px, `technical-label`). Mismo patrón de componente que `lang-switcher/`.
-6. Link `// cookies` en el topbar para reabrir el banner (requisito GDPR de retiro).
-7. `gaMeasurementId: 'G-Z9PLP5VH5C'` solo en `environment.prod.ts`; vacío en los otros dos.
-
-**Definition of done:**
-- [ ] CSP ampliada en CloudFront y verificada con `curl -sI`
-- [ ] `grep -roE '\son[a-z]+="' dist/ocastelblanco/browser` → cero resultados (no se introdujo ningún handler inline)
-- [ ] `grep -c gtag dist/ocastelblanco/browser/index.html` → `0` (la etiqueta se inyecta en runtime)
-- [ ] `npm run build` y `npm run lint` en verde
-- [ ] Banner funcional en `preview`: aceptar, rechazar y reabrir desde el topbar
-- [ ] Navegar entre 3 rutas en producción y confirmar en GA4 Tiempo real **un** `page_view` por ruta, con el título de esa ruta (no el de la anterior)
-- [ ] Tras el merge: GA4 Tiempo real muestra la sesión y la consola de producción no reporta violaciones de CSP en `/`, `/proyectos`, `/lab`, `/contacto`
-- [ ] `MEMORY.md` ADR-014 marcado como implementado y la CSP del 2026-08-05 actualizada
-
-**Estado 2026-09-21:** CSP ampliada y verificada en vivo (`curl -sI` contra
-`ocastelblanco.com` y `www.ocastelblanco.com`, ambos `200`, ambos con la CSP nueva).
-Implementación completa y verificada en local: `npm run build`/`lint` en verde, cero
-handlers inline en el `dist/`, `gtag` ausente del HTML prerenderizado, banner probado con
-`claude-in-chrome` en `localhost:4200` (aparece, ACEPTAR lo oculta, persiste tras recargar,
-`// cookies` del topbar lo reabre, cero errores de consola). PR abierto — pendiente merge
-del usuario y verificación de `page_view` real en GA4 Tiempo real contra producción.
-
----
-
-## Tarea 2 — [SEC]: Anti-spam en `POST /contact` — reCAPTCHA v3 + activar el honeypot muerto
+## Tarea 1 — [SEC]: Anti-spam en `POST /contact` — reCAPTCHA v3 + activar el honeypot muerto
 
 **Origen:** pedido del usuario el 2026-09-20. La auditoría encontró que el rate limiting
 existe y funciona (`rateLimit: 5`/`burstLimit: 10` + `reservedConcurrency: 5`), pero que
 **el honeypot es código muerto**: `src/lambda/contact-handler.mjs:60` verifica
 `body.website` y el formulario Angular nunca expone ese campo, así que ningún bot lo llena
-y la verificación jamás se dispara. Decisión completa en `MEMORY.md` **ADR-015**.
+y la verificación jamás se dispara. Decisión completa en `MEMORY.md` **ADR-016**.
 
 > **Encuadre honesto:** `CLAUDE.md` §6 A07 pide rate limiting **y/o** honeypot/captcha, y
 > el rate limiting está activo — **esto no es un gap OWASP abierto**, es endurecimiento.
-> Entra como Tarea 2 por decisión explícita del usuario, no por Prioridad 1.
+> Entra como Tarea 1 por decisión explícita del usuario (promovida el 2026-09-21 al
+> cerrarse la Tarea 1 anterior de GA4), no por Prioridad 1 calculada.
 
 **Archivos:** `src/lambda/contact-handler.mjs`, `src/lambda/contact-recaptcha.test.mjs`
 (nuevo), `src/app/core/services/recaptcha.service.ts` (nuevo),
@@ -131,11 +75,67 @@ con dominio `ocastelblanco.com` (cubre `www`). Site key pública:
 - [ ] `curl -X POST https://api.ocastelblanco.com/contact` sin token → `403`
 - [ ] Envío real desde el sitio en producción: llega el correo y CloudWatch registra el score
 - [ ] Consola de producción sin violaciones de CSP en `/contacto`
-- [ ] `MEMORY.md` ADR-015 marcado como implementado
+- [ ] `MEMORY.md` ADR-016 marcado como implementado
+
+---
+
+## Tarea 2 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
+
+**Origen:** gap documentado desde ADR-011 (2026-07-11): `ContentService.loadLabEntries()`
+solo hace fetch de `lab.json` cuando `isPlatformBrowser` es verdadero — el SSR/prerender
+no incluye las entradas de Lab en el HTML inicial servido a buscadores/crawlers. Es
+independiente del switch (no depende de que exista `main` ni de que el sitio esté en
+producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA". Vuelve al motor JIT
+el 2026-09-21 tras haber sido desplazada dos veces por trabajo de Prioridad 1 y por el
+pedido explícito de analítica/anti-spam del usuario — sigue siendo el candidato más
+prioritario del backlog (`MEMORY.md` §2) sin dependencias bloqueantes.
+
+**Archivos:** `src/app/core/content/content.service.ts`, posiblemente
+`src/app/features/lab/lab.ts` (o el componente que resuelve la ruta `/lab`).
+
+**Qué hacer:**
+1. Revisar el mecanismo actual de `loadLabEntries()` — hoy condicionado a
+   `isPlatformBrowser`, evaluar mover la carga a un resolver/guard SSR-safe (Angular
+   `ResolveFn`) o a un `TransferState` que precargue en el servidor y evite un doble fetch
+   en el cliente.
+2. Verificar que el fetch SSR funcione tanto contra el fixture de dev
+   (`content/lab.dev.json`) como contra la URL real de producción
+   (`environment.prod.ts.labContentUrl`, hoy `/content/lab.json`, same-origin).
+3. Confirmar que el prerender (`ng build`, 7 rutas estáticas) incluye las entradas de Lab
+   en el HTML de `/lab` — verificable con `grep` sobre `dist/ocastelblanco/browser/lab/index.html`.
+4. No romper el flujo actual de actualización de contenido (Google Sheets → `POST /lab` →
+   S3) — el fetch SSR debe seguir siendo dinámico en cada build/request, no cachear
+   contenido stale de forma permanente.
+
+**Definition of done:**
+- [ ] El HTML pre-renderizado de `/lab` incluye el contenido real de las entradas (verificable con `curl`/`grep`, sin ejecutar JS)
+- [ ] El fetch no se duplica innecesariamente entre servidor y cliente (o si se duplica, está justificado y documentado)
+- [ ] Funciona igual en dev (fixture) y en preview/producción (URL real)
+- [ ] `npm run build` y `npm run lint` en verde
+- [ ] Documentado en `MEMORY.md` ADR-011 que el gap quedó cerrado
 
 ---
 
 ## Historial de tareas completadas
+
+### 2026-09-21 — [FEATURE]: Analítica web — GA4 + Consent Mode v2 + banner de consentimiento
+
+PR #41 fusionado y desplegado en `production`. El usuario confirmó en el panel real de
+Google Tag Manager / Analytics que la visita quedó registrada — evidencia más fuerte que
+cualquier verificación de red desde el navegador (GA4 envía sus hits vía
+`navigator.sendBeacon`, que las herramientas de inspección de red no siempre capturan).
+
+Verificación adicional tras el merge: `curl -sI` contra `ocastelblanco.com` y
+`www.ocastelblanco.com` confirma la CSP nueva en ambos hosts, ambos `200`. Navegación real
+con `claude-in-chrome` por `/`, `/proyectos`, `/lab`, `/contacto` en producción: cero
+errores de consola, `gtag.js` carga con `200`, banner de consentimiento funcional (acepta,
+oculta, persiste, se reabre desde `// cookies` del topbar). Implementación y verificación
+local completa ya documentadas en la sesión anterior (ver `MEMORY.md` ADR-015).
+
+**Motor JIT recalculado:** Anti-spam reCAPTCHA v3 (antes Tarea 2) pasa a Tarea 1. Fetch SSR
+de The Lab (ADR-011, desplazada desde el 2026-09-20) reingresa como Tarea 2 — sigue siendo
+el candidato de mayor prioridad del backlog sin dependencias bloqueantes.
+
 
 ### 2026-09-20 — [DOCS]: Diagnóstico de analítica y anti-spam (sin código)
 
@@ -145,14 +145,17 @@ de producción (`script-src 'self'`) habría bloqueado cualquier etiqueta pegada
 el bloqueador real, invisible desde la consola de Google Analytics. Se informó también que
 el recuerdo de "haber acordado Tag Manager" no está respaldado por ningún documento del
 repo. Ampliado el alcance a anti-spam, se encontró que el honeypot de `/contact` es código
-muerto. ADR-014 y ADR-015 escritos, motor JIT recalculado. Detalle en `MEMORY.md`
+muerto. ADR-015 y ADR-016 escritos (renumeradas desde el ADR-014/015 original al
+detectarse que ADR-014 ya existía para la entrega SES del formulario de contacto), motor
+JIT recalculado. Detalle en `MEMORY.md`
 §"Sesión 2026-09-20".
 
-**Tareas desplazadas** (no completadas, siguen vigentes y documentadas en `MEMORY.md` §2,
-vuelven al motor JIT cuando se libere un slot):
+**Tareas desplazadas** (no completadas, siguen vigentes y documentadas en `MEMORY.md` §2):
 
-- *Fetch SSR de The Lab* (gap de SEO, ADR-011) — era Tarea 1.
-- *`angular.json` copia `lab.dev.json` a todos los builds* (ADR-012 §"paso 8") — era Tarea 2.
+- *Fetch SSR de The Lab* (gap de SEO, ADR-011) — era Tarea 1. Reingresó al motor JIT el
+  2026-09-21 como Tarea 2, al completarse la analítica (ver historial más arriba).
+- *`angular.json` copia `lab.dev.json` a todos los builds* (ADR-012 §"paso 8") — era Tarea 2,
+  sigue en el backlog, vuelve al motor JIT cuando se libere un slot.
 
 
 ### 2026-08-05 — [FIX]: CSP bloqueaba un `onload` inline inyectado por el build (CSS crítico)
@@ -681,9 +684,10 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-09-21 (3) | PR #41 (GA4 + Consent Mode v2 + banner) fusionado y verificado en producción real: el usuario confirmó la visita registrada en el panel de Google Analytics, `curl` confirma la CSP nueva en ambos hosts, navegación real sin errores de consola. Analítica web queda completa — sin gaps OWASP activos en producción. Recalculo: Anti-spam reCAPTCHA v3 (Tarea 2) no tiene dependencias pendientes (prerrequisitos cumplidos desde el 2026-09-21) y pasa a Tarea 1. El siguiente candidato del backlog sin bloqueos es Fetch SSR de The Lab (ADR-011, feature Alta de SEO técnico, desplazada dos veces desde el 2026-08-05) | Tarea 1 (nueva): Anti-spam reCAPTCHA v3 + honeypot real (ADR-016), sin cambios de contenido, solo renumerada. Tarea 2 (nueva): Fetch SSR de The Lab (ADR-011), restaurada del backlog |
 | 2026-09-21 (2) | Implementación de la Tarea 1 (GA4 + Consent Mode v2 + banner) completa: CSP de CloudFront ampliada y verificada en vivo, `AnalyticsService` sin scripts inline, banner probado con `claude-in-chrome` (aparece, oculta, persiste, se reabre desde el topbar), `npm run build`/`lint` en verde. PR abierto — no se recalcula el motor JIT todavía: la tarea solo cierra tras el merge del usuario y la verificación de `page_view` real en GA4, siguiendo el mismo patrón de sesiones anteriores (PRs #36/#37) | Tarea 1 sigue activa con estado "implementación lista, pendiente merge y verificación en producción". Tarea 2 (reCAPTCHA v3) sin cambios |
 | 2026-09-21 | PR #39 fusionado. Prerrequisitos del usuario confirmados (reCAPTCHA v3 registrado, `RECAPTCHA_SECRET` verificado con `gh secret list`, propiedad GA4 confirmada). La revisión del código real ajusta el plan en tres puntos que habrían fallado en producción: el secret no llegaba al Lambda porque `deploy.yml` no lo pasa; el secret habría quedado expuesto también a la Lambda de SSR vía `provider.environment`; y el `page_view` habría llevado el título de la página anterior (el `<title>` se fija en `ngOnInit`, después de `NavigationEnd`). Se detecta también que `www.ocastelblanco.com` sirve `200` sin canonical — registrado como pendiente de SEO aparte, no entra al motor | Sin cambio de tareas: Tarea 1 y Tarea 2 siguen activas con pasos y DoD ajustados. Único pendiente abierto antes de implementar: confirmar que se desactivó el page_view por historial en GA4 |
-| 2026-09-20 | Sesión de diagnóstico a pedido del usuario: Google Analytics no recibe datos. Auditoría del repo y de producción (`curl` contra el sitio en vivo) concluye que **nunca se implementó analítica** — no es una etiqueta mal puesta, es la ausencia total — y que el bloqueador real es la CSP de producción (`script-src 'self'`), invisible desde la consola de Google Analytics. Se informa al usuario que su recuerdo de "haber acordado Tag Manager" no está respaldado por ningún documento del repo. Ampliado el alcance a anti-spam, se descubre que el honeypot de `POST /contact` es código muerto (el servidor lo verifica, el formulario nunca expone el campo); se aclara que **no es un gap OWASP abierto** porque §6 A07 se satisface con el rate limiting ya activo. Ambas tareas entran por decisión explícita del usuario, no por prioridad calculada, y desplazan a las dos vigentes (ninguna completada) | Nueva Tarea 1: Analítica web GA4 + Consent Mode v2 + banner (ADR-014). Nueva Tarea 2: Anti-spam reCAPTCHA v3 + honeypot real (ADR-015). Desplazadas al backlog de `MEMORY.md` §2, sin perder vigencia: Fetch SSR de The Lab (ADR-011) y glob de assets de `angular.json` (ADR-012) |
+| 2026-09-20 | Sesión de diagnóstico a pedido del usuario: Google Analytics no recibe datos. Auditoría del repo y de producción (`curl` contra el sitio en vivo) concluye que **nunca se implementó analítica** — no es una etiqueta mal puesta, es la ausencia total — y que el bloqueador real es la CSP de producción (`script-src 'self'`), invisible desde la consola de Google Analytics. Se informa al usuario que su recuerdo de "haber acordado Tag Manager" no está respaldado por ningún documento del repo. Ampliado el alcance a anti-spam, se descubre que el honeypot de `POST /contact` es código muerto (el servidor lo verifica, el formulario nunca expone el campo); se aclara que **no es un gap OWASP abierto** porque §6 A07 se satisface con el rate limiting ya activo. Ambas tareas entran por decisión explícita del usuario, no por prioridad calculada, y desplazan a las dos vigentes (ninguna completada) | Nueva Tarea 1: Analítica web GA4 + Consent Mode v2 + banner (ADR-015, renumerada — ADR-014 ya existía para la entrega SES del formulario). Nueva Tarea 2: Anti-spam reCAPTCHA v3 + honeypot real (ADR-016). Desplazadas al backlog de `MEMORY.md` §2, sin perder vigencia: Fetch SSR de The Lab (ADR-011) y glob de assets de `angular.json` (ADR-012) |
 | 2026-08-05 (3) | `deploy-production` (S3 sync, PR #36) y el fix de CSP del `onload` inline de CSS crítico (PR #37) completados y verificados en producción real (`curl` + navegador real, cero errores de consola). Sin gaps OWASP activos en producción. Fetch SSR de The Lab (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se reincorpora "limpiar el glob de assets de `angular.json`" (gotcha documentado desde el switch, ADR-012): sin dependencias bloqueantes, es más concreta y acotada que abrir la migración a IaC de CloudFront o la integración con Cloudinary | Tareas de S3 sync y CSP (`onload`) movidas al historial. Tarea 2 (Fetch SSR de The Lab) pasa a ser Tarea 1. Nueva Tarea 2: limpiar el glob de assets de `angular.json` |
 | 2026-08-05 (2) | Headers de seguridad completados y verificados en producción real (los 5 headers presentes, `x-powered-by` confirmado ausente tras el merge del PR #31). Sin gaps OWASP activos en producción — vuelve a aplicar la prioridad normal del roadmap. Fetch SSR de The Lab (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza limpiar el glob de assets de `angular.json` (gotcha documentado desde el switch, ADR-012 §7): es una corrección concreta y acotada, más urgente que abrir la migración a IaC de CloudFront o la integración con Cloudinary (ambas más grandes y sin gap activo). Aparte del motor JIT: se instaló un pre-commit hook (`husky`) que bloquea de forma permanente el patrón de secreto hardcodeado que causó dos incidentes reales seguidos | Tarea 1 (Headers de seguridad) movida al historial. Tarea 2 (Fetch SSR de The Lab) pasa a ser Tarea 1. Nueva Tarea 2: limpiar el glob de assets de `angular.json` |
 | 2026-08-05 | Bitácora de proceso completada (entrada del MVP en `docs/proceso/`, alcance acotado a PRs #15-29 para no duplicar las entradas de junio). Al recalcular prioridades aparece un hallazgo que reordena la lista: `CLAUDE.md` §6 A05 exige headers de seguridad (`Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`) en la respuesta de CloudFront/Lambda, y verificado con `curl` **ninguno está presente** en producción — además de que se filtra `x-powered-by: Express`. El requisito existía desde antes, pero solo se volvió un **gap OWASP activo en producción** con el switch del 2026-08-04, lo que lo convierte en Prioridad 1 del motor JIT, por encima del fetch SSR (Prioridad 2, completa la feature Alta "SEO técnico"). Revisado también el roadmap de `PRD.md` §6: todos los items Alta y Media están completos salvo "Integración con Cloudinary" (Media), que queda por debajo de ambas tareas activas | Nueva Tarea 1: Headers de seguridad en producción (OWASP A05). Tarea 2 (Fetch SSR de The Lab) sin cambios. Bitácora de proceso movida al historial |
