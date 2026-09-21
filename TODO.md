@@ -21,89 +21,16 @@
 
 ---
 
-## Tarea 1 — [SEC]: Anti-spam en `POST /contact` — reCAPTCHA v3 + activar el honeypot muerto
-
-**Origen:** pedido del usuario el 2026-09-20. La auditoría encontró que el rate limiting
-existe y funciona (`rateLimit: 5`/`burstLimit: 10` + `reservedConcurrency: 5`), pero que
-**el honeypot es código muerto**: `src/lambda/contact-handler.mjs:60` verifica
-`body.website` y el formulario Angular nunca expone ese campo, así que ningún bot lo llena
-y la verificación jamás se dispara. Decisión completa en `MEMORY.md` **ADR-016**.
-
-> **Encuadre honesto:** `CLAUDE.md` §6 A07 pide rate limiting **y/o** honeypot/captcha, y
-> el rate limiting está activo — **esto no es un gap OWASP abierto**, es endurecimiento.
-> Entra como Tarea 1 por decisión explícita del usuario (promovida el 2026-09-21 al
-> cerrarse la Tarea 1 anterior de GA4), no por Prioridad 1 calculada.
-
-**Archivos:** `src/lambda/contact-handler.mjs`, `src/lambda/contact-recaptcha.test.mjs`
-(nuevo), `src/app/core/services/recaptcha.service.ts` (nuevo),
-`src/app/features/contacto/`, `src/app/core/services/contact.service.ts`,
-`src/environments/*.ts`, `serverless.yml`.
-
-**Prerrequisitos:** ✅ todos cumplidos el 2026-09-21. Sitio registrado en reCAPTCHA v3
-con dominio `ocastelblanco.com` (cubre `www`). Site key pública:
-`6Lenj8ctAAAAALCIfcrj39k_2k-yPsieUfDJBGi-`. `RECAPTCHA_SECRET` cargado en GitHub Actions
-(verificado con `gh secret list`).
-
-**Qué hacer:**
-1. `RecaptchaService`: cargar `recaptcha/api.js` **solo al entrar a `/contacto`**, nunca
-   site-wide. Exponer `execute('contact')`.
-2. Honeypot real en `contacto.html`: `<input formControlName="website">` con
-   `position: absolute; left: -9999px`, `tabindex="-1"`, `aria-hidden="true"`.
-   **No `display: none`** — muchos bots lo detectan.
-3. Verificación server-side contra `https://www.google.com/recaptcha/api/siteverify`
-   (URL hardcodeada, §6 A10). Rechazar con `403` si `success !== true`,
-   `action !== 'contact'` o `score < 0.5`. Registrar el score en el log existente.
-4. **Fail-open** si Google no responde, registrando el fallo. Omitir la verificación si
-   `RECAPTCHA_SECRET` está vacío (dev/preview).
-5. Ocultar el badge con `visibility: hidden` **y** agregar el texto de atribución con los
-   links a Privacy Policy y Terms — sin la atribución se violan los términos de Google.
-6. Tests en `src/lambda/` con `fetch` mockeado: score alto, score bajo, `action` distinta,
-   secreto vacío, Google caído, honeypot lleno.
-7. `serverless.yml`: `RECAPTCHA_SECRET: ${env:RECAPTCHA_SECRET, ''}` en el bloque
-   `environment` **de la función `contact`**, no en `provider.environment` (que llega
-   también a la Lambda de SSR).
-8. `.github/workflows/deploy.yml`: agregar `RECAPTCHA_SECRET: ${{ secrets.RECAPTCHA_SECRET }}`
-   al `env:` del step de `serverless deploy` **solo en `deploy-production`**. Sin esto el
-   secret existe en GitHub pero nunca llega al Lambda.
-9. `recaptchaSiteKey: '6Lenj8ctAAAAALCIfcrj39k_2k-yPsieUfDJBGi-'` en `environment.prod.ts`;
-   vacía en `environment.ts` y `environment.preview.ts`.
-
-**Definition of done:**
-- [ ] `aws lambda get-function-configuration` de `contact` en producción muestra `RECAPTCHA_SECRET` con valor, y la de `app` (SSR) **no** la tiene
-- [ ] `serverless.yml` con `RECAPTCHA_SECRET: ${env:RECAPTCHA_SECRET, ''}` — fallback **vacío**, sin excepción (§6 A02, ya cobró dos incidentes con `LAB_PUBLISH_TOKEN`)
-- [ ] `npm run build`, `npm run lint` y `npm run test:lambda` en verde
-- [ ] `curl -X POST https://api.ocastelblanco.com/contact` sin token → `403`
-- [ ] Envío real desde el sitio en producción: llega el correo y CloudWatch registra el score
-- [ ] Consola de producción sin violaciones de CSP en `/contacto`
-- [ ] `MEMORY.md` ADR-016 marcado como implementado
-
-**Estado 2026-09-21:** implementación completa y verificada en local. `npm run build`,
-`npm run lint` y `npm run test:lambda` en verde (23 tests, incluidos 7 nuevos de
-reCAPTCHA — requirió agregar `--experimental-test-module-mocks` a `test:lambda` para
-poder stubear `@aws-sdk/client-sesv2` con `mock.module()`, todavía experimental en
-Node 24). Verificado con `claude-in-chrome` en `localhost:4200/contacto`: el honeypot
-existe en el DOM fuera de la pantalla (no `display:none`), la atribución de reCAPTCHA es
-visible, cero errores de consola. **Bug encontrado y corregido en el camino:** el banner
-de consentimiento (fijo, ADR-015) tapaba la atribución de reCAPTCHA en `/contacto` porque
-la página no tenía scroll de sobra — se agregó una clase condicional
-`.app-content--cookie-banner-visible` que reserva espacio solo mientras el banner está
-visible, verificado visualmente en ambos estados. `.github/workflows/deploy.yml`
-actualizado con `RECAPTCHA_SECRET` en `deploy-production` únicamente (verificado que
-`deploy-preview` no lo recibe). PR abierto — pendiente merge del usuario y verificación
-de envío real en producción.
-
----
-
-## Tarea 2 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
+## Tarea 1 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
 
 **Origen:** gap documentado desde ADR-011 (2026-07-11): `ContentService.loadLabEntries()`
 solo hace fetch de `lab.json` cuando `isPlatformBrowser` es verdadero — el SSR/prerender
 no incluye las entradas de Lab en el HTML inicial servido a buscadores/crawlers. Es
 independiente del switch (no depende de que exista `main` ni de que el sitio esté en
-producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA". Vuelve al motor JIT
-el 2026-09-21 tras haber sido desplazada dos veces por trabajo de Prioridad 1 y por el
-pedido explícito de analítica/anti-spam del usuario — sigue siendo el candidato más
-prioritario del backlog (`MEMORY.md` §2) sin dependencias bloqueantes.
+producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA". Promovida a Tarea 1 el 2026-09-21 al completarse ADR-016 (reCAPTCHA) — sigue siendo el
+candidato más prioritario del backlog (`MEMORY.md` §2) sin dependencias bloqueantes,
+tras haber sido desplazada dos veces por trabajo de Prioridad 1 y por el pedido explícito
+de analítica/anti-spam del usuario.
 
 **Archivos:** `src/app/core/content/content.service.ts`, posiblemente
 `src/app/features/lab/lab.ts` (o el componente que resuelve la ruta `/lab`).
@@ -131,7 +58,74 @@ prioritario del backlog (`MEMORY.md` §2) sin dependencias bloqueantes.
 
 ---
 
+## Tarea 2 — [FIX]: Contenido duplicado — `www.ocastelblanco.com` sin 301 ni canonical
+
+**Origen:** hallazgo de la sesión del 2026-09-21 (revisión previa a implementar ADR-016).
+`www.ocastelblanco.com` sirve el sitio completo con `200` a través de la misma
+distribución CloudFront (confirmado con `curl -sI`, misma CSP que el dominio raíz), en
+vez de redirigir al canónico `ocastelblanco.com`. El HTML tampoco tiene
+`<link rel="canonical">`, solo `og:url`. Contenido duplicado real para buscadores, activo
+en producción hoy. Cierra un pendiente de PRD §6 "SEO técnico" (prioridad Alta, mismo
+ítem del roadmap que Tarea 1) y complementa el trabajo ya hecho en ADR-012 (CloudFront
+Function de 301 para `olivercastelblanco.com` → dominio canónico).
+
+**Archivos:** CloudFront Function existente (fuera del repo, gestionada manualmente —
+ver ADR-012 Consecuencias), `src/app/core/seo/seo.service.ts`, `src/app/app.ts` (o donde
+se resuelva la ruta activa para construir la URL canónica por página).
+
+**Qué hacer:**
+1. Revisar el código de la CloudFront Function de 301 ya asociada a la distribución
+   `E1MX0LNEKZOG8H` (redirige `olivercastelblanco.com` y `www.olivercastelblanco.com` al
+   dominio canónico, ADR-012) — confirmar por qué no cubre `www.ocastelblanco.com` y
+   extenderla para incluirlo. **Probar con `aws cloudfront test-function` antes de
+   asociarla** (mismo protocolo que se siguió la primera vez, sin afectar el sitio en
+   vivo mientras se valida).
+2. `SeoService.update()`: agregar `<link rel="canonical">` apuntando siempre a
+   `https://ocastelblanco.com<ruta>` (nunca a `www`), para las 7 rutas.
+3. Verificar que el 301 no rompa `api.ocastelblanco.com` (dominio distinto, no debería
+   verse afectado, pero confirmar) ni el flujo de `/content/*`.
+
+**Definition of done:**
+- [ ] `curl -sI https://www.ocastelblanco.com/` → `301` con `Location: https://ocastelblanco.com/`
+- [ ] Cada una de las 7 rutas prerenderizadas incluye `<link rel="canonical" href="https://ocastelblanco.com...">`  en el HTML servido
+- [ ] `aws cloudfront test-function` verificado antes de asociar la función actualizada
+- [ ] `npm run build` y `npm run lint` en verde
+- [ ] Navegación real con `claude-in-chrome` confirmando que `ocastelblanco.com` (sin `www`) sigue sirviendo `200` sin cambios
+- [ ] Documentado en `MEMORY.md` (ADR-012, revisión) que el gap quedó cerrado
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-09-21 — [SEC]: Anti-spam en `POST /contact` — reCAPTCHA v3 + honeypot real
+
+PR #43 fusionado y verificado en producción real. CI falló en el primer intento: `mock.module()`
+de `node:test` (experimental) se comportaba distinto entre Node 24.20.0 (local) y Node
+22.23.2 (runner de `ci.yml`), con `SyntaxError: The requested module '@aws-sdk/client-sesv2'
+does not provide an export named 'SESv2Client'`. Corregido reemplazándolo por
+prototype-patching de `SESv2Client.prototype.send` — técnica estándar sin ninguna
+característica experimental, verificado reproduciendo los 4 pasos exactos de `ci.yml`
+localmente antes de re-empujar. Los 3 checks (`build-test-lint`, `Build & Deploy (preview)`,
+GitGuardian) pasaron en el segundo intento.
+
+**Verificación en producción real, con evidencia más fuerte que cualquier prueba
+sintética:** revisando CloudWatch (`/aws/lambda/ocastelblanco-com-production-contact`) se
+encontró un envío real del propio usuario con `recaptchaScore: 0.9`, `recaptchaSkipped:
+false` — reCAPTCHA funcionando de punta a punta (frontend ejecuta, backend verifica,
+correo se entrega) sin necesidad de simularlo. Verificación adicional: `curl -X POST
+https://api.ocastelblanco.com/contact` sin token → `403` confirmado; `curl -sI` contra
+`/contacto` confirma la CSP con `google.com`/`gstatic.com`; navegación real con
+`claude-in-chrome` en `https://ocastelblanco.com/contacto` sin errores de consola, badge
+oculto y atribución visible.
+
+**Motor JIT recalculado:** Fetch SSR de The Lab (ADR-011, Tarea 2) pasa a Tarea 1 — sin
+cambios de contenido, era el candidato más prioritario del backlog. Nueva Tarea 2:
+contenido duplicado de `www.ocastelblanco.com` (hallazgo del 2026-09-21, mismo ítem de
+roadmap "SEO técnico" que Tarea 1), elegido sobre otros pendientes del backlog (glob de
+`angular.json`, migración de CloudFront a IaC, Cloudinary) por ser un gap activo en
+producción hoy, con remedio concreto y sin dependencias externas inciertas — a diferencia
+de la auto-respuesta SES, que requiere salir del sandbox (proceso externo, no atómico).
+
 
 ### 2026-09-21 — [FEATURE]: Analítica web — GA4 + Consent Mode v2 + banner de consentimiento
 
@@ -699,6 +693,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-09-21 (4) | PR #43 fusionado tras corregir un fallo de CI (mock.module() experimental incompatible entre Node 24 y Node 22). Verificado en producción real: CloudWatch muestra un envío real del usuario con recaptchaScore 0.9, curl confirma 403 sin token y la CSP correcta en /contacto, navegación real sin errores de consola. Anti-spam completo — sin gaps OWASP activos en producción. Recalculo: Fetch SSR de The Lab (ADR-011) pasa a Tarea 1 sin cambios de contenido. Para Tarea 2, entre los pendientes del backlog (glob de angular.json, CloudFront a IaC, auto-respuesta SES, Cloudinary, contenido duplicado de www), se elige el contenido duplicado de www.ocastelblanco.com — mismo ítem de roadmap Alta "SEO técnico" que Tarea 1, gap activo hoy en producción, sin dependencia externa incierta (a diferencia de SES sandbox) | Tarea 1 (nueva): Fetch SSR de The Lab (ADR-011), renumerada sin cambios. Tarea 2 (nueva): 301 + canonical para www.ocastelblanco.com |
 | 2026-09-21 (3) | PR #41 (GA4 + Consent Mode v2 + banner) fusionado y verificado en producción real: el usuario confirmó la visita registrada en el panel de Google Analytics, `curl` confirma la CSP nueva en ambos hosts, navegación real sin errores de consola. Analítica web queda completa — sin gaps OWASP activos en producción. Recalculo: Anti-spam reCAPTCHA v3 (Tarea 2) no tiene dependencias pendientes (prerrequisitos cumplidos desde el 2026-09-21) y pasa a Tarea 1. El siguiente candidato del backlog sin bloqueos es Fetch SSR de The Lab (ADR-011, feature Alta de SEO técnico, desplazada dos veces desde el 2026-08-05) | Tarea 1 (nueva): Anti-spam reCAPTCHA v3 + honeypot real (ADR-016), sin cambios de contenido, solo renumerada. Tarea 2 (nueva): Fetch SSR de The Lab (ADR-011), restaurada del backlog |
 | 2026-09-21 (2) | Implementación de la Tarea 1 (GA4 + Consent Mode v2 + banner) completa: CSP de CloudFront ampliada y verificada en vivo, `AnalyticsService` sin scripts inline, banner probado con `claude-in-chrome` (aparece, oculta, persiste, se reabre desde el topbar), `npm run build`/`lint` en verde. PR abierto — no se recalcula el motor JIT todavía: la tarea solo cierra tras el merge del usuario y la verificación de `page_view` real en GA4, siguiendo el mismo patrón de sesiones anteriores (PRs #36/#37) | Tarea 1 sigue activa con estado "implementación lista, pendiente merge y verificación en producción". Tarea 2 (reCAPTCHA v3) sin cambios |
 | 2026-09-21 | PR #39 fusionado. Prerrequisitos del usuario confirmados (reCAPTCHA v3 registrado, `RECAPTCHA_SECRET` verificado con `gh secret list`, propiedad GA4 confirmada). La revisión del código real ajusta el plan en tres puntos que habrían fallado en producción: el secret no llegaba al Lambda porque `deploy.yml` no lo pasa; el secret habría quedado expuesto también a la Lambda de SSR vía `provider.environment`; y el `page_view` habría llevado el título de la página anterior (el `<title>` se fija en `ngOnInit`, después de `NavigationEnd`). Se detecta también que `www.ocastelblanco.com` sirve `200` sin canonical — registrado como pendiente de SEO aparte, no entra al motor | Sin cambio de tareas: Tarea 1 y Tarea 2 siguen activas con pasos y DoD ajustados. Único pendiente abierto antes de implementar: confirmar que se desactivó el page_view por historial en GA4 |

@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-21 — ADR-016 (reCAPTCHA v3 + honeypot) implementado y verificado en local, PR abierto pendiente de merge |
+| Última sesión | 2026-09-21 — ADR-016 (reCAPTCHA v3 + honeypot) fusionado y verificado en producción real; motor JIT recalculado |
 | Analítica web | **Implementada y en producción** desde el 2026-09-21 (GA4, propiedad `G-Z9PLP5VH5C`). Ver ADR-015 |
 
 ## 2. Funcionalidades
@@ -45,6 +45,7 @@
 - [x] Fix `deploy-production` nunca sincronizaba S3 — sitio sin JS de cliente desde el PR #34 (incidente 2026-08-05, ver ADR-012). PR #36 fusionado y verificado en vivo
 - [x] Fix CSP: `onload` inline inyectado por `optimization.styles.inlineCritical` de Angular bloqueado en producción (incidente 2026-08-05, ver ADR-012). PR #37 fusionado y verificado en vivo
 - [x] Analítica web — GA4 + Consent Mode v2 + banner de consentimiento (ver ADR-015). PR #41 fusionado y verificado en producción real: el usuario confirmó la visita registrada en el panel de Google Analytics; `curl` confirma la CSP nueva en ambos hosts (`ocastelblanco.com` y `www.ocastelblanco.com`); navegación real con `claude-in-chrome` por las 4 rutas sin errores de consola
+- [x] Anti-spam en `POST /contact` — reCAPTCHA v3 + honeypot real (ver ADR-016). PR #43 fusionado y verificado en producción real: CloudWatch registró un envío real del usuario con `recaptchaScore: 0.9`; `curl -X POST .../contact` sin token → `403`; navegación real sin errores de consola
 
 ### Secuencia hacia el switch de producción (2026-08-04)
 
@@ -65,14 +66,12 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 
 - [x] **Headers de seguridad ausentes en producción (OWASP A05)** — Completado y verificado 2026-08-05: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `X-Frame-Options` presentes en producción; `x-powered-by` confirmado ausente tras el merge del PR #31. Sin gaps OWASP activos en producción
 - [x] Bitácora de proceso `docs/proceso/` — entrada MVP. Completada 2026-08-05 (`2026-08-mvp-en-produccion.md`, cubre PRs #15-29)
-- [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO) ← desplazada del motor JIT el 2026-09-20, sigue vigente
+- [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO) ← **Tarea 1**
 - [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
 - [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue ← desplazada del motor JIT el 2026-09-20, sigue vigente
-- [ ] **Anti-spam en `POST /contact` (reCAPTCHA v3 + honeypot real)** — ADR-016. Implementación completa y verificada en local (`npm run build`/`lint`/`test:lambda` en verde, honeypot y atribución verificados con `claude-in-chrome`); PR abierto, pendiente merge + verificación de envío real en producción ← **Tarea 1**
-- [ ] Ampliar la CSP de CloudFront para GA4 y reCAPTCHA — **hecho y verificado en vivo el 2026-09-21**, ver ADR-016 §"CSP de producción"
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
-- [ ] **`www.ocastelblanco.com` sirve el sitio completo con `200`** (sin 301 al dominio canónico) y el HTML **no tiene `<link rel="canonical">`**, solo `og:url` — contenido duplicado para buscadores. Detectado 2026-09-21. Candidato natural: extender la CloudFront Function de 301 (ADR-012) a `www.ocastelblanco.com` + agregar canonical en `SeoService`
+- [ ] **`www.ocastelblanco.com` sirve el sitio completo con `200`** (sin 301 al dominio canónico) y el HTML **no tiene `<link rel="canonical">`**, solo `og:url` — contenido duplicado para buscadores. Detectado 2026-09-21 ← **Tarea 2**
 - [ ] Evaluar un `404` limpio para `/content/*` — hoy el `CustomErrorResponses` heredado (403/404 → `/index.html`) hace que un objeto faltante devuelva `200` con HTML
 - [ ] Integración con Cloudinary para gestión de imágenes (`PRD.md` §6, prioridad Media — único item del roadmap sin completar fuera de los de prioridad Baja)
 
@@ -1560,9 +1559,9 @@ contexto adicional de esta.
 ### ADR-016 — Anti-spam en `POST /contact`: reCAPTCHA v3 + activar el honeypot muerto
 
 - **Fecha:** 2026-09-20
-- **Estado:** Implementado y verificado en local (2026-09-21). Promovido a Tarea 1 del
-  motor JIT el 2026-09-21 al completarse y verificarse ADR-015 en producción. PR abierto,
-  pendiente merge del usuario y verificación de envío real en producción.
+- **Estado:** **Implementado y verificado en producción real** (PR #43 fusionado
+  2026-09-21). Evidencia más fuerte que cualquier prueba sintética: CloudWatch registró un
+  envío real del propio usuario con `recaptchaScore: 0.9`, funcionando de punta a punta.
 - **Contexto:** auditoría del endpoint de contacto a pedido del usuario. Estado real hoy:
 
   | Defensa | Estado |
@@ -1830,3 +1829,37 @@ habría generado un correo real y consumido un envío de SES sin necesidad.
 **Estado al cierre:** PR abierto, pendiente merge del usuario. Motor JIT sin recalcular
 todavía — la Definition of Done de ADR-016 incluye verificar el envío real en producción
 (correo entregado, score en CloudWatch), igual que se hizo con ADR-015.
+
+---
+
+## Sesión 2026-09-21 (4) — Cierre de ADR-016, verificación en producción y siguiente tarea
+
+PR #43 fusionado por el usuario y desplegado a producción sin problemas — el fallo de CI
+del intento anterior (`mock.module()` experimental incompatible entre Node 24 y Node 22)
+ya había sido corregido y confirmado en verde antes del merge.
+
+**Verificación en producción, con evidencia más fuerte que cualquier prueba sintética:**
+al revisar CloudWatch (`/aws/lambda/ocastelblanco-com-production-contact`) para confirmar
+la Definition of Done, se encontró que el propio usuario ya había probado el formulario
+real en el sitio en vivo — un log con `recaptchaScore: 0.9`, `recaptchaSkipped: false`,
+nombre y correo reales. Eso confirma el flujo completo (frontend ejecuta reCAPTCHA,
+backend verifica contra Google, correo se entrega) sin que hiciera falta simular un envío.
+Verificación adicional desde este lado: `curl -X POST https://api.ocastelblanco.com/contact`
+sin token → `403` confirmado; `curl -sI` contra `/contacto` confirma la CSP con
+`google.com`/`gstatic.com`; navegación real con `claude-in-chrome` en producción sin
+errores de consola, badge de reCAPTCHA oculto y atribución visible.
+
+**Motor JIT recalculado:**
+- Fetch SSR de The Lab (ADR-011) pasa de Tarea 2 a **Tarea 1**, sin cambios de contenido.
+- Nueva **Tarea 2**: `www.ocastelblanco.com` sirve el sitio completo con `200` sin 301 al
+  dominio canónico y sin `<link rel="canonical">` — contenido duplicado activo en
+  producción, mismo ítem "SEO técnico" (Alta) del roadmap que Tarea 1. Elegido sobre otros
+  pendientes del backlog (glob de `angular.json`, migración de CloudFront a IaC,
+  Cloudinary) por ser un gap activo hoy, con remedio concreto y sin dependencia externa
+  incierta — a diferencia de la auto-respuesta SES, que requiere salir del sandbox
+  (proceso externo con AWS, no es una tarea atómica de una sesión).
+
+**Estado al cierre:** cero cambios de código pendientes de commitear (esta sesión es
+documentación pura). Local sincronizado con `main` tras el merge del PR #43, rama
+`feature/recaptcha-v3-contacto` borrada (local y remota). Sin gaps OWASP activos en
+producción. Próximo paso: implementar la Tarea 1 (Fetch SSR de The Lab, ADR-011).
