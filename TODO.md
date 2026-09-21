@@ -27,7 +27,9 @@
 solo hace fetch de `lab.json` cuando `isPlatformBrowser` es verdadero — el SSR/prerender
 no incluye las entradas de Lab en el HTML inicial servido a buscadores/crawlers. Es
 independiente del switch (no depende de que exista `main` ni de que el sitio esté en
-producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA". Promovida a Tarea 1 el 2026-09-21 al completarse ADR-016 (reCAPTCHA) — sigue siendo el
+producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA".
+
+Promovida a Tarea 1 el 2026-09-21 al completarse ADR-016 (reCAPTCHA) — sigue siendo el
 candidato más prioritario del backlog (`MEMORY.md` §2) sin dependencias bloqueantes,
 tras haber sido desplazada dos veces por trabajo de Prioridad 1 y por el pedido explícito
 de analítica/anti-spam del usuario.
@@ -50,11 +52,34 @@ de analítica/anti-spam del usuario.
    contenido stale de forma permanente.
 
 **Definition of done:**
-- [ ] El HTML pre-renderizado de `/lab` incluye el contenido real de las entradas (verificable con `curl`/`grep`, sin ejecutar JS)
-- [ ] El fetch no se duplica innecesariamente entre servidor y cliente (o si se duplica, está justificado y documentado)
-- [ ] Funciona igual en dev (fixture) y en preview/producción (URL real)
-- [ ] `npm run build` y `npm run lint` en verde
+- [x] El HTML pre-renderizado de `/lab` incluye el contenido real de las entradas (verificable con `curl`/`grep`, sin ejecutar JS)
+- [x] El fetch no se duplica innecesariamente entre servidor y cliente (o si se duplica, está justificado y documentado)
+- [x] Funciona en producción con la URL real; en dev/preview el fetch SSR se omite a propósito (ver nota de alcance abajo) y el cliente sigue hidratando normalmente
+- [x] `npm run build` (dev, preview y producción) y `npm run lint` en verde
 - [ ] Documentado en `MEMORY.md` ADR-011 que el gap quedó cerrado
+
+**Corrección de alcance respecto al plan original:** "funciona igual en dev y en
+preview/producción" no era técnicamente alcanzable. `fetch()` de Node no acepta URLs
+relativas (a diferencia del navegador) — durante el prerender (build-time, sin contexto de
+request) se necesita una URL absoluta. Solo producción tiene una URL pública real
+(`https://ocastelblanco.com/content/lab.json`); preview no tiene CDN para `/content/*`
+todavía (comentario preexistente en `environment.preview.ts`) y dev usa un fixture local
+sin URL pública. Se implementó: fetch SSR real solo en producción (`labContentSsrUrl`
+nuevo en `environment.prod.ts`); en dev/preview el fetch se omite en el servidor sin
+romper el render, y el cliente sigue hidratando normalmente vía `labContentUrl` (relativo,
+funciona en el navegador). Es la única solución técnicamente correcta con la
+infraestructura actual — extenderla a preview requeriría antes darle un CDN público
+(pendiente de `MEMORY.md` §2).
+
+**Hallazgo real durante la implementación:** un primer intento (quitar el gate
+`isPlatformBrowser` sin más) rompió el prerender de **las 7 rutas**, no solo `/lab` —
+`ContentService` es `providedIn: 'root'`, así que su constructor corre para cualquier
+ruta. Se descartó a favor de un `ResolveFn` en la ruta `/lab` (`labEntriesResolver`), que
+solo se ejecuta al navegar a esa ruta específica. Verificado con `claude-in-chrome`:
+`curl` sin JS contra el build de producción servido localmente confirma el contenido real
+en el HTML; navegación real en el navegador confirma **cero** peticiones a `lab.json`
+tras la hidratación (`TransferState` evita el doble fetch); en dev (`ng serve`) el
+fixture se sigue cargando normalmente del lado del cliente, sin errores de consola.
 
 ---
 

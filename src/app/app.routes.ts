@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { labEntriesResolver } from './features/lab/lab.resolver';
 
 export const routes: Routes = [
   {
@@ -17,6 +18,7 @@ export const routes: Routes = [
   {
     path: 'lab',
     loadComponent: () => import('./features/lab/lab').then(m => m.Lab),
+    resolve: { labEntries: labEntriesResolver },
   },
   {
     path: 'contacto',

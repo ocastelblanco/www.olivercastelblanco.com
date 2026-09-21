@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-21 — ADR-016 (reCAPTCHA v3 + honeypot) fusionado y verificado en producción real; motor JIT recalculado |
+| Última sesión | 2026-09-21 — Fetch SSR de The Lab (ADR-011) implementado y verificado en local; PR abierto pendiente de merge |
 | Analítica web | **Implementada y en producción** desde el 2026-09-21 (GA4, propiedad `G-Z9PLP5VH5C`). Ver ADR-015 |
 
 ## 2. Funcionalidades
@@ -66,7 +66,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 
 - [x] **Headers de seguridad ausentes en producción (OWASP A05)** — Completado y verificado 2026-08-05: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `X-Frame-Options` presentes en producción; `x-powered-by` confirmado ausente tras el merge del PR #31. Sin gaps OWASP activos en producción
 - [x] Bitácora de proceso `docs/proceso/` — entrada MVP. Completada 2026-08-05 (`2026-08-mvp-en-produccion.md`, cubre PRs #15-29)
-- [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO) ← **Tarea 1**
+- [ ] Fetch SSR de `lab.json` — ADR-011 (gap cerrado). Implementación completa y verificada en local: `npm run build` (dev/preview/producción) y `npm run lint` en verde, `curl` sin JS confirma el contenido real en el HTML de producción, cero peticiones duplicadas tras la hidratación (`TransferState`), fixture de dev funcionando normalmente; PR abierto, pendiente merge ← **Tarea 1**
 - [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
 - [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue ← desplazada del motor JIT el 2026-09-20, sigue vigente
@@ -394,11 +394,13 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
     [`docs/proceso/publicar-casos-de-estudio.md`](./docs/proceso/publicar-casos-de-estudio.md).
   - Tras actualizar `lab.json` hay que invalidar CloudFront (o TTL corto en ese path) —
     aplica una vez exista la escritura real a S3.
-  - **Gap conocido:** `ContentService.loadLabEntries()` solo hace fetch en el navegador
-    (`isPlatformBrowser`) — el SSR/prerender NO incluye las entradas de Lab en el HTML
-    inicial. Esto difiere de la intención original de esta ADR (SEO vía SSR). Evaluar si
-    se resuelve moviendo la carga a un resolver/guard SSR-safe, o si se acepta como
-    limitación conocida dado que Lab es contenido de bajo tráfico de búsqueda.
+  - **Gap cerrado (2026-09-21):** `ContentService.loadLabEntries()` solo hacía fetch en
+    el navegador — el SSR/prerender no incluía las entradas de Lab en el HTML inicial.
+    Resuelto con un `ResolveFn` en la ruta `/lab` (`labEntriesResolver`) + `TransferState`
+    + una URL SSR absoluta específica para producción. Ver detalle completo en la sección
+    "Sesión 2026-09-21 (5)" más abajo, incluida una corrección honesta de alcance: el
+    fetch SSR real solo funciona en producción, no en dev/preview (limitación técnica
+    real, no una elección arbitraria).
   - El token de publicación es un secreto: vive en `PropertiesService` (Apps Script) y en
     el secret `LAB_PUBLISH_TOKEN` de GitHub Actions (pasado al deploy de `serverless.yml`)
     — nunca en el código fuente.
@@ -1863,3 +1865,60 @@ errores de consola, badge de reCAPTCHA oculto y atribución visible.
 documentación pura). Local sincronizado con `main` tras el merge del PR #43, rama
 `feature/recaptcha-v3-contacto` borrada (local y remota). Sin gaps OWASP activos en
 producción. Próximo paso: implementar la Tarea 1 (Fetch SSR de The Lab, ADR-011).
+
+---
+
+## Sesión 2026-09-21 (5) — Fetch SSR de The Lab (ADR-011), gap cerrado
+
+**Diseño final:** `ResolveFn` en la ruta `/lab` (`labEntriesResolver`, nuevo) que invoca
+`ContentService.loadLabEntries()` — refactorizado para devolver `Observable<LabEntry[]>`
+en vez de un fetch fire-and-forget en el constructor. En servidor usa una URL **absoluta**
+(`environment.labContentSsrUrl`, nuevo campo), distinta de `labContentUrl` (relativa, solo
+para el navegador). El resultado se guarda en `TransferState` para que el cliente no
+repita el fetch tras la hidratación.
+
+**Dos hallazgos reales durante la implementación, no anticipados en el plan original:**
+
+1. **Un primer intento ingenuo rompió las 7 rutas, no solo `/lab`.** Se probó quitar el
+   gate `isPlatformBrowser` del constructor de `ContentService` sin más — `npm run build`
+   falló en las 7 rutas prerenderizadas con `Error: Terminating worker thread`. Causa:
+   `ContentService` es `providedIn: 'root'`, así que su constructor corre para **cualquier**
+   ruta que se prerenderice, no solo `/lab`. Se descartó ese enfoque a favor del
+   `ResolveFn`, que solo se ejecuta al navegar específicamente a `/lab`.
+2. **`fetch()` de Node no acepta URLs relativas.** A diferencia del navegador (que
+   resuelve una URL relativa contra `document.baseURI`), Node no tiene ese concepto de
+   "base" implícita — un `fetch('/content/lab.json')` en el servidor lanza
+   `TypeError: Failed to parse URL`. Esto significa que **solo producción puede tener
+   fetch SSR real**: tiene una URL pública absoluta (`https://ocastelblanco.com/content/lab.json`,
+   contenido ya publicado independientemente vía el pipeline de Google Sheets). Preview y
+   dev no tienen un endpoint público equivalente (preview no tiene CDN para `/content/*`
+   todavía, gotcha ya documentado en `environment.preview.ts`; dev usa un fixture local
+   sin URL pública) — ahí el fetch SSR se omite sin romper el render, y el cliente sigue
+   hidratando normalmente vía la URL relativa de siempre. **Corrección del plan
+   original:** la Definition of Done original decía "funciona igual en dev y en
+   preview/producción" — eso no era técnicamente alcanzable con la infraestructura
+   actual, y se corrigió el DoD en `TODO.md` para reflejar la limitación real en vez de
+   forzar una implementación que no puede funcionar.
+
+**Verificación real, no solo build en verde:**
+- `npm run build` en las 3 configuraciones (dev, preview, producción) — las 7 rutas
+  prerenderizan sin errores en las tres.
+- `grep`/`python3` sobre `dist/ocastelblanco/browser/lab/index.html` (build de
+  producción) confirma el contenido real de las 4 entradas de Lab en el HTML — mismo
+  contenido que devuelve `curl https://ocastelblanco.com/content/lab.json` en vivo.
+- Servido el build de producción con un servidor estático local (sin `server.ts`, tal como
+  lo sirve CloudFront/S3 en producción real — todas las rutas son `RenderMode.Prerender`):
+  `curl` sin ejecutar JS ve el contenido real (exactamente lo que ve un crawler).
+  Navegación real con `claude-in-chrome`: **cero** peticiones de red a `lab.json` tras la
+  hidratación (`TransferState` funcionando), cero errores de consola.
+- `ng serve` (dev): el fixture (`content/lab.dev.json`) se sigue cargando normalmente del
+  lado del cliente vía el resolver, cero errores de consola — el flujo de siempre para
+  dev/preview queda intacto.
+- `npm run lint`, `npm test` y `npm run test:lambda` en verde (sin specs nuevos: no
+  existían tests previos para `ContentService`/`Lab`, y el cambio no introdujo ninguno
+  nuevo por sí mismo — cubierto por la verificación end-to-end de build + navegador real
+  descrita arriba).
+
+**Estado al cierre:** PR abierto, pendiente merge del usuario. No se recalcula el motor
+JIT todavía — sigue el mismo patrón de sesiones anteriores (verificar en producción real
+antes de cerrar la tarea).
