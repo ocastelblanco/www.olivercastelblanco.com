@@ -1,13 +1,16 @@
 /**
  * Pruebas de la verificación de reCAPTCHA v3 en el endpoint de contacto (ADR-016).
  *
- *   node --experimental-test-module-mocks --test src/lambda/
+ *   node --test src/lambda/
  *
- * Mockea `globalThis.fetch` y `@aws-sdk/client-sesv2` con `mock.module()` (aún
- * experimental en Node 24 — requiere el flag de arriba, ya incluido en
- * `npm run test:lambda`). El SDK de SES intenta resolver credenciales de AWS
- * reales al construir el cliente; sin el stub, los tests fallarían por falta
- * de credenciales en vez de por la lógica que se está probando.
+ * Mockea `globalThis.fetch` con `mock.fn()` (API estable de `node:test`, sin
+ * flags). Para el SDK de SES se evita a propósito `mock.module()` — es
+ * experimental y su comportamiento difiere entre versiones de Node (falló en
+ * CI con Node 22.23.2 pese a funcionar en local con Node 24: "does not
+ * provide an export named 'SESv2Client'"). En su lugar se parchea
+ * `SESv2Client.prototype.send` directamente, una técnica estándar de
+ * monkey-patching que no depende de ninguna característica experimental y
+ * funciona igual en cualquier versión de Node.
  * `RECAPTCHA_SECRET` se fija por `process.env` **antes** de importar el módulo,
  * porque el handler lo lee una sola vez al cargar (mismo patrón que
  * `ALLOWED_ORIGINS` ya usa en este archivo).
@@ -15,27 +18,16 @@
 
 import { test, beforeEach, afterEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
+import { SESv2Client } from '@aws-sdk/client-sesv2';
 
 process.env.RECAPTCHA_SECRET = 'test-secret';
 process.env.ALLOWED_ORIGINS = 'https://ocastelblanco.com';
 
-// El SDK de SES intenta resolver credenciales de AWS reales al construir el
-// cliente — se stubea antes de importar el handler para que los tests corran
-// sin red ni credenciales.
-mock.module('@aws-sdk/client-sesv2', {
-  exports: {
-    SESv2Client: class {
-      send() {
-        return Promise.resolve({});
-      }
-    },
-    SendEmailCommand: class {
-      constructor(input) {
-        this.input = input;
-      }
-    },
-  },
-});
+// `send` vive en el prototipo (heredado de la clase base `Client` del SDK) —
+// sobreescribirlo en `SESv2Client.prototype` crea una propiedad propia que
+// intercepta la llamada para cualquier instancia, sin tocar credenciales de
+// AWS ni hacer red real.
+SESv2Client.prototype.send = async () => ({});
 
 const { handler } = await import('./contact-handler.mjs');
 
