@@ -168,6 +168,10 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   despliegue.
 - **Razón:** Mantener calidad de código (lint + tests + build verde) en cada cambio antes de
   fusionar a `rediseno-2026`, sin depender de verificación manual local.
+- **Superseded (2026-09-21, ADR-017):** `ci.yml` se eliminó — sus pasos se movieron a un
+  job `test` dentro de `deploy.yml`, del que ahora dependen los deploys (`needs: test`).
+  Corre en Node 24, no Node 22 — todo el pipeline (CI, deploy, runtime de Lambda) quedó
+  estandarizado en una sola versión de Node.
 - **Consecuencias:** Cualquier código nuevo debe pasar `npm run lint` sin errores (reglas
   por defecto de `@angular-eslint/schematics`, ver `eslint.config.js`). Si el lint falla en
   CI pero no localmente, correr `npm run lint` antes de hacer push. Los PRs que fallen
@@ -908,6 +912,10 @@ cada feature). El topbar es una franja fija superior que ocupa el espacio restan
 `npm test -- --watch=false`. El lint usa ESLint configurado por `@angular-eslint/schematics`
 (`eslint.config.js` en la raíz, builder `lint` agregado a `angular.json`). Cualquier
 componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer push.
+
+**Superseded (2026-09-21, ADR-017):** `ci.yml` ya no existe. Sus pasos (más tests de
+Lambda) viven ahora en el job `test` de `deploy.yml`, en Node 24, y gatean los deploys de
+`preview`/`production` vía `needs: test`.
 
 ## 7. Gotchas conocidos
 
@@ -1674,10 +1682,21 @@ contexto adicional de esta.
 - **Razón:** de las tres opciones evaluadas (`workflow_run` entre archivos separados,
   consolidar con `needs` en un solo archivo, o branch protection exigiendo el check antes
   de habilitar el merge), se eligió consolidar por ser la más simple — todo el pipeline
-  vive en un solo archivo, sin coordinación entre workflows independientes. Branch
-  protection sigue siendo una mejora complementaria pendiente (bloquearía el mismo
-  problema un paso antes, en el botón de merge), no implementada en esta sesión por no
-  ser lo que se pidió resolver.
+  vive en un solo archivo, sin coordinación entre workflows independientes.
+  **Actualización (misma fecha):** el usuario pidió además branch protection como
+  complemento — bloquea el mismo problema un paso antes, en el botón de merge, en vez de
+  solo en el pipeline. Implementado sobre `main` vía `gh api` (`PUT
+  .../branches/main/protection`): `required_status_checks` exige `Test, Lint & Build` y
+  `GitGuardian Security Checks` en verde antes de habilitar el merge (`strict: false` —
+  no exige que la rama esté al día con `main`, para no forzar rebases en un repo de un
+  solo mantenedor). `enforce_admins: false` a propósito: es un proyecto de un solo
+  mantenedor sin un segundo revisor que pueda levantar un bloqueo de emergencia, así que
+  quien administra el repo conserva una salida de escape. Sin
+  `required_pull_request_reviews` por el mismo motivo (no hay quién apruebe además del
+  propio dueño). `allow_force_pushes` y `allow_deletions` en `false` — ya eran
+  prohibiciones de `CLAUDE.md` para cualquier agente, ahora también aplicadas a nivel de
+  plataforma para cualquier actor. Verificado que el PR #47 (ya con checks en verde antes
+  de este cambio) sigue `MERGEABLE`/`CLEAN` tras aplicar la protección.
 - **Consecuencias:**
   - `deploy-preview` y `deploy-production` conservan su propio paso de `lint` + `build`
     — no son redundantes con el `build` del job `test`: cada uno produce el artefacto
@@ -1694,8 +1713,13 @@ contexto adicional de esta.
     en verde, replicando exactamente lo que correrá en CI.
   - `tech-specs.md` actualizado: la referencia a `.github/workflows/ci.yml` ahora apunta
     a `deploy.yml`.
-
-### CSP de producción — ampliada y verificada en vivo (2026-09-21)
+  - **Node 24 estandarizado también fuera de CI** (mismo pedido del usuario, misma
+    fecha): `.nvmrc` nuevo (`24`) y `"engines": {"node": ">=24.15.0"}` en `package.json`
+    — el piso `24.15.0` viene del gotcha ya documentado en §7 (Angular CLI 22.1 exige
+    `>=24.15.0` en la línea 24.x). `README.md` corregido en sus 3 menciones de "Node 22"
+    (dos ya estaban objetivamente mal — Node 22.22.2 falla el mínimo real de Angular CLI,
+    ver §7 — y no solo desactualizadas frente a esta decisión). Nada de esto obliga
+    `engine-strict`: sigue siendo un aviso, no un bloqueo de `npm install`.
 
 **Estado: aplicada.** `UpdateResponseHeadersPolicy` sobre `f768cc69-b1ed-4827-917e-c5b3a61d8901`
 ejecutado 2026-09-21, cubriendo GA4 y reCAPTCHA a la vez en una sola operación, antes de

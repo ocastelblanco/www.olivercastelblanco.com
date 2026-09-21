@@ -91,7 +91,10 @@ El proyecto cumple dos objetivos:
 
 ## Requisitos previos
 
-- **Node.js 22** (LTS) — requerido por Angular CLI 22. Verifica con:
+- **Node.js 24** (`>=24.15.0`, fijado en `.nvmrc`/`package.json` `engines`) — todo el
+  pipeline (CI, deploy, runtime de Lambda) corre en Node 24; usar otra versión localmente
+  puede producir comportamiento distinto al de CI (ver `MEMORY.md` ADR-017). Con `nvm`:
+  `nvm use`. Verifica con:
   ```bash
   node -v
   ```
@@ -420,7 +423,7 @@ Arquitectura de despliegue planeada:
 | `prod` | `ocastelblanco.com` | `STAGE=prod` |
 
 Hasta que `serverless.yml` exista, el build SSR (`dist/ocastelblanco/server/server.mjs`)
-puede ejecutarse en cualquier entorno Node 22 compatible con Express 5.
+puede ejecutarse en cualquier entorno Node 24 compatible con Express 5.
 
 ## Seguridad
 
@@ -469,7 +472,7 @@ directamente sobre ella. El flujo obligatorio (humanos y agentes IA) es:
 |---|---|---|
 | `ng` apunta a una versión distinta de Angular (ej. 20.x) | Angular CLI global desactualizado | Usa `npm start` / `npm run build` (invocan la versión 22 local), o reinstala la CLI global con `npm install -g @angular/cli@22` |
 | Error `TS5101: Option 'baseUrl' is deprecated` | `tsconfig.json` usa `baseUrl` (no soportado en TS 6) | No definir `baseUrl`; los `paths` deben ser rutas relativas con prefijo `./` (ej. `["./src/app/core/*"]`) |
-| `npm install` falla por dependencias nativas | Versión de Node incompatible | Verificar Node 22 LTS (`node -v`); reinstalar con `npm ci` para usar exactamente `package-lock.json` |
+| `npm install` falla por dependencias nativas | Versión de Node incompatible | Verificar Node 24 (`>=24.15.0`, `node -v`; `nvm use` respeta `.nvmrc`); reinstalar con `npm ci` para usar exactamente `package-lock.json` |
 | Puerto `4200` o `4000` ocupado | Otro proceso usando el puerto | Detener el proceso o exportar `PORT=<otro-puerto>` antes de `npm run serve:ssr:ocastelblanco` |
 | Cambios de estilos no se reflejan | Caché del Angular CLI | Borrar `.angular/cache` y volver a ejecutar `npm start` |
 | `npm run build` falla por presupuestos de tamaño (`anyComponentStyle` 8 kB) | Estilos de un componente exceden el límite | Reducir el SCSS del componente o mover estilos comunes a `src/styles/` (tokens compartidos) |
