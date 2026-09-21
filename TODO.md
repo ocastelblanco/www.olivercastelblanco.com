@@ -21,77 +21,17 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
-
-**Origen:** gap documentado desde ADR-011 (2026-07-11): `ContentService.loadLabEntries()`
-solo hace fetch de `lab.json` cuando `isPlatformBrowser` es verdadero — el SSR/prerender
-no incluye las entradas de Lab en el HTML inicial servido a buscadores/crawlers. Es
-independiente del switch (no depende de que exista `main` ni de que el sitio esté en
-producción) y cierra un pendiente de PRD §4 "SEO técnico y para IA".
-
-Promovida a Tarea 1 el 2026-09-21 al completarse ADR-016 (reCAPTCHA) — sigue siendo el
-candidato más prioritario del backlog (`MEMORY.md` §2) sin dependencias bloqueantes,
-tras haber sido desplazada dos veces por trabajo de Prioridad 1 y por el pedido explícito
-de analítica/anti-spam del usuario.
-
-**Archivos:** `src/app/core/content/content.service.ts`, posiblemente
-`src/app/features/lab/lab.ts` (o el componente que resuelve la ruta `/lab`).
-
-**Qué hacer:**
-1. Revisar el mecanismo actual de `loadLabEntries()` — hoy condicionado a
-   `isPlatformBrowser`, evaluar mover la carga a un resolver/guard SSR-safe (Angular
-   `ResolveFn`) o a un `TransferState` que precargue en el servidor y evite un doble fetch
-   en el cliente.
-2. Verificar que el fetch SSR funcione tanto contra el fixture de dev
-   (`content/lab.dev.json`) como contra la URL real de producción
-   (`environment.prod.ts.labContentUrl`, hoy `/content/lab.json`, same-origin).
-3. Confirmar que el prerender (`ng build`, 7 rutas estáticas) incluye las entradas de Lab
-   en el HTML de `/lab` — verificable con `grep` sobre `dist/ocastelblanco/browser/lab/index.html`.
-4. No romper el flujo actual de actualización de contenido (Google Sheets → `POST /lab` →
-   S3) — el fetch SSR debe seguir siendo dinámico en cada build/request, no cachear
-   contenido stale de forma permanente.
-
-**Definition of done:**
-- [x] El HTML pre-renderizado de `/lab` incluye el contenido real de las entradas (verificable con `curl`/`grep`, sin ejecutar JS)
-- [x] El fetch no se duplica innecesariamente entre servidor y cliente (o si se duplica, está justificado y documentado)
-- [x] Funciona en producción con la URL real; en dev/preview el fetch SSR se omite a propósito (ver nota de alcance abajo) y el cliente sigue hidratando normalmente
-- [x] `npm run build` (dev, preview y producción) y `npm run lint` en verde
-- [ ] Documentado en `MEMORY.md` ADR-011 que el gap quedó cerrado
-
-**Corrección de alcance respecto al plan original:** "funciona igual en dev y en
-preview/producción" no era técnicamente alcanzable. `fetch()` de Node no acepta URLs
-relativas (a diferencia del navegador) — durante el prerender (build-time, sin contexto de
-request) se necesita una URL absoluta. Solo producción tiene una URL pública real
-(`https://ocastelblanco.com/content/lab.json`); preview no tiene CDN para `/content/*`
-todavía (comentario preexistente en `environment.preview.ts`) y dev usa un fixture local
-sin URL pública. Se implementó: fetch SSR real solo en producción (`labContentSsrUrl`
-nuevo en `environment.prod.ts`); en dev/preview el fetch se omite en el servidor sin
-romper el render, y el cliente sigue hidratando normalmente vía `labContentUrl` (relativo,
-funciona en el navegador). Es la única solución técnicamente correcta con la
-infraestructura actual — extenderla a preview requeriría antes darle un CDN público
-(pendiente de `MEMORY.md` §2).
-
-**Hallazgo real durante la implementación:** un primer intento (quitar el gate
-`isPlatformBrowser` sin más) rompió el prerender de **las 7 rutas**, no solo `/lab` —
-`ContentService` es `providedIn: 'root'`, así que su constructor corre para cualquier
-ruta. Se descartó a favor de un `ResolveFn` en la ruta `/lab` (`labEntriesResolver`), que
-solo se ejecuta al navegar a esa ruta específica. Verificado con `claude-in-chrome`:
-`curl` sin JS contra el build de producción servido localmente confirma el contenido real
-en el HTML; navegación real en el navegador confirma **cero** peticiones a `lab.json`
-tras la hidratación (`TransferState` evita el doble fetch); en dev (`ng serve`) el
-fixture se sigue cargando normalmente del lado del cliente, sin errores de consola.
-
----
-
-## Tarea 2 — [FIX]: Contenido duplicado — `www.ocastelblanco.com` sin 301 ni canonical
+## Tarea 1 — [FIX]: Contenido duplicado — `www.ocastelblanco.com` sin 301 ni canonical
 
 **Origen:** hallazgo de la sesión del 2026-09-21 (revisión previa a implementar ADR-016).
 `www.ocastelblanco.com` sirve el sitio completo con `200` a través de la misma
 distribución CloudFront (confirmado con `curl -sI`, misma CSP que el dominio raíz), en
 vez de redirigir al canónico `ocastelblanco.com`. El HTML tampoco tiene
 `<link rel="canonical">`, solo `og:url`. Contenido duplicado real para buscadores, activo
-en producción hoy. Cierra un pendiente de PRD §6 "SEO técnico" (prioridad Alta, mismo
-ítem del roadmap que Tarea 1) y complementa el trabajo ya hecho en ADR-012 (CloudFront
+en producción hoy. Cierra el último pendiente de PRD §6 "SEO técnico" (prioridad Alta) — con esto
+quedarían completas todas las features Alta del roadmap. Promovida a Tarea 1 el
+2026-09-21 al completarse ADR-011 (Fetch SSR de The Lab). Complementa el trabajo ya
+hecho en ADR-012 (CloudFront
 Function de 301 para `olivercastelblanco.com` → dominio canónico).
 
 **Archivos:** CloudFront Function existente (fuera del repo, gestionada manualmente —
@@ -120,7 +60,65 @@ se resuelva la ruta activa para construir la URL canónica por página).
 
 ---
 
+## Tarea 2 — [FIX]: Glob de assets de `angular.json` copia el fixture de dev a todos los builds
+
+**Origen:** gotcha detectado durante la preparación de EL SWITCH (2026-08-04, ver
+`MEMORY.md` ADR-012 §"paso 8") y confirmado vigente en el incidente de CSP del
+2026-08-05. El glob de assets `**/*` sobre `public/` en `angular.json` copia
+`public/content/lab.dev.json` a `dist/ocastelblanco/browser/content/lab.dev.json` en
+**cualquier** configuración (`development`, `preview`, `production` por igual) — hoy se
+esquiva excluyendo `content/*` del `aws s3 sync` a producción, pero el archivo sigue
+presente en el bundle que sirve la Lambda vía `express.static` (`src/server.ts`), y por lo
+tanto potencialmente accesible en producción/preview si CloudFront o la Lambda lo sirven
+directo. Reingresa al motor JIT el 2026-09-21 tras dos desplazamientos por trabajo de
+Prioridad 1 (incidentes de CSP) y por el pedido explícito de analítica/anti-spam del
+usuario — verificado que sigue vigente: `npm run build -- --configuration production`
+en esta misma sesión todavía copia el fixture a `dist/ocastelblanco/browser/content/`.
+
+**Archivos:** `angular.json`.
+
+**Qué hacer:**
+1. Separar el asset `content/lab.dev.json` del resto del glob `**/*` de `public/` en
+   `angular.json`, de forma que solo se incluya en la configuración `development` (o se
+   excluya explícitamente en `production`/`preview`).
+2. Verificar con `find`/`grep` sobre `dist/ocastelblanco/browser/` (build de cada
+   configuración) que el fixture solo aparece en el build de `development`.
+3. Confirmar que `ContentService` (dev) sigue encontrando el fixture localmente con
+   `npm start` tras el cambio — no romper el flujo actual de desarrollo.
+
+**Definition of done:**
+- [ ] `content/lab.dev.json` ausente de `dist/ocastelblanco/browser/` en builds `production`/`preview`
+- [ ] Presente y funcional en el build/servidor de `development`
+- [ ] `npm run build`, `npm run build:preview` y `npm run lint` en verde
+- [ ] Documentado en `MEMORY.md` (ADR-012, gotcha) que el gap quedó cerrado
+
+---
+
 ## Historial de tareas completadas
+
+### 2026-09-21 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
+
+PR #45 fusionado y verificado en producción real. `curl https://ocastelblanco.com/lab`
+(sin ejecutar JS) confirma el contenido real de las entradas en el HTML — exactamente lo
+que ve un crawler. Navegación real con `claude-in-chrome` en producción: cero peticiones
+a `lab.json` tras la hidratación (`TransferState` funcionando en vivo), cero errores de
+consola, CSP intacta.
+
+**Dos hallazgos reales de la implementación:** un primer intento (quitar el gate
+`isPlatformBrowser` sin más) rompió el prerender de las 7 rutas, no solo `/lab`, porque
+`ContentService` es `providedIn: 'root'` — resuelto con un `ResolveFn` scoped a la ruta
+`/lab`. Y `fetch()` de Node no acepta URLs relativas, así que solo producción tiene fetch
+SSR real (URL absoluta pública); dev/preview mantienen el comportamiento anterior
+(hidratación del lado del cliente) sin romperse — corrigiendo el DoD original, que pedía
+algo técnicamente inalcanzable con la infraestructura actual. Detalle completo en
+`MEMORY.md` ADR-011 y "Sesión 2026-09-21 (5)".
+
+**Motor JIT recalculado:** contenido duplicado de `www.ocastelblanco.com` (antes Tarea 2)
+pasa a Tarea 1 — con esto quedarían completas todas las features Alta del roadmap de
+`PRD.md` §6. Reingresa al backlog como Tarea 2 el fix del glob de `angular.json`
+(`content/lab.dev.json` copiado a todos los builds), verificado que sigue vigente en esta
+misma sesión, tras dos desplazamientos anteriores.
+
 
 ### 2026-09-21 — [SEC]: Anti-spam en `POST /contact` — reCAPTCHA v3 + honeypot real
 
@@ -718,6 +716,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-09-21 (5) | PR #45 (Fetch SSR de The Lab) fusionado y verificado en producción real: `curl` sin JS confirma el contenido en el HTML, navegación real sin peticiones duplicadas ni errores de consola. Con esto todas las features de prioridad Alta del roadmap (`PRD.md` §6) quedan completas. Recalculo: contenido duplicado de `www.ocastelblanco.com` (Tarea 2) pasa a Tarea 1, sin cambios de contenido. Para Tarea 2, entre los pendientes del backlog (CloudFront a IaC, auto-respuesta SES, Cloudinary, 404 limpio para /content/*, Search Console), se elige el glob de `angular.json` — verificado que el gotcha sigue vigente en esta misma sesión, reingresa tras dos desplazamientos previos por trabajo de Prioridad 1, sin dependencia externa incierta | Tarea 1 (nueva): 301 + canonical para www.ocastelblanco.com, renumerada sin cambios. Tarea 2 (nueva): glob de `angular.json` copia el fixture de dev a todos los builds |
 | 2026-09-21 (4) | PR #43 fusionado tras corregir un fallo de CI (mock.module() experimental incompatible entre Node 24 y Node 22). Verificado en producción real: CloudWatch muestra un envío real del usuario con recaptchaScore 0.9, curl confirma 403 sin token y la CSP correcta en /contacto, navegación real sin errores de consola. Anti-spam completo — sin gaps OWASP activos en producción. Recalculo: Fetch SSR de The Lab (ADR-011) pasa a Tarea 1 sin cambios de contenido. Para Tarea 2, entre los pendientes del backlog (glob de angular.json, CloudFront a IaC, auto-respuesta SES, Cloudinary, contenido duplicado de www), se elige el contenido duplicado de www.ocastelblanco.com — mismo ítem de roadmap Alta "SEO técnico" que Tarea 1, gap activo hoy en producción, sin dependencia externa incierta (a diferencia de SES sandbox) | Tarea 1 (nueva): Fetch SSR de The Lab (ADR-011), renumerada sin cambios. Tarea 2 (nueva): 301 + canonical para www.ocastelblanco.com |
 | 2026-09-21 (3) | PR #41 (GA4 + Consent Mode v2 + banner) fusionado y verificado en producción real: el usuario confirmó la visita registrada en el panel de Google Analytics, `curl` confirma la CSP nueva en ambos hosts, navegación real sin errores de consola. Analítica web queda completa — sin gaps OWASP activos en producción. Recalculo: Anti-spam reCAPTCHA v3 (Tarea 2) no tiene dependencias pendientes (prerrequisitos cumplidos desde el 2026-09-21) y pasa a Tarea 1. El siguiente candidato del backlog sin bloqueos es Fetch SSR de The Lab (ADR-011, feature Alta de SEO técnico, desplazada dos veces desde el 2026-08-05) | Tarea 1 (nueva): Anti-spam reCAPTCHA v3 + honeypot real (ADR-016), sin cambios de contenido, solo renumerada. Tarea 2 (nueva): Fetch SSR de The Lab (ADR-011), restaurada del backlog |
 | 2026-09-21 (2) | Implementación de la Tarea 1 (GA4 + Consent Mode v2 + banner) completa: CSP de CloudFront ampliada y verificada en vivo, `AnalyticsService` sin scripts inline, banner probado con `claude-in-chrome` (aparece, oculta, persiste, se reabre desde el topbar), `npm run build`/`lint` en verde. PR abierto — no se recalcula el motor JIT todavía: la tarea solo cierra tras el merge del usuario y la verificación de `page_view` real en GA4, siguiendo el mismo patrón de sesiones anteriores (PRs #36/#37) | Tarea 1 sigue activa con estado "implementación lista, pendiente merge y verificación en producción". Tarea 2 (reCAPTCHA v3) sin cambios |
