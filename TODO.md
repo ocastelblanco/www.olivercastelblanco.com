@@ -29,6 +29,11 @@ datos. Auditoría del repo: **nunca se implementó analítica** (cero coincidenc
 telemetría del Angular CLI). Decisión completa en `MEMORY.md` **ADR-014**. Plan detallado
 en `~/.claude/plans/transient-cuddling-moth.md`.
 
+**Prerrequisitos:** ✅ propiedad confirmada (flujo `6027540977`, `G-Z9PLP5VH5C`).
+⏳ **Verificar primero** que en GA4 → Admin → Flujos de datos → Medición mejorada esté
+**desactivada** "Cambios de página basados en eventos del historial del navegador" — el
+usuario se comprometió a hacerlo; si sigue activa, cada navegación se cuenta dos veces.
+
 **Archivos:** `src/app/core/analytics/analytics.service.ts` (nuevo),
 `src/app/shared/shell/cookie-consent/` (nuevo), `src/environments/environment{,.prod,.preview}.ts`,
 `src/app/app.ts` / `app.html`, `src/app/shared/shell/topbar/`,
@@ -43,7 +48,10 @@ en `~/.claude/plans/transient-cuddling-moth.md`.
    en `script-src`. Patrón de `App.addJsonLd()` en `src/app/app.ts`.
 3. Consent Mode v2: empujar los defaults (`denied` en los cuatro señalizadores +
    `wait_for_update: 500`) al `dataLayer` **antes** de anexar la etiqueta.
-4. `send_page_view: false` + `page_view` manual en `NavigationEnd` del Router.
+4. `send_page_view: false` + `page_view` manual en `NavigationEnd` del Router, **diferido
+   con `afterNextRender`** y con `page_title: document.title` explícito — los títulos se
+   fijan en `ngOnInit` vía `SeoService`, que corre después de `NavigationEnd` (ver ADR-014
+   punto 4). Sin esto, cada vista queda registrada con el título de la anterior.
 5. Banner de consentimiento: barra fija inferior full-width, tokens de `DESIGN.md`
    (`--color-surface-container-lowest`, borde `--color-outline-variant`, `--radius: 0`,
    escala de 4px, `technical-label`). Mismo patrón de componente que `lang-switcher/`.
@@ -56,6 +64,7 @@ en `~/.claude/plans/transient-cuddling-moth.md`.
 - [ ] `grep -c gtag dist/ocastelblanco/browser/index.html` → `0` (la etiqueta se inyecta en runtime)
 - [ ] `npm run build` y `npm run lint` en verde
 - [ ] Banner funcional en `preview`: aceptar, rechazar y reabrir desde el topbar
+- [ ] Navegar entre 3 rutas en producción y confirmar en GA4 Tiempo real **un** `page_view` por ruta, con el título de esa ruta (no el de la anterior)
 - [ ] Tras el merge: GA4 Tiempo real muestra la sesión y la consola de producción no reporta violaciones de CSP en `/`, `/proyectos`, `/lab`, `/contacto`
 - [ ] `MEMORY.md` ADR-014 marcado como implementado y la CSP del 2026-08-05 actualizada
 
@@ -78,9 +87,10 @@ y la verificación jamás se dispara. Decisión completa en `MEMORY.md` **ADR-01
 `src/app/features/contacto/`, `src/app/core/services/contact.service.ts`,
 `src/environments/*.ts`, `serverless.yml`.
 
-**Prerrequisito del usuario:** registrar el sitio en Google reCAPTCHA **v3** (dominios
-`ocastelblanco.com` y `localhost`) y cargar `RECAPTCHA_SECRET` como secret de GitHub
-Actions.
+**Prerrequisitos:** ✅ todos cumplidos el 2026-09-21. Sitio registrado en reCAPTCHA v3
+con dominio `ocastelblanco.com` (cubre `www`). Site key pública:
+`6Lenj8ctAAAAALCIfcrj39k_2k-yPsieUfDJBGi-`. `RECAPTCHA_SECRET` cargado en GitHub Actions
+(verificado con `gh secret list`).
 
 **Qué hacer:**
 1. `RecaptchaService`: cargar `recaptcha/api.js` **solo al entrar a `/contacto`**, nunca
@@ -97,8 +107,17 @@ Actions.
    links a Privacy Policy y Terms — sin la atribución se violan los términos de Google.
 6. Tests en `src/lambda/` con `fetch` mockeado: score alto, score bajo, `action` distinta,
    secreto vacío, Google caído, honeypot lleno.
+7. `serverless.yml`: `RECAPTCHA_SECRET: ${env:RECAPTCHA_SECRET, ''}` en el bloque
+   `environment` **de la función `contact`**, no en `provider.environment` (que llega
+   también a la Lambda de SSR).
+8. `.github/workflows/deploy.yml`: agregar `RECAPTCHA_SECRET: ${{ secrets.RECAPTCHA_SECRET }}`
+   al `env:` del step de `serverless deploy` **solo en `deploy-production`**. Sin esto el
+   secret existe en GitHub pero nunca llega al Lambda.
+9. `recaptchaSiteKey: '6Lenj8ctAAAAALCIfcrj39k_2k-yPsieUfDJBGi-'` en `environment.prod.ts`;
+   vacía en `environment.ts` y `environment.preview.ts`.
 
 **Definition of done:**
+- [ ] `aws lambda get-function-configuration` de `contact` en producción muestra `RECAPTCHA_SECRET` con valor, y la de `app` (SSR) **no** la tiene
 - [ ] `serverless.yml` con `RECAPTCHA_SECRET: ${env:RECAPTCHA_SECRET, ''}` — fallback **vacío**, sin excepción (§6 A02, ya cobró dos incidentes con `LAB_PUBLISH_TOKEN`)
 - [ ] `npm run build`, `npm run lint` y `npm run test:lambda` en verde
 - [ ] `curl -X POST https://api.ocastelblanco.com/contact` sin token → `403`
@@ -654,6 +673,7 @@ actualizado (§1, §2, §3 ADR-006, §4, §6, §8, §9).
 
 | Fecha | Comparación PRD vs. MEMORY | Resultado |
 |---|---|---|
+| 2026-09-21 | PR #39 fusionado. Prerrequisitos del usuario confirmados (reCAPTCHA v3 registrado, `RECAPTCHA_SECRET` verificado con `gh secret list`, propiedad GA4 confirmada). La revisión del código real ajusta el plan en tres puntos que habrían fallado en producción: el secret no llegaba al Lambda porque `deploy.yml` no lo pasa; el secret habría quedado expuesto también a la Lambda de SSR vía `provider.environment`; y el `page_view` habría llevado el título de la página anterior (el `<title>` se fija en `ngOnInit`, después de `NavigationEnd`). Se detecta también que `www.ocastelblanco.com` sirve `200` sin canonical — registrado como pendiente de SEO aparte, no entra al motor | Sin cambio de tareas: Tarea 1 y Tarea 2 siguen activas con pasos y DoD ajustados. Único pendiente abierto antes de implementar: confirmar que se desactivó el page_view por historial en GA4 |
 | 2026-09-20 | Sesión de diagnóstico a pedido del usuario: Google Analytics no recibe datos. Auditoría del repo y de producción (`curl` contra el sitio en vivo) concluye que **nunca se implementó analítica** — no es una etiqueta mal puesta, es la ausencia total — y que el bloqueador real es la CSP de producción (`script-src 'self'`), invisible desde la consola de Google Analytics. Se informa al usuario que su recuerdo de "haber acordado Tag Manager" no está respaldado por ningún documento del repo. Ampliado el alcance a anti-spam, se descubre que el honeypot de `POST /contact` es código muerto (el servidor lo verifica, el formulario nunca expone el campo); se aclara que **no es un gap OWASP abierto** porque §6 A07 se satisface con el rate limiting ya activo. Ambas tareas entran por decisión explícita del usuario, no por prioridad calculada, y desplazan a las dos vigentes (ninguna completada) | Nueva Tarea 1: Analítica web GA4 + Consent Mode v2 + banner (ADR-014). Nueva Tarea 2: Anti-spam reCAPTCHA v3 + honeypot real (ADR-015). Desplazadas al backlog de `MEMORY.md` §2, sin perder vigencia: Fetch SSR de The Lab (ADR-011) y glob de assets de `angular.json` (ADR-012) |
 | 2026-08-05 (3) | `deploy-production` (S3 sync, PR #36) y el fix de CSP del `onload` inline de CSS crítico (PR #37) completados y verificados en producción real (`curl` + navegador real, cero errores de consola). Sin gaps OWASP activos en producción. Fetch SSR de The Lab (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se reincorpora "limpiar el glob de assets de `angular.json`" (gotcha documentado desde el switch, ADR-012): sin dependencias bloqueantes, es más concreta y acotada que abrir la migración a IaC de CloudFront o la integración con Cloudinary | Tareas de S3 sync y CSP (`onload`) movidas al historial. Tarea 2 (Fetch SSR de The Lab) pasa a ser Tarea 1. Nueva Tarea 2: limpiar el glob de assets de `angular.json` |
 | 2026-08-05 (2) | Headers de seguridad completados y verificados en producción real (los 5 headers presentes, `x-powered-by` confirmado ausente tras el merge del PR #31). Sin gaps OWASP activos en producción — vuelve a aplicar la prioridad normal del roadmap. Fetch SSR de The Lab (ya seleccionada como Tarea 2, sin dependencias) pasa a Tarea 1. Para la nueva Tarea 2 se prioriza limpiar el glob de assets de `angular.json` (gotcha documentado desde el switch, ADR-012 §7): es una corrección concreta y acotada, más urgente que abrir la migración a IaC de CloudFront o la integración con Cloudinary (ambas más grandes y sin gap activo). Aparte del motor JIT: se instaló un pre-commit hook (`husky`) que bloquea de forma permanente el patrón de secreto hardcodeado que causó dos incidentes reales seguidos | Tarea 1 (Headers de seguridad) movida al historial. Tarea 2 (Fetch SSR de The Lab) pasa a ser Tarea 1. Nueva Tarea 2: limpiar el glob de assets de `angular.json` |

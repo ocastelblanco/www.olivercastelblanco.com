@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-20 — diagnóstico de analítica y anti-spam, sin código (ver ADR-014, ADR-015) |
+| Última sesión | 2026-09-21 — prerrequisitos de ADR-014/ADR-015 confirmados y plan ajustado, sin código. Implementación lista para arrancar |
 | Analítica web | **Ausente.** Nunca se implementó. Propiedad GA4 `G-Z9PLP5VH5C` creada pero sin datos. Decidido e implementable: ADR-014 |
 
 ## 2. Funcionalidades
@@ -72,6 +72,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 - [ ] **Anti-spam en `POST /contact` (reCAPTCHA v3 + honeypot real)** — ADR-015, decidido, pendiente de implementar ← **Tarea 2**
 - [ ] Ampliar la CSP de CloudFront para GA4 y reCAPTCHA (una sola operación, **antes** del primer merge) — ver ADR-015 §"CSP de producción"
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
+- [ ] **`www.ocastelblanco.com` sirve el sitio completo con `200`** (sin 301 al dominio canónico) y el HTML **no tiene `<link rel="canonical">`**, solo `og:url` — contenido duplicado para buscadores. Detectado 2026-09-21. Candidato natural: extender la CloudFront Function de 301 (ADR-012) a `www.ocastelblanco.com` + agregar canonical en `SeoService`
 - [ ] Evaluar un `404` limpio para `/content/*` — hoy el `CustomErrorResponses` heredado (403/404 → `/index.html`) hace que un objeto faltante devuelva `200` con HTML
 - [ ] Integración con Cloudinary para gestión de imágenes (`PRD.md` §6, prioridad Media — único item del roadmap sin completar fuera de los de prioridad Baja)
 
@@ -1534,9 +1535,13 @@ contexto adicional de esta.
      anexar la etiqueta externa. `gtag.js` procesa la cola de `dataLayer` en orden al
      cargar, así que los defaults llegan antes que cualquier hit. Con esto la CSP no
      necesita `'unsafe-inline'`, ni hash, ni nonce.
-  4. **`send_page_view: false` + `page_view` manual en `NavigationEnd`.** El auto page_view
-     de GA4 es poco confiable en SPAs zoneless; emitirlo desde el Router cubre las 7 rutas
-     de forma determinista.
+  4. **`send_page_view: false` + `page_view` manual en `NavigationEnd`, diferido con
+     `afterNextRender`.** Motivo real (corregido en la revisión del 2026-09-21): la opción
+     automática de GA4 dispara en el `pushState`, **antes** de que Angular actualice el
+     `<title>` — los componentes lo fijan vía `SeoService.update()` en `ngOnInit`, que en
+     zoneless corre en el ciclo de detección de cambios *posterior* a `NavigationEnd`. Un
+     `page_view` síncrono en `NavigationEnd` tendría el mismo problema; por eso se envía
+     dentro de `afterNextRender`, con `page_title: document.title` explícito.
   5. **Solo activo en `production`** (`gaMeasurementId` vacío en `environment.ts` y
      `environment.preview.ts`) para no contaminar la propiedad con tráfico de desarrollo.
   6. **Link `// cookies` en el topbar** para reabrir el banner — GDPR exige que retirar el
@@ -1667,3 +1672,41 @@ banner como barra inferior full-width; reCAPTCHA v3 sobre Cloudflare Turnstile.
 **Estado al cierre:** plan detallado listo, motor JIT recalculado con las dos tareas
 nuevas, ADR-014 y ADR-015 escritos. Implementación planificada para el **2026-09-21**.
 Nada a medias: no se tocó código de aplicación ni infraestructura.
+
+### Revisión 2026-09-21 — Prerrequisitos confirmados y ajustes al plan
+
+Sesión de planeación, sin código. PR #39 (ADR-014/ADR-015) fusionado y verificado con
+`gh pr view` (`MERGED`, commit `053c05c`); rama borrada en local y remoto.
+
+**Prerrequisitos del usuario — estado:**
+
+| Prerrequisito | Estado |
+|---|---|
+| Sitio registrado en reCAPTCHA v3 | ✅ Dominio `ocastelblanco.com` (cubre `www` automáticamente) |
+| Site key (pública) | ✅ `6Lenj8ctAAAAALCIfcrj39k_2k-yPsieUfDJBGi-` → va en `environment.prod.ts` |
+| `RECAPTCHA_SECRET` en GitHub Actions | ✅ Verificado con `gh secret list` (creado 2026-09-21) |
+| Propiedad GA4 | ✅ Flujo "Sitio personal - GA4", ID de flujo `6027540977`, medición `G-Z9PLP5VH5C` |
+| Desactivar "Cambios de página basados en eventos del historial del navegador" (Medición mejorada del flujo) | ⏳ El usuario se comprometió a hacerlo. **Verificar al iniciar la implementación** — si queda activa, cada navegación se cuenta dos veces |
+
+**Ajustes al plan descubiertos al revisar el código real:**
+
+1. **Tener el secret en GitHub no basta.** `.github/workflows/deploy.yml` pasa cada secret
+   explícitamente en el `env:` del step de `serverless deploy`. Hay que agregar
+   `RECAPTCHA_SECRET: ${{ secrets.RECAPTCHA_SECRET }}` **solo en `deploy-production`**
+   (junto a `LAB_PUBLISH_TOKEN`). En `deploy-preview` no: preview queda sin verificación,
+   según ADR-015.
+2. **`RECAPTCHA_SECRET` va en el `environment` de la función `contact`, no en
+   `provider.environment`.** Este último se comparte con todas las funciones, incluida la
+   Lambda de SSR (`app`), que no tiene por qué ver el secreto. Mismo criterio de mínimo
+   privilegio que el rol dedicado `ContactLambdaRole`.
+3. **`localhost` no hace falta en reCAPTCHA.** `recaptchaSiteKey` queda vacía en
+   `environment.ts`, así que en desarrollo el script ni siquiera carga.
+4. **Título correcto en `page_view`** — ver la corrección del punto 4 de ADR-014.
+5. **`www.ocastelblanco.com` es un origen real**: sirve el sitio con `200` a través de la
+   misma distribución de CloudFront y con la misma CSP (verificado con `curl -sI`), y ya
+   está en la allowlist de CORS de `production`. Consecuencias: la CSP nueva cubre ambos
+   hosts sin trabajo extra; el registro de reCAPTCHA cubre `www`; GA4 recibirá datos de
+   los dos hostnames (el flujo está declarado con `https://www.ocastelblanco.com`, pero
+   GA4 **no filtra** por la URL del flujo — es informativa). El problema de SEO de fondo
+   quedó registrado aparte en §2 Pendientes.
+
