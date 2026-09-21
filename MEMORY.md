@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-21 — Fetch SSR de The Lab (ADR-011) implementado y verificado en local; PR abierto pendiente de merge |
+| Última sesión | 2026-09-21 — Fetch SSR de The Lab (ADR-011) fusionado y verificado en producción real; motor JIT recalculado |
 | Analítica web | **Implementada y en producción** desde el 2026-09-21 (GA4, propiedad `G-Z9PLP5VH5C`). Ver ADR-015 |
 
 ## 2. Funcionalidades
@@ -46,6 +46,7 @@
 - [x] Fix CSP: `onload` inline inyectado por `optimization.styles.inlineCritical` de Angular bloqueado en producción (incidente 2026-08-05, ver ADR-012). PR #37 fusionado y verificado en vivo
 - [x] Analítica web — GA4 + Consent Mode v2 + banner de consentimiento (ver ADR-015). PR #41 fusionado y verificado en producción real: el usuario confirmó la visita registrada en el panel de Google Analytics; `curl` confirma la CSP nueva en ambos hosts (`ocastelblanco.com` y `www.ocastelblanco.com`); navegación real con `claude-in-chrome` por las 4 rutas sin errores de consola
 - [x] Anti-spam en `POST /contact` — reCAPTCHA v3 + honeypot real (ver ADR-016). PR #43 fusionado y verificado en producción real: CloudWatch registró un envío real del usuario con `recaptchaScore: 0.9`; `curl -X POST .../contact` sin token → `403`; navegación real sin errores de consola
+- [x] Fetch SSR de The Lab — cierra el gap de SEO (ver ADR-011). PR #45 fusionado y verificado en producción real: `curl https://ocastelblanco.com/lab` sin ejecutar JS confirma el contenido real en el HTML; navegación real con `claude-in-chrome` confirma cero peticiones duplicadas a `lab.json` tras la hidratación y cero errores de consola
 
 ### Secuencia hacia el switch de producción (2026-08-04)
 
@@ -66,12 +67,11 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 
 - [x] **Headers de seguridad ausentes en producción (OWASP A05)** — Completado y verificado 2026-08-05: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `X-Frame-Options` presentes en producción; `x-powered-by` confirmado ausente tras el merge del PR #31. Sin gaps OWASP activos en producción
 - [x] Bitácora de proceso `docs/proceso/` — entrada MVP. Completada 2026-08-05 (`2026-08-mvp-en-produccion.md`, cubre PRs #15-29)
-- [ ] Fetch SSR de `lab.json` — ADR-011 (gap cerrado). Implementación completa y verificada en local: `npm run build` (dev/preview/producción) y `npm run lint` en verde, `curl` sin JS confirma el contenido real en el HTML de producción, cero peticiones duplicadas tras la hidratación (`TransferState`), fixture de dev funcionando normalmente; PR abierto, pendiente merge ← **Tarea 1**
+- [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue. Verificado vigente el 2026-09-21 ← **Tarea 2**
 - [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
-- [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue ← desplazada del motor JIT el 2026-09-20, sigue vigente
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
-- [ ] **`www.ocastelblanco.com` sirve el sitio completo con `200`** (sin 301 al dominio canónico) y el HTML **no tiene `<link rel="canonical">`**, solo `og:url` — contenido duplicado para buscadores. Detectado 2026-09-21 ← **Tarea 2**
+- [ ] **`www.ocastelblanco.com` sirve el sitio completo con `200`** (sin 301 al dominio canónico) y el HTML **no tiene `<link rel="canonical">`**, solo `og:url` — contenido duplicado para buscadores. Detectado 2026-09-21 ← **Tarea 1**
 - [ ] Evaluar un `404` limpio para `/content/*` — hoy el `CustomErrorResponses` heredado (403/404 → `/index.html`) hace que un objeto faltante devuelva `200` con HTML
 - [ ] Integración con Cloudinary para gestión de imágenes (`PRD.md` §6, prioridad Media — único item del roadmap sin completar fuera de los de prioridad Baja)
 
@@ -394,13 +394,16 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
     [`docs/proceso/publicar-casos-de-estudio.md`](./docs/proceso/publicar-casos-de-estudio.md).
   - Tras actualizar `lab.json` hay que invalidar CloudFront (o TTL corto en ese path) —
     aplica una vez exista la escritura real a S3.
-  - **Gap cerrado (2026-09-21):** `ContentService.loadLabEntries()` solo hacía fetch en
-    el navegador — el SSR/prerender no incluía las entradas de Lab en el HTML inicial.
-    Resuelto con un `ResolveFn` en la ruta `/lab` (`labEntriesResolver`) + `TransferState`
-    + una URL SSR absoluta específica para producción. Ver detalle completo en la sección
-    "Sesión 2026-09-21 (5)" más abajo, incluida una corrección honesta de alcance: el
-    fetch SSR real solo funciona en producción, no en dev/preview (limitación técnica
-    real, no una elección arbitraria).
+  - **Gap cerrado y verificado en producción real (2026-09-21, PR #45):**
+    `ContentService.loadLabEntries()` solo hacía fetch en el navegador — el SSR/prerender
+    no incluía las entradas de Lab en el HTML inicial. Resuelto con un `ResolveFn` en la
+    ruta `/lab` (`labEntriesResolver`) + `TransferState` + una URL SSR absoluta
+    específica para producción. `curl https://ocastelblanco.com/lab` sin ejecutar JS
+    confirma el contenido real; navegación real con `claude-in-chrome` confirma cero
+    peticiones duplicadas a `lab.json` tras la hidratación. Ver detalle completo en la
+    sección "Sesión 2026-09-21 (5)" más abajo, incluida una corrección honesta de
+    alcance: el fetch SSR real solo funciona en producción, no en dev/preview
+    (limitación técnica real, no una elección arbitraria).
   - El token de publicación es un secreto: vive en `PropertiesService` (Apps Script) y en
     el secret `LAB_PUBLISH_TOKEN` de GitHub Actions (pasado al deploy de `serverless.yml`)
     — nunca en el código fuente.
@@ -1922,3 +1925,32 @@ repita el fetch tras la hidratación.
 **Estado al cierre:** PR abierto, pendiente merge del usuario. No se recalcula el motor
 JIT todavía — sigue el mismo patrón de sesiones anteriores (verificar en producción real
 antes de cerrar la tarea).
+
+---
+
+## Sesión 2026-09-21 (6) — Cierre de ADR-011 verificado en producción y siguiente tarea
+
+PR #45 fusionado por el usuario y desplegado a producción sin problemas.
+
+**Verificación en producción real:** `curl https://ocastelblanco.com/lab` sin ejecutar JS
+confirma el contenido real de las entradas de Lab en el HTML servido — exactamente lo que
+ve un crawler. Navegación real con `claude-in-chrome` en `https://ocastelblanco.com/lab`:
+cero peticiones de red a `lab.json` tras la hidratación (`TransferState` funcionando en
+vivo), cero errores de consola, CSP intacta.
+
+**Motor JIT recalculado:**
+- Contenido duplicado de `www.ocastelblanco.com` (sin 301 ni canonical) pasa de Tarea 2 a
+  **Tarea 1** — con esto quedarían completas todas las features de prioridad Alta del
+  roadmap de `PRD.md` §6 (MVP, Terminal de contacto, SSR+Lambda, SEO técnico, Analítica
+  web).
+- Nueva **Tarea 2**: el glob de assets de `angular.json` que copia `content/lab.dev.json`
+  a todos los builds — verificado que el gotcha sigue vigente en esta misma sesión
+  (`npm run build -- --configuration production` todavía lo copia). Reingresa tras dos
+  desplazamientos previos por trabajo de Prioridad 1, elegido sobre otros pendientes del
+  backlog (CloudFront a IaC, auto-respuesta SES, Cloudinary, 404 limpio, Search Console)
+  por ser un FIX concreto, acotado y sin dependencias externas.
+
+**Estado al cierre:** cero cambios de código pendientes de commitear (esta sesión es
+documentación pura). Local sincronizado con `main` tras el merge del PR #45, rama
+`feature/fetch-ssr-lab` borrada (local y remota). Sin gaps OWASP activos en producción.
+Próximo paso: implementar la Tarea 1 (301 + canonical para `www.ocastelblanco.com`).
