@@ -4,6 +4,15 @@ name: Deploy to AWS Lambda
 # despliega `preview`; un merge a `main` (push) despliega `production`. Sin
 # trigger `push` sobre feature branches — todo cambio pasa por PR
 # (CLAUDE.md, ciclo de vida de un cambio).
+#
+# `test` corre primero siempre — `deploy-preview` y `deploy-production`
+# dependen de él vía `needs:` y GitHub los salta si falla. Antes de esto el
+# chequeo de lint/test vivía en `ci.yml`, un workflow aparte sin ninguna
+# relación con el despliegue: ambos disparaban con el mismo `push` a `main`
+# y corrían en paralelo, así que un fallo de test no bloqueaba
+# `deploy-production` — nada impedía que código roto llegara a producción
+# (`main` tampoco tiene branch protection). `ci.yml` se eliminó: quedaría
+# duplicando exactamente este job.
 on:
   pull_request:
     branches:
@@ -17,8 +26,40 @@ on:
       - main
 
 jobs:
+  test:
+    name: Test, Lint & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build (verificación)
+        # Configuración `production` por defecto (defaultConfiguration en
+        # angular.json) — smoke test de compilación. No es el artefacto que
+        # se despliega: cada job de deploy hace su propio build con la
+        # configuración correcta (preview/production).
+        run: npm run build
+
+      - name: Unit tests
+        run: npm test -- --watch=false
+
+      - name: Lambda tests
+        run: npm run test:lambda
+
   deploy-preview:
     name: Build & Deploy (preview)
+    needs: test
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
 
@@ -70,6 +111,7 @@ jobs:
 
   deploy-production:
     name: Build & Deploy (production)
+    needs: test
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
