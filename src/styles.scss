@@ -43,6 +43,15 @@ body {
   }
 }
 
+// Badge de reCAPTCHA v3 (ADR-016): Google lo inyecta directo en <body>, fuera
+// del árbol de cualquier componente Angular, así que un selector en el SCSS
+// del componente `contacto` nunca lo alcanzaría (mismo caso que `.lab__card-body`
+// más arriba). Ocultarlo exige incluir la atribución de Google en el formulario
+// de contacto — sin eso se violan sus términos de uso.
+.grecaptcha-badge {
+  visibility: hidden;
+}
+
 // Textura de ruido sutil sobre el fondo (opacidad 2-3%)
 body::before {
   content: '';

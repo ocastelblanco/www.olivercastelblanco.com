@@ -67,6 +67,15 @@
         }
       </div>
 
+      <!--
+        Honeypot (ADR-016): fuera de la pantalla, no display:none (muchos bots
+        lo detectan). Ningún humano lo ve ni lo llena.
+      -->
+      <div class="contacto__honeypot" aria-hidden="true">
+        <label for="ct-website">Website</label>
+        <input id="ct-website" type="text" formControlName="website" tabindex="-1" autocomplete="off" />
+      </div>
+
       <button class="contacto__submit technical-label" type="submit" [disabled]="loading()">
         {{ loading() ? trans.t('contacto.sending') : trans.t('contacto.send_button') }}
       </button>
@@ -74,6 +83,14 @@
       @if (sendError()) {
         <p class="contacto__send-error technical-label">{{ trans.t('contacto.error_send') }}</p>
       }
+
+      <!-- Atribución obligatoria de Google para ocultar el badge de reCAPTCHA. -->
+      <p class="contacto__recaptcha-notice">
+        {{ trans.t('contacto.recaptcha_notice') }}
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">{{ trans.t('contacto.recaptcha_privacy') }}</a>
+        ·
+        <a href="https://policies.google.com/terms" target="_blank" rel="noopener">{{ trans.t('contacto.recaptcha_terms') }}</a>
+      </p>
     </form>
   }
 </section>

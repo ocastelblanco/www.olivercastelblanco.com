@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { TranslationService } from '@core/i18n/translation.service';
 import { ContactService } from '@core/services/contact.service';
+import { RecaptchaService } from '@core/services/recaptcha.service';
 import { SeoService } from '@core/seo/seo.service';
 
 @Component({
@@ -14,6 +15,7 @@ export class Contacto implements OnInit {
   protected readonly trans = inject(TranslationService);
   private readonly fb = inject(FormBuilder);
   private readonly contactSvc = inject(ContactService);
+  private readonly recaptcha = inject(RecaptchaService);
   private readonly seo = inject(SeoService);
 
   protected readonly sent = signal(false);
@@ -24,6 +26,9 @@ export class Contacto implements OnInit {
     name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
     message: ['', [Validators.required, Validators.minLength(10)]],
+    // Honeypot (ADR-016): oculto visualmente en el template, nunca lo llena
+    // un humano. Sin validadores — un bot que lo ignore no debe fallar aquí.
+    website: [''],
   });
 
   ngOnInit(): void {
@@ -43,7 +48,7 @@ export class Contacto implements OnInit {
     return this.form.controls.message;
   }
 
-  protected submit(): void {
+  protected async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -52,16 +57,20 @@ export class Contacto implements OnInit {
     this.loading.set(true);
     this.sendError.set(false);
 
-    const { name, email, message } = this.form.value;
-    this.contactSvc.send({ name: name!, email: email!, message: message! }).subscribe({
-      next: () => {
-        this.loading.set(false);
-        this.sent.set(true);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.sendError.set(true);
-      },
-    });
+    const { name, email, message, website } = this.form.value;
+    const recaptchaToken = await this.recaptcha.execute('contact');
+
+    this.contactSvc
+      .send({ name: name!, email: email!, message: message!, website: website ?? '', recaptchaToken })
+      .subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.sent.set(true);
+        },
+        error: () => {
+          this.loading.set(false);
+          this.sendError.set(true);
+        },
+      });
   }
 }

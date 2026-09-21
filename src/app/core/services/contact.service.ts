@@ -6,6 +6,10 @@ export interface ContactPayload {
   name: string;
   email: string;
   message: string;
+  /** Token de reCAPTCHA v3 (ADR-016), `null` en dev/preview sin site key. */
+  recaptchaToken: string | null;
+  /** Honeypot — siempre vacío para un humano, ver `contacto.html` (ADR-016). */
+  website: string;
 }
 
 @Injectable({ providedIn: 'root' })

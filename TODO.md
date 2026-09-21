@@ -77,6 +77,21 @@ con dominio `ocastelblanco.com` (cubre `www`). Site key pública:
 - [ ] Consola de producción sin violaciones de CSP en `/contacto`
 - [ ] `MEMORY.md` ADR-016 marcado como implementado
 
+**Estado 2026-09-21:** implementación completa y verificada en local. `npm run build`,
+`npm run lint` y `npm run test:lambda` en verde (23 tests, incluidos 7 nuevos de
+reCAPTCHA — requirió agregar `--experimental-test-module-mocks` a `test:lambda` para
+poder stubear `@aws-sdk/client-sesv2` con `mock.module()`, todavía experimental en
+Node 24). Verificado con `claude-in-chrome` en `localhost:4200/contacto`: el honeypot
+existe en el DOM fuera de la pantalla (no `display:none`), la atribución de reCAPTCHA es
+visible, cero errores de consola. **Bug encontrado y corregido en el camino:** el banner
+de consentimiento (fijo, ADR-015) tapaba la atribución de reCAPTCHA en `/contacto` porque
+la página no tenía scroll de sobra — se agregó una clase condicional
+`.app-content--cookie-banner-visible` que reserva espacio solo mientras el banner está
+visible, verificado visualmente en ambos estados. `.github/workflows/deploy.yml`
+actualizado con `RECAPTCHA_SECRET` en `deploy-production` únicamente (verificado que
+`deploy-preview` no lo recibe). PR abierto — pendiente merge del usuario y verificación
+de envío real en producción.
+
 ---
 
 ## Tarea 2 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)

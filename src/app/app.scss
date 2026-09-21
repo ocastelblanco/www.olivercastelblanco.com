@@ -7,9 +7,24 @@
   padding-right: var(--spacing-lg);
 }
 
+// Reserva espacio cuando la barra de consentimiento (fija, ADR-015) está
+// visible — sin esto tapa el final del contenido en páginas cortas, como la
+// atribución de reCAPTCHA en /contacto (ADR-016). El valor es generoso a
+// propósito: la altura real del banner varía con el idioma y el ancho de
+// pantalla, y un poco de espacio de más es preferible a texto tapado.
+.app-content--cookie-banner-visible {
+  padding-bottom: 180px;
+}
+
 @media (max-width: 720px) {
   .app-content {
     margin-left: 0;
     padding-bottom: calc(56px + var(--spacing-lg));
+  }
+
+  .app-content--cookie-banner-visible {
+    // Se suma al offset del nav inferior — en mobile el banner se apila en
+    // columna (ver cookie-consent.scss) y ocupa más alto.
+    padding-bottom: calc(56px + 260px);
   }
 }

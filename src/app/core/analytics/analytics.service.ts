@@ -18,7 +18,7 @@ const STORAGE_KEY = 'cookie-consent';
 
 /**
  * Carga GA4 (`gtag.js`) con Consent Mode v2, sin un solo `<script>` inline —
- * requisito de la CSP en producción (`script-src 'self' ...`, ver ADR-014).
+ * requisito de la CSP en producción (`script-src 'self' ...`, ver ADR-015).
  * El bootstrap del `dataLayer` y los defaults de consentimiento se empujan
  * desde este código TypeScript compilado, servido bajo `script-src 'self'`,
  * y solo después se anexa la etiqueta externa de Google.
@@ -37,7 +37,7 @@ export class AnalyticsService {
   /**
    * Inicializa Consent Mode v2 y, si ya hay un consentimiento guardado, lo
    * aplica de inmediato. No-op en servidor o si no hay measurement ID
-   * (dev/preview, ver ADR-014). Idempotente.
+   * (dev/preview, ver ADR-015). Idempotente.
    */
   init(): void {
     if (this.initialized || !isPlatformBrowser(this.platformId)) return;
@@ -113,7 +113,7 @@ export class AnalyticsService {
    * se fijan en `ngOnInit` de cada feature vía `SeoService`, que en zoneless
    * corre en el ciclo posterior a `NavigationEnd`. Enviar el evento de forma
    * síncrona en `NavigationEnd` habría registrado cada vista con el título
-   * de la ruta anterior (ver corrección de ADR-014).
+   * de la ruta anterior (ver corrección de ADR-015).
    */
   private trackPageViews(): void {
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {

@@ -47,6 +47,9 @@ export interface Translations {
     error_email: string;
     error_min: string;
     error_send: string;
+    recaptcha_notice: string;
+    recaptcha_privacy: string;
+    recaptcha_terms: string;
   };
   lab: {
     title: string;

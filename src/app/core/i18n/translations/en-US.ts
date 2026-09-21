@@ -37,6 +37,9 @@ export const enTranslations: Translations = {
     error_email: 'Invalid email',
     error_min: 'Too short',
     error_send: 'Send failed. Please try again.',
+    recaptcha_notice: 'reCAPTCHA protects this form —',
+    recaptcha_privacy: 'Privacy',
+    recaptcha_terms: 'Terms',
   },
   lab: {
     title: 'The Lab',

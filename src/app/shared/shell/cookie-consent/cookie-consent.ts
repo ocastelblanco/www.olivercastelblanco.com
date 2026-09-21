@@ -4,7 +4,7 @@ import { AnalyticsService } from '@core/analytics/analytics.service';
 import { TranslationService } from '@core/i18n/translation.service';
 
 /**
- * Barra de consentimiento (ADR-014). Visible solo en el navegador y solo
+ * Barra de consentimiento (ADR-015). Visible solo en el navegador y solo
  * mientras no exista una decisión guardada — así no aparece en el HTML
  * prerenderizado ni causa flash en SSR. Se reabre desde el link `// cookies`
  * del topbar (`AnalyticsService.reopen()`), requisito GDPR de retiro.
