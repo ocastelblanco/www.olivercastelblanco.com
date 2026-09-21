@@ -296,6 +296,6 @@ Ver `CLAUDE.md` §4 para convenciones de código. Para git flow, ver la sección
 | Registro de Proyectos + Caso de estudio | `src/app/features/projects/*`, datos en `src/assets/data/projects.json` | Modelo `ProjectCase` |
 | Terminal de contacto + endpoint | `src/app/features/contact/*`, `serverless.yml` (función `contact`) | API Gateway configurado |
 | Despliegue serverless inicial (`serverless.yml`) | `serverless.yml`, `server.ts` | Cuenta AWS configurada |
-| CI con GitHub Actions | `.github/workflows/ci.yml` | Build/test funcionando localmente |
+| CI con GitHub Actions | `.github/workflows/deploy.yml` (job `test`, gatea los deploys — ver `MEMORY.md`) | Build/test funcionando localmente |
 | The Lab (bitácora) | `src/app/features/lab/*`, datos en `src/assets/data/lab/*.md` | Modelo `LabEntry` |
 | Internacionalización (ES/EN) | `src/locale/*`, configuración `@angular/localize` | Contenido base estable |

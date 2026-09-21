@@ -168,6 +168,10 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   despliegue.
 - **Razón:** Mantener calidad de código (lint + tests + build verde) en cada cambio antes de
   fusionar a `rediseno-2026`, sin depender de verificación manual local.
+- **Superseded (2026-09-21, ADR-017):** `ci.yml` se eliminó — sus pasos se movieron a un
+  job `test` dentro de `deploy.yml`, del que ahora dependen los deploys (`needs: test`).
+  Corre en Node 24, no Node 22 — todo el pipeline (CI, deploy, runtime de Lambda) quedó
+  estandarizado en una sola versión de Node.
 - **Consecuencias:** Cualquier código nuevo debe pasar `npm run lint` sin errores (reglas
   por defecto de `@angular-eslint/schematics`, ver `eslint.config.js`). Si el lint falla en
   CI pero no localmente, correr `npm run lint` antes de hacer push. Los PRs que fallen
@@ -908,6 +912,10 @@ cada feature). El topbar es una franja fija superior que ocupa el espacio restan
 `npm test -- --watch=false`. El lint usa ESLint configurado por `@angular-eslint/schematics`
 (`eslint.config.js` en la raíz, builder `lint` agregado a `angular.json`). Cualquier
 componente/servicio nuevo debe pasar `npm run lint` localmente antes de hacer push.
+
+**Superseded (2026-09-21, ADR-017):** `ci.yml` ya no existe. Sus pasos (más tests de
+Lambda) viven ahora en el job `test` de `deploy.yml`, en Node 24, y gatean los deploys de
+`preview`/`production` vía `needs: test`.
 
 ## 7. Gotchas conocidos
 
@@ -1650,7 +1658,68 @@ contexto adicional de esta.
     GitHub Actions pero nunca llegaría al Lambda. `deploy-preview` no lo recibe a
     propósito (verificado que la edición solo tocó el bloque correcto).
 
-### CSP de producción — ampliada y verificada en vivo (2026-09-21)
+### ADR-017 — `deploy-production` gatea con un job `test` en el mismo workflow; se elimina `ci.yml`
+
+- **Fecha:** 2026-09-21
+- **Estado:** Implementado
+- **Contexto:** el usuario notó, revisando los checks de un PR recién fusionado, que
+  `build-test-lint` (`ci.yml`) y `Build & Deploy (production)` (`deploy.yml`) parecían
+  correr en paralelo y preguntó si eso era seguro. Verificado: son **dos workflows
+  completamente independientes**, cada uno con su propio `on: push: branches: [main]` —
+  GitHub no tiene ninguna noción de dependencia entre archivos de workflow distintos salvo
+  que se declare explícitamente (`workflow_run` o `needs` dentro del mismo archivo), y
+  ninguno de los dos lo hacía. Que `build-test-lint` terminara primero era casualidad de
+  duración (solo lint+build+tests, sin llamadas de red a AWS), no una garantía de orden.
+  Verificado también que `main` **no tiene branch protection** (`gh api
+  .../branches/main/protection` → `404 Branch not protected`, consistente con lo ya
+  documentado en ADR-013). Conclusión: si `build-test-lint` hubiera fallado, nada
+  impedía que `deploy-production` publicara ese mismo código roto en el sitio en vivo.
+- **Decisión:** consolidar todo en `deploy.yml` — nuevo job `test` (lint, build de
+  verificación con la configuración `production` por defecto, tests unitarios, tests de
+  Lambda) del que `deploy-preview` y `deploy-production` dependen vía `needs: test`.
+  GitHub salta automáticamente un job cuyo `needs` falló. `ci.yml` se elimina: correr los
+  mismos cuatro pasos ahí ya no aporta nada, solo duplicaría el job.
+- **Razón:** de las tres opciones evaluadas (`workflow_run` entre archivos separados,
+  consolidar con `needs` en un solo archivo, o branch protection exigiendo el check antes
+  de habilitar el merge), se eligió consolidar por ser la más simple — todo el pipeline
+  vive en un solo archivo, sin coordinación entre workflows independientes.
+  **Actualización (misma fecha):** el usuario pidió además branch protection como
+  complemento — bloquea el mismo problema un paso antes, en el botón de merge, en vez de
+  solo en el pipeline. Implementado sobre `main` vía `gh api` (`PUT
+  .../branches/main/protection`): `required_status_checks` exige `Test, Lint & Build` y
+  `GitGuardian Security Checks` en verde antes de habilitar el merge (`strict: false` —
+  no exige que la rama esté al día con `main`, para no forzar rebases en un repo de un
+  solo mantenedor). `enforce_admins: false` a propósito: es un proyecto de un solo
+  mantenedor sin un segundo revisor que pueda levantar un bloqueo de emergencia, así que
+  quien administra el repo conserva una salida de escape. Sin
+  `required_pull_request_reviews` por el mismo motivo (no hay quién apruebe además del
+  propio dueño). `allow_force_pushes` y `allow_deletions` en `false` — ya eran
+  prohibiciones de `CLAUDE.md` para cualquier agente, ahora también aplicadas a nivel de
+  plataforma para cualquier actor. Verificado que el PR #47 (ya con checks en verde antes
+  de este cambio) sigue `MERGEABLE`/`CLEAN` tras aplicar la protección.
+- **Consecuencias:**
+  - `deploy-preview` y `deploy-production` conservan su propio paso de `lint` + `build`
+    — no son redundantes con el `build` del job `test`: cada uno produce el artefacto
+    real que se despliega, con su propia configuración (`preview`/`production`); el del
+    job `test` es solo una verificación de que el código compila, con la configuración
+    `production` por defecto.
+  - El job `test` corre en Node 24 (antes `ci.yml` corría en Node 22, distinto de los
+    jobs de deploy). Esto además cierra la puerta a un riesgo real ya materializado: el
+    incidente de CI del PR #43 (`mock.module()` incompatible entre Node 22 y Node 24,
+    ver Sesión 2026-09-21 (3)) — con un solo Node por pipeline, ese tipo de discrepancia
+    ya no puede repetirse en este proyecto.
+  - Verificado localmente antes de empujar: los 4 pasos del nuevo job `test`
+    (`npm run lint`, `npm run build`, `npm test -- --watch=false`, `npm run test:lambda`)
+    en verde, replicando exactamente lo que correrá en CI.
+  - `tech-specs.md` actualizado: la referencia a `.github/workflows/ci.yml` ahora apunta
+    a `deploy.yml`.
+  - **Node 24 estandarizado también fuera de CI** (mismo pedido del usuario, misma
+    fecha): `.nvmrc` nuevo (`24`) y `"engines": {"node": ">=24.15.0"}` en `package.json`
+    — el piso `24.15.0` viene del gotcha ya documentado en §7 (Angular CLI 22.1 exige
+    `>=24.15.0` en la línea 24.x). `README.md` corregido en sus 3 menciones de "Node 22"
+    (dos ya estaban objetivamente mal — Node 22.22.2 falla el mínimo real de Angular CLI,
+    ver §7 — y no solo desactualizadas frente a esta decisión). Nada de esto obliga
+    `engine-strict`: sigue siendo un aviso, no un bloqueo de `npm install`.
 
 **Estado: aplicada.** `UpdateResponseHeadersPolicy` sobre `f768cc69-b1ed-4827-917e-c5b3a61d8901`
 ejecutado 2026-09-21, cubriendo GA4 y reCAPTCHA a la vez en una sola operación, antes de
@@ -1954,3 +2023,34 @@ vivo), cero errores de consola, CSP intacta.
 documentación pura). Local sincronizado con `main` tras el merge del PR #45, rama
 `feature/fetch-ssr-lab` borrada (local y remota). Sin gaps OWASP activos en producción.
 Próximo paso: implementar la Tarea 1 (301 + canonical para `www.ocastelblanco.com`).
+
+---
+
+## Sesión 2026-09-21 (7) — Fix de CI/CD: `deploy-production` gatea con tests (ADR-017)
+
+El usuario notó, revisando los checks del PR #46, que `build-test-lint` y `Build & Deploy
+(production)` parecían correr en paralelo tras un merge, y preguntó si eso era seguro.
+
+**No lo era.** Verificado: eran dos workflows completamente independientes, sin ninguna
+relación entre ellos — GitHub no vincula archivos de workflow distintos a menos que se
+declare explícitamente. Que uno terminara antes que el otro era casualidad de duración
+(menos trabajo, no una garantía), y `main` no tiene branch protection. Si `build-test-lint`
+hubiera fallado, nada impedía que `deploy-production` publicara ese código roto en
+producción. Detalle completo y decisión en **ADR-017**.
+
+**Fix aplicado (opción elegida por el usuario: consolidar en un solo archivo):**
+`deploy.yml` gana un job `test` (lint, build de verificación, tests unitarios, tests de
+Lambda) del que `deploy-preview` y `deploy-production` dependen vía `needs: test`.
+`ci.yml` se eliminó — quedaría duplicando exactamente ese job sin aportar nada. Efecto
+colateral positivo: el job `test` corre en Node 24 (antes `ci.yml` corría en Node 22),
+cerrando la puerta a una repetición del incidente del PR #43 (`mock.module()`
+incompatible entre versiones de Node).
+
+**Verificación:** los 4 pasos del nuevo job `test` corridos localmente en verde
+(`npm run lint`, `npm run build`, `npm test -- --watch=false`, `npm run test:lambda`),
+replicando exactamente lo que ejecutará CI. `tech-specs.md` actualizado.
+
+**Estado al cierre:** PR abierto, pendiente merge del usuario. No afecta el motor JIT —
+es un fix de infraestructura pedido directamente, fuera de la rotación de las 2 tareas
+activas (`TODO.md` sigue con Tarea 1 = 301/canonical de `www`, Tarea 2 = glob de
+`angular.json`, sin cambios).
