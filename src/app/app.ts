@@ -1,11 +1,13 @@
 import { Component, DOCUMENT, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AnalyticsService } from '@core/analytics/analytics.service';
 import { Sidebar } from '@shared/shell/sidebar/sidebar';
 import { Topbar } from '@shared/shell/topbar/topbar';
+import { CookieConsent } from '@shared/shell/cookie-consent/cookie-consent';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Sidebar, Topbar],
+  imports: [RouterOutlet, Sidebar, Topbar, CookieConsent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -15,6 +17,7 @@ export class App {
   constructor() {
     const doc = inject(DOCUMENT);
     this.addJsonLd(doc);
+    inject(AnalyticsService).init();
   }
 
   private addJsonLd(doc: Document): void {

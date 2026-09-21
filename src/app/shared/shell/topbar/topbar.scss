@@ -28,6 +28,20 @@
   color: var(--color-on-surface-variant);
 }
 
+.topbar__cookies {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--color-on-surface-variant);
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: color 50ms linear;
+
+  &:hover {
+    color: var(--color-on-surface);
+  }
+}
+
 @media (max-width: 720px) {
   .topbar {
     left: 0;

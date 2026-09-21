@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-21 — prerrequisitos de ADR-014/ADR-015 confirmados y plan ajustado, sin código. Implementación lista para arrancar |
+| Última sesión | 2026-09-21 — implementación de ADR-014 (GA4 + Consent Mode v2 + banner) completa y verificada en local; PR abierto, pendiente merge + verificación en producción |
 | Analítica web | **Ausente.** Nunca se implementó. Propiedad GA4 `G-Z9PLP5VH5C` creada pero sin datos. Decidido e implementable: ADR-014 |
 
 ## 2. Funcionalidades
@@ -68,7 +68,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 - [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
 - [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue ← desplazada del motor JIT el 2026-09-20, sigue vigente
-- [ ] **Analítica web (GA4 + Consent Mode v2 + banner de consentimiento)** — ADR-014, decidido, pendiente de implementar ← **Tarea 1**
+- [ ] **Analítica web (GA4 + Consent Mode v2 + banner de consentimiento)** — ADR-014. Implementación completa y verificada en local (`npm run build`/`lint`, cero handlers inline, `gtag` ausente del prerender, banner probado con `claude-in-chrome`); PR abierto, pendiente merge + verificación de `page_view` real en GA4 Tiempo real ← **Tarea 1**
 - [ ] **Anti-spam en `POST /contact` (reCAPTCHA v3 + honeypot real)** — ADR-015, decidido, pendiente de implementar ← **Tarea 2**
 - [ ] Ampliar la CSP de CloudFront para GA4 y reCAPTCHA (una sola operación, **antes** del primer merge) — ver ADR-015 §"CSP de producción"
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
@@ -549,7 +549,9 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   necesita CSP). Incluye `X-Content-Type-Options: nosniff`, `Referrer-Policy:
   strict-origin-when-cross-origin`, `Strict-Transport-Security` (`max-age=63072000`,
   `includeSubDomains`, `preload`), `X-Frame-Options: SAMEORIGIN` y
-  `Content-Security-Policy`:
+  `Content-Security-Policy` (valor original 2026-08-05; **ampliado 2026-09-21** para GA4 +
+  reCAPTCHA v3, ver ADR-014/ADR-015 y la sección "CSP de producción" más abajo para el
+  valor vigente):
   ```
   default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
   font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;
@@ -1617,11 +1619,16 @@ contexto adicional de esta.
   - `preview` queda sin claves (`RECAPTCHA_SECRET` vacío → verificación omitida), mismo
     criterio que `lab-handler.mjs` con `CONTENT_BUCKET`.
 
-### CSP de producción — valor objetivo tras ADR-014 y ADR-015
+### CSP de producción — ampliada y verificada en vivo (2026-09-21)
 
-Se aplica **una sola vez** sobre la Response Headers Policy `ocastelblanco-security-headers`
-(`f768cc69-b1ed-4827-917e-c5b3a61d8901`), cubriendo GA4 y reCAPTCHA a la vez, **antes** de
-fusionar el primer PR. Guardar la CSP vigente antes de tocarla, para poder revertir.
+**Estado: aplicada.** `UpdateResponseHeadersPolicy` sobre `f768cc69-b1ed-4827-917e-c5b3a61d8901`
+ejecutado 2026-09-21, cubriendo GA4 y reCAPTCHA a la vez en una sola operación, antes de
+abrir el PR de la Tarea 1. CSP anterior respaldada en el scratchpad de la sesión
+(`csp-backup-2026-09-21.json`, ETag `ETVPDKIKX0DER`) antes del cambio. Nuevo ETag:
+`E3UN6WX5RRO2AG`. Verificado con `curl -sI` contra **ambos** hosts inmediatamente después:
+`https://ocastelblanco.com` y `https://www.ocastelblanco.com` responden `200` con la CSP
+nueva; `main-ULIRP6NN.js` (bundle vigente) sigue cargando sin problema — el sitio no se
+rompió con el cambio.
 
 ```
 default-src 'self';
@@ -1636,12 +1643,8 @@ object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';
 upgrade-insecure-requests
 ```
 
-Cuando esté aplicada, actualizar también la transcripción de la CSP en la sección de
-headers de seguridad del 2026-08-05, que quedará desactualizada.
-
-**Recordatorio operativo:** `preview` no puede validar esto. Es una Lambda Function URL
-cruda sin CloudFront delante (ADR-013) y no manda ningún header de CSP — la verificación
-real solo ocurre contra `https://ocastelblanco.com` después del merge.
+**Recordatorio operativo:** `preview` no puede validar esto — es una Lambda Function URL
+cruda sin CloudFront delante (ADR-013) y no manda ningún header de CSP.
 
 ---
 
