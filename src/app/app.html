@@ -1,7 +1,7 @@
 <app-sidebar />
 <app-topbar />
 
-<main class="app-content">
+<main class="app-content" [class.app-content--cookie-banner-visible]="analytics.consent() === null">
   <router-outlet />
 </main>
 

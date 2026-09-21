@@ -16,6 +16,49 @@ const CONTACT_FROM = 'contacto@ocastelblanco.com';
 const CONTACT_TO = 'ocastelblanco@gmail.com';
 const ses = new SESv2Client({});
 
+// ADR-016 — anti-spam con reCAPTCHA v3. Vacío en dev/preview: sin secreto, la
+// verificación se omite (mismo criterio que CONTENT_BUCKET en lab-handler.mjs).
+const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET || '';
+// URL hardcodeada, nunca derivada de input del usuario (CLAUDE.md §6 A10, SSRF).
+const RECAPTCHA_VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify';
+const RECAPTCHA_MIN_SCORE = 0.5;
+const RECAPTCHA_ACTION = 'contact';
+
+/**
+ * Verifica un token de reCAPTCHA v3 contra Google. Fail-open si Google no
+ * responde: un portafolio prefiere un spam ocasional a perder un contacto
+ * real por la caída de un tercero. El fallo se registra para monitoreo.
+ */
+async function verifyRecaptcha(token, remoteIp) {
+  if (!RECAPTCHA_SECRET) {
+    return { ok: true, skipped: true };
+  }
+  if (!token) {
+    return { ok: false, reason: 'missing-token' };
+  }
+
+  try {
+    const params = new URLSearchParams({ secret: RECAPTCHA_SECRET, response: token });
+    if (remoteIp) params.set('remoteip', remoteIp);
+
+    const res = await fetch(RECAPTCHA_VERIFY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
+    const data = await res.json();
+    const score = typeof data.score === 'number' ? data.score : null;
+
+    if (!data.success || data.action !== RECAPTCHA_ACTION || score === null || score < RECAPTCHA_MIN_SCORE) {
+      return { ok: false, reason: 'rejected', score, success: data.success, action: data.action };
+    }
+    return { ok: true, score };
+  } catch (err) {
+    console.error(JSON.stringify({ event: 'recaptcha_verify_failed', error: err.message }));
+    return { ok: true, skipped: true, error: err.message };
+  }
+}
+
 // El Subject viaja como header de correo — a diferencia del body (Text, no
 // ejecutable), un salto de línea ahí sí es una forma de inyección de headers.
 // `name` es input de usuario libre, así que se sanea solo para este uso.
@@ -75,16 +118,25 @@ export const handler = async (event) => {
     return json(400, { error: 'Validation failed', fields: errors }, origin);
   }
 
+  const sourceIp = event.requestContext?.http?.sourceIp;
+  const recaptcha = await verifyRecaptcha(body.recaptchaToken, sourceIp);
+
   console.log(
     JSON.stringify({
       event: 'contact_message',
       name,
       email,
       messageLength: message.length,
-      ip: event.requestContext?.http?.sourceIp,
+      ip: sourceIp,
+      recaptchaScore: recaptcha.score ?? null,
+      recaptchaSkipped: recaptcha.skipped ?? false,
       timestamp: new Date().toISOString(),
     }),
   );
+
+  if (!recaptcha.ok) {
+    return json(403, { error: 'Verificación de seguridad fallida.' }, origin);
+  }
 
   try {
     await ses.send(

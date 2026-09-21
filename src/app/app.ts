@@ -13,11 +13,12 @@ import { CookieConsent } from '@shared/shell/cookie-consent/cookie-consent';
 })
 export class App {
   protected readonly title = signal('ocastelblanco');
+  protected readonly analytics = inject(AnalyticsService);
 
   constructor() {
     const doc = inject(DOCUMENT);
     this.addJsonLd(doc);
-    inject(AnalyticsService).init();
+    this.analytics.init();
   }
 
   private addJsonLd(doc: Document): void {

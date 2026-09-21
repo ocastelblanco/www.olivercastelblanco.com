@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-21 — ADR-015 (GA4) completo y verificado en producción real, PR #41 fusionado; motor JIT recalculado, ADR-016 (reCAPTCHA) promovido a Tarea 1 |
+| Última sesión | 2026-09-21 — ADR-016 (reCAPTCHA v3 + honeypot) implementado y verificado en local, PR abierto pendiente de merge |
 | Analítica web | **Implementada y en producción** desde el 2026-09-21 (GA4, propiedad `G-Z9PLP5VH5C`). Ver ADR-015 |
 
 ## 2. Funcionalidades
@@ -69,7 +69,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 - [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
 - [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue ← desplazada del motor JIT el 2026-09-20, sigue vigente
-- [ ] **Anti-spam en `POST /contact` (reCAPTCHA v3 + honeypot real)** — ADR-016, decidido, pendiente de implementar ← **Tarea 1** (promovida el 2026-09-21)
+- [ ] **Anti-spam en `POST /contact` (reCAPTCHA v3 + honeypot real)** — ADR-016. Implementación completa y verificada en local (`npm run build`/`lint`/`test:lambda` en verde, honeypot y atribución verificados con `claude-in-chrome`); PR abierto, pendiente merge + verificación de envío real en producción ← **Tarea 1**
 - [ ] Ampliar la CSP de CloudFront para GA4 y reCAPTCHA — **hecho y verificado en vivo el 2026-09-21**, ver ADR-016 §"CSP de producción"
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
 - [ ] **`www.ocastelblanco.com` sirve el sitio completo con `200`** (sin 301 al dominio canónico) y el HTML **no tiene `<link rel="canonical">`**, solo `og:url` — contenido duplicado para buscadores. Detectado 2026-09-21. Candidato natural: extender la CloudFront Function de 301 (ADR-012) a `www.ocastelblanco.com` + agregar canonical en `SeoService`
@@ -1560,8 +1560,9 @@ contexto adicional de esta.
 ### ADR-016 — Anti-spam en `POST /contact`: reCAPTCHA v3 + activar el honeypot muerto
 
 - **Fecha:** 2026-09-20
-- **Estado:** Decidido, pendiente de implementación. Promovido a Tarea 1 del motor JIT el
-  2026-09-21 al completarse y verificarse ADR-015 en producción.
+- **Estado:** Implementado y verificado en local (2026-09-21). Promovido a Tarea 1 del
+  motor JIT el 2026-09-21 al completarse y verificarse ADR-015 en producción. PR abierto,
+  pendiente merge del usuario y verificación de envío real en producción.
 - **Contexto:** auditoría del endpoint de contacto a pedido del usuario. Estado real hoy:
 
   | Defensa | Estado |
@@ -1600,7 +1601,12 @@ contexto adicional de esta.
      de ePrivacy Art. 5(3)) y por tanto **carga sin depender del consentimiento** — de lo
      contrario el formulario se rompería para quien rechace cookies. La postura se hace
      defendible con dos mitigaciones reales: carga acotada a `/contacto` y declaración
-     explícita en el banner y en la atribución del formulario.
+     explícita en la atribución del formulario. **Corrección de implementación
+     (2026-09-21):** el plan original mencionaba también "declaración en el banner", pero
+     se descartó a propósito — el banner de consentimiento es específicamente sobre
+     cookies de analítica (GA4); mezclar ahí un mecanismo que corre sin pedir
+     consentimiento habría sido confuso. La atribución vive solo en `/contacto`, donde
+     reCAPTCHA realmente actúa.
   7. **Badge oculto + atribución visible.** Google permite ocultar el badge con
      `.grecaptcha-badge { visibility: hidden; }` **solo** si se incluye el texto de
      atribución con links a Privacy Policy y Terms. Sin la atribución se violan los
@@ -1620,6 +1626,25 @@ contexto adicional de esta.
     CloudWatch antes de endurecerlo.
   - `preview` queda sin claves (`RECAPTCHA_SECRET` vacío → verificación omitida), mismo
     criterio que `lab-handler.mjs` con `CONTENT_BUCKET`.
+  - **`node --test` necesitó `--experimental-test-module-mocks`** (agregado a
+    `test:lambda` en `package.json`) para poder stubear `@aws-sdk/client-sesv2` con
+    `mock.module()` — el SDK intenta resolver credenciales de AWS reales al construir el
+    cliente, y sin el stub los tests fallarían por falta de credenciales, no por la lógica
+    que se está probando. Sigue siendo experimental en Node 24.
+  - **Bug encontrado y corregido durante la implementación:** el banner de consentimiento
+    (fijo, ADR-015) tapaba la atribución de reCAPTCHA en `/contacto` — la página no tenía
+    scroll de sobra, así que el contenido quedaba oculto detrás del banner sin forma de
+    verlo. Fix: `App` expone `analytics.consent()` al template, y `.app-content` gana un
+    modificador `--cookie-banner-visible` que reserva espacio extra **solo** mientras el
+    banner está visible (180px desktop, más en mobile por el offset del nav inferior).
+    Verificado visualmente con `claude-in-chrome` en ambos estados (banner visible /
+    aceptado). Gotcha para features futuras: cualquier contenido que caiga cerca del final
+    de una página corta puede quedar tapado por el banner mientras no haya decisión
+    guardada — revisar visualmente antes de dar por buena una página nueva.
+  - `.github/workflows/deploy.yml`: `RECAPTCHA_SECRET: ${{ secrets.RECAPTCHA_SECRET }}`
+    agregado al `env:` de `deploy-production` únicamente — sin esto el secret existiría en
+    GitHub Actions pero nunca llegaría al Lambda. `deploy-preview` no lo recibe a
+    propósito (verificado que la edición solo tocó el bloque correcto).
 
 ### CSP de producción — ampliada y verificada en vivo (2026-09-21)
 
@@ -1759,3 +1784,49 @@ visto en una sección es el máximo real del documento completo.
 **Estado al cierre:** cero cambios pendientes de commitear. Local sincronizado con `main`
 tras el merge del PR #41, rama `feature/google-analytics-ga4` borrada (local y remota).
 Próximo paso: implementar ADR-016 (reCAPTCHA v3 + honeypot real).
+
+---
+
+## Sesión 2026-09-21 (3) — Implementación de ADR-016 (reCAPTCHA v3 + honeypot real)
+
+**Nota de proceso:** esta rama (`feature/recaptcha-v3-contacto`) se creó desde `main` justo
+después del merge del PR #41, antes de que el PR de cierre/renumeración de ADRs (#42)
+también se fusionara. Para no arrastrar la numeración vieja (ADR-014/015) ni generar
+conflictos con `TODO.md`/`MEMORY.md` al fusionar ambos PRs, se incorporó localmente el
+commit de `docs/cierre-ga4-y-renumeracion-adr` con `git merge` (rama a rama, sin tocar
+`main`) antes de escribir código. Build/lint verificados en verde después del merge.
+
+**Implementación:** `RecaptchaService` (carga `recaptcha/api.js` solo en `/contacto`),
+honeypot real (`formControlName="website"`, fuera de pantalla, no `display:none`),
+verificación server-side en `contact-handler.mjs` contra `siteverify` con fail-open,
+`RECAPTCHA_SECRET` en el `environment` de la función `contact` (no en `provider`),
+`.github/workflows/deploy.yml` actualizado para pasar el secret solo en `deploy-production`.
+7 tests nuevos con `fetch` mockeado (`contact-recaptcha.test.mjs`) + 1 en archivo aparte
+para el caso "sin secreto" (`contact-recaptcha-skip.test.mjs`, necesario porque el handler
+lee `RECAPTCHA_SECRET` una sola vez al importar el módulo — cada archivo `.test.mjs` corre
+en su propio proceso con `node --test`, así que no compiten por el valor de la variable).
+
+**Detalle técnico no trivial:** `mock.module()` de `node:test` requirió agregar
+`--experimental-test-module-mocks` al script `test:lambda` — sin el flag, `mock.module`
+no existe como función en Node 24.20.0 pese a estar documentado.
+
+**Bug real encontrado y corregido en el camino:** el banner de consentimiento (ADR-015,
+`position: fixed`) tapaba completamente la atribución de reCAPTCHA en `/contacto`, porque
+la página no tenía scroll de sobra para revelarla — se descubrió al hacer la verificación
+visual con `claude-in-chrome`, no por inspección de código. Fix: `.app-content` reserva
+espacio extra vía una clase condicional atada a `analytics.consent()`, solo mientras el
+banner esté visible. Verificado en ambos estados (banner visible y ya aceptado) que el
+texto es legible y que no queda espacio en blanco permanente e innecesario tras aceptar.
+
+**Verificación:** `npm run build`, `npm run lint`, `npm run test:lambda` (23/23) en verde.
+`grep` sobre `dist/` confirma cero handlers inline y la atribución presente en el HTML
+prerenderizado de `/contacto`. Navegación real en `localhost:4200/contacto` con
+`claude-in-chrome`: honeypot presente en el DOM (detectable por accesibilidad, invisible
+para un usuario visual), atribución visible, cero errores de consola en ambos estados del
+banner. **No se probó un envío real del formulario** — en dev, `environment.ts` apunta a
+la API de producción real (`https://api.ocastelblanco.com`), y enviar un mensaje de prueba
+habría generado un correo real y consumido un envío de SES sin necesidad.
+
+**Estado al cierre:** PR abierto, pendiente merge del usuario. Motor JIT sin recalcular
+todavía — la Definition of Done de ADR-016 incluye verificar el envío real en producción
+(correo entregado, score en CloudWatch), igual que se hizo con ADR-015.

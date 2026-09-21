@@ -72,6 +72,13 @@ functions:
     # como segunda capa de rate limiting (A07), acota el costo de un abuso.
     role: ContactLambdaRole
     reservedConcurrency: 5
+    environment:
+      # Aquí y no en provider.environment (ADR-016): ese bloque se comparte
+      # con todas las funciones, incluida `app` (Lambda de SSR), que no tiene
+      # por qué ver este secreto. Fallback vacío obligatorio — nunca un valor
+      # real (mismo patrón que ya cobró dos incidentes con LAB_PUBLISH_TOKEN,
+      # ver CLAUDE.md §6 A02).
+      RECAPTCHA_SECRET: ${env:RECAPTCHA_SECRET, ''}
     events:
       - httpApi:
           path: /contact

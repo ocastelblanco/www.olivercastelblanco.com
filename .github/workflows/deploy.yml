@@ -112,6 +112,9 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
           SERVERLESS_LICENSE_KEY: ${{ secrets.SERVERLESS_LICENSE_KEY }}
           LAB_PUBLISH_TOKEN: ${{ secrets.LAB_PUBLISH_TOKEN }}
+          # ADR-016 — solo en production; deploy-preview no lo recibe a
+          # propósito, así que preview omite la verificación de reCAPTCHA.
+          RECAPTCHA_SECRET: ${{ secrets.RECAPTCHA_SECRET }}
 
       # `serverless deploy` solo actualiza el Lambda de SSR — el bundle del navegador
       # (JS/CSS con hash) se sirve aparte desde S3 detrás de CloudFront (ADR-012). Sin
