@@ -16,7 +16,8 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-08-05 |
+| Última sesión | 2026-09-20 — diagnóstico de analítica y anti-spam, sin código (ver ADR-014, ADR-015) |
+| Analítica web | **Ausente.** Nunca se implementó. Propiedad GA4 `G-Z9PLP5VH5C` creada pero sin datos. Decidido e implementable: ADR-014 |
 
 ## 2. Funcionalidades
 
@@ -63,10 +64,13 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 
 - [x] **Headers de seguridad ausentes en producción (OWASP A05)** — Completado y verificado 2026-08-05: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `X-Frame-Options` presentes en producción; `x-powered-by` confirmado ausente tras el merge del PR #31. Sin gaps OWASP activos en producción
 - [x] Bitácora de proceso `docs/proceso/` — entrada MVP. Completada 2026-08-05 (`2026-08-mvp-en-produccion.md`, cubre PRs #15-29)
-- [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO) ← **Tarea 1**
+- [ ] Evaluar fetch SSR de `lab.json` (hoy solo carga en browser, ver ADR-011 Consecuencias — gap conocido de SEO) ← desplazada del motor JIT el 2026-09-20, sigue vigente
 - [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
-- [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue ← **Tarea 2**
+- [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue ← desplazada del motor JIT el 2026-09-20, sigue vigente
+- [ ] **Analítica web (GA4 + Consent Mode v2 + banner de consentimiento)** — ADR-014, decidido, pendiente de implementar ← **Tarea 1**
+- [ ] **Anti-spam en `POST /contact` (reCAPTCHA v3 + honeypot real)** — ADR-015, decidido, pendiente de implementar ← **Tarea 2**
+- [ ] Ampliar la CSP de CloudFront para GA4 y reCAPTCHA (una sola operación, **antes** del primer merge) — ver ADR-015 §"CSP de producción"
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
 - [ ] Evaluar un `404` limpio para `/content/*` — hoy el `CustomErrorResponses` heredado (403/404 → `/index.html`) hace que un objeto faltante devuelva `200` con HTML
 - [ ] Integración con Cloudinary para gestión de imágenes (`PRD.md` §6, prioridad Media — único item del roadmap sin completar fuera de los de prioridad Baja)
@@ -1497,3 +1501,169 @@ sin errores de consola, entradas de Lab visibles). Local sincronizado con `main`
 
 Nada bloqueante ni a medias — la próxima sesión puede empezar la Tarea 1 sin retomar
 contexto adicional de esta.
+
+---
+
+### ADR-014 — Analítica web: GA4 directo (no Tag Manager) + Consent Mode v2 sin scripts inline
+
+- **Fecha:** 2026-09-20
+- **Estado:** Decidido, pendiente de implementación (planificada 2026-09-21)
+- **Contexto:** el usuario reporta que la propiedad GA4 `G-Z9PLP5VH5C` no recibe datos y
+  recuerda haber acordado "incluir las etiquetas de Tag Manager". Auditoría del repo
+  (`gtag`, `googletagmanager`, `GTM-`, `dataLayer`, `G-Z9PLP5VH5C` sobre `.ts`, `.html`,
+  `.json`, `.yml`, `.md`): **cero coincidencias funcionales** — el único hit es
+  `angular.json:9`, que es el UUID de telemetría del Angular CLI. Confirmado contra
+  producción: `curl -s https://ocastelblanco.com/ | grep -ci gtag` → `0`. **Nunca se
+  implementó analítica.** Tampoco hay acuerdo documentado sobre GTM en `PRD.md`,
+  `MEMORY.md`, `TODO.md` ni `docs/`; lo más cercano es `PRD.md` §6 "Telemetría / dashboard
+  de métricas en vivo" (prioridad Baja), que es una feature de **contenido** del sitio, no
+  analítica web. Se conversó, no se decidió, y por eso nunca entró al motor JIT.
+- **Decisión:**
+  1. **GA4 directo vía `gtag.js`, se descarta Google Tag Manager.** GTM inyecta scripts y
+     Custom HTML tags en runtime, lo que en la práctica empuja a `'unsafe-inline'` en
+     `script-src` — revertiría el trabajo deliberado de `withNoIncrementalHydration()`
+     (ADR-012, revisión del 2026-08-05) que dejó el sitio sin un solo script inline
+     ejecutable. El beneficio de GTM (configurar tags sin desplegar) no compensa degradar
+     la CSP en un sitio de un solo desarrollador con CI/CD de minutos.
+  2. **Consent Mode v2 con banner de consentimiento**, en el mismo PR. Defaults `denied`
+     para los cuatro señalizadores (`ad_storage`, `ad_user_data`, `ad_personalization`,
+     `analytics_storage`) + `wait_for_update: 500`, y `consent update` al aceptar.
+  3. **Cero `<script>` inline, incluso para el bootstrap de Consent Mode.** El patrón
+     habitual de Google es un inline en el `<head>`; aquí el `dataLayer` y los defaults se
+     empujan desde TypeScript compilado (servido bajo `script-src 'self'`) **antes** de
+     anexar la etiqueta externa. `gtag.js` procesa la cola de `dataLayer` en orden al
+     cargar, así que los defaults llegan antes que cualquier hit. Con esto la CSP no
+     necesita `'unsafe-inline'`, ni hash, ni nonce.
+  4. **`send_page_view: false` + `page_view` manual en `NavigationEnd`.** El auto page_view
+     de GA4 es poco confiable en SPAs zoneless; emitirlo desde el Router cubre las 7 rutas
+     de forma determinista.
+  5. **Solo activo en `production`** (`gaMeasurementId` vacío en `environment.ts` y
+     `environment.preview.ts`) para no contaminar la propiedad con tráfico de desarrollo.
+  6. **Link `// cookies` en el topbar** para reabrir el banner — GDPR exige que retirar el
+     consentimiento sea tan fácil como darlo.
+- **Consecuencias:**
+  - Requiere ampliar la CSP de CloudFront (ver ADR-015, se aplica una sola vez para ambos).
+  - El `measurement ID` es público y vive en `environment.prod.ts`; compatible con
+    `CLAUDE.md` §6 A02, que exceptúa explícitamente las claves públicas de cliente.
+  - Cambiar de tag en el futuro exige un deploy. Aceptado.
+  - `wait_for_update: 500` introduce 500 ms de espera antes del primer hit. Es el
+    comportamiento esperado, no un bug.
+
+### ADR-015 — Anti-spam en `POST /contact`: reCAPTCHA v3 + activar el honeypot muerto
+
+- **Fecha:** 2026-09-20
+- **Estado:** Decidido, pendiente de implementación (planificada 2026-09-21)
+- **Contexto:** auditoría del endpoint de contacto a pedido del usuario. Estado real hoy:
+
+  | Defensa | Estado |
+  |---|---|
+  | Rate limiting API Gateway (`rateLimit: 5`, `burstLimit: 10`) | Activo |
+  | `reservedConcurrency: 5` en la función `contact` | Activo |
+  | Allowlist de `Origin` + CORS por stage | Activo |
+  | Validación de campos + saneo de headers de correo | Activo |
+  | Honeypot | **Código muerto** |
+
+  **Hallazgo:** `src/lambda/contact-handler.mjs:60` responde `200` silencioso si
+  `body.website` viene lleno, pero el formulario Angular (`contacto.html`) **no tiene ese
+  campo**. El HTML nunca lo expone, ningún bot lo llena, la verificación nunca se dispara.
+  La protección existe en el comentario del código y no en la práctica.
+
+  **Encuadre honesto:** `CLAUDE.md` §6 A07 exige rate limiting **y/o** honeypot/captcha. El
+  rate limiting está activo, así que **A07 no es un gap OWASP abierto** — esto es
+  endurecimiento, no cierre de brecha, y no se infla a Prioridad 1 en el motor JIT.
+- **Decisión:**
+  1. **Google reCAPTCHA v3** (invisible, basado en score). Se evaluó **Cloudflare
+     Turnstile**, técnicamente mejor encaje por ser cookieless — no quedaría atrapado tras
+     el banner de consentimiento de ADR-014 — pero el usuario eligió reCAPTCHA
+     explícitamente. Se descartó la opción "solo defensas propias" por insuficiente frente
+     a bots dirigidos.
+  2. **Activar el honeypot que ya existe**: campo `website` posicionado fuera de la
+     pantalla (`position: absolute; left: -9999px`, `tabindex="-1"`, `aria-hidden="true"`).
+     **No `display: none`**, que muchos bots detectan.
+  3. **Verificación server-side obligatoria** contra `https://www.google.com/recaptcha/api/siteverify`.
+     URL **hardcodeada**, nunca derivada de input del usuario — cumple §6 A10 (SSRF).
+     Rechazo con `403` si `success !== true`, `action !== 'contact'` o `score < 0.5`.
+  4. **Fail-open si Google no responde.** Un portafolio prefiere un spam ocasional a
+     perder un contacto real por la caída de un tercero. El fallo se registra en logs.
+  5. **Cargar `recaptcha/api.js` solo en `/contacto`**, nunca site-wide, para acotar la
+     superficie de rastreo de Google al único lugar donde cumple una función.
+  6. **reCAPTCHA se clasifica como estrictamente necesario** (medida antifraude, excepción
+     de ePrivacy Art. 5(3)) y por tanto **carga sin depender del consentimiento** — de lo
+     contrario el formulario se rompería para quien rechace cookies. La postura se hace
+     defendible con dos mitigaciones reales: carga acotada a `/contacto` y declaración
+     explícita en el banner y en la atribución del formulario.
+  7. **Badge oculto + atribución visible.** Google permite ocultar el badge con
+     `.grecaptcha-badge { visibility: hidden; }` **solo** si se incluye el texto de
+     atribución con links a Privacy Policy y Terms. Sin la atribución se violan los
+     términos de uso.
+- **Consecuencias:**
+  - **`RECAPTCHA_SECRET` es el riesgo de seguridad más alto de este trabajo.** Va como
+    `${env:RECAPTCHA_SECRET, ''}` en `serverless.yml` — el fallback **debe** quedar vacío.
+    Es exactamente el patrón que ya cobró dos incidentes con `LAB_PUBLISH_TOKEN`
+    (`CLAUDE.md` §6 A02). El pre-commit hook `scripts/check-hardcoded-secrets.mjs` lo
+    bloquea, pero no hay que llegar a depender de él. En producción se inyecta como secret
+    de GitHub Actions.
+  - El `site key` es público y vive en `environment.prod.ts` (§6 A02 lo permite).
+  - Requiere `script-src https://www.google.com https://www.gstatic.com` y
+    `frame-src https://www.google.com` en la CSP: reCAPTCHA v3 monta un iframe invisible
+    aunque nunca muestre desafío.
+  - Un umbral de `0.5` puede rechazar humanos legítimos. Por eso el score se registra en
+    CloudWatch antes de endurecerlo.
+  - `preview` queda sin claves (`RECAPTCHA_SECRET` vacío → verificación omitida), mismo
+    criterio que `lab-handler.mjs` con `CONTENT_BUCKET`.
+
+### CSP de producción — valor objetivo tras ADR-014 y ADR-015
+
+Se aplica **una sola vez** sobre la Response Headers Policy `ocastelblanco-security-headers`
+(`f768cc69-b1ed-4827-917e-c5b3a61d8901`), cubriendo GA4 y reCAPTCHA a la vez, **antes** de
+fusionar el primer PR. Guardar la CSP vigente antes de tocarla, para poder revertir.
+
+```
+default-src 'self';
+script-src  'self' https://www.googletagmanager.com https://www.google.com https://www.gstatic.com;
+style-src   'self' 'unsafe-inline';
+font-src    'self' https://fonts.gstatic.com;
+img-src     'self' data: https://www.googletagmanager.com https://*.google-analytics.com;
+connect-src 'self' https://api.ocastelblanco.com https://*.google-analytics.com
+            https://*.analytics.google.com https://www.googletagmanager.com;
+frame-src   https://www.google.com;
+object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';
+upgrade-insecure-requests
+```
+
+Cuando esté aplicada, actualizar también la transcripción de la CSP en la sección de
+headers de seguridad del 2026-08-05, que quedará desactualizada.
+
+**Recordatorio operativo:** `preview` no puede validar esto. Es una Lambda Function URL
+cruda sin CloudFront delante (ADR-013) y no manda ningún header de CSP — la verificación
+real solo ocurre contra `https://ocastelblanco.com` después del merge.
+
+---
+
+## Sesión 2026-09-20 — Investigación de analítica y anti-spam (sin código)
+
+Sesión de diagnóstico y planificación, **sin cambios de código de aplicación**. El usuario
+reportó que Google Analytics no recibe datos y pidió investigar y proponer una solución
+para su aprobación; luego amplió el alcance a protección anti-spam en el formulario de
+contacto.
+
+**Hallazgos:**
+
+1. **No había analítica alguna en el sitio** — no era una etiqueta mal puesta, era la
+   ausencia total. Ver ADR-014.
+2. **El recuerdo del usuario sobre "acordar Tag Manager" no está respaldado** por ningún
+   documento del repo. Se le informó directamente en vez de asumir que el acuerdo existió.
+3. **La CSP de producción habría matado cualquier etiqueta pegada sin más** —
+   `script-src 'self'` y `connect-src` acotado. Este era el bloqueador real y no era
+   evidente desde la consola de Google Analytics.
+4. **El honeypot de `/contact` es código muerto** desde que se escribió: el servidor lo
+   verifica, el formulario nunca lo expone. Ver ADR-015.
+
+**Decisiones del usuario en esta sesión:** GA4 directo sobre GTM; autorización para
+modificar la Response Headers Policy de CloudFront; banner de consentimiento con Consent
+Mode v2 dentro del mismo PR; link discreto en el topbar para retirar el consentimiento;
+banner como barra inferior full-width; reCAPTCHA v3 sobre Cloudflare Turnstile.
+
+**Estado al cierre:** plan detallado listo, motor JIT recalculado con las dos tareas
+nuevas, ADR-014 y ADR-015 escritos. Implementación planificada para el **2026-09-21**.
+Nada a medias: no se tocó código de aplicación ni infraestructura.
