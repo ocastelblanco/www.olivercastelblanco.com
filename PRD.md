@@ -99,11 +99,13 @@ El sitio anterior ya no refleja este posicionamiento. Se necesita un sitio nuevo
 | Terminal de contacto funcional | Alta |
 | SSR + despliegue serverless en AWS Lambda | Alta |
 | SEO técnico (JSON-LD, sitemap, meta tags dinámicos) | Alta |
+| Analítica web (GA4 + Consent Mode v2 + banner de consentimiento) | Alta |
 | Sección "The Lab" con primeras entradas de bitácora | Media |
 | Pipeline de CI/CD con GitHub Actions | Media |
 | Internacionalización (versión en inglés) | Media |
 | Integración con Cloudinary para gestión de imágenes | Media |
 | Casos de estudio adicionales (ConectaTech, Le Tiende - Comandante) | Media |
+| Anti-spam en el formulario de contacto (reCAPTCHA v3 + honeypot) | Media |
 | Telemetría / dashboard de métricas en vivo (AI Orchestration Pipeline) | Baja |
 | Integraciones adicionales con Firebase (auth/functions) | Baja |
 
