@@ -786,7 +786,12 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   de la respuesta ni afecta el envío principal al dueño (que ya tuvo éxito cuando se llama).
   No requirió cambios de IAM: la policy `SendContactEmail` ya restringe el `FromEmailAddress`
   a la identidad de dominio, no el destinatario. Verificado con `npm run test:lambda`
-  (23/23), `npm run lint`, `npm run build` y `npm run build:preview` en verde.
+  (23/23), `npm run lint`, `npm run build` y `npm run build:preview` en verde. **Verificación
+  en vivo tras el deploy a `preview`:** `curl -X POST https://preview-api.ocastelblanco.com/contact`
+  con el email real del usuario → `200 {"ok":true}`; CloudWatch confirma
+  `{"event":"autoreply_send_ok","email":"ocastelblanco@gmail.com"}`; **el usuario confirmó
+  en su bandeja real** que el correo "Recibí tu mensaje — Oliver Castelblanco" llegó
+  correctamente — evidencia más fuerte que CloudWatch solo, mismo criterio que ADR-015/016.
 
 ## 4. Dependencias instaladas
 
