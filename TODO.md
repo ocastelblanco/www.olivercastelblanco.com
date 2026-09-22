@@ -43,6 +43,33 @@ prioridad que no esté en este documento.
 
 ## Historial de tareas completadas
 
+### 2026-09-22 — [DOCS]: README bilingüe (EN/ES) como portafolio + licencia Apache 2.0
+
+Fuera del motor JIT — pedido directo del usuario, sin relación con gaps OWASP ni con el
+roadmap de `PRD.md` §6 (no es una feature del sitio, es la presentación del repositorio en
+GitHub). PR #55 fusionado.
+
+`README.md` (inglés) y nuevo `README.es.md` (español) reescritos con la skill
+`/slim-readme`, usando como referencia la narrativa y estructura de los README de Babel,
+Ágora, Comandante y letiende.co (proyectos hermanos del usuario en Le Tiende): resumen
+ejecutivo, tabla de portafolio con los productos en producción del usuario (ConectaTech,
+Comandante, Babel, Ágora, letiende.co, este mismo sitio, y `ia-orchestration-skills` —
+agregado en una segunda vuelta tras revisión del usuario), sección "How I Work" con el
+método de orquestación de agentes, y una sección compacta sobre este repositorio (stack,
+inicio rápido, contribución, documentos). Badges cruzados para saltar entre idiomas.
+
+Se agregó `LICENSE` (Apache 2.0, mismo texto que usa `babel-letiende`) — el repo no tenía
+licencia. Ambos README llevan el badge correspondiente y el enlace en la sección de
+licencia.
+
+**Hallazgo de formato:** la tabla del resumen ejecutivo (dos columnas, sin encabezado
+semántico) mostraba una fila `<thead>` vacía en GFM, porque las tablas Markdown de GitHub
+exigen fila de encabezado. Convertida a una tabla HTML sin `<thead>` — GitHub la renderiza
+igual, sin la fila vacía.
+
+Verificado con `npm run build` (tres veces, uno por cada tanda de cambios) en verde. Sin
+cambios de código de aplicación.
+
 ### 2026-09-22 — [DOCS]: Revisar en Search Console el efecto del 301 sobre el indexado
 
 Tarea de revisión sin PR. Propiedad de dominio `sc-domain:ocastelblanco.com` (cubre `www` y
