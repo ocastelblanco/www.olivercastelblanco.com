@@ -26,15 +26,15 @@ This repository is the source of [**ocastelblanco.com**](https://ocastelblanco.c
 
 The common thread is not "AI wrote the code." A **solutions architect running agent orchestration** can compress the full lifecycle (requirements, architecture, specification, implementation, security review, deployment and incident response) into a fraction of conventional delivery time, **without giving up review discipline, security or cost control**.
 
-| | |
-| :-- | :-- |
-| **Role** | Principal Solutions Architect · AI Orchestrator · Bogotá, Colombia |
-| **Method** | AI-Augmented SDLC: agent orchestration as the *primary* production method, not an autocomplete |
-| **Fastest delivery** | **6 calendar days** from first commit to production ([Comandante](#comandante--point-of-sale)) |
-| **Measured split** | **20.8% human · 79.2% agent** across 149 instrumented tasks ([Babel](#babel--inventory--point-of-sale)) |
-| **Orchestration surface** | Up to **~60% directed from a phone**: dispatch, review and merge while away from a desk |
-| **Cost posture** | From **$0 to under $1 USD/month** of variable cost per serverless product |
-| **Human-in-the-loop** | 100% of merges to `main`, across every repository, approved by a human |
+<table>
+<tr><td><b>Role</b></td><td>Principal Solutions Architect · AI Orchestrator · Bogotá, Colombia</td></tr>
+<tr><td><b>Method</b></td><td>AI-Augmented SDLC: agent orchestration as the <i>primary</i> production method, not an autocomplete</td></tr>
+<tr><td><b>Fastest delivery</b></td><td><b>6 calendar days</b> from first commit to production (<a href="#comandante--point-of-sale">Comandante</a>)</td></tr>
+<tr><td><b>Measured split</b></td><td><b>20.8% human · 79.2% agent</b> across 149 instrumented tasks (<a href="#babel--inventory--point-of-sale">Babel</a>)</td></tr>
+<tr><td><b>Orchestration surface</b></td><td>Up to <b>~60% directed from a phone</b>: dispatch, review and merge while away from a desk</td></tr>
+<tr><td><b>Cost posture</b></td><td>From <b>$0 to under $1 USD/month</b> of variable cost per serverless product</td></tr>
+<tr><td><b>Human-in-the-loop</b></td><td>100% of merges to <code>main</code>, across every repository, approved by a human</td></tr>
+</table>
 
 ---
 
@@ -48,6 +48,7 @@ The common thread is not "AI wrote the code." A **solutions architect running ag
 | [**Ágora**](#ágora--box-office-ticketing) | Theater box office with QR tickets and online payments | Angular 22 SSR · Lambda · DynamoDB · SES | Production · since Aug 2026 |
 | [**letiende.co**](#letiendeco--the-facade) | One domain in front of every Le Tiende service | Angular 22 SSR · CloudFront route proxy | Production · since Sep 2026 |
 | [**ocastelblanco.com**](#ocastelblancocom--this-repository) | This site: portfolio + a public log of how it was built | Angular 22 zoneless SSR · Lambda · S3 · CloudFront | Production · since Aug 2026 |
+| [**IA Orchestration Skills**](#ia-orchestration-skills--the-method-packaged) | Open-source Agent Skills that package this method for any project | Agent Skills · Node.js · Claude Code | Open source · MIT |
 
 ### ConectaTech — B2B education platform
 
@@ -110,6 +111,18 @@ A from-scratch 2026 redesign under an "Industrial Minimalism / Technical Dark Mo
 - **Contact form over Amazon SES** with anti-abuse controls and an automatic reply.
 - **Every change ships through an environment**: a PR deploys to `preview`, and a human merge deploys to `production`. A pre-commit hook blocks hardcoded secrets after two real near-misses.
 - **14 ADRs** in [`MEMORY.md`](./MEMORY.md) record every non-trivial decision, including the production cutover of a live CloudFront distribution.
+
+### IA Orchestration Skills — the method, packaged
+
+[![Repo](https://img.shields.io/badge/repo-ia--orchestration--skills-181717?style=flat-square&logo=github)](https://github.com/ocastelblanco/ia-orchestration-skills)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/ocastelblanco/ia-orchestration-skills/blob/main/LICENSE)
+
+Everything in [How I Work](#how-i-work) is packaged as open-source [Agent Skills](https://github.com/ocastelblanco/ia-orchestration-skills): complete workflows that a coding agent runs the same way, project after project, rather than loose prompts. There are two for now, and they interlock.
+
+- **`project-docs-bootstrap`** builds a project's documentation system (`CLAUDE.md` → `PRD.md` → `tech-specs.md` → OWASP + git flow → `MEMORY.md` → `TODO.md`). Its JIT engine keeps exactly 2 atomic tasks in the backlog, derived by comparing the product goal against the actual state. The same structure runs through every repository above.
+- **`ai-effort-tracking`** measures the effort and **real cost** of assisted development: human versus agent time, the **verification tax** (review time, taken from hooks rather than estimated), and tokens and USD per task, across Anthropic, OpenAI, Google, DeepSeek, Qwen and Kimi. It refuses to invent: with no verified rate, the cost stays `null`.
+
+Together they answer what generic LLM observability tools cannot: **what each product goal cost, in money and in human hours.**
 
 ---
 

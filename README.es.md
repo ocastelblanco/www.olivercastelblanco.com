@@ -26,15 +26,15 @@ Este repositorio es el código fuente de [**ocastelblanco.com**](https://ocastel
 
 El hilo común no es que "la IA escribió el código". Un **arquitecto de soluciones que orquesta agentes** puede comprimir el ciclo de vida completo (requisitos, arquitectura, especificación, implementación, revisión de seguridad, despliegue y respuesta a incidentes) en una fracción del tiempo de entrega convencional, **sin renunciar a la disciplina de revisión, a la seguridad ni al control de costos**.
 
-| | |
-| :-- | :-- |
-| **Rol** | Principal Solutions Architect · AI Orchestrator · Bogotá, Colombia |
-| **Método** | SDLC aumentado con IA: la orquestación de agentes como método *principal* de producción, no como autocompletado |
-| **Entrega más rápida** | **6 días calendario** del primer commit a producción ([Comandante](#comandante--punto-de-venta)) |
-| **Reparto medido** | **20,8% humano · 79,2% agente** en 149 tareas instrumentadas ([Babel](#babel--inventario-y-punto-de-venta)) |
-| **Superficie de orquestación** | Hasta **~60% dirigido desde un celular**: despachar, revisar y fusionar lejos del escritorio |
-| **Postura de costos** | Entre **$0 y menos de $1 USD/mes** de costo variable por producto serverless |
-| **Humano en el ciclo** | El 100% de las fusiones a `main`, en todos los repositorios, aprobadas por un humano |
+<table>
+<tr><td><b>Rol</b></td><td>Principal Solutions Architect · AI Orchestrator · Bogotá, Colombia</td></tr>
+<tr><td><b>Método</b></td><td>SDLC aumentado con IA: la orquestación de agentes como método <i>principal</i> de producción, no como autocompletado</td></tr>
+<tr><td><b>Entrega más rápida</b></td><td><b>6 días calendario</b> del primer commit a producción (<a href="#comandante--punto-de-venta">Comandante</a>)</td></tr>
+<tr><td><b>Reparto medido</b></td><td><b>20,8% humano · 79,2% agente</b> en 149 tareas instrumentadas (<a href="#babel--inventario-y-punto-de-venta">Babel</a>)</td></tr>
+<tr><td><b>Superficie de orquestación</b></td><td>Hasta <b>~60% dirigido desde un celular</b>: despachar, revisar y fusionar lejos del escritorio</td></tr>
+<tr><td><b>Postura de costos</b></td><td>Entre <b>$0 y menos de $1 USD/mes</b> de costo variable por producto serverless</td></tr>
+<tr><td><b>Humano en el ciclo</b></td><td>El 100% de las fusiones a <code>main</code>, en todos los repositorios, aprobadas por un humano</td></tr>
+</table>
 
 ---
 
@@ -48,6 +48,7 @@ El hilo común no es que "la IA escribió el código". Un **arquitecto de soluci
 | [**Ágora**](#ágora--taquilla-y-boletería) | Taquilla de teatro con boletas QR y pagos en línea | Angular 22 SSR · Lambda · DynamoDB · SES | Producción · desde ago. 2026 |
 | [**letiende.co**](#letiendeco--la-fachada) | Un solo dominio frente a todos los servicios de Le Tiende | Angular 22 SSR · proxy de rutas en CloudFront | Producción · desde sep. 2026 |
 | [**ocastelblanco.com**](#ocastelblancocom--este-repositorio) | Este sitio: portafolio + bitácora pública de cómo se construyó | Angular 22 zoneless SSR · Lambda · S3 · CloudFront | Producción · desde ago. 2026 |
+| [**IA Orchestration Skills**](#ia-orchestration-skills--el-método-empaquetado) | Agent Skills de código abierto que empaquetan este método para cualquier proyecto | Agent Skills · Node.js · Claude Code | Código abierto · MIT |
 
 ### ConectaTech — plataforma educativa B2B
 
@@ -110,6 +111,18 @@ Un rediseño 2026 hecho desde cero bajo el design system "Industrial Minimalism 
 - **Formulario de contacto sobre Amazon SES**, con controles anti-abuso y respuesta automática.
 - **Todo cambio pasa por un ambiente**: un PR despliega a `preview` y una fusión humana despliega a `production`. Un hook de pre-commit bloquea secretos hardcodeados, tras dos casi-incidentes reales.
 - **14 ADR** en [`MEMORY.md`](./MEMORY.md) registran cada decisión no trivial, incluido el paso a producción sobre una distribución de CloudFront en vivo.
+
+### IA Orchestration Skills — el método, empaquetado
+
+[![Repo](https://img.shields.io/badge/repo-ia--orchestration--skills-181717?style=flat-square&logo=github)](https://github.com/ocastelblanco/ia-orchestration-skills)
+[![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-blue?style=flat-square)](https://github.com/ocastelblanco/ia-orchestration-skills/blob/main/LICENSE)
+
+Todo lo de [Cómo trabajo](#cómo-trabajo) está empaquetado como [Agent Skills](https://github.com/ocastelblanco/ia-orchestration-skills) de código abierto: flujos completos que un agente de código ejecuta igual, proyecto tras proyecto, en lugar de prompts sueltos. Por ahora son dos, y encajan entre sí.
+
+- **`project-docs-bootstrap`** construye el sistema de documentación de un proyecto (`CLAUDE.md` → `PRD.md` → `tech-specs.md` → OWASP + git flow → `MEMORY.md` → `TODO.md`). Su motor JIT mantiene exactamente 2 tareas atómicas en el backlog, derivadas de comparar el objetivo del producto con el estado real. Es la misma estructura que recorre todos los repositorios de esta página.
+- **`ai-effort-tracking`** mide el esfuerzo y el **costo real** del desarrollo asistido: tiempo humano frente a tiempo de agente, el **impuesto de verificación** (el tiempo de revisión, tomado de hooks en vez de estimado), y tokens y USD por tarea, con Anthropic, OpenAI, Google, DeepSeek, Qwen y Kimi. Se niega a inventar: sin una tarifa verificada, el costo queda en `null`.
+
+Juntas responden algo que las herramientas genéricas de observabilidad de LLM no pueden: **cuánto costó cada objetivo del producto, en dinero y en horas humanas.**
 
 ---
 
