@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-22 — Fix `www.ocastelblanco.com` sin 301 ni canonical (ADR-012, revisión) fusionado y desplegado; fix del glob de `angular.json` (fixture de dev en el build de producción, ver §7 Gotchas) en PR |
+| Última sesión | 2026-09-22 — PR #48 (301+canonical) y PR #49 (glob `angular.json`) fusionados y desplegados; quedan completas todas las features Alta y Media del roadmap salvo Cloudinary (diferida, requiere decisión de producto); motor JIT recalculado: `og:url` estático + `404` limpio en `/content/*` |
 | Analítica web | **Implementada y en producción** desde el 2026-09-21 (GA4, propiedad `G-Z9PLP5VH5C`). Ver ADR-015 |
 
 ## 2. Funcionalidades
@@ -70,12 +70,13 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 - [x] **Headers de seguridad ausentes en producción (OWASP A05)** — Completado y verificado 2026-08-05: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `X-Frame-Options` presentes en producción; `x-powered-by` confirmado ausente tras el merge del PR #31. Sin gaps OWASP activos en producción
 - [x] Bitácora de proceso `docs/proceso/` — entrada MVP. Completada 2026-08-05 (`2026-08-mvp-en-produccion.md`, cubre PRs #15-29)
 - [x] Limpiar el glob de assets de `angular.json` — copiaba `public/content/lab.dev.json` (fixture de dev) también al build de producción; se esquivaba excluyéndolo de la subida a S3, pero la causa de fondo seguía. Cerrado 2026-09-22, ver §7 Gotchas — el fixture se mantiene intacto en `preview`/`development` (corrección de alcance: `preview` lo necesita en runtime, ADR-013) ← era **Tarea 2**
-- [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
+- [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access), no atómico
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
 - [x] **`www.ocastelblanco.com` sirve el sitio completo con `200`** (sin 301 al dominio canónico) y el HTML **no tenía `<link rel="canonical">`**, solo `og:url` — contenido duplicado para buscadores. Detectado 2026-09-21, cerrado 2026-09-22 (ver ADR-012, revisión 2026-09-22) ← era **Tarea 1**
-- [ ] Evaluar un `404` limpio para `/content/*` — hoy el `CustomErrorResponses` heredado (403/404 → `/index.html`) hace que un objeto faltante devuelva `200` con HTML
-- [ ] Integración con Cloudinary para gestión de imágenes (`PRD.md` §6, prioridad Media — único item del roadmap sin completar fuera de los de prioridad Baja)
+- [ ] `og:url` estático — `SeoService.update()` actualiza `og:title`/`og:description` por ruta pero nunca `og:url`, que queda fijo en la home para las 7 rutas; rompe las previews de redes sociales al compartir cualquier página que no sea la home. Detectado 2026-09-22 (al revisar `SeoService` para la Tarea 1) ← **Tarea 1** (nueva)
+- [ ] Evaluar un `404` limpio para `/content/*` — hoy el `CustomErrorResponses` heredado (403/404 → `/index.html`, confirmado a nivel de **distribución completa**, no por behavior) hace que un objeto faltante devuelva `200` con el HTML del sitio anterior ← **Tarea 2** (reingresa al motor JIT)
+- [ ] Integración con Cloudinary para gestión de imágenes (`PRD.md` §6, prioridad Media — único item de roadmap sin completar fuera de los de prioridad Baja). **Diferida 2026-09-22:** el sitio hoy no tiene ninguna imagen de contenido (ni campo en el schema de casos, ni componente, ni cuenta Cloudinary configurada) — no es tarea atómica sin antes decidir con el usuario qué imágenes agregar y de dónde salen. Requiere una interview/planning corta antes de poder entrar al motor JIT
 
 ## 3. Registro de Decisiones de Arquitectura (ADRs)
 

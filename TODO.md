@@ -21,92 +21,125 @@
 
 ---
 
-## Tarea 1 — [FIX]: Contenido duplicado — `www.ocastelblanco.com` sin 301 ni canonical
+## Tarea 1 — [FIX]: `og:url` estático — no se actualiza por ruta
 
-**Origen:** hallazgo de la sesión del 2026-09-21 (revisión previa a implementar ADR-016).
-`www.ocastelblanco.com` sirve el sitio completo con `200` a través de la misma
-distribución CloudFront (confirmado con `curl -sI`, misma CSP que el dominio raíz), en
-vez de redirigir al canónico `ocastelblanco.com`. El HTML tampoco tiene
-`<link rel="canonical">`, solo `og:url`. Contenido duplicado real para buscadores, activo
-en producción hoy. Cierra el último pendiente de PRD §6 "SEO técnico" (prioridad Alta) — con esto
-quedarían completas todas las features Alta del roadmap. Promovida a Tarea 1 el
-2026-09-21 al completarse ADR-011 (Fetch SSR de The Lab). Complementa el trabajo ya
-hecho en ADR-012 (CloudFront
-Function de 301 para `olivercastelblanco.com` → dominio canónico).
+**Origen:** hallazgo de la sesión 2026-09-22, detectado al revisar `SeoService` para
+implementar `<link rel="canonical">` (ver ADR-012, revisión 2026-09-22, PR #48).
+`src/index.html` fija `<meta property="og:url" content="https://ocastelblanco.com">` como
+base estática, y `SeoService.update()` actualiza `og:title`/`og:description` por ruta pero
+**nunca `og:url`** — queda fijo en la home para las 7 rutas. Efecto real: compartir un caso
+de estudio o "The Lab" en Facebook/LinkedIn/WhatsApp genera una preview con la URL de la
+home en vez de la página real compartida. Gap directo de PRD §6 "SEO técnico" (meta tags
+dinámicos, prioridad Alta — ya marcada completa; este es un detalle que quedó fuera del
+alcance original de esa tarea).
 
-**Archivos:** CloudFront Function existente (fuera del repo, gestionada manualmente —
-ver ADR-012 Consecuencias), `src/app/core/seo/seo.service.ts`, `src/app/app.ts` (o donde
-se resuelva la ruta activa para construir la URL canónica por página).
+**Archivos:** `src/app/core/seo/seo.service.ts`.
 
 **Qué hacer:**
-1. Revisar el código de la CloudFront Function de 301 ya asociada a la distribución
-   `E1MX0LNEKZOG8H` (redirige `olivercastelblanco.com` y `www.olivercastelblanco.com` al
-   dominio canónico, ADR-012) — confirmar por qué no cubre `www.ocastelblanco.com` y
-   extenderla para incluirlo. **Probar con `aws cloudfront test-function` antes de
-   asociarla** (mismo protocolo que se siguió la primera vez, sin afectar el sitio en
-   vivo mientras se valida).
-2. `SeoService.update()`: agregar `<link rel="canonical">` apuntando siempre a
-   `https://ocastelblanco.com<ruta>` (nunca a `www`), para las 7 rutas.
-3. Verificar que el 301 no rompa `api.ocastelblanco.com` (dominio distinto, no debería
-   verse afectado, pero confirmar) ni el flujo de `/content/*`.
+1. En `SeoService.updateCanonical()` (o un método nuevo reutilizando el mismo `href`
+   calculado), agregar `this.meta.updateTag({ property: 'og:url', content: href })`.
+2. Verificar con `npm run build` + `grep` sobre `dist/ocastelblanco/browser/**/index.html`
+   que las 7 rutas prerenderizadas tienen `og:url` apuntando a su propia URL canónica (no a
+   la home), consistente con el `<link rel="canonical">` de esa misma ruta.
 
 **Definition of done:**
-- [ ] `curl -sI https://www.ocastelblanco.com/` → `301` con `Location: https://ocastelblanco.com/`
-- [ ] Cada una de las 7 rutas prerenderizadas incluye `<link rel="canonical" href="https://ocastelblanco.com...">`  en el HTML servido
-- [ ] `aws cloudfront test-function` verificado antes de asociar la función actualizada
+- [ ] Las 7 rutas prerenderizadas tienen `<meta property="og:url" content="https://ocastelblanco.com<ruta>">` correcto (igual a su `<link rel="canonical">`)
 - [ ] `npm run build` y `npm run lint` en verde
-- [ ] Navegación real con `claude-in-chrome` confirmando que `ocastelblanco.com` (sin `www`) sigue sirviendo `200` sin cambios
-- [ ] Documentado en `MEMORY.md` (ADR-012, revisión) que el gap quedó cerrado
+- [ ] Documentado en `MEMORY.md` que el gap quedó cerrado
 
 ---
 
-## Tarea 2 — [FIX]: Glob de assets de `angular.json` copia el fixture de dev a todos los builds
+## Tarea 2 — [FIX]: `/content/*` sin `404` limpio — `CustomErrorResponses` heredado devuelve `200` con HTML del sitio anterior
 
-**Origen:** gotcha detectado durante la preparación de EL SWITCH (2026-08-04, ver
-`MEMORY.md` ADR-012 §"paso 8") y confirmado vigente en el incidente de CSP del
-2026-08-05. El glob de assets `**/*` sobre `public/` en `angular.json` copia
-`public/content/lab.dev.json` a `dist/ocastelblanco/browser/content/lab.dev.json` en
-**cualquier** configuración (`development`, `preview`, `production` por igual) — hoy se
-esquiva excluyendo `content/*` del `aws s3 sync` a producción, pero el archivo sigue
-presente en el bundle que sirve la Lambda vía `express.static` (`src/server.ts`), y por lo
-tanto potencialmente accesible en producción/preview si CloudFront o la Lambda lo sirven
-directo. Reingresa al motor JIT el 2026-09-21 tras dos desplazamientos por trabajo de
-Prioridad 1 (incidentes de CSP) y por el pedido explícito de analítica/anti-spam del
-usuario — verificado que sigue vigente: `npm run build -- --configuration production`
-en esta misma sesión todavía copia el fixture a `dist/ocastelblanco/browser/content/`.
+**Origen:** gotcha detectado el 2026-08-04 durante la tarea de CloudFront `/content/*`
+(ver `MEMORY.md` ADR-012, entrada "Gotcha descubierto al verificar") y confirmado vigente
+el 2026-09-22: la distribución `E1MX0LNEKZOG8H` tiene `CustomErrorResponses` a **nivel de
+distribución completa** (403/404 → `/index.html`, `200`, heredado del sitio anterior como
+fallback de SPA) — confirmado con `cloudfront get-distribution-config` que sigue aplicando
+a los 7 behaviors, incluido `/content/*`. Un objeto faltante en `/content/*` (ej. un slug de
+Lab borrado, una petición mal formada) devuelve `200` con el `index.html` del **sitio
+anterior** (`ResponsePagePath: /index.html` no matchea `/content/*`, así que CloudFront lo
+resuelve con el behavior por defecto → bucket del sitio viejo) en vez de un `404` limpio —
+confuso para debugging y semánticamente incorrecto para un endpoint de datos JSON.
 
-**Corrección de alcance (2026-09-22, antes de implementar):** el DoD original pedía excluir
-el fixture también de `preview`, pero se verificó que `preview` **depende genuinamente** de
-él en runtime — `src/environments/environment.preview.ts` usa a propósito
-`labContentUrl: 'content/lab.dev.json'` porque ese stage no tiene CloudFront/CDN delante
-todavía (Lambda Function URL cruda, ADR-013) y el navegador lo pide como ruta relativa,
-servida por la misma Lambda vía `express.static`. Excluirlo de `preview` rompería The Lab
-ahí (fetch a 404, contenido vacío silencioso). El usuario confirmó explícitamente: excluir
-el fixture **solo de `production`**, dejarlo intacto en `development` y `preview`.
-
-**Archivos:** `angular.json`.
+**Archivos:** CloudFront Function o comportamiento de la distribución `E1MX0LNEKZOG8H`
+(fuera del repo, gestionado manualmente — ver ADR-012 Consecuencias). Investigar primero:
+`CustomErrorResponses` es a nivel de distribución en la API clásica de CloudFront (no por
+behavior) — evaluar si una CloudFront Function en `viewer-response` asociada solo al
+behavior `/content/*` puede normalizar la respuesta a un `404` real antes de que
+`CustomErrorResponses` la reescriba, o si se necesita otro mecanismo (ej. Lambda@Edge
+`origin-response`, o cambiar `ErrorCachingMinTTL`/alcance). Puede que la solución real sea
+distinta a lo que el gotcha original asumía — dedicar tiempo a confirmar el comportamiento
+exacto de CloudFront antes de implementar, con pruebas en `DEVELOPMENT`/`test-function`
+antes de publicar a `LIVE`, mismo protocolo que ADR-012 paso 5.
 
 **Qué hacer:**
-1. Redefinir el array `assets` dentro de `architect.build.configurations.production` en
-   `angular.json` (los overrides de `configurations` reemplazan el array completo, no hacen
-   merge) agregando `"ignore": ["content/lab.dev.json"]` al glob de `public/`. No tocar
-   `preview` ni `development` — deben seguir heredando el array `assets` del nivel superior
-   sin `ignore`.
-2. Verificar con `find`/`grep` sobre `dist/ocastelblanco/browser/` que el fixture está
-   ausente en el build `production` y presente en `preview` y `development`.
-3. Confirmar que `ContentService` (dev) sigue encontrando el fixture localmente con
-   `npm start` tras el cambio — no romper el flujo actual de desarrollo.
+1. Confirmar en la práctica (no solo por docs) si una función en `viewer-response` puede
+   anular el `404`→`200` de `CustomErrorResponses` para el behavior `/content/*`
+   específicamente, sin afectar el resto del sitio (que sí necesita el fallback SPA).
+2. Implementar y probar con `aws cloudfront test-function` en `DEVELOPMENT` antes de
+   publicar a `LIVE`.
+3. Verificar en producción real: `curl -sI https://ocastelblanco.com/content/objeto-inexistente.json`
+   → `404` limpio; el resto del sitio (rutas SPA) sigue devolviendo `200` vía el fallback.
 
 **Definition of done:**
-- [ ] `content/lab.dev.json` ausente de `dist/ocastelblanco/browser/` en el build `production`
-- [ ] Presente y funcional en los builds/servidor de `development` y `preview`
-- [ ] `npm run build`, `npm run build:preview` y `npm run lint` en verde
-- [ ] Documentado en `MEMORY.md` (ADR-012, gotcha) que el gap quedó cerrado, incluyendo la
-      corrección de alcance (preview se mantiene con el fixture)
+- [ ] `curl -sI https://ocastelblanco.com/content/<objeto-inexistente>` → `404` (no `200` con HTML del sitio anterior)
+- [ ] El fallback SPA del resto del sitio (`/ruta-inexistente`) sigue devolviendo `200` con `index.html` del rediseño, sin regresión
+- [ ] Probado con `aws cloudfront test-function` (si aplica) antes de publicar a `LIVE`
+- [ ] Documentado en `MEMORY.md` (ADR-012, gotcha) que el gap quedó cerrado — o, si se
+      descubre que no es viable sin riesgo, documentar por qué se descarta y quitar del
+      backlog
 
 ---
 
 ## Historial de tareas completadas
+
+### 2026-09-22 — [FIX]: Contenido duplicado — `www.ocastelblanco.com` sin 301 ni canonical
+
+PR #48 fusionado y verificado en producción real. CloudFront Function
+`olivercastelblanco-redirect` corregida: `canonicalMap` no incluía `www.ocastelblanco.com`
+(pasaba sin modificar, sirviendo `200` en host no canónico) y `www.olivercastelblanco.com`
+mapeaba a un hop intermedio (`www.ocastelblanco.com`) en vez del canónico final. Fix:
+los 3 hosts no canónicos resuelven directo a `ocastelblanco.com` en un solo `301`,
+preservando path y querystring. Probada con `aws cloudfront test-function` (5 casos) sobre
+`DEVELOPMENT` antes de publicar — autorizado explícitamente por el usuario en dos pasos
+(subir a `DEVELOPMENT`+probar; publicar a `LIVE`, bloqueado inicialmente por el clasificador
+de permisos de Claude Code por ser un cambio de dominio/DNS). Verificado en vivo con `curl`:
+`www.ocastelblanco.com` y `www.olivercastelblanco.com` → `301` con path preservado;
+`ocastelblanco.com` y `api.ocastelblanco.com` sin cambios. En paralelo, `SeoService.update()`
+(cambio delegado a un agente executor) agrega `<link rel="canonical">` en `<head>` calculado
+desde `Router.url`, mismo patrón `DOCUMENT`+`head` que `addJsonLd` en `app.ts` — verificado
+en las 7 rutas prerenderizadas del build. Navegación real con `claude-in-chrome` en
+`https://ocastelblanco.com/`: cero errores de consola, sitio idéntico. Cierra el último
+pendiente de PRD §6 "SEO técnico" — **quedan completas todas las features Alta del
+roadmap**. Detalle completo en `MEMORY.md` ADR-012 (revisión 2026-09-22).
+
+**Motor JIT recalculado:** el fix del glob de `angular.json` (antes Tarea 2) pasa a
+Tarea 1 — único pendiente activo restante.
+
+### 2026-09-22 — [FIX]: Glob de assets de `angular.json` copia el fixture de dev a todos los builds
+
+PR #49 fusionado y verificado. `angular.json`: los overrides de `configurations` reemplazan
+el array `assets` completo (no hacen merge) — se redefinió dentro de
+`configurations.production` agregando `"ignore": ["content/lab.dev.json"]` al glob de
+`public/` (cambio delegado a un agente executor). **Corrección de alcance decidida con el
+usuario antes de implementar:** el DoD original pedía excluir el fixture también de
+`preview`, pero se verificó que `preview` depende genuinamente de él en runtime
+(`environment.preview.ts`, sin CDN propio delante todavía, ADR-013) — excluirlo ahí habría
+roto The Lab en ese ambiente. Se dejó intacto en `development` y `preview`, excluido solo de
+`production`. Verificado con `find`/`grep` sobre `dist/ocastelblanco/browser/` de los 3
+builds en secuencia (cada uno pisa `dist/` antes del siguiente): ausente en `production`,
+presente en `preview` y `development`. `npm run build`, `npm run build:preview` y
+`npm run lint` en verde. Detalle completo en `MEMORY.md` §7 Gotchas (resuelto).
+
+**Motor JIT recalculado:** con esto, todas las features Alta y Media del roadmap de PRD §6
+quedan completas salvo "Integración con Cloudinary para gestión de imágenes" — evaluada y
+**diferida**: el sitio hoy no tiene ninguna imagen de contenido (ni campo en el schema de
+casos, ni componente, ni cuenta configurada), no es una tarea atómica sin antes decidir con
+el usuario qué imágenes agregar y de dónde. En su lugar, el motor JIT toma 2 items del
+backlog técnico que sí están listos: `og:url` estático (hallazgo nuevo de esta sesión, ver
+Tarea 1 arriba) y `/content/*` sin 404 limpio (gotcha reingresado desde el backlog, ver
+Tarea 2 arriba).
 
 ### 2026-09-21 — [FEATURE]: Fetch SSR de The Lab (gap de SEO conocido, ADR-011)
 
