@@ -75,22 +75,34 @@ Prioridad 1 (incidentes de CSP) y por el pedido explícito de analítica/anti-sp
 usuario — verificado que sigue vigente: `npm run build -- --configuration production`
 en esta misma sesión todavía copia el fixture a `dist/ocastelblanco/browser/content/`.
 
+**Corrección de alcance (2026-09-22, antes de implementar):** el DoD original pedía excluir
+el fixture también de `preview`, pero se verificó que `preview` **depende genuinamente** de
+él en runtime — `src/environments/environment.preview.ts` usa a propósito
+`labContentUrl: 'content/lab.dev.json'` porque ese stage no tiene CloudFront/CDN delante
+todavía (Lambda Function URL cruda, ADR-013) y el navegador lo pide como ruta relativa,
+servida por la misma Lambda vía `express.static`. Excluirlo de `preview` rompería The Lab
+ahí (fetch a 404, contenido vacío silencioso). El usuario confirmó explícitamente: excluir
+el fixture **solo de `production`**, dejarlo intacto en `development` y `preview`.
+
 **Archivos:** `angular.json`.
 
 **Qué hacer:**
-1. Separar el asset `content/lab.dev.json` del resto del glob `**/*` de `public/` en
-   `angular.json`, de forma que solo se incluya en la configuración `development` (o se
-   excluya explícitamente en `production`/`preview`).
-2. Verificar con `find`/`grep` sobre `dist/ocastelblanco/browser/` (build de cada
-   configuración) que el fixture solo aparece en el build de `development`.
+1. Redefinir el array `assets` dentro de `architect.build.configurations.production` en
+   `angular.json` (los overrides de `configurations` reemplazan el array completo, no hacen
+   merge) agregando `"ignore": ["content/lab.dev.json"]` al glob de `public/`. No tocar
+   `preview` ni `development` — deben seguir heredando el array `assets` del nivel superior
+   sin `ignore`.
+2. Verificar con `find`/`grep` sobre `dist/ocastelblanco/browser/` que el fixture está
+   ausente en el build `production` y presente en `preview` y `development`.
 3. Confirmar que `ContentService` (dev) sigue encontrando el fixture localmente con
    `npm start` tras el cambio — no romper el flujo actual de desarrollo.
 
 **Definition of done:**
-- [ ] `content/lab.dev.json` ausente de `dist/ocastelblanco/browser/` en builds `production`/`preview`
-- [ ] Presente y funcional en el build/servidor de `development`
+- [ ] `content/lab.dev.json` ausente de `dist/ocastelblanco/browser/` en el build `production`
+- [ ] Presente y funcional en los builds/servidor de `development` y `preview`
 - [ ] `npm run build`, `npm run build:preview` y `npm run lint` en verde
-- [ ] Documentado en `MEMORY.md` (ADR-012, gotcha) que el gap quedó cerrado
+- [ ] Documentado en `MEMORY.md` (ADR-012, gotcha) que el gap quedó cerrado, incluyendo la
+      corrección de alcance (preview se mantiene con el fixture)
 
 ---
 
