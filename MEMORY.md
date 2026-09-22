@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-22 — PRs #48-#53 fusionados y desplegados. Auto-respuesta de contacto implementada y confirmada en bandeja real. Search Console revisado: sin acciones de código pendientes, solo una revalidación manual ya solicitada. **Backlog técnico casi agotado** — solo quedan "CloudFront a IaC" (vago, no bloqueante) y "Cloudinary" (diferida, necesita decisión de producto) |
+| Última sesión | 2026-09-22 — PRs #48-#53 fusionados y desplegados. Auto-respuesta de contacto implementada y confirmada en bandeja real. Search Console revisado: sin acciones de código pendientes, solo una revalidación manual ya solicitada. PR #55 fusionado: README bilingüe (EN/ES) como portafolio + licencia Apache 2.0 (fuera del motor JIT, ver `TODO.md`). **Backlog técnico casi agotado** — solo quedan "CloudFront a IaC" (vago, no bloqueante) y "Cloudinary" (diferida, necesita decisión de producto) |
 | Analítica web | **Implementada y en producción** desde el 2026-09-21 (GA4, propiedad `G-Z9PLP5VH5C`). Ver ADR-015 |
 
 ## 2. Funcionalidades
@@ -2098,3 +2098,54 @@ replicando exactamente lo que ejecutará CI. `tech-specs.md` actualizado.
 es un fix de infraestructura pedido directamente, fuera de la rotación de las 2 tareas
 activas (`TODO.md` sigue con Tarea 1 = 301/canonical de `www`, Tarea 2 = glob de
 `angular.json`, sin cambios).
+
+---
+
+## Sesión 2026-09-22 (8) — README bilingüe de portafolio (EN/ES) + licencia Apache 2.0
+
+Pedido directo del usuario, fuera del motor JIT: reescribir el `README.md` del repositorio
+como un portafolio de sus capacidades como AI Orchestrator / Principal Solutions Architect
+y de sus productos recientes, en inglés y español, usando la skill `/slim-readme`.
+
+**Fuentes de referencia leídas antes de escribir:** los README de los 4 proyectos hermanos
+del usuario en Le Tiende (`babel-letiende`, `agora-letiende`, `comandante-letiende`,
+`letiende.co`) y el de `conectatech.co` — todos públicos en GitHub. Se extrajeron cifras
+reales de cada uno (días de entrega, split humano/agente, % orquestado desde celular, costo
+mensual) en vez de inventarlas, y se verificó cada dato de visibilidad/estado con `gh repo
+view` y `git log` sobre los repos locales antes de citarlo.
+
+**Resultado:** `README.md` (inglés, versión canónica) y `README.es.md` (español) con la
+misma estructura: resumen ejecutivo, tabla de portafolio (6 productos en producción:
+ConectaTech, Comandante, Babel, Ágora, letiende.co, este sitio), una ficha por producto,
+sección "How I Work" / "Cómo trabajo" con el método de SDLC aumentado con IA común a todos
+los repos, y una sección compacta sobre este repositorio (stack, quick start,
+contribución, documentos). Badges cruzados (`Español` / `English`) para saltar entre
+versiones.
+
+**Segunda vuelta (mismo día, mismo PR):** el usuario pidió dos ajustes:
+1. La tabla del resumen ejecutivo (dos columnas, sin encabezado semántico útil) generaba
+   una fila `<thead>` vacía — GFM exige fila de encabezado en toda tabla Markdown. No se
+   puede "quitar" esa fila en Markdown puro; se resolvió convirtiendo esa tabla puntual a
+   HTML sin `<thead>`, que GitHub renderiza igual sin la fila vacía. Las demás tablas del
+   documento no se tocaron, porque sí tienen encabezados con contenido real.
+2. Agregar `ia-orchestration-skills` (repo público del usuario, MIT,
+   `project-docs-bootstrap` + `ai-effort-tracking`) al portafolio: nueva fila en la tabla
+   (estado "Open source · MIT", no "producción", porque es una herramienta, no un sistema
+   desplegado) y una sección nueva antes de "How I Work" que explica cómo las dos skills se
+   conectan (`project-docs-bootstrap` genera los identificadores `OBJ-n`/`T-nnnn` que
+   `ai-effort-tracking` usa como llave de cruce para calcular costo por objetivo).
+
+**Tercera vuelta (mismo día, mismo PR):** el usuario pidió agregar licencia Apache 2.0.
+Se copió el texto de `LICENSE` de `babel-letiende` (mismo texto legal, sin placeholder de
+copyright por año — igual que los repos hermanos) y se agregó el badge correspondiente más
+la referencia en la sección de licencia de ambos README, reemplazando el texto anterior
+("código público como referencia, sin licencia open source").
+
+**Verificación:** `npm run build` corrido en verde tres veces (una por cada tanda de
+cambios) — el README no afecta la aplicación, pero el flujo de PR del proyecto exige build
+verde antes de cada commit. Sin cambios de código de aplicación en ningún commit.
+
+**Cierre:** PR #55 fusionado por el usuario. Rama `docs/readme-portafolio-bilingue`
+borrada (local y remota, `fetch --prune` confirmó que no quedó rastro). No afecta el motor
+JIT — la situación de "backlog técnico casi agotado" documentada en `TODO.md` sigue
+vigente sin cambios, pendiente de decisión del usuario sobre la siguiente prioridad.
