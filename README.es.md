@@ -6,6 +6,7 @@
 
 [![Live](https://img.shields.io/badge/en_vivo-ocastelblanco.com-C6FF00?style=flat-square&labelColor=111111)](https://ocastelblanco.com)
 [![Productos en producción](https://img.shields.io/badge/productos_en_producción-6-00E5FF?style=flat-square&labelColor=111111)](#portafolio)
+[![Licencia](https://img.shields.io/badge/licencia-Apache%202.0-blue?style=flat-square)](LICENSE)
 [![Angular](https://img.shields.io/badge/Angular-22-DD0031?style=flat-square&logo=angular&logoColor=white)](https://angular.dev)
 [![AWS](https://img.shields.io/badge/AWS-Lambda_·_CloudFront_·_S3_·_SES-232F3E?style=flat-square&logo=amazonaws&logoColor=white)](https://aws.amazon.com)
 [![Serverless](https://img.shields.io/badge/IaC-Serverless_Framework_4-FD5750?style=flat-square&logo=serverless&logoColor=white)](https://serverless.com)
@@ -199,7 +200,7 @@ Los commits siguen Conventional Commits en **español colombiano**. Los identifi
 
 ## Licencia
 
-© Oliver Castelblanco. El código fuente es público como referencia. No se otorga licencia de código abierto sobre el código ni sobre el contenido del sitio.
+[Apache 2.0](./LICENSE) © Oliver Castelblanco.
 
 ## Contacto
 
