@@ -50,6 +50,7 @@
 - [x] Fix contenido duplicado `www.ocastelblanco.com` — cierra el último gap de SEO técnico (ver ADR-012, revisión 2026-09-22). CloudFront Function `olivercastelblanco-redirect` publicada a LIVE y verificada en producción real (`curl -sI` confirma `301` desde los 3 hosts no canónicos con path preservado); `SeoService` agrega `<link rel="canonical">` por ruta, verificado en las 7 rutas prerenderizadas del build. Con esto quedan completas todas las features Alta del roadmap de `PRD.md` §6
 - [x] Fix glob de assets de `angular.json` — el fixture de dev `content/lab.dev.json` ya no viaja al bundle de producción (ver §7 Gotchas). `preview`/`development` se mantienen intactos a propósito — `preview` depende de ese fixture en runtime real hasta que tenga CDN propio. Verificado con `find`/`grep` sobre `dist/ocastelblanco/browser/` de los 3 builds
 - [x] Fix `og:url` estático — `SeoService.update()` ahora actualiza `og:url` por ruta, reusando el mismo `href` que ya calculaba `<link rel="canonical">` (método renombrado a `updateUrls()`). Verificado con `grep` en las 7 rutas prerenderizadas: `og:url` coincide exactamente con `canonical` en cada una
+- [x] Auto-respuesta al visitante en el formulario de contacto — `sendAutoReply()` en `contact-handler.mjs` envía confirmación al visitante tras el envío exitoso al dueño, con su propio `try/catch` que solo loggea si falla (nunca afecta el `200`/`502` de la respuesta principal). Desbloqueada al confirmar que SES ya tenía production access. Verificado con `npm run test:lambda` (23/23), lint y ambos builds en verde
 
 ### Secuencia hacia el switch de producción (2026-08-04)
 
@@ -71,7 +72,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 - [x] **Headers de seguridad ausentes en producción (OWASP A05)** — Completado y verificado 2026-08-05: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `X-Frame-Options` presentes en producción; `x-powered-by` confirmado ausente tras el merge del PR #31. Sin gaps OWASP activos en producción
 - [x] Bitácora de proceso `docs/proceso/` — entrada MVP. Completada 2026-08-05 (`2026-08-mvp-en-produccion.md`, cubre PRs #15-29)
 - [x] Limpiar el glob de assets de `angular.json` — copiaba `public/content/lab.dev.json` (fixture de dev) también al build de producción; se esquivaba excluyéndolo de la subida a S3, pero la causa de fondo seguía. Cerrado 2026-09-22, ver §7 Gotchas — el fixture se mantiene intacto en `preview`/`development` (corrección de alcance: `preview` lo necesita en runtime, ADR-013) ← era **Tarea 2**
-- [ ] Auto-respuesta al visitante en el formulario de contacto. **Corrección 2026-09-22:** ya no está bloqueada — verificado con `sesv2 GetAccount` que `ProductionAccessEnabled: true` (quota real `50000`/24h, `14`/seg), contradice el bloqueo que este documento seguía registrando. No se investigó cuándo se otorgó el acceso ← **Tarea 1** (reingresa al motor JIT)
+- [x] Auto-respuesta al visitante en el formulario de contacto. **Corrección 2026-09-22:** ya no estaba bloqueada — verificado con `sesv2 GetAccount` que `ProductionAccessEnabled: true`. Implementada en `contact-handler.mjs` (ver ADR-014, revisión 2026-09-22) ← era **Tarea 1**
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente ← **Tarea 2** (reingresa al motor JIT, tarea de revisión sin PR)
 - [x] **`www.ocastelblanco.com` sirve el sitio completo con `200`** (sin 301 al dominio canónico) y el HTML **no tenía `<link rel="canonical">`**, solo `og:url` — contenido duplicado para buscadores. Detectado 2026-09-21, cerrado 2026-09-22 (ver ADR-012, revisión 2026-09-22) ← era **Tarea 1**
@@ -774,6 +775,23 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   - Rate limiting obligatorio antes de producción (`CLAUDE.md` §6 A07): se resuelve con
     `defaultRouteSettings` del HTTP API + `reservedConcurrency` en la función, en vez de
     AWS WAF (~USD 6/mes, incompatible con el objetivo de costo ~cero de ADR-003).
+- **Revisión 2026-09-22 (auto-respuesta implementada — production access ya estaba activo):**
+  verificado con `aws sesv2 GetAccount` que `ProductionAccessEnabled` es **`true`** (quota
+  real `Max24HourSend: 50000`, `MaxSendRate: 14`) — el bloqueo de sandbox descrito arriba ya
+  no aplicaba, aunque este documento seguía registrándolo como pendiente. No se investigó
+  cuándo se otorgó el acceso. Implementada la auto-respuesta: `sendAutoReply(name, email)`
+  en `contact-handler.mjs` envía un segundo `SendEmailCommand` (mismo `FromEmailAddress`,
+  destinatario el `email` del visitante ya validado por `EMAIL_RE`) con su propio
+  `try/catch` — un fallo ahí solo se loggea (`autoreply_send_failed`), nunca cambia el `200`
+  de la respuesta ni afecta el envío principal al dueño (que ya tuvo éxito cuando se llama).
+  No requirió cambios de IAM: la policy `SendContactEmail` ya restringe el `FromEmailAddress`
+  a la identidad de dominio, no el destinatario. Verificado con `npm run test:lambda`
+  (23/23), `npm run lint`, `npm run build` y `npm run build:preview` en verde. **Verificación
+  en vivo tras el deploy a `preview`:** `curl -X POST https://preview-api.ocastelblanco.com/contact`
+  con el email real del usuario → `200 {"ok":true}`; CloudWatch confirma
+  `{"event":"autoreply_send_ok","email":"ocastelblanco@gmail.com"}`; **el usuario confirmó
+  en su bandeja real** que el correo "Recibí tu mensaje — Oliver Castelblanco" llegó
+  correctamente — evidencia más fuerte que CloudWatch solo, mismo criterio que ADR-015/016.
 
 ## 4. Dependencias instaladas
 
@@ -836,7 +854,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 | Dominio API Gateway `preview` | `preview-api.ocastelblanco.com` → `d-dl4wxqv362.execute-api.us-east-1.amazonaws.com` | REGIONAL, creado el 2026-08-04 con `npx sls create_domain --stage preview`. `ApiMapping` → HTTP API `preview-ocastelblanco-com` (`ya6s5r8a54`) |
 | SES — identidad de dominio | `ocastelblanco.com` | `VerificationStatus: SUCCESS`, `SendingEnabled: true`, DKIM en Route 53 |
 | SES — identidad de email | `ocastelblanco@gmail.com` | `SUCCESS` — destinatario válido aun en sandbox |
-| SES — estado de la cuenta | `ProductionAccessEnabled: false` | **Sandbox**: restringe destinatarios, no remitentes (ver ADR-014) |
+| SES — estado de la cuenta | `ProductionAccessEnabled: true` (verificado 2026-09-22, quota `Max24HourSend: 50000`) | **Producción** — ya no hay restricción de destinatario. Ver ADR-014, revisión 2026-09-22 |
 | Buckets S3 del sitio anterior | `ocastelblanco.com`, `www.ocastelblanco.com` | **No borrar tras el switch** — son el plan de rollback |
 | Buckets de contenido | `ocastelblanco-cdn-production`, `ocastelblanco-cdn-preview` | Creados el 2026-08-04. Sin puntos en el nombre, a propósito. `PublicAccessBlockConfiguration` completo (100% privados), `DeletionPolicy: Retain` |
 | HTTP API `production` | `production-ocastelblanco-com` (`b2dotiifn7`) | Creado el 2026-08-04 |

@@ -86,6 +86,33 @@ function json(statusCode, body, origin) {
   };
 }
 
+// Auto-respuesta al visitante. Es un "nice to have": si falla, no debe
+// afectar el statusCode de la respuesta HTTP ni el flujo principal — el
+// mensaje del visitante ya llegó a CONTACT_TO cuando esta función se llama.
+async function sendAutoReply(name, email) {
+  try {
+    await ses.send(
+      new SendEmailCommand({
+        FromEmailAddress: CONTACT_FROM,
+        Destination: { ToAddresses: [email] },
+        Content: {
+          Simple: {
+            Subject: { Data: 'Recibí tu mensaje — Oliver Castelblanco' },
+            Body: {
+              Text: {
+                Data: `Hola ${stripLineBreaks(name)},\n\nGracias por escribirme. Recibí tu mensaje y te responderé lo antes posible.\n\nSaludos,\nOliver Castelblanco`,
+              },
+            },
+          },
+        },
+      }),
+    );
+    console.log(JSON.stringify({ event: 'autoreply_send_ok', email }));
+  } catch (err) {
+    console.error(JSON.stringify({ event: 'autoreply_send_failed', error: err.message }));
+  }
+}
+
 export const handler = async (event) => {
   const origin = event.headers?.origin ?? event.headers?.Origin ?? '';
 
@@ -160,6 +187,10 @@ export const handler = async (event) => {
     console.error(JSON.stringify({ event: 'contact_send_failed', error: err.message }));
     return json(502, { error: 'No se pudo enviar el mensaje. Intenta de nuevo.' }, origin);
   }
+
+  // El mensaje al dueño ya se envió con éxito — un fallo acá solo se
+  // registra, nunca cambia el 200 de esta respuesta.
+  await sendAutoReply(name, email);
 
   return json(200, { ok: true }, origin);
 };
