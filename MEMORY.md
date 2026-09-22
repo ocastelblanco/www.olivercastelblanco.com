@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-22 — PR #48 (301+canonical) y PR #49 (glob `angular.json`) fusionados y desplegados; quedan completas todas las features Alta y Media del roadmap salvo Cloudinary (diferida, requiere decisión de producto); motor JIT recalculado: `og:url` estático + `404` limpio en `/content/*` |
+| Última sesión | 2026-09-22 — PR #48, #49 y #50 fusionados y desplegados; fix de `og:url` estático (PR en revisión) — queda pendiente el `404` limpio en `/content/*` |
 | Analítica web | **Implementada y en producción** desde el 2026-09-21 (GA4, propiedad `G-Z9PLP5VH5C`). Ver ADR-015 |
 
 ## 2. Funcionalidades
@@ -49,6 +49,7 @@
 - [x] Fetch SSR de The Lab — cierra el gap de SEO (ver ADR-011). PR #45 fusionado y verificado en producción real: `curl https://ocastelblanco.com/lab` sin ejecutar JS confirma el contenido real en el HTML; navegación real con `claude-in-chrome` confirma cero peticiones duplicadas a `lab.json` tras la hidratación y cero errores de consola
 - [x] Fix contenido duplicado `www.ocastelblanco.com` — cierra el último gap de SEO técnico (ver ADR-012, revisión 2026-09-22). CloudFront Function `olivercastelblanco-redirect` publicada a LIVE y verificada en producción real (`curl -sI` confirma `301` desde los 3 hosts no canónicos con path preservado); `SeoService` agrega `<link rel="canonical">` por ruta, verificado en las 7 rutas prerenderizadas del build. Con esto quedan completas todas las features Alta del roadmap de `PRD.md` §6
 - [x] Fix glob de assets de `angular.json` — el fixture de dev `content/lab.dev.json` ya no viaja al bundle de producción (ver §7 Gotchas). `preview`/`development` se mantienen intactos a propósito — `preview` depende de ese fixture en runtime real hasta que tenga CDN propio. Verificado con `find`/`grep` sobre `dist/ocastelblanco/browser/` de los 3 builds
+- [x] Fix `og:url` estático — `SeoService.update()` ahora actualiza `og:url` por ruta, reusando el mismo `href` que ya calculaba `<link rel="canonical">` (método renombrado a `updateUrls()`). Verificado con `grep` en las 7 rutas prerenderizadas: `og:url` coincide exactamente con `canonical` en cada una
 
 ### Secuencia hacia el switch de producción (2026-08-04)
 
@@ -74,7 +75,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
 - [x] **`www.ocastelblanco.com` sirve el sitio completo con `200`** (sin 301 al dominio canónico) y el HTML **no tenía `<link rel="canonical">`**, solo `og:url` — contenido duplicado para buscadores. Detectado 2026-09-21, cerrado 2026-09-22 (ver ADR-012, revisión 2026-09-22) ← era **Tarea 1**
-- [ ] `og:url` estático — `SeoService.update()` actualiza `og:title`/`og:description` por ruta pero nunca `og:url`, que queda fijo en la home para las 7 rutas; rompe las previews de redes sociales al compartir cualquier página que no sea la home. Detectado 2026-09-22 (al revisar `SeoService` para la Tarea 1) ← **Tarea 1** (nueva)
+- [x] `og:url` estático — `SeoService.update()` actualiza `og:title`/`og:description` por ruta pero nunca `og:url`, que quedaba fijo en la home para las 7 rutas; rompía las previews de redes sociales al compartir cualquier página que no sea la home. Detectado 2026-09-22 (al revisar `SeoService` para la Tarea 1 anterior), cerrado el mismo día ← era **Tarea 1**
 - [ ] Evaluar un `404` limpio para `/content/*` — hoy el `CustomErrorResponses` heredado (403/404 → `/index.html`, confirmado a nivel de **distribución completa**, no por behavior) hace que un objeto faltante devuelva `200` con el HTML del sitio anterior ← **Tarea 2** (reingresa al motor JIT)
 - [ ] Integración con Cloudinary para gestión de imágenes (`PRD.md` §6, prioridad Media — único item de roadmap sin completar fuera de los de prioridad Baja). **Diferida 2026-09-22:** el sitio hoy no tiene ninguna imagen de contenido (ni campo en el schema de casos, ni componente, ni cuenta Cloudinary configurada) — no es tarea atómica sin antes decidir con el usuario qué imágenes agregar y de dónde salen. Requiere una interview/planning corta antes de poder entrar al motor JIT
 
