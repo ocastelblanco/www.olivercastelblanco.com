@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-22 — Fix `www.ocastelblanco.com` sin 301 ni canonical (ADR-012, revisión) publicado a LIVE y verificado en producción real; PR de `SeoService`/canonical en revisión |
+| Última sesión | 2026-09-22 — Fix `www.ocastelblanco.com` sin 301 ni canonical (ADR-012, revisión) fusionado y desplegado; fix del glob de `angular.json` (fixture de dev en el build de producción, ver §7 Gotchas) en PR |
 | Analítica web | **Implementada y en producción** desde el 2026-09-21 (GA4, propiedad `G-Z9PLP5VH5C`). Ver ADR-015 |
 
 ## 2. Funcionalidades
@@ -48,6 +48,7 @@
 - [x] Anti-spam en `POST /contact` — reCAPTCHA v3 + honeypot real (ver ADR-016). PR #43 fusionado y verificado en producción real: CloudWatch registró un envío real del usuario con `recaptchaScore: 0.9`; `curl -X POST .../contact` sin token → `403`; navegación real sin errores de consola
 - [x] Fetch SSR de The Lab — cierra el gap de SEO (ver ADR-011). PR #45 fusionado y verificado en producción real: `curl https://ocastelblanco.com/lab` sin ejecutar JS confirma el contenido real en el HTML; navegación real con `claude-in-chrome` confirma cero peticiones duplicadas a `lab.json` tras la hidratación y cero errores de consola
 - [x] Fix contenido duplicado `www.ocastelblanco.com` — cierra el último gap de SEO técnico (ver ADR-012, revisión 2026-09-22). CloudFront Function `olivercastelblanco-redirect` publicada a LIVE y verificada en producción real (`curl -sI` confirma `301` desde los 3 hosts no canónicos con path preservado); `SeoService` agrega `<link rel="canonical">` por ruta, verificado en las 7 rutas prerenderizadas del build. Con esto quedan completas todas las features Alta del roadmap de `PRD.md` §6
+- [x] Fix glob de assets de `angular.json` — el fixture de dev `content/lab.dev.json` ya no viaja al bundle de producción (ver §7 Gotchas). `preview`/`development` se mantienen intactos a propósito — `preview` depende de ese fixture en runtime real hasta que tenga CDN propio. Verificado con `find`/`grep` sobre `dist/ocastelblanco/browser/` de los 3 builds
 
 ### Secuencia hacia el switch de producción (2026-08-04)
 
@@ -68,7 +69,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 
 - [x] **Headers de seguridad ausentes en producción (OWASP A05)** — Completado y verificado 2026-08-05: `Content-Security-Policy`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `X-Frame-Options` presentes en producción; `x-powered-by` confirmado ausente tras el merge del PR #31. Sin gaps OWASP activos en producción
 - [x] Bitácora de proceso `docs/proceso/` — entrada MVP. Completada 2026-08-05 (`2026-08-mvp-en-produccion.md`, cubre PRs #15-29)
-- [ ] Limpiar el glob de assets de `angular.json` — hoy copia `public/content/lab.dev.json` (fixture de dev) a **todos** los builds, incluido producción; se esquivó excluyéndolo de la subida a S3, pero la causa de fondo sigue. Verificado vigente el 2026-09-21 ← **Tarea 2**
+- [x] Limpiar el glob de assets de `angular.json` — copiaba `public/content/lab.dev.json` (fixture de dev) también al build de producción; se esquivaba excluyéndolo de la subida a S3, pero la causa de fondo seguía. Cerrado 2026-09-22, ver §7 Gotchas — el fixture se mantiene intacto en `preview`/`development` (corrección de alcance: `preview` lo necesita en runtime, ADR-013) ← era **Tarea 2**
 - [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
@@ -963,6 +964,7 @@ Lambda) viven ahora en el job `test` de `deploy.yml`, en Node 24, y gatean los d
 | `ng` global apunta a Angular CLI 20.x aunque exista Angular 22 | Usar `npx -y @angular/cli@22 new ...` explícitamente para forzar la versión 22 del schematic |
 | Node.js activo en la shell del sistema es v16 (incompatible con Angular CLI 22) | Usar `export PATH="/opt/homebrew/Cellar/node@24/24.15.0/bin:$PATH"` antes de `npm run build`. Node 24.15.0 instalado via Homebrew es el que cumple el requisito mínimo (`≥24.15.0`). Node 22.22.2 también instalado pero falla (Angular CLI requiere `≥22.22.3`). |
 | JSON-LD en templates Angular | Angular sanitiza y elimina `<script>` tags en templates de componentes. Usar `inject(DOCUMENT)` en el constructor del componente para añadir scripts programáticamente — el SSR los incluirá en el HTML pre-renderizado. |
+| ✅ *(resuelto 2026-09-22)* El glob de assets `**/*` sobre `public/` en `angular.json` era único a nivel `options`, compartido por las 3 configuraciones — copiaba `public/content/lab.dev.json` (fixture de dev) también al bundle de **producción**, que termina servido por la Lambda vía `express.static` aunque S3 excluya `content/*` del sync | Los overrides dentro de `architect.build.configurations.<nombre>` en `angular.json` **reemplazan por completo** el array `assets`, no hacen merge — hubo que redefinirlo entero dentro de `configurations.production` agregando `"ignore": ["content/lab.dev.json"]` al `assetPattern` (Angular soporta `ignore` nativo, confirmado en el schema de `@angular/build`). **Corrección de alcance importante:** el fixture se dejó intacto en `development` y `preview` a propósito — `preview` lo necesita en runtime real (`environment.preview.ts`, sin CDN propio delante todavía, ADR-013); excluirlo ahí habría roto The Lab en ese ambiente. Verificado con `find`/`grep` sobre `dist/ocastelblanco/browser/` de los 3 builds (`production`: ausente; `preview`/`development`: presente). |
 
 ## 8. Documentos de referencia
 

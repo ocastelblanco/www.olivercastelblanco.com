@@ -56,6 +56,13 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
+              "assets": [
+                {
+                  "glob": "**/*",
+                  "input": "public",
+                  "ignore": ["content/lab.dev.json"]
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
