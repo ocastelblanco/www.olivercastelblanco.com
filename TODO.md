@@ -21,75 +21,52 @@
 
 ---
 
-## Tarea 1 — [FEATURE]: Auto-respuesta al visitante en el formulario de contacto
+## ⚠️ Backlog técnico casi agotado (2026-09-22)
 
-**Origen:** pendiente histórico desde ADR-014 (Terminal de contacto SES, 2026-08-04),
-bloqueado por estar SES en modo sandbox (solo permite enviar a identidades verificadas, no
-a emails arbitrarios de visitantes). **Reingresa al motor JIT el 2026-09-22 porque el
-bloqueo ya no existe**: verificado con `sesv2 GetAccount` que `ProductionAccessEnabled` es
-`true` (quota real `Max24HourSend: 50000`, `MaxSendRate: 14`) — la cuenta ya tiene acceso de
-producción, aunque `MEMORY.md` seguía documentando el bloqueo. No se investigó cuándo ni
-cómo se otorgó; el hallazgo es que ya está disponible hoy.
+Tras cerrar las 2 tareas activas (ver historial abajo), el motor JIT no tiene un siguiente
+par de tareas atómicas evidente:
 
-**Archivos:** `src/lambda/contact-handler.mjs`.
+- **Prioridad 1 (OWASP):** sin gaps activos en producción.
+- **Prioridad 2 (Alta):** todas las features Alta del roadmap (`PRD.md` §6) están completas.
+- **Prioridad 3 (Media):** solo queda "Integración con Cloudinary", diferida — el sitio no
+  tiene ninguna imagen de contenido hoy, requiere una decisión de producto (qué imágenes,
+  de dónde) antes de ser atómica.
+- **Backlog técnico restante:** solo "Evaluar migrar CloudFront a IaC" (`MEMORY.md` §2) —
+  explícitamente no bloqueante y de alcance vago ("evaluar", no un fix concreto).
 
-**Qué hacer:**
-1. Después del `SendEmailCommand` existente (mensaje al dueño del sitio), agregar un
-   segundo `SendEmailCommand` que envíe una confirmación breve al `email` del visitante
-   (ya validado por `EMAIL_RE`), `FromEmailAddress: CONTACT_FROM`
-   (`contacto@ocastelblanco.com`), agradeciendo el contacto y repitiendo su mensaje o
-   simplemente confirmando la recepción.
-2. El envío al dueño es el crítico — si la auto-respuesta al visitante falla, no debe
-   fallar la request completa (ya se le confirmó `200` al visitante en el flujo actual).
-   Usar `Promise.allSettled` o un `try/catch` separado, registrando el fallo
-   (`console.error`) sin bloquear la respuesta HTTP.
-3. Sanear el mismo `stripLineBreaks` ya usado para `name` si se reutiliza en el `Subject`
-   de la auto-respuesta (viaja como header de correo).
-4. No se necesitan cambios de IAM: la policy `SendContactEmail` ya usa
-   `Resource: arn:aws:ses:...:identity/ocastelblanco.com` sin restricción por destinatario
-   (SES en producción permite enviar a cualquier `To`, solo restringe el `From`).
-
-**Definition of done:**
-- [ ] Envío de prueba real vía `preview-api.ocastelblanco.com/contact` con un email de
-      prueba verificable (ej. el del usuario) — confirmar en la bandeja de entrada real que
-      llega la auto-respuesta, no solo en CloudWatch
-- [ ] Un fallo simulado en el envío de auto-respuesta no rompe la respuesta `200` al
-      visitante ni el envío del mensaje principal al dueño
-- [ ] `npm run build`, `npm run build:preview` y `npm run lint` en verde
-- [ ] Documentado en `MEMORY.md` (ADR-014, revisión) que el gap quedó cerrado, incluyendo
-      la corrección de que SES ya tenía production access antes de empezar esta tarea
-
----
-
-## Tarea 2 — [DOCS]: Revisar en Search Console el efecto del 301 sobre el indexado
-
-**Origen:** pendiente desde ADR-012 (2026-08-04), reingresa al motor JIT el 2026-09-22 tras
-cerrarse el trabajo de SEO técnico (PRs #48, #51 — 301 de `www.ocastelblanco.com`, canonical
-y `og:url` dinámicos). Verificación natural de seguimiento: confirmar que Google Search
-Console refleja correctamente el dominio canónico `ocastelblanco.com` como el indexado, y
-que `www.ocastelblanco.com`/`olivercastelblanco.com` no compiten por el mismo contenido.
-
-**Qué hacer (tarea de revisión, no de código — sin PR):**
-1. Con `claude-in-chrome` (requiere que el usuario tenga sesión de Google abierta y
-   Search Console configurado para `ocastelblanco.com`), revisar: cobertura de índice
-   (páginas indexadas vs excluidas), si hay URLs de `www.ocastelblanco.com` o
-   `olivercastelblanco.com` indexadas por error, y el estado de "URL canónica declarada por
-   el usuario" para las 7 rutas.
-2. Si Search Console no está configurado para el dominio, documentarlo como tal (no es un
-   bloqueante para cerrar la tarea — se registra el hallazgo y se cierra).
-3. Cualquier acción correctiva identificada (ej. solicitar reindexado, enviar sitemap
-   actualizado) se registra como un nuevo item de backlog en `MEMORY.md`, no se ejecuta
-   dentro de esta misma tarea salvo que sea trivial (ej. reenviar `sitemap.xml`).
-
-**Definition of done:**
-- [ ] Hallazgos de Search Console documentados en `MEMORY.md` (o documentado que no hay
-      acceso configurado)
-- [ ] Cualquier acción de seguimiento identificada queda registrada como backlog, no
-      implícita
+**Pendiente de decisión del usuario** antes de escribir las próximas 2 tareas: o se hace la
+interview corta para escopar Cloudinary, o se transforma "CloudFront a IaC" en una tarea
+concreta (ej. un primer intento de import a CloudFormation, acotado), o se define otra
+prioridad que no esté en este documento.
 
 ---
 
 ## Historial de tareas completadas
+
+### 2026-09-22 — [DOCS]: Revisar en Search Console el efecto del 301 sobre el indexado
+
+Tarea de revisión sin PR. Propiedad de dominio `sc-domain:ocastelblanco.com` (cubre `www` y
+http/https automáticamente). Hallazgos: 8 de 10 páginas conocidas sin indexar, 3 motivos —
+"Página con redirección" (4: 2 son `www.ocastelblanco.com` recién arreglado por la Tarea 1
+del ciclo anterior, 2 son rutas legacy del sitio anterior `/inicio` y `/portafolio` que ya
+no existen); "Duplicada sin canónica" (1, `https://www.ocastelblanco.com/`, último rastreo
+11/9/26 — **anterior** al fix del 22/9 — se solicitó revalidación manual desde Search
+Console, estado "iniciada"); "Rastreada, sin indexar" (3, decisión propia de Google —
+incluye un PDF de currículum que ya no existe en el código actual, remanente del sitio
+anterior, y otra ruta legacy `/contacteme`). `sitemap.xml` verificado correcto: las 7 rutas
+actuales, sin `www`, sin URLs legacy. Ninguna acción de código requerida.
+
+### 2026-09-22 — [FEATURE]: Auto-respuesta al visitante en el formulario de contacto
+
+PR #53 fusionado y verificado en producción real. Verificado con `sesv2 GetAccount` que SES
+ya tenía `ProductionAccessEnabled: true` — el bloqueo que `MEMORY.md` documentaba (ADR-014)
+ya no aplicaba, aunque nadie lo había actualizado. `sendAutoReply(name, email)` en
+`contact-handler.mjs`: segundo `SendEmailCommand` al visitante con su propio `try/catch` —
+un fallo ahí solo se loggea, nunca afecta el `200`/`502` de la respuesta principal. No
+requirió cambios de IAM. Verificado con `npm run test:lambda` (23/23), lint y ambos builds
+en verde. **Verificación en vivo:** `curl` de prueba contra `preview-api.ocastelblanco.com/contact`
+con el email real del usuario → `200`; CloudWatch confirma `autoreply_send_ok`; **el usuario
+confirmó en su bandeja real** que el correo llegó correctamente.
 
 ### 2026-09-22 — [DESCARTADA]: `/content/*` sin `404` limpio
 
