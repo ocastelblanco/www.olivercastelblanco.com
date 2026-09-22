@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-21 — Fetch SSR de The Lab (ADR-011) fusionado y verificado en producción real; motor JIT recalculado |
+| Última sesión | 2026-09-22 — Fix `www.ocastelblanco.com` sin 301 ni canonical (ADR-012, revisión) publicado a LIVE y verificado en producción real; PR de `SeoService`/canonical en revisión |
 | Analítica web | **Implementada y en producción** desde el 2026-09-21 (GA4, propiedad `G-Z9PLP5VH5C`). Ver ADR-015 |
 
 ## 2. Funcionalidades
@@ -47,6 +47,7 @@
 - [x] Analítica web — GA4 + Consent Mode v2 + banner de consentimiento (ver ADR-015). PR #41 fusionado y verificado en producción real: el usuario confirmó la visita registrada en el panel de Google Analytics; `curl` confirma la CSP nueva en ambos hosts (`ocastelblanco.com` y `www.ocastelblanco.com`); navegación real con `claude-in-chrome` por las 4 rutas sin errores de consola
 - [x] Anti-spam en `POST /contact` — reCAPTCHA v3 + honeypot real (ver ADR-016). PR #43 fusionado y verificado en producción real: CloudWatch registró un envío real del usuario con `recaptchaScore: 0.9`; `curl -X POST .../contact` sin token → `403`; navegación real sin errores de consola
 - [x] Fetch SSR de The Lab — cierra el gap de SEO (ver ADR-011). PR #45 fusionado y verificado en producción real: `curl https://ocastelblanco.com/lab` sin ejecutar JS confirma el contenido real en el HTML; navegación real con `claude-in-chrome` confirma cero peticiones duplicadas a `lab.json` tras la hidratación y cero errores de consola
+- [x] Fix contenido duplicado `www.ocastelblanco.com` — cierra el último gap de SEO técnico (ver ADR-012, revisión 2026-09-22). CloudFront Function `olivercastelblanco-redirect` publicada a LIVE y verificada en producción real (`curl -sI` confirma `301` desde los 3 hosts no canónicos con path preservado); `SeoService` agrega `<link rel="canonical">` por ruta, verificado en las 7 rutas prerenderizadas del build. Con esto quedan completas todas las features Alta del roadmap de `PRD.md` §6
 
 ### Secuencia hacia el switch de producción (2026-08-04)
 
@@ -71,7 +72,7 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
 - [ ] Auto-respuesta al visitante en el formulario de contacto — requiere sacar SES del sandbox (production access)
 - [ ] Evaluar migrar la distribución CloudFront a IaC vía import de CloudFormation (hoy queda gestionada manualmente, ver ADR-012 Consecuencias)
 - [ ] Revisar en Search Console el efecto del 301 de `olivercastelblanco.com` sobre el indexado existente
-- [ ] **`www.ocastelblanco.com` sirve el sitio completo con `200`** (sin 301 al dominio canónico) y el HTML **no tiene `<link rel="canonical">`**, solo `og:url` — contenido duplicado para buscadores. Detectado 2026-09-21 ← **Tarea 1**
+- [x] **`www.ocastelblanco.com` sirve el sitio completo con `200`** (sin 301 al dominio canónico) y el HTML **no tenía `<link rel="canonical">`**, solo `og:url` — contenido duplicado para buscadores. Detectado 2026-09-21, cerrado 2026-09-22 (ver ADR-012, revisión 2026-09-22) ← era **Tarea 1**
 - [ ] Evaluar un `404` limpio para `/content/*` — hoy el `CustomErrorResponses` heredado (403/404 → `/index.html`) hace que un objeto faltante devuelva `200` con HTML
 - [ ] Integración con Cloudinary para gestión de imágenes (`PRD.md` §6, prioridad Media — único item del roadmap sin completar fuera de los de prioridad Baja)
 
@@ -487,6 +488,26 @@ motor JIT; el resto vive aquí hasta que se libere un slot.
   path+querystring, `www.` secundario, host canónico sin cambios) antes de publicarla y
   asociarla. Verificado en vivo: los 4 hostnames responden como se espera, el sitio
   anterior (home + `main.js`) sin cambios.
+- **Revisión 2026-09-22 (gap cerrado — `www.ocastelblanco.com` sin 301 ni canonical):**
+  el `canonicalMap` de `olivercastelblanco-redirect` (implementada el 2026-08-04, punto
+  anterior) nunca incluyó `www.ocastelblanco.com` como clave — pasaba sin modificar,
+  sirviendo el sitio completo con `200` en un host no canónico (contenido duplicado real
+  para buscadores). Además `www.olivercastelblanco.com` mapeaba a `www.ocastelblanco.com`
+  (un hop intermedio, no al canónico final). Fix: `canonicalMap` ahora resuelve los 3
+  hosts no canónicos (`olivercastelblanco.com`, `www.olivercastelblanco.com`,
+  `www.ocastelblanco.com`) directo a `ocastelblanco.com` en un solo `301`, preservando
+  path y querystring. Probada con `aws cloudfront test-function` (5 casos, incluyendo
+  querystring) sobre el stage `DEVELOPMENT` antes de publicar — autorizado explícitamente
+  por el usuario en dos pasos (subir a `DEVELOPMENT` y probar; publicar a `LIVE`).
+  Verificado en producción real tras publicar: `www.ocastelblanco.com` y
+  `www.olivercastelblanco.com` → `301` a `https://ocastelblanco.com` con path preservado;
+  `ocastelblanco.com` sin cambios (`200`); `api.ocastelblanco.com` no afectado. En paralelo,
+  `SeoService.update()` ahora agrega/actualiza un `<link rel="canonical">` en `<head>`
+  (mismo patrón `DOCUMENT` + manipulación directa que `addJsonLd` en `app.ts`), calculado
+  desde `Router.url` — verificado en las 7 rutas prerenderizadas del build de producción,
+  siempre apuntando a `https://ocastelblanco.com<ruta>` sin `www`. Cierra el último
+  pendiente de PRD §6 "SEO técnico" (prioridad Alta) — con esto quedan completas todas las
+  features Alta del roadmap.
 - **Gotcha descubierto al verificar (no es una regresión de esta tarea):** la
   distribución ya tenía `CustomErrorResponses` configurados desde el sitio anterior
   (403/404 → `/index.html` con `200`, `ErrorCachingMinTTL: 300`) — un fallback típico de
