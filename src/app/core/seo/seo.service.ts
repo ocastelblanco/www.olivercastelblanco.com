@@ -16,12 +16,13 @@ export class SeoService {
     this.meta.updateTag({ property: 'og:description', content: description });
     this.meta.updateTag({ name: 'twitter:title', content: title });
     this.meta.updateTag({ name: 'twitter:description', content: description });
-    this.updateCanonical();
+    this.updateUrls();
   }
 
-  private updateCanonical(): void {
+  private updateUrls(): void {
     const path = this.router.url.split('?')[0].split('#')[0];
     const href = `https://ocastelblanco.com${path}`;
+
     let link = this.doc.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!link) {
       link = this.doc.createElement('link');
@@ -29,5 +30,7 @@ export class SeoService {
       this.doc.head.appendChild(link);
     }
     link.setAttribute('href', href);
+
+    this.meta.updateTag({ property: 'og:url', content: href });
   }
 }
