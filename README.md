@@ -1,500 +1,226 @@
-# ocastelblanco.com — Rediseño 2026
-
-Sitio web personal de **Oliver Castelblanco**, Solutions Architect & AI Orchestrator. Es la
-segunda iteración (rediseño 2026) del sitio, construida desde cero en la rama
-`main` con Angular 22 (standalone, Signals, zoneless) y SSR, bajo la identidad
-visual "Industrial Minimalism / Technical Dark Mode" descrita en [`DESIGN.md`](./DESIGN.md).
-
-El proyecto cumple dos objetivos:
-
-1. **Portafolio profesional**: mostrar capacidades de arquitectura, diseño y desarrollo de
-   soluciones integrales apoyadas en orquestación de IA.
-2. **Bitácora técnica (meta-proyecto)**: documentar el propio proceso de construcción del
-   sitio como caso de estudio de desarrollo apoyado en LLM, con SEO orientado tanto a
-   buscadores tradicionales como a modelos de lenguaje.
-
-> Estado actual: **MVP en construcción**. El boilerplate de Angular 22, los design tokens,
-> el shell de navegación (sidebar + topbar con selector de idioma), la identidad visual
-> corporativa y el soporte multilengua (es-CO / en-US) ya están implementados. Las features
-> de negocio (Home, Proyectos, The Lab, Contacto) y la infraestructura serverless
-> (`serverless.yml`) están en curso — ver [`TODO.md`](./TODO.md) y
-> [`MEMORY.md`](./MEMORY.md) para el estado detallado.
-
-## Tabla de contenidos
-
-- [Características clave](#características-clave)
-- [Stack tecnológico](#stack-tecnológico)
-- [Requisitos previos](#requisitos-previos)
-- [Primeros pasos (desarrollo local)](#primeros-pasos-desarrollo-local)
-- [Arquitectura](#arquitectura)
-- [Arquitectura de contenido: publicar sin fricción](#arquitectura-de-contenido-publicar-sin-fricción)
-- [Variables de entorno](#variables-de-entorno)
-- [Scripts disponibles](#scripts-disponibles)
-- [Estilos y design system](#estilos-y-design-system)
-- [Testing](#testing)
-- [Build y despliegue](#build-y-despliegue)
-- [Seguridad](#seguridad)
-- [Flujo de trabajo con Git](#flujo-de-trabajo-con-git)
-- [Solución de problemas](#solución-de-problemas)
-- [Documentación del proyecto](#documentación-del-proyecto)
-
-## Características clave
-
-- **Angular 22** con componentes **standalone**, **Signals** como modelo de reactividad y
-  **sin Zone.js** (`provideZonelessChangeDetection()`).
-- **Server-Side Rendering (SSR)** vía `@angular/ssr` con hidratación del cliente
-  (`provideClientHydration`) — pensado para desplegarse como función AWS Lambda.
-- **Design system propio** ("Technical Industrial Minimalism"): tema oscuro, acentos Cyber
-  Lime / Electric Cyan, tipografía JetBrains Mono + Inter, radios `0px`, grid de 12
-  columnas / baseline de 4px (ver [`DESIGN.md`](./DESIGN.md)).
-- **Shell de navegación** (sidebar + topbar) implementado y operativo: `Sidebar` con iconos
-  SVG, `RouterLinkActive` y el sistema de rutas `/`, `/proyectos`, `/lab`, `/contacto`.
-- **Identidad visual corporativa**: logotipo OC en SVG + kit de assets (PNG, WebP, ICO, SVG
-  mono) generado y versionado en `public/brand/`.
-- **Soporte multilengua es-CO / en-US** con cambio inmediato sin recarga: `TranslationService`
-  basado en Signals (sin `@angular/localize` ni librerías externas), detección del idioma
-  del navegador, persistencia en `localStorage` y selector `LangSwitcher` en el topbar.
-- **CI con GitHub Actions**: pipeline automático de build + tests en cada push / PR.
-- **Arquitectura objetivo serverless multi-proveedor**: AWS Lambda + API Gateway + S3 +
-  CloudFront para hosting/SSR, con espacio para integrar Firebase y Cloudinary como
-  microservicios independientes bajo `api.ocastelblanco.com`.
-- **Path aliases** (`@core/*`, `@shared/*`, `@features/*`, `@env/*`) para una organización
-  de código clara por capas (núcleo, UI compartida, features, entornos).
-- **Arquitectura de contenido con dos velocidades de publicación**: "Casos de Estudio"
-  (baja frecuencia, JSON tipado versionado en git) y "The Lab" (microblog frecuente,
-  publicado desde Google Sheets sin tocar código) — dos problemas distintos, dos
-  soluciones deliberadas, cero costo de infraestructura adicional. Ver
-  [Arquitectura de contenido](#arquitectura-de-contenido-publicar-sin-fricción).
-- **Testing con Vitest** (`@angular/build:unit-test`).
-
-## Stack tecnológico
-
-| Categoría | Tecnología | Versión | Propósito |
-|---|---|---|---|
-| Framework | [Angular](https://angular.dev) | ^22.0.0 | Framework principal, standalone + Signals + zoneless |
-| SSR | [@angular/ssr](https://angular.dev/guide/ssr) | ^22.0.1 | Renderizado del servidor / hidratación |
-| Lenguaje | TypeScript | ~6.0.2 | Lenguaje principal |
-| Servidor SSR | Express | ^5.1.0 | Handler HTTP para la app SSR (`src/server.ts`) |
-| Reactividad async | RxJS | ~7.8.0 | Flujos asíncronos reales (HTTP, eventos DOM) |
-| Testing | [Vitest](https://vitest.dev) + jsdom | ^4.0.8 / ^28.0.0 | Unit tests (`ng test`) |
-| Formato | Prettier | ^3.8.1 | Formato de código |
-| Cómputo serverless (objetivo) | AWS Lambda | — | SSR + microservicios bajo `api.ocastelblanco.com` |
-| Empaquetado serverless (objetivo) | Serverless Framework | v4+ | Despliegue a AWS Lambda |
-| Hosting estático (objetivo) | AWS S3 + CloudFront | — | `cdn.ocastelblanco.com` |
-| API Gateway (objetivo) | AWS API Gateway | — | `api.ocastelblanco.com` |
-| Servicios complementarios (objetivo) | Google Firebase, Cloudinary | — | Auth/Functions, gestión de imágenes |
-| CI/CD | GitHub Actions | — | Build, test, lint en cada push/PR (`.github/workflows/`) |
-
-> Las filas marcadas como "(objetivo)" describen la arquitectura planeada en
-> [`tech-specs.md`](./tech-specs.md) §1–§2, aún no implementada en este repositorio
-> (no existe `serverless.yml` todavía).
-
-## Requisitos previos
-
-- **Node.js 24** (`>=24.15.0`, fijado en `.nvmrc`/`package.json` `engines`) — todo el
-  pipeline (CI, deploy, runtime de Lambda) corre en Node 24; usar otra versión localmente
-  puede producir comportamiento distinto al de CI (ver `MEMORY.md` ADR-017). Con `nvm`:
-  `nvm use`. Verifica con:
-  ```bash
-  node -v
-  ```
-- **npm 11+** (el proyecto fija `packageManager: npm@11.12.1` en `package.json`).
-- **Angular CLI 22** (opcional, instalable globalmente, pero `npx`/`npm run` usan la
-  versión local del proyecto):
-  ```bash
-  npm install -g @angular/cli@22
-  ```
-
-> Nota: si tu `ng` global apunta a una versión distinta de Angular (ej. 20.x), usa siempre
-> los scripts de `npm` (`npm start`, `npm run build`, etc.), que invocan la versión 22
-> instalada en `node_modules` de este proyecto.
-
-## Primeros pasos (desarrollo local)
-
-1. **Clonar el repositorio** (la rama por defecto es `main`, la rama de producción):
-
-   ```bash
-   git clone https://github.com/<org>/www.olivercastelblanco.com.git
-   cd www.olivercastelblanco.com
-   ```
-
-2. **Instalar dependencias**:
-
-   ```bash
-   npm install
-   ```
-
-   Esto instala Angular 22, Express, RxJS, Vitest y el resto de dependencias listadas en
-   `package.json`/`package-lock.json` (siempre usar `npm`, nunca mezclar con `yarn`/`pnpm`).
-
-3. **Levantar el servidor de desarrollo**:
-
-   ```bash
-   npm start
-   ```
-
-   Esto ejecuta `ng serve` con la configuración `development` (sin optimización, con
-   source maps). Abre tu navegador en:
-
-   ```
-   http://localhost:4200/
-   ```
-
-   La aplicación recarga automáticamente al modificar archivos en `src/`.
-
-4. **(Opcional) Probar el build SSR localmente**:
-
-   ```bash
-   npm run build
-   node dist/ocastelblanco/server/server.mjs
-   ```
-
-   Por defecto el servidor Express de SSR escucha en `http://localhost:4000/` (configurable
-   con la variable de entorno `PORT`).
-
-## Arquitectura
-
-### Estructura de directorios
-
-```
-www.olivercastelblanco.com/
-├── docs/
-│   ├── arquitectura/              # Especificación de contenido y narrativa del sitio
-│   └── proceso/                   # Bitácora del proceso de diseño con IA (Stitch, prompts)
-├── public/                        # Assets estáticos servidos tal cual (favicon, etc.)
-├── src/
-│   ├── app/
-│   │   ├── core/                  # Servicios singleton, guards, interceptors, config global (@core/*)
-│   │   │   └── i18n/              # TranslationService (Signals), tipos Locale/Translations, diccionarios
-│   │   ├── shared/                 # UI kit reutilizable: componentes, pipes, directivas (@shared/*)
-│   │   │   └── shell/             # Shell de navegación: Topbar, Sidebar, LangSwitcher
-│   │   ├── features/               # Secciones del sitio: home, proyectos, lab, contacto (@features/*)
-│   │   ├── app.config.ts           # Providers de la app (router, hidratación, zoneless)
-│   │   ├── app.config.server.ts    # Providers adicionales para SSR (provideServerRendering)
-│   │   ├── app.routes.ts           # Rutas del router de Angular
-│   │   ├── app.routes.server.ts    # Modos de renderizado SSR por ruta (RenderMode)
-│   │   ├── app.ts                  # Componente raíz (App)
-│   │   └── app.html / app.scss     # Template y estilos del componente raíz
-│   ├── environments/               # environment.ts (dev) / environment.prod.ts (@env/*)
-│   ├── styles/                     # Design tokens y tipografía (DESIGN.md)
-│   │   ├── _tokens.scss            # Colores, spacing, radios como custom properties CSS
-│   │   └── _typography.scss        # Mixins JetBrains Mono / Inter
-│   ├── styles.scss                 # Hoja de estilos global (importa los parciales anteriores)
-│   ├── index.html                  # Documento HTML raíz
-│   ├── main.ts                     # Bootstrap del cliente (bootstrapApplication)
-│   ├── main.server.ts              # Bootstrap del servidor (SSR)
-│   └── server.ts                   # Entry point Express / handler SSR (Node o Lambda)
-├── dist/                           # Salida del build (ignorado en git)
-├── angular.json                    # Configuración del Angular CLI / builders
-├── tsconfig*.json                  # Configuración de TypeScript (con path aliases)
-├── package.json
-├── CLAUDE.md                       # Instrucciones permanentes para agentes IA / devs
-├── PRD.md                          # Requisitos de producto, audiencia, roadmap
-├── tech-specs.md                   # Arquitectura técnica de referencia (objetivo)
-├── MEMORY.md                       # Estado actual del proyecto y ADRs — leer primero
-├── TODO.md                         # Motor JIT (2 tareas atómicas activas)
-└── DESIGN.md                       # Design system "Technical Industrial Minimalism"
-```
-
-### Path aliases
-
-TypeScript 6 eliminó el soporte de `baseUrl`, por lo que los `paths` en `tsconfig.json`
-usan rutas relativas con prefijo `./`:
-
-```json
-"paths": {
-  "@core/*": ["./src/app/core/*"],
-  "@shared/*": ["./src/app/shared/*"],
-  "@features/*": ["./src/app/features/*"],
-  "@env/*": ["./src/environments/*"]
-}
-```
-
-| Alias | Apunta a | Uso |
-|---|---|---|
-| `@core/*` | `src/app/core/*` | Servicios singleton, guards, interceptors, configuración global |
-| `@shared/*` | `src/app/shared/*` | Componentes/pipes/directivas reutilizables (UI kit) |
-| `@features/*` | `src/app/features/*` | Secciones del sitio (home, proyectos, lab, contacto) |
-| `@env/*` | `src/environments/*` | Variables de entorno (`environment.ts` / `.prod.ts`) |
-
-### Renderizado y SSR
-
-- `src/main.ts` arranca la app en el navegador con `bootstrapApplication(App, appConfig)`.
-- `src/main.server.ts` exporta el bootstrap de servidor usado por Angular SSR.
-- `src/app/app.config.ts` configura los providers comunes: errores globales del navegador,
-  router e hidratación del cliente (`provideClientHydration`).
-- `src/app/app.config.server.ts` extiende la config base con `provideServerRendering` y
-  las rutas server-side definidas en `src/app/app.routes.server.ts`.
-- `src/app/app.routes.server.ts` define el modo de renderizado por ruta. Actualmente
-  **todas las rutas (`**`) se prerenderizan** (`RenderMode.Prerender`) en build time.
-- `src/server.ts` es el entry point Express que sirve los assets de `dist/.../browser` y
-  delega el resto de peticiones al `AngularNodeAppEngine` para SSR. Exporta `reqHandler`
-  (creado con `createNodeRequestHandler`), pensado para usarse como handler de Lambda
-  (Firebase Cloud Functions / AWS Lambda) además de como servidor Node standalone.
-
-> El roadmap (`MEMORY.md` ADR-003) define una arquitectura serverless en AWS (Lambda +
-> API Gateway + S3 + CloudFront vía Serverless Framework), pero **`serverless.yml` aún no
-> existe** en este repositorio — es la pieza pendiente del roadmap técnico.
-
-### Componente raíz y shell de navegación
-
-`src/app/app.ts` renderiza el shell completo vía `app.html`: un layout con `Sidebar`
-(navegación lateral con iconos SVG y `RouterLinkActive`) y `Topbar` (nombre, rol y selector
-de idioma `LangSwitcher`). Las rutas activas son `/`, `/proyectos`, `/lab` y `/contacto`
-(cargadas de forma lazy); el contenido de cada ruta está en curso (ver `TODO.md`).
-
-El shell está completamente internacionalizado: todos los labels del `Sidebar` y el rol del
-`Topbar` se leen desde `TranslationService` (Signal-based), cambiando instantáneamente al
-pulsar el selector de idioma sin recargar la página.
-
-## Arquitectura de contenido: publicar sin fricción
-
-Este sitio no trata todo el contenido igual, y esa es una decisión de diseño deliberada,
-no un accidente. "Casos de Estudio" y "The Lab" son las dos secciones acumulativas del
-sitio (crecen con el tiempo, como un blog), pero tienen perfiles de publicación
-opuestos — y forzarlas por el mismo pipeline habría sido sobre-ingeniería en un lado y
-fricción excesiva en el otro. La arquitectura resultante (documentada en detalle como
-ADR-011 en [`MEMORY.md`](./MEMORY.md)) resuelve ambas con la solución mínima correcta
-para cada una:
-
-| | Casos de Estudio | The Lab |
-|---|---|---|
-| **Cadencia** | ~2 publicaciones al año | Microblog frecuente, estilo X/Twitter |
-| **Estructura** | Rígida y bien definida (desafío / enfoque / impacto / stack) | Libre, dos párrafos máximo |
-| **Dónde vive** | JSON tipado en el repo (`src/assets/content/casos/`) | Google Sheets (cero fricción de escritura) |
-| **Cómo se publica** | Pull Request normal | Menú personalizado en el Sheet → un clic |
-| **Costo de infraestructura** | Cero (ya vive en el build) | Cero (Google Sheets + Apps Script + Lambda ya desplegada) |
-
-**Casos de Estudio** se modela con una interfaz TypeScript estricta (`CasoDeEstudio`,
-bilingüe `es`/`en`) y un `ContentService` basado en Signals que lo expone tipado a toda la
-UI — el contenido entra al build y al HTML pre-renderizado sin ningún fetch en runtime.
-Agregar un caso nuevo es un flujo de PR estándar, documentado paso a paso en
-[`docs/proceso/publicar-casos-de-estudio.md`](./docs/proceso/publicar-casos-de-estudio.md).
-
-**The Lab** resuelve un problema distinto: contenido frecuente que no debería requerir
-tocar código ni esperar un deploy. La hoja de Google Sheets actúa como CMS mínimo; un menú
-personalizado de Apps Script convierte las filas a JSON y las publica contra un endpoint
-propio (`POST /lab` en `api.ocastelblanco.com`), protegido con un token secreto validado
-server-side. El texto soporta un subset intencionalmente pequeño de Markdown (negrita,
-itálica, tachado, enlaces) — suficiente expresividad para un microblog técnico, sin la
-superficie de ataque de un editor enriquecido: el HTML fuente se escapa **antes** de
-aplicar cualquier marcado, así que no hay vector de inyección posible ni siquiera desde el
-propio Sheet. Flujo completo, incluyendo el script de Apps Script listo para copiar, en
-[`docs/proceso/apps-script-lab.md`](./docs/proceso/apps-script-lab.md).
-
-Ambas fuentes conviven detrás de la misma abstracción (`ContentService`), así que el resto
-de la aplicación no necesita saber de dónde viene cada dato — solo que está tipado y
-disponible como Signal.
-
-## Variables de entorno
-
-El proyecto usa los archivos de entorno estándar de Angular en `src/environments/`
-(reemplazados en build time según la configuración):
-
-| Archivo | `production` | `apiUrl` | Uso |
-|---|---|---|---|
-| `src/environments/environment.ts` | `false` | `https://dev.api.ocastelblanco.com` | Desarrollo (`ng serve`, build `development`) |
-| `src/environments/environment.prod.ts` | `true` | `https://api.ocastelblanco.com` | Build de producción |
-
-Estos archivos **no contienen secretos** — son configuración pública del cliente.
-
-### Variables de entorno del servidor SSR
-
-| Variable | Default | Descripción |
-|---|---|---|
-| `PORT` | `4000` | Puerto en el que escucha el servidor Express SSR (`src/server.ts`) cuando se ejecuta como proceso Node standalone |
-
-### Secretos (futuro)
-
-Según `tech-specs.md` §9, las siguientes variables de entorno se gestionarán **solo en
-Lambda / GitHub Actions Secrets**, nunca en el repositorio ni en código de cliente:
-
-| Variable | Propósito |
-|---|---|
-| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | Credenciales de despliegue (GitHub Actions) |
-| `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | Acceso a Cloudinary |
-| `FIREBASE_*` | Configuración de Firebase (claves privadas solo en Lambda) |
-| `CONTACT_NOTIFICATION_TARGET` | Destino de notificaciones del formulario de contacto |
-
-Cualquier archivo en `src/secrets/secrets*.ts` está excluido vía `.gitignore` y **nunca**
-debe commitearse.
-
-## Scripts disponibles
-
-| Comando | Builder / acción | Descripción |
-|---|---|---|
-| `npm start` | `ng serve` (config `development`) | Levanta el servidor de desarrollo en `http://localhost:4200/` con recarga automática |
-| `npm run build` | `ng build` (config `production` por defecto) | Compila cliente + servidor SSR a `dist/ocastelblanco/` |
-| `npm run watch` | `ng build --watch --configuration development` | Build incremental sin optimizar, útil para depurar el bundle |
-| `npm test` | `ng test` (Vitest) | Ejecuta la suite de unit tests |
-| `npm run serve:ssr:ocastelblanco` | `node dist/ocastelblanco/server/server.mjs` | Levanta el servidor Express SSR compilado (requiere `npm run build` previo) |
-| `npx ng generate component <nombre>` | Angular CLI schematics | Genera un componente standalone con estilo `scss` (configuración por defecto del proyecto) |
-
-## Estilos y design system
-
-El sistema visual "Technical Industrial Minimalism" está documentado en su totalidad en
-[`DESIGN.md`](./DESIGN.md) y materializado en código en:
-
-- **`src/styles/_tokens.scss`**: define como *custom properties* CSS bajo `:root` la
-  paleta de colores (Deep Charcoal `#131313`/`#121212`, acentos Cyber Lime
-  `#CCFF00`/`#c3f400` y Electric Cyan `#00F0FF`/`#00eefc`), la escala de spacing
-  (`--spacing-xs` 4px → `--spacing-xxl` 128px) y `--radius: 0px`.
-- **`src/styles/_typography.scss`**: importa JetBrains Mono (técnica) + Inter (cuerpo)
-  desde Google Fonts y define mixins (`h1`, `h2`, `h3`, `body-lg`, `body-md`,
-  `technical-label`, `data-point`).
-- **`src/styles.scss`**: hoja global que importa ambos parciales con `@use`, fija
-  `border-radius: var(--radius)` en `*`, aplica colores de fondo/texto desde los tokens en
-  `body` y agrega una textura de ruido sutil (SVG `feTurbulence`, opacidad 2.5%) vía
-  `body::before`.
-
-Cualquier componente nuevo debe usar estos tokens; no introducir colores, tipografías o
-radios fuera de este sistema sin actualizar primero `DESIGN.md`.
-
-## Testing
-
-El proyecto usa **Vitest** (vía `@angular/build:unit-test`) con **jsdom** como entorno DOM.
-
-```bash
-# Ejecutar toda la suite de unit tests
-npm test
-```
-
-- Los archivos de spec siguen la convención `*.spec.ts` junto al archivo que prueban
-  (ej. `src/app/app.spec.ts`).
-- No hay configuración de **e2e** en este proyecto; Angular CLI no incluye un framework
-  e2e por defecto y aún no se ha elegido uno.
-
-## Build y despliegue
-
-### Build local
-
-```bash
-npm run build
-```
-
-Genera `dist/ocastelblanco/` con dos subcarpetas:
-
-- `dist/ocastelblanco/browser/` — assets estáticos del cliente (HTML, JS, CSS, favicon).
-  Estos son los archivos que, según el roadmap, se sincronizarán a
-  `cdn.ocastelblanco.com` (S3 + CloudFront).
-- `dist/ocastelblanco/server/` — bundle del servidor SSR (`server.mjs`,
-  `main.server.mjs`, manifiestos de Angular App Engine). `server.mjs` puede ejecutarse
-  como proceso Node o adaptarse como handler de función serverless (Lambda /
-  Firebase Functions) gracias a `reqHandler` exportado desde `src/server.ts`.
-
-La configuración `production` (por defecto) aplica `outputHashing: all` y los siguientes
-presupuestos de tamaño (`angular.json`):
-
-| Tipo | Warning | Error |
-|---|---|---|
-| Bundle inicial | 500 kB | 1 MB |
-| Estilos por componente | 4 kB | 8 kB |
-
-### Ejecutar el build SSR
-
-```bash
-npm run serve:ssr:ocastelblanco
-# o equivalente:
-node dist/ocastelblanco/server/server.mjs
-```
-
-El servidor escucha en `http://localhost:4000/` (o el puerto definido por `PORT`).
-
-### Despliegue en producción (estado del roadmap)
-
-> **Importante:** a la fecha de este README, el repositorio **no incluye** `serverless.yml`
-> ni workflows de GitHub Actions. La siguiente descripción corresponde a la arquitectura
-> **objetivo** definida en [`tech-specs.md`](./tech-specs.md) §7, pendiente de implementación
-> (ver `TODO.md` / `MEMORY.md` para el estado real).
-
-Arquitectura de despliegue planeada:
-
-1. `npm ci` — instalación reproducible de dependencias.
-2. `npm run build` — build de cliente + servidor SSR.
-3. `npm run lint` / `npm test` — calidad y pruebas.
-4. `serverless deploy --stage <stage>` — despliega la función Lambda de SSR + API Gateway
-   (Serverless Framework v4+).
-5. Sincronizar `dist/ocastelblanco/browser/` a S3 (`cdn.ocastelblanco.com`).
-6. Invalidar la caché de CloudFront.
-
-| Stage | URL | Variables clave |
-|---|---|---|
-| `dev` | `dev.ocastelblanco.com` (o subdominio temporal) | `STAGE=dev` |
-| `prod` | `ocastelblanco.com` | `STAGE=prod` |
-
-Hasta que `serverless.yml` exista, el build SSR (`dist/ocastelblanco/server/server.mjs`)
-puede ejecutarse en cualquier entorno Node 24 compatible con Express 5.
-
-## Seguridad
-
-Este proyecto sigue lineamientos OWASP Top 10 documentados en detalle en
-[`CLAUDE.md`](./CLAUDE.md) §6. Resumen de reglas críticas:
-
-- Ningún secreto (`AWS_*`, `CLOUDINARY_*`, `FIREBASE_*`, etc.) se hardcodea en el código ni
-  se expone en el bundle del cliente — viven solo en funciones Lambda / GitHub Actions
-  Secrets.
-- Contenido dinámico (Markdown de "The Lab", formulario de contacto) debe sanearse antes de
-  insertarse en el DOM; prohibido `[innerHTML]`/`bypassSecurityTrustHtml` sin sanitización.
-- CORS de `api.ocastelblanco.com` restringido a `https://ocastelblanco.com` (nunca `*`).
-- Buckets S3 sin permisos de escritura/listado públicos.
-- El endpoint `POST /contact` (futuro) debe incluir rate limiting / anti-spam antes de
-  pasar a producción.
-- `npm audit` debe ejecutarse en CI; `package-lock.json` siempre commiteado; un solo gestor
-  de paquetes (npm).
-
-## Flujo de trabajo con Git
-
-La rama `main` está **protegida** — ningún cambio se commitea
-directamente sobre ella. El flujo obligatorio (humanos y agentes IA) es:
-
-1. Crear una feature branch desde `main`:
-   ```bash
-   git checkout main
-   git pull origin main
-   git checkout -b feature/descripcion-corta
-   ```
-   Prefijos válidos: `feature/`, `fix/`, `hotfix/`, `docs/`, `refactor/`.
-
-2. Verificar que el build pasa antes de commitear:
-   ```bash
-   npm run build
-   ```
-
-3. Commits siguiendo [Conventional Commits](https://www.conventionalcommits.org/) en
-   español colombiano (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`).
-
-4. Abrir un Pull Request hacia `main`. Ver [`CLAUDE.md`](./CLAUDE.md) para la
-   plantilla completa de PR.
-
-## Solución de problemas
-
-| Problema | Causa probable | Solución |
-|---|---|---|
-| `ng` apunta a una versión distinta de Angular (ej. 20.x) | Angular CLI global desactualizado | Usa `npm start` / `npm run build` (invocan la versión 22 local), o reinstala la CLI global con `npm install -g @angular/cli@22` |
-| Error `TS5101: Option 'baseUrl' is deprecated` | `tsconfig.json` usa `baseUrl` (no soportado en TS 6) | No definir `baseUrl`; los `paths` deben ser rutas relativas con prefijo `./` (ej. `["./src/app/core/*"]`) |
-| `npm install` falla por dependencias nativas | Versión de Node incompatible | Verificar Node 24 (`>=24.15.0`, `node -v`; `nvm use` respeta `.nvmrc`); reinstalar con `npm ci` para usar exactamente `package-lock.json` |
-| Puerto `4200` o `4000` ocupado | Otro proceso usando el puerto | Detener el proceso o exportar `PORT=<otro-puerto>` antes de `npm run serve:ssr:ocastelblanco` |
-| Cambios de estilos no se reflejan | Caché del Angular CLI | Borrar `.angular/cache` y volver a ejecutar `npm start` |
-| `npm run build` falla por presupuestos de tamaño (`anyComponentStyle` 8 kB) | Estilos de un componente exceden el límite | Reducir el SCSS del componente o mover estilos comunes a `src/styles/` (tokens compartidos) |
-
-## Documentación del proyecto
-
-| Archivo | Propósito |
-|---|---|
-| [`CLAUDE.md`](./CLAUDE.md) | Instrucciones permanentes para agentes IA/devs: stack, convenciones, OWASP, git flow |
-| [`PRD.md`](./PRD.md) | Requisitos de producto, audiencia, roadmap |
-| [`tech-specs.md`](./tech-specs.md) | Arquitectura técnica de referencia (objetivo) |
-| [`MEMORY.md`](./MEMORY.md) | Estado actual del proyecto y ADRs — **leer al inicio de cada sesión** |
-| [`TODO.md`](./TODO.md) | Motor JIT — exactamente 2 tareas atómicas activas |
-| [`DESIGN.md`](./DESIGN.md) | Design system "Technical Industrial Minimalism" |
-| [`docs/objetivos-alcances.md`](./docs/objetivos-alcances.md) | Objetivos y alcances originales del rediseño |
-| [`docs/arquitectura/`](./docs/arquitectura/) | Especificaciones de contenido y narrativa del sitio |
-| [`docs/proceso/`](./docs/proceso/) | Bitácora del proceso de diseño con IA (Google Stitch, prompts, resultados) |
-| [`docs/proceso/publicar-casos-de-estudio.md`](./docs/proceso/publicar-casos-de-estudio.md) | Guía operativa: cómo agregar un nuevo Caso de Estudio (JSON tipado + PR) |
-| [`docs/proceso/apps-script-lab.md`](./docs/proceso/apps-script-lab.md) | Guía operativa: cómo publicar The Lab desde Google Sheets vía Apps Script |
+<div align="center">
+
+# Oliver Castelblanco
+
+**Principal Solutions Architect & AI Orchestrator — I design systems, encode the constraints, and direct AI agents through the whole lifecycle to put them in production.**
+
+[![Live](https://img.shields.io/badge/live-ocastelblanco.com-C6FF00?style=flat-square&labelColor=111111)](https://ocastelblanco.com)
+[![Products in production](https://img.shields.io/badge/products_in_production-6-00E5FF?style=flat-square&labelColor=111111)](#portfolio)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](LICENSE)
+[![Angular](https://img.shields.io/badge/Angular-22-DD0031?style=flat-square&logo=angular&logoColor=white)](https://angular.dev)
+[![AWS](https://img.shields.io/badge/AWS-Lambda_·_CloudFront_·_S3_·_SES-232F3E?style=flat-square&logo=amazonaws&logoColor=white)](https://aws.amazon.com)
+[![Serverless](https://img.shields.io/badge/IaC-Serverless_Framework_4-FD5750?style=flat-square&logo=serverless&logoColor=white)](https://serverless.com)
+[![AI-generated: primarily produced by an AI model](https://img.shields.io/static/v1?label=&message=AI-generated&color=red&style=flat-square)](https://nasa-ammos.github.io/slim/?search=Badges)
+[![SLIM](https://img.shields.io/badge/Best%20Practices%20from-SLIM-blue?style=flat-square)](https://nasa-ammos.github.io/slim/)
+[![Español](https://img.shields.io/badge/leer_en-Español-C6FF00?style=flat-square&labelColor=111111)](./README.es.md)
+
+</div>
 
 ---
 
-Generado con [Angular CLI](https://github.com/angular/angular-cli) 22.0.1. Para más
-información sobre el CLI, visita la
-[referencia de comandos de Angular](https://angular.dev/tools/cli).
+## Executive Summary
+
+> **Six production systems in seven months. Every one specified by a human, built by orchestrated agents, and merged only after human review.**
+
+This repository is the source of [**ocastelblanco.com**](https://ocastelblanco.com), my personal site. It is also the index to my recent work: an education platform, a family of systems for a cultural venue in Bogotá, and this site itself, which I documented while I built it as a case study.
+
+The common thread is not "AI wrote the code." A **solutions architect running agent orchestration** can compress the full lifecycle (requirements, architecture, specification, implementation, security review, deployment and incident response) into a fraction of conventional delivery time, **without giving up review discipline, security or cost control**.
+
+<table>
+<tr><td><b>Role</b></td><td>Principal Solutions Architect · AI Orchestrator · Bogotá, Colombia</td></tr>
+<tr><td><b>Method</b></td><td>AI-Augmented SDLC: agent orchestration as the <i>primary</i> production method, not an autocomplete</td></tr>
+<tr><td><b>Fastest delivery</b></td><td><b>6 calendar days</b> from first commit to production (<a href="#comandante--point-of-sale">Comandante</a>)</td></tr>
+<tr><td><b>Measured split</b></td><td><b>20.8% human · 79.2% agent</b> across 149 instrumented tasks (<a href="#babel--inventory--point-of-sale">Babel</a>)</td></tr>
+<tr><td><b>Orchestration surface</b></td><td>Up to <b>~60% directed from a phone</b>: dispatch, review and merge while away from a desk</td></tr>
+<tr><td><b>Cost posture</b></td><td>From <b>$0 to under $1 USD/month</b> of variable cost per serverless product</td></tr>
+<tr><td><b>Human-in-the-loop</b></td><td>100% of merges to <code>main</code>, across every repository, approved by a human</td></tr>
+</table>
+
+---
+
+## Portfolio
+
+| Product | What it is | Stack | Status |
+| :--- | :--- | :--- | :--- |
+| [**ConectaTech**](#conectatech--b2b-education-platform) | B2B education platform for Colombian schools, built on Moodle | AWS EC2 · RDS · Terraform · Angular · PHP | Production · since Feb 2026 |
+| [**Comandante**](#comandante--point-of-sale) | Real-time point of sale for a café bar | Angular · Ionic · Firebase | Production · $0/month |
+| [**Babel**](#babel--inventory--point-of-sale) | Bookstore inventory, shelving and sales | Angular 22 SSR · Lambda · DynamoDB | Production · 19 days to launch |
+| [**Ágora**](#ágora--box-office-ticketing) | Theater box office with QR tickets and online payments | Angular 22 SSR · Lambda · DynamoDB · SES | Production · since Aug 2026 |
+| [**letiende.co**](#letiendeco--the-facade) | One domain in front of every Le Tiende service | Angular 22 SSR · CloudFront route proxy | Production · since Sep 2026 |
+| [**ocastelblanco.com**](#ocastelblancocom--this-repository) | This site: portfolio + a public log of how it was built | Angular 22 zoneless SSR · Lambda · S3 · CloudFront | Production · since Aug 2026 |
+| [**IA Orchestration Skills**](#ia-orchestration-skills--the-method-packaged) | Open-source Agent Skills that package this method for any project | Agent Skills · Node.js · Claude Code | Open source · MIT |
+
+### ConectaTech — B2B education platform
+
+[![Repo](https://img.shields.io/badge/repo-conectatech.co-181717?style=flat-square&logo=github)](https://github.com/ocastelblanco/conectatech.co)
+[![Live](https://img.shields.io/badge/live-conectatech.co-E8630A?style=flat-square)](https://conectatech.co)
+
+Colombian schools lack the infrastructure to offer structured digital education. ConectaTech sells them **course packages** that they distribute to students through **activation pins**. A school representative manages them from a dedicated portal and never needs technical knowledge.
+
+- **Infrastructure as code** for Moodle 5.2 on AWS (EC2 Graviton, RDS MariaDB, encrypted EBS, CloudFront, CloudWatch alarms, automated snapshots) with Terraform and idempotent provisioning scripts. It is sized to cost between ~$34 and ~$89 USD/month.
+- **Markdown → Moodle content pipeline**: one annotated Markdown file becomes sections, delegated subsections, content blocks, GIFT quizzes and interactive diagnostic activities.
+- **Custom admin panel** (Angular + PHP REST API on Moodle's internal API) for curricular trees, bulk CSV enrollment, organizations, pins and reporting, which Moodle does not do natively.
+
+### Comandante — point of sale
+
+[![Repo](https://img.shields.io/badge/repo-comandante--letiende-181717?style=flat-square&logo=github)](https://github.com/ocastelblanco/comandante-letiende)
+[![Live](https://img.shields.io/badge/live-comandante.letiende.co-E8630A?style=flat-square)](https://comandante.letiende.co)
+
+Replaced paper order slips at Le Tiende's café bar. Waiters take orders on a phone and baristas receive them on a tablet in real time. The system also splits taxable consumption from VAT-exempt tips so they can be keyed straight into a card terminal.
+
+- **6 days** from first commit to production · **$0 USD/month** on Firebase's free tier.
+- **No backend tier at all**: authorization lives in Firestore Security Rules, evaluated server-side. That removed an attack surface, a hosting bill and a deploy pipeline in one decision.
+- **~60% of the system was directed from an Android phone**. Every PR deploys to a preview URL, so verifying a change means opening a link.
+
+### Babel — inventory & point of sale
+
+[![Repo](https://img.shields.io/badge/repo-babel--letiende-181717?style=flat-square&logo=github)](https://github.com/ocastelblanco/babel-letiende)
+[![Live](https://img.shields.io/badge/live-babel.letiende.co-E8630A?style=flat-square)](https://babel.letiende.co)
+
+A bookstore with over 3,000 books and no system. Babel scans the ISBN, enriches its metadata, and records physical location down to the shelf. It also handles in-store sales, a public SSR catalogue and XLSX financial reporting.
+
+- **19 calendar days, 43 h of measured work, 20.8% of it human.** Every task is one row in a committed CSV, and every aggregate in its README can be audited against the git history.
+- **Nearly half of the human effort went into specification.** That is where the architect's leverage is, and it is what makes an agent's output reviewable in minutes.
+- **A public post-mortem of a $94 billing incident**: an unverified "this is free" assumption about DynamoDB. It became a mandatory cost pre-flight for every later project.
+
+### Ágora — box office ticketing
+
+[![Repo](https://img.shields.io/badge/repo-agora--letiende-181717?style=flat-square&logo=github)](https://github.com/ocastelblanco/agora-letiende)
+[![Live](https://img.shields.io/badge/live-agora.letiende.co-E8630A?style=flat-square)](https://agora.letiende.co)
+
+Replaced WhatsApp conversations, hand-checked receipts and paper guest lists at Le Tiende's theater with an end-to-end digital flow: **buy → pay → issue QR ticket → validate at the door**.
+
+- Temporary seat reservations to prevent overselling. Ticketing stages close automatically by date. Door validation gives a clear verdict: valid, already used, nonexistent, or from another event.
+- **Online card/PSE payments via Bold**, confirmed only by a signed and reconciled webhook, never by the customer's browser.
+- **Under $1 USD/month by design.** It was the first project born under the cost rules written after Babel's incident.
+
+### letiende.co — the facade
+
+[![Repo](https://img.shields.io/badge/repo-letiende.co-181717?style=flat-square&logo=github)](https://github.com/ocastelblanco/letiende.co)
+[![Live](https://img.shields.io/badge/live-letiende.co-E8630A?style=flat-square)](https://letiende.co)
+
+Le Tiende's services each lived at a different address. This is **not a fourth system**. It is a container that puts the box office and the bookstore catalogue under one domain and one menu **without reimplementing either**: a CloudFront route proxy serves `/cartelera` and `/libros` straight from the Ágora and Babel stacks. The repository owns only the homepage, the institutional pages, the shared navigation and the SEO/AEO layer.
+
+### ocastelblanco.com — this repository
+
+A from-scratch 2026 redesign under an "Industrial Minimalism / Technical Dark Mode" design system. The build is also documented as it happens, as a case study in LLM-driven development.
+
+- **Angular 22, zoneless**: standalone components and Signals, with no Zone.js. SSR runs on AWS Lambda, and static assets are served from S3 behind CloudFront.
+- **Two publishing speeds, two deliberate solutions.** *Case Studies* are typed JSON versioned in git. *The Lab* is a micro-blog published from Google Sheets without touching code.
+- **Bilingual es-CO / en-US** through a Signals-based translation service with no external i18n library. Technical SEO uses JSON-LD aimed at both search engines and LLMs.
+- **Contact form over Amazon SES** with anti-abuse controls and an automatic reply.
+- **Every change ships through an environment**: a PR deploys to `preview`, and a human merge deploys to `production`. A pre-commit hook blocks hardcoded secrets after two real near-misses.
+- **14 ADRs** in [`MEMORY.md`](./MEMORY.md) record every non-trivial decision, including the production cutover of a live CloudFront distribution.
+
+### IA Orchestration Skills — the method, packaged
+
+[![Repo](https://img.shields.io/badge/repo-ia--orchestration--skills-181717?style=flat-square&logo=github)](https://github.com/ocastelblanco/ia-orchestration-skills)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/ocastelblanco/ia-orchestration-skills/blob/main/LICENSE)
+
+Everything in [How I Work](#how-i-work) is packaged as open-source [Agent Skills](https://github.com/ocastelblanco/ia-orchestration-skills): complete workflows that a coding agent runs the same way, project after project, rather than loose prompts. There are two for now, and they interlock.
+
+- **`project-docs-bootstrap`** builds a project's documentation system (`CLAUDE.md` → `PRD.md` → `tech-specs.md` → OWASP + git flow → `MEMORY.md` → `TODO.md`). Its JIT engine keeps exactly 2 atomic tasks in the backlog, derived by comparing the product goal against the actual state. The same structure runs through every repository above.
+- **`ai-effort-tracking`** measures the effort and **real cost** of assisted development: human versus agent time, the **verification tax** (review time, taken from hooks rather than estimated), and tokens and USD per task, across Anthropic, OpenAI, Google, DeepSeek, Qwen and Kimi. It refuses to invent: with no verified rate, the cost stays `null`.
+
+Together they answer what generic LLM observability tools cannot: **what each product goal cost, in money and in human hours.**
+
+---
+
+## How I Work
+
+The same method runs through every repository above. It is **encoded in each repo**, so every session and every model inherits it; nobody has to remember it.
+
+| Lifecycle phase | How it is executed |
+| :--- | :--- |
+| **Requirements** | Structured interview against the business owner's real constraints, before any architecture |
+| **Architecture** | Designed against hard cost and security limits and recorded as ADRs |
+| **Specification** | `PRD.md` and `tech-specs.md` kept as living documents. This is where the human 20% goes |
+| **Planning** | JIT backlog (`TODO.md`) with a hard WIP limit of **2 atomic tasks**: no stale plans or obsolete estimates |
+| **Implementation** | Delegated to executor agents: one task, one branch, one pull request |
+| **Verification** | Independent reviewer agents. **The agent that writes code never approves it** |
+| **Security** | OWASP Top 10 mapped to each system's *actual* attack surface, written into `CLAUDE.md` as permanent constraints |
+| **Git flow** | Agents are structurally forbidden from pushing to `main`, force-pushing or merging any PR |
+| **Memory** | `MEMORY.md` collects the non-obvious gotchas found along the way. Each one is debugged once and never argued again |
+
+**Why the workstation became optional.** When CI/CD owns building, deploying and publishing a verifiable URL, what is left for the human is **dispatch, judgment and approval**. All three fit on a phone screen. What the human still has to supply is judgment.
+
+**Cost is an architecture decision.** Every project defaults to pay-per-use services with no provisioned capacity, and a budget alarm is set before the first resource exists. That way a cost incident shows up as a service incident, never as a surprise invoice.
+
+---
+
+## This Repository
+
+### Tech Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| Framework | Angular 22: standalone components, Signals, zoneless (`provideZonelessChangeDetection()`) |
+| Rendering | `@angular/ssr` with client hydration, Express 5 handler on AWS Lambda |
+| Language | TypeScript 6, `strict` |
+| Styling | SCSS design tokens from [`DESIGN.md`](./DESIGN.md): JetBrains Mono + Inter, 0px radii, 4px baseline |
+| Hosting | AWS Lambda (SSR) · S3 + CloudFront (static assets) · API Gateway |
+| Email | Amazon SES (contact form + auto-reply) |
+| IaC | Serverless Framework 4 |
+| CI/CD | GitHub Actions: PR → `preview`, merge to `main` → `production` |
+| Testing | Vitest via `@angular/build:unit-test` · `node --test` for Lambda handlers |
+
+### Quick Start
+
+**Requirements:** Node.js ≥ 24.15.0 (see `.nvmrc`) and npm. This repo uses npm only; do not mix package managers.
+
+```bash
+git clone https://github.com/ocastelblanco/www.olivercastelblanco.com.git
+cd www.olivercastelblanco.com
+npm ci
+npm start                          # dev server at localhost:4200
+```
+
+```bash
+npm run build                      # production build (browser + SSR server)
+npm run serve:ssr:ocastelblanco    # serve the SSR build locally on :4000
+npm test                           # unit tests (Vitest)
+npm run test:lambda                # Lambda handler tests
+npm run lint                       # ESLint
+```
+
+No secret is needed to run the site locally. AWS credentials and tokens exist only as GitHub Actions secrets and are never committed.
+
+### Contributing
+
+Every change reaches `main` only through a human-reviewed pull request ([`CLAUDE.md`](./CLAUDE.md)):
+
+1. Branch from `main` using `feature/*`, `fix/*`, `hotfix/*`, `docs/*` or `refactor/*`.
+2. Make the change and confirm that `npm run build` passes.
+3. Stage specific files. Never `git add .`.
+4. Open a pull request against `main`. It deploys to `preview` for review.
+
+Commits follow Conventional Commits in **Colombian Spanish**. Code identifiers are in English, and site copy is in Spanish and English.
+
+### Project Documentation
+
+| Document | Contents |
+| :--- | :--- |
+| [`CLAUDE.md`](./CLAUDE.md) | Permanent agent instructions: stack, conventions, OWASP rules, git flow |
+| [`PRD.md`](./PRD.md) | Product requirements, audience and roadmap |
+| [`tech-specs.md`](./tech-specs.md) | Technical architecture |
+| [`MEMORY.md`](./MEMORY.md) | Current state, ADRs and gotchas. **Read first** |
+| [`TODO.md`](./TODO.md) | JIT engine: exactly two active atomic tasks |
+| [`DESIGN.md`](./DESIGN.md) | "Technical Industrial Minimalism" design system |
+| [`docs/arquitectura/`](./docs/arquitectura/) | Content and narrative specifications for the site |
+| [`docs/proceso/`](./docs/proceso/) | Log of the AI-assisted design process, plus publishing guides |
+
+---
+
+## License
+
+[Apache 2.0](./LICENSE) © Oliver Castelblanco.
+
+## Contact
+
+[ocastelblanco.com/contacto](https://ocastelblanco.com/contacto) · [@ocastelblanco](https://github.com/ocastelblanco)
+
+---
+
+<div align="center">
+<sub>Built in Bogotá, Colombia, by an architect and a team of agents. The architect specified every system here and reviewed every merge.</sub>
+</div>
