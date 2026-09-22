@@ -21,78 +21,112 @@
 
 ---
 
-## Tarea 1 — [FIX]: `og:url` estático — no se actualiza por ruta
+## Tarea 1 — [FEATURE]: Auto-respuesta al visitante en el formulario de contacto
 
-**Origen:** hallazgo de la sesión 2026-09-22, detectado al revisar `SeoService` para
-implementar `<link rel="canonical">` (ver ADR-012, revisión 2026-09-22, PR #48).
-`src/index.html` fija `<meta property="og:url" content="https://ocastelblanco.com">` como
-base estática, y `SeoService.update()` actualiza `og:title`/`og:description` por ruta pero
-**nunca `og:url`** — queda fijo en la home para las 7 rutas. Efecto real: compartir un caso
-de estudio o "The Lab" en Facebook/LinkedIn/WhatsApp genera una preview con la URL de la
-home en vez de la página real compartida. Gap directo de PRD §6 "SEO técnico" (meta tags
-dinámicos, prioridad Alta — ya marcada completa; este es un detalle que quedó fuera del
-alcance original de esa tarea).
+**Origen:** pendiente histórico desde ADR-014 (Terminal de contacto SES, 2026-08-04),
+bloqueado por estar SES en modo sandbox (solo permite enviar a identidades verificadas, no
+a emails arbitrarios de visitantes). **Reingresa al motor JIT el 2026-09-22 porque el
+bloqueo ya no existe**: verificado con `sesv2 GetAccount` que `ProductionAccessEnabled` es
+`true` (quota real `Max24HourSend: 50000`, `MaxSendRate: 14`) — la cuenta ya tiene acceso de
+producción, aunque `MEMORY.md` seguía documentando el bloqueo. No se investigó cuándo ni
+cómo se otorgó; el hallazgo es que ya está disponible hoy.
 
-**Archivos:** `src/app/core/seo/seo.service.ts`.
+**Archivos:** `src/lambda/contact-handler.mjs`.
 
 **Qué hacer:**
-1. En `SeoService.updateCanonical()` (o un método nuevo reutilizando el mismo `href`
-   calculado), agregar `this.meta.updateTag({ property: 'og:url', content: href })`.
-2. Verificar con `npm run build` + `grep` sobre `dist/ocastelblanco/browser/**/index.html`
-   que las 7 rutas prerenderizadas tienen `og:url` apuntando a su propia URL canónica (no a
-   la home), consistente con el `<link rel="canonical">` de esa misma ruta.
+1. Después del `SendEmailCommand` existente (mensaje al dueño del sitio), agregar un
+   segundo `SendEmailCommand` que envíe una confirmación breve al `email` del visitante
+   (ya validado por `EMAIL_RE`), `FromEmailAddress: CONTACT_FROM`
+   (`contacto@ocastelblanco.com`), agradeciendo el contacto y repitiendo su mensaje o
+   simplemente confirmando la recepción.
+2. El envío al dueño es el crítico — si la auto-respuesta al visitante falla, no debe
+   fallar la request completa (ya se le confirmó `200` al visitante en el flujo actual).
+   Usar `Promise.allSettled` o un `try/catch` separado, registrando el fallo
+   (`console.error`) sin bloquear la respuesta HTTP.
+3. Sanear el mismo `stripLineBreaks` ya usado para `name` si se reutiliza en el `Subject`
+   de la auto-respuesta (viaja como header de correo).
+4. No se necesitan cambios de IAM: la policy `SendContactEmail` ya usa
+   `Resource: arn:aws:ses:...:identity/ocastelblanco.com` sin restricción por destinatario
+   (SES en producción permite enviar a cualquier `To`, solo restringe el `From`).
 
 **Definition of done:**
-- [ ] Las 7 rutas prerenderizadas tienen `<meta property="og:url" content="https://ocastelblanco.com<ruta>">` correcto (igual a su `<link rel="canonical">`)
-- [ ] `npm run build` y `npm run lint` en verde
-- [ ] Documentado en `MEMORY.md` que el gap quedó cerrado
+- [ ] Envío de prueba real vía `preview-api.ocastelblanco.com/contact` con un email de
+      prueba verificable (ej. el del usuario) — confirmar en la bandeja de entrada real que
+      llega la auto-respuesta, no solo en CloudWatch
+- [ ] Un fallo simulado en el envío de auto-respuesta no rompe la respuesta `200` al
+      visitante ni el envío del mensaje principal al dueño
+- [ ] `npm run build`, `npm run build:preview` y `npm run lint` en verde
+- [ ] Documentado en `MEMORY.md` (ADR-014, revisión) que el gap quedó cerrado, incluyendo
+      la corrección de que SES ya tenía production access antes de empezar esta tarea
 
 ---
 
-## Tarea 2 — [FIX]: `/content/*` sin `404` limpio — `CustomErrorResponses` heredado devuelve `200` con HTML del sitio anterior
+## Tarea 2 — [DOCS]: Revisar en Search Console el efecto del 301 sobre el indexado
 
-**Origen:** gotcha detectado el 2026-08-04 durante la tarea de CloudFront `/content/*`
-(ver `MEMORY.md` ADR-012, entrada "Gotcha descubierto al verificar") y confirmado vigente
-el 2026-09-22: la distribución `E1MX0LNEKZOG8H` tiene `CustomErrorResponses` a **nivel de
-distribución completa** (403/404 → `/index.html`, `200`, heredado del sitio anterior como
-fallback de SPA) — confirmado con `cloudfront get-distribution-config` que sigue aplicando
-a los 7 behaviors, incluido `/content/*`. Un objeto faltante en `/content/*` (ej. un slug de
-Lab borrado, una petición mal formada) devuelve `200` con el `index.html` del **sitio
-anterior** (`ResponsePagePath: /index.html` no matchea `/content/*`, así que CloudFront lo
-resuelve con el behavior por defecto → bucket del sitio viejo) en vez de un `404` limpio —
-confuso para debugging y semánticamente incorrecto para un endpoint de datos JSON.
+**Origen:** pendiente desde ADR-012 (2026-08-04), reingresa al motor JIT el 2026-09-22 tras
+cerrarse el trabajo de SEO técnico (PRs #48, #51 — 301 de `www.ocastelblanco.com`, canonical
+y `og:url` dinámicos). Verificación natural de seguimiento: confirmar que Google Search
+Console refleja correctamente el dominio canónico `ocastelblanco.com` como el indexado, y
+que `www.ocastelblanco.com`/`olivercastelblanco.com` no compiten por el mismo contenido.
 
-**Archivos:** CloudFront Function o comportamiento de la distribución `E1MX0LNEKZOG8H`
-(fuera del repo, gestionado manualmente — ver ADR-012 Consecuencias). Investigar primero:
-`CustomErrorResponses` es a nivel de distribución en la API clásica de CloudFront (no por
-behavior) — evaluar si una CloudFront Function en `viewer-response` asociada solo al
-behavior `/content/*` puede normalizar la respuesta a un `404` real antes de que
-`CustomErrorResponses` la reescriba, o si se necesita otro mecanismo (ej. Lambda@Edge
-`origin-response`, o cambiar `ErrorCachingMinTTL`/alcance). Puede que la solución real sea
-distinta a lo que el gotcha original asumía — dedicar tiempo a confirmar el comportamiento
-exacto de CloudFront antes de implementar, con pruebas en `DEVELOPMENT`/`test-function`
-antes de publicar a `LIVE`, mismo protocolo que ADR-012 paso 5.
-
-**Qué hacer:**
-1. Confirmar en la práctica (no solo por docs) si una función en `viewer-response` puede
-   anular el `404`→`200` de `CustomErrorResponses` para el behavior `/content/*`
-   específicamente, sin afectar el resto del sitio (que sí necesita el fallback SPA).
-2. Implementar y probar con `aws cloudfront test-function` en `DEVELOPMENT` antes de
-   publicar a `LIVE`.
-3. Verificar en producción real: `curl -sI https://ocastelblanco.com/content/objeto-inexistente.json`
-   → `404` limpio; el resto del sitio (rutas SPA) sigue devolviendo `200` vía el fallback.
+**Qué hacer (tarea de revisión, no de código — sin PR):**
+1. Con `claude-in-chrome` (requiere que el usuario tenga sesión de Google abierta y
+   Search Console configurado para `ocastelblanco.com`), revisar: cobertura de índice
+   (páginas indexadas vs excluidas), si hay URLs de `www.ocastelblanco.com` o
+   `olivercastelblanco.com` indexadas por error, y el estado de "URL canónica declarada por
+   el usuario" para las 7 rutas.
+2. Si Search Console no está configurado para el dominio, documentarlo como tal (no es un
+   bloqueante para cerrar la tarea — se registra el hallazgo y se cierra).
+3. Cualquier acción correctiva identificada (ej. solicitar reindexado, enviar sitemap
+   actualizado) se registra como un nuevo item de backlog en `MEMORY.md`, no se ejecuta
+   dentro de esta misma tarea salvo que sea trivial (ej. reenviar `sitemap.xml`).
 
 **Definition of done:**
-- [ ] `curl -sI https://ocastelblanco.com/content/<objeto-inexistente>` → `404` (no `200` con HTML del sitio anterior)
-- [ ] El fallback SPA del resto del sitio (`/ruta-inexistente`) sigue devolviendo `200` con `index.html` del rediseño, sin regresión
-- [ ] Probado con `aws cloudfront test-function` (si aplica) antes de publicar a `LIVE`
-- [ ] Documentado en `MEMORY.md` (ADR-012, gotcha) que el gap quedó cerrado — o, si se
-      descubre que no es viable sin riesgo, documentar por qué se descarta y quitar del
-      backlog
+- [ ] Hallazgos de Search Console documentados en `MEMORY.md` (o documentado que no hay
+      acceso configurado)
+- [ ] Cualquier acción de seguimiento identificada queda registrada como backlog, no
+      implícita
 
 ---
 
 ## Historial de tareas completadas
+
+### 2026-09-22 — [DESCARTADA]: `/content/*` sin `404` limpio
+
+No implementada — evaluada y descartada con el usuario. Investigación con documentación
+oficial de AWS (`aws-mcp` `search_documentation`) reveló que el fix correcto requiere
+Lambda@Edge en `origin-response`, no una CloudFront Function liviana como se asumía en el
+gotcha original: CloudFront **no invoca triggers de `viewer-response`** (ni CF Functions ni
+Lambda@Edge) cuando el origen devuelve status ≥400 — que es exactamente el caso de un
+objeto faltante en `/content/*` (S3 responde `403`/`404`). Solo `origin-response` de
+Lambda@Edge se dispara siempre, incluso en errores — confirmado con el patrón
+oficialmente documentado por AWS para este caso exacto (blog de AWS, "Customize 403 error
+pages... with Lambda@Edge").
+
+**Hallazgo adicional que corrige la premisa original:** el gotcha decía que el objeto
+faltante devuelve el HTML del "sitio anterior" — eso era cierto **antes** de El Switch
+(2026-08-04), cuando el comportamiento por defecto de la distribución todavía apuntaba al
+bucket viejo. Verificado con `curl` real el 2026-09-22: hoy devuelve el HTML del **sitio
+actual** (rediseño 2026, `200`, vía el comportamiento por defecto que ahora apunta a la
+Lambda SSR de producción) — sigue siendo semánticamente incorrecto (un endpoint JSON
+devolviendo HTML con `200`), pero no es el riesgo de "servir contenido del sitio anterior"
+que describía el gotcha.
+
+**Decisión:** el usuario evaluó el costo (nueva infraestructura Lambda@Edge: función en
+`us-east-1`, replicación global, rol IAM dedicado, minutos de propagación, más difícil de
+revertir que una CloudFront Function) contra el impacto real (bajo — no expone datos
+sensibles, es un caso borde de objetos faltantes) y decidió **no implementarlo**. Se saca
+del backlog activo; si el impacto cambia (ej. se detecta que algo depende de un `404` real
+en `/content/*`), reevaluar con Lambda@Edge como la solución técnica correcta ya
+investigada.
+
+### 2026-09-22 — [FIX]: `og:url` estático — no se actualizaba por ruta
+
+PR #51 fusionado y verificado. `SeoService.updateCanonical()` renombrado a `updateUrls()`:
+además de `<link rel="canonical">`, ahora también actualiza `og:url` reusando el mismo
+`href` ya calculado (cambio delegado a un agente executor). Verificado con `grep` en las 7
+rutas prerenderizadas del build: `og:url` coincide exactamente con `canonical` en cada una.
+`npm run build` y `npm run lint` en verde.
 
 ### 2026-09-22 — [FIX]: Contenido duplicado — `www.ocastelblanco.com` sin 301 ni canonical
 
