@@ -48,7 +48,7 @@ El hilo común no es que "la IA escribió el código". Un **arquitecto de soluci
 | [**Ágora**](#ágora--taquilla-y-boletería) | Taquilla de teatro con boletas QR y pagos en línea | Angular 22 SSR · Lambda · DynamoDB · SES | Producción · desde ago. 2026 |
 | [**letiende.co**](#letiendeco--la-fachada) | Un solo dominio frente a todos los servicios de Le Tiende | Angular 22 SSR · proxy de rutas en CloudFront | Producción · desde sep. 2026 |
 | [**ocastelblanco.com**](#ocastelblancocom--este-repositorio) | Este sitio: portafolio + bitácora pública de cómo se construyó | Angular 22 zoneless SSR · Lambda · S3 · CloudFront | Producción · desde ago. 2026 |
-| [**IA Orchestration Skills**](#ia-orchestration-skills--el-método-empaquetado) | Agent Skills de código abierto que empaquetan este método para cualquier proyecto | Agent Skills · Node.js · Claude Code | Código abierto · MIT |
+| [**IA Orchestration Skills**](#ia-orchestration-skills--el-método-empaquetado) | Agent Skills de código abierto que empaquetan este método para cualquier proyecto | Agent Skills · Node.js · Claude Code | Código abierto · Apache 2.0 |
 
 ### ConectaTech — plataforma educativa B2B
 
@@ -115,7 +115,7 @@ Un rediseño 2026 hecho desde cero bajo el design system "Industrial Minimalism 
 ### IA Orchestration Skills — el método, empaquetado
 
 [![Repo](https://img.shields.io/badge/repo-ia--orchestration--skills-181717?style=flat-square&logo=github)](https://github.com/ocastelblanco/ia-orchestration-skills)
-[![Licencia: MIT](https://img.shields.io/badge/licencia-MIT-blue?style=flat-square)](https://github.com/ocastelblanco/ia-orchestration-skills/blob/main/LICENSE)
+[![Licencia: Apache 2.0](https://img.shields.io/badge/licencia-Apache%202.0-blue?style=flat-square)](https://github.com/ocastelblanco/ia-orchestration-skills/blob/main/LICENSE)
 
 Todo lo de [Cómo trabajo](#cómo-trabajo) está empaquetado como [Agent Skills](https://github.com/ocastelblanco/ia-orchestration-skills) de código abierto: flujos completos que un agente de código ejecuta igual, proyecto tras proyecto, en lugar de prompts sueltos. Por ahora son dos, y encajan entre sí.
 
