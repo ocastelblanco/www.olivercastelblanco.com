@@ -48,7 +48,7 @@ The common thread is not "AI wrote the code." A **solutions architect running ag
 | [**Ágora**](#ágora--box-office-ticketing) | Theater box office with QR tickets and online payments | Angular 22 SSR · Lambda · DynamoDB · SES | Production · since Aug 2026 |
 | [**letiende.co**](#letiendeco--the-facade) | One domain in front of every Le Tiende service | Angular 22 SSR · CloudFront route proxy | Production · since Sep 2026 |
 | [**ocastelblanco.com**](#ocastelblancocom--this-repository) | This site: portfolio + a public log of how it was built | Angular 22 zoneless SSR · Lambda · S3 · CloudFront | Production · since Aug 2026 |
-| [**IA Orchestration Skills**](#ia-orchestration-skills--the-method-packaged) | Open-source Agent Skills that package this method for any project | Agent Skills · Node.js · Claude Code | Open source · MIT |
+| [**IA Orchestration Skills**](#ia-orchestration-skills--the-method-packaged) | Open-source Agent Skills that package this method for any project | Agent Skills · Node.js · Claude Code | Open source · Apache 2.0 |
 
 ### ConectaTech — B2B education platform
 
@@ -115,7 +115,7 @@ A from-scratch 2026 redesign under an "Industrial Minimalism / Technical Dark Mo
 ### IA Orchestration Skills — the method, packaged
 
 [![Repo](https://img.shields.io/badge/repo-ia--orchestration--skills-181717?style=flat-square&logo=github)](https://github.com/ocastelblanco/ia-orchestration-skills)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/ocastelblanco/ia-orchestration-skills/blob/main/LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square)](https://github.com/ocastelblanco/ia-orchestration-skills/blob/main/LICENSE)
 
 Everything in [How I Work](#how-i-work) is packaged as open-source [Agent Skills](https://github.com/ocastelblanco/ia-orchestration-skills): complete workflows that a coding agent runs the same way, project after project, rather than loose prompts. There are two for now, and they interlock.
 
