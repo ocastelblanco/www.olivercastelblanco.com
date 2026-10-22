@@ -1,0 +1,30 @@
+# Actualizaciones automáticas de dependencias (CLAUDE.md §6, A08).
+# Agrupadas para no abrir un PR por paquete; cada PR sigue el flujo normal
+# (preview → revisión humana → merge).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      angular:
+        patterns:
+          - '@angular/*'
+      aws-sdk:
+        patterns:
+          - '@aws-sdk/*'
+      dev-tooling:
+        dependency-type: development
+        exclude-patterns:
+          - '@angular/*'
+    commit-message:
+      prefix: 'chore(deps)'
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: 'chore(ci)'
