@@ -41,6 +41,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Audit de dependencias
+        # Falla ante vulnerabilidades altas o críticas (CLAUDE.md §6, A08).
+        run: npm audit --audit-level=high
+
       - name: Lint
         run: npm run lint
 
