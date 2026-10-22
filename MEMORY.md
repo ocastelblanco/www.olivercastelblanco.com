@@ -16,7 +16,7 @@
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
 | Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
-| Última sesión | 2026-09-22 — PRs #48-#53 fusionados y desplegados. Auto-respuesta de contacto implementada y confirmada en bandeja real. Search Console revisado: sin acciones de código pendientes, solo una revalidación manual ya solicitada. PR #55 fusionado: README bilingüe (EN/ES) como portafolio + licencia Apache 2.0 (fuera del motor JIT, ver `TODO.md`). **Backlog técnico casi agotado** — solo quedan "CloudFront a IaC" (vago, no bloqueante) y "Cloudinary" (diferida, necesita decisión de producto) |
+| Última sesión | 2026-10-22 — PR #58 fusionado: las 45 alertas de Dependabot cerradas (Angular 22.2 + lockfile + 2 `overrides`), 0 abiertas confirmado por API. Antes, 2026-09-22 — PRs #48-#53 fusionados y desplegados. Auto-respuesta de contacto implementada y confirmada en bandeja real. Search Console revisado: sin acciones de código pendientes, solo una revalidación manual ya solicitada. PR #55 fusionado: README bilingüe (EN/ES) como portafolio + licencia Apache 2.0 (fuera del motor JIT, ver `TODO.md`). **Backlog técnico casi agotado** — solo quedan "CloudFront a IaC" (vago, no bloqueante) y "Cloudinary" (diferida, necesita decisión de producto) |
 | Analítica web | **Implementada y en producción** desde el 2026-09-21 (GA4, propiedad `G-Z9PLP5VH5C`). Ver ADR-015 |
 
 ## 2. Funcionalidades
@@ -963,6 +963,7 @@ Lambda) viven ahora en el job `test` de `deploy.yml`, en Node 24, y gatean los d
 
 | Situación | Solución |
 |---|---|
+| Alertas de Dependabot en transitivas que el dependiente fija con versión exacta (ej. `@angular/build` → `vite`) o con un rango que no alcanza el parche (`serverless-domain-manager` → `basic-ftp`) | `npm update` no las resuelve. Usar `overrides` en `package.json` con rango (`"vite": "^8.3.5"`), verificar con `npm ls <paquete>` y `npm audit`. Revisar los overrides cuando el dependiente publique una versión que ya incluya el parche. `npm audit fix --force` propone *downgrades* (ej. `@angular/build@22.1.9`) — no usarlo. |
 | `git rm -rf .` en una rama huérfana no borra archivos que estaban en `.gitignore` (ya removido) | Limpiar manualmente `node_modules`, `dist`, `.angular`, `.DS_Store`, `src/secrets/*` después del `git rm` |
 | **CORS por stage** — `contact-handler.mjs` y `lab-handler.mjs` permiten `*.lambda-url.us-east-1.on.aws` con una constante hardcodeada | ⚠️ **Corrige la instrucción anterior**, que mandaba eliminar `LAMBDA_URL_RE` al entrar a producción. Con ADR-013 `preview` es un ambiente permanente y necesita ese origen. La allowlist debe inyectarse por stage como variable de entorno: solo `https://ocastelblanco.com` en `production`, la Function URL en `preview`. |
 | Un alias (CNAME) de CloudFront solo puede existir en **una** distribución, globalmente | Imposible pre-construir una distribución nueva con los alias del sitio en vivo para probarla antes del corte. Por eso el switch reusa la distribución existente cambiándole el origen (ADR-012). |
