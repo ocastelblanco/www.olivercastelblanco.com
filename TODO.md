@@ -43,6 +43,21 @@ prioridad que no esté en este documento.
 
 ## Historial de tareas completadas
 
+### 2026-10-22 — [SEGURIDAD]: Cerrar las 45 alertas de Dependabot
+
+Fuera del motor JIT — pedido directo del usuario tras ver las alertas en GitHub. PR #58
+fusionado. Prioridad 1 (OWASP A08, dependencias vulnerables) en la práctica.
+
+45 alertas abiertas (2 críticas, 16 altas, 24 medias, 3 bajas), todas en `package-lock.json`.
+Las de runtime eran `@angular/router`, `platform-server`, `common`, `ssr` (directas) y
+`proxy-addr`/`qs` (transitivas de `express`). Se subieron los `@angular/*` a `^22.2.1`,
+se renovó el lockfile con `npm update` y se agregaron dos `overrides`: `vite` (`^8.3.5`,
+porque `@angular/build` lo fija exacto en una versión con alertas nuevas) y `basic-ftp`
+(`^6.2.3`, vía `serverless-domain-manager`, solo dev). `npm audit`: 30 → 0.
+
+Verificado con build, lint, `npm test` y `npm run test:lambda` en verde antes y después.
+Tras el merge, la API de GitHub devolvió 0 alertas abiertas.
+
 ### 2026-09-22 — [DOCS]: README bilingüe (EN/ES) como portafolio + licencia Apache 2.0
 
 Fuera del motor JIT — pedido directo del usuario, sin relación con gaps OWASP ni con el
