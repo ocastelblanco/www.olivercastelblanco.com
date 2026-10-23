@@ -244,8 +244,9 @@ hacer commits directos a ella.**
 > (ADR-013) — `rediseno-2026` queda archivada, ya no es la rama base de PRs. La rama
 > `master` (sitio anterior) se borró el mismo día, a pedido del usuario, tras confirmar
 > que ningún workflow ni infraestructura la referenciaba y crear el tag
-> `archive/sitio-anterior` apuntando a su último commit — el código sigue accesible ahí
-> permanentemente. El rollback real del sitio en vivo no depende de esta rama: depende
+> `archive/sitio-anterior` apuntando a su último commit. Ese tag se borró el 2026-10-23
+> (a pedido del usuario; era el origen de 8 alertas de secret scanning) y el código quedó
+> solo en un respaldo en frío fuera del repo. El rollback real del sitio en vivo no depende de esta rama: depende
 > del bucket S3 `ocastelblanco.com` y de poder revertir el origen de CloudFront
 > (ADR-012), ninguno de los dos afectados por este borrado.
 
