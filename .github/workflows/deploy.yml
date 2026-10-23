@@ -64,7 +64,10 @@ jobs:
   deploy-preview:
     name: Build & Deploy (preview)
     needs: test
-    if: github.event_name == 'pull_request'
+    # Los workflows lanzados por Dependabot no reciben los secretos del repo
+    # (AWS, Serverless, LAB_PUBLISH_TOKEN), así que el deploy siempre fallaría.
+    # Sus PRs igual pasan por `test`; el preview se despliega al fusionar.
+    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
 
     steps:

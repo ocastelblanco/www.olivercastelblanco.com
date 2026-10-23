@@ -43,6 +43,19 @@ prioridad que no esté en este documento.
 
 ## Historial de tareas completadas
 
+### 2026-10-23 — [SEGURIDAD]: Secret scanning, CI de seguridad y borrado del tag del sitio anterior
+
+Fuera del motor JIT — continuación del cierre de alertas. PRs #59 y #60 fusionados.
+
+Se agregaron `dependabot.yml`, CodeQL y `npm audit --audit-level=high` en CI, y se activó
+secret scanning con push protection. Las 8 alertas de secret scanning apuntaban solo al
+tag `archive/sitio-anterior` (nada en `main`): #5-#8 (Flickr, fixtures de `node_modules` y
+librería minificada) resueltas como falsos positivos; #1-#4 (Google API Key, 2024) como
+"usadas en pruebas". Se borró el tag (local y remoto) tras generar un respaldo en frío
+verificado (ZIP con árbol + `git bundle`, SHA-256 aparte). Se ajustó Dependabot para ignorar
+saltos mayores de `typescript`/`vitest` (`@angular/build` exige TS `>=6.0 <6.1`) y se excluyó
+a `dependabot[bot]` del deploy `preview`, que falla sin acceso a los secretos del repo.
+
 ### 2026-10-22 — [SEGURIDAD]: Cerrar las 45 alertas de Dependabot
 
 Fuera del motor JIT — pedido directo del usuario tras ver las alertas en GitHub. PR #58

@@ -15,7 +15,7 @@
 | URL API `preview` | `https://preview-api.ocastelblanco.com` — activo desde el 2026-08-04 |
 | Rama de producción (protegida) | `main` — creada el 2026-08-04 a partir de `rediseno-2026` (ADR-013). Default branch del repositorio |
 | Rama anterior (histórica, sin protección) | `rediseno-2026` — archivada, ya no es base de PRs |
-| Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. Código preservado en el tag `archive/sitio-anterior` |
+| Rama del sitio anterior | `master` — **borrada** el 2026-08-04 a pedido del usuario. El tag `archive/sitio-anterior` que lo preservaba también se **borró** el 2026-10-23 (origen de 8 alertas de secret scanning); respaldo en frío fuera del repo (ZIP con árbol + `git bundle` de la historia, commit `f1f43eb2`) |
 | Última sesión | 2026-10-22 — PR #58 fusionado: las 45 alertas de Dependabot cerradas (Angular 22.2 + lockfile + 2 `overrides`), 0 abiertas confirmado por API. Antes, 2026-09-22 — PRs #48-#53 fusionados y desplegados. Auto-respuesta de contacto implementada y confirmada en bandeja real. Search Console revisado: sin acciones de código pendientes, solo una revalidación manual ya solicitada. PR #55 fusionado: README bilingüe (EN/ES) como portafolio + licencia Apache 2.0 (fuera del motor JIT, ver `TODO.md`). **Backlog técnico casi agotado** — solo quedan "CloudFront a IaC" (vago, no bloqueante) y "Cloudinary" (diferida, necesita decisión de producto) |
 | Analítica web | **Implementada y en producción** desde el 2026-09-21 (GA4, propiedad `G-Z9PLP5VH5C`). Ver ADR-015 |
 
