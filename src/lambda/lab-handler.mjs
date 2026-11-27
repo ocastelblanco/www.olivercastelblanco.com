@@ -23,6 +23,8 @@ const CLOUDFRONT_DISTRIBUTION_ID = process.env.CLOUDFRONT_DISTRIBUTION_ID || '';
 const s3 = new S3Client({});
 const cloudfront = new CloudFrontClient({});
 
+const FECHA_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 function isAllowedOrigin(origin) {
   return ALLOWED_ORIGINS.includes(origin) || (ALLOWED_ORIGIN_REGEX?.test(origin) ?? false);
 }
@@ -54,7 +56,10 @@ function validateEntry(entry, index) {
   const prefix = `entries[${index}]`;
   if (typeof entry !== 'object' || entry === null) return `${prefix}: no es un objeto`;
   if (typeof entry.id !== 'string' || entry.id.length === 0) return `${prefix}.id`;
-  if (typeof entry.fecha !== 'string' || entry.fecha.length === 0) return `${prefix}.fecha`;
+  // AAAA-MM-DD estricto: una celda con formato fecha en Sheets llega como `Date`
+  // y `String(Date)` produce "Fri Nov 27 2026 00:00:00 GMT-0500 (...)", que
+  // terminaba publicado tal cual en /lab.
+  if (typeof entry.fecha !== 'string' || !FECHA_RE.test(entry.fecha)) return `${prefix}.fecha`;
   if (!Array.isArray(entry.tags) || !entry.tags.every((tag) => typeof tag === 'string')) {
     return `${prefix}.tags`;
   }

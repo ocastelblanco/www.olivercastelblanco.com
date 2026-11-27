@@ -13,8 +13,9 @@ Una sola hoja llamada `Lab`, con encabezados en la primera fila:
 |---|---|---|---|
 | 2026-06-15 | Angular, Prompt Engineering | Angular 22: la herramienta secreta del **Industrial Design**... | Angular 22: the secret weapon for **Industrial Design**... |
 
-- `fecha`: formato `AAAA-MM-DD` (texto, no fecha de Sheets, para evitar conversión automática
-  de zona horaria).
+- `fecha`: formato `AAAA-MM-DD`. El script acepta tanto texto como celdas con formato
+  fecha de Sheets (las normaliza con `formatearFecha`), y el endpoint rechaza con `400`
+  (`entries[N].fecha`) cualquier valor que no cumpla `AAAA-MM-DD`.
 - `tags`: lista separada por comas (ej. `Angular, Prompt Engineering`).
 - `texto_es` / `texto_en`: texto plano usando el subset de Markdown soportado por
   `renderMarkdownLite` (`src/app/core/content/markdown-lite.ts`): `**negrita**`,
@@ -43,6 +44,18 @@ function onOpen() {
     .createMenu('Publicar The Lab')
     .addItem('Publicar ahora', 'publicarLab')
     .addToUi();
+}
+
+/**
+ * Si la celda tiene formato fecha, `getValues()` devuelve un objeto `Date` y
+ * `String(Date)` produce "Fri Nov 27 2026 00:00:00 GMT-0500 (...)". Se
+ * normaliza siempre a AAAA-MM-DD, que es lo único que acepta el endpoint.
+ */
+function formatearFecha(valor) {
+  if (valor instanceof Date) {
+    return Utilities.formatDate(valor, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  }
+  return String(valor).trim();
 }
 
 function publicarLab() {
@@ -76,7 +89,7 @@ function publicarLab() {
     .filter((row) => row[idxFecha]) // ignora filas vacías
     .map((row, i) => ({
       id: String(i + 1),
-      fecha: String(row[idxFecha]),
+      fecha: formatearFecha(row[idxFecha]),
       tags: String(row[idxTags] || '')
         .split(',')
         .map((tag) => tag.trim())
@@ -143,9 +156,8 @@ proyecto de Apps Script:
 
 - El endpoint valida el token con comparación exacta (sin regex) — un token incorrecto o
   ausente responde `401 Unauthorized` (ver `src/lambda/lab-handler.mjs`).
-- El endpoint valida la forma de cada entrada (`id`, `fecha`, `tags`, `texto.es`,
-  `texto.en`) antes de aceptar el payload — cualquier campo inválido responde `400` con el
-  detalle del campo que falló.
-- Mientras el bucket S3 de contenido no exista (Tarea 2 de `TODO.md`), el endpoint solo
-  valida y responde un stub `200 { ok: true, received: N }` — no persiste el contenido
-  todavía.
+- El endpoint valida la forma de cada entrada (`id`, `fecha` con formato `AAAA-MM-DD`,
+  `tags`, `texto.es`, `texto.en`) antes de aceptar el payload — cualquier campo inválido
+  responde `400` con el detalle del campo que falló.
+- Tras validar, el endpoint escribe `content/lab.json` en el bucket de contenido y
+  responde `200 { ok: true, received: N, sanitized: M }`.
